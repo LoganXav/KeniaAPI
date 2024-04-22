@@ -38,8 +38,7 @@ export default class Express {
     this.loadErrorHandler()
   }
 
-  // TODO -- connect db
-
+  // TODO -- Connect db
   private loadMiddlewares(): void {
     this.app
       .use(helmet())
@@ -75,7 +74,7 @@ export default class Express {
         `Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()} ServiceContext`
       )
 
-      // TODO -- Refactor Base controller (1. Remove result methods fro base controller 2. Let each controller handle their return logic)
+      // TODO -- Refactor Base Controller (1. Complete result methods in Base Controller 2. Let each Service pass their return state to the Base Controller)
       controller.initializeRoutes(TypeParser.cast<IRouter>(Router))
       this.app.use(
         AppSettings.ServerRoot,
