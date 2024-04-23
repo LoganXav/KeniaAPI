@@ -3,7 +3,7 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum"
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum"
 import { LocaleTypeEnum } from "~/api/shared/helpers/enums/LocalType.enum"
-import { UseCaseTrace } from "~/api/shared/helpers/logs/UseCaseTrace"
+import { UseCaseTrace } from "~/api/shared/helpers/logs/Service"
 
 export type HeaderType = {
   [key in HttpHeaderEnum]?: HttpContentTypeEnum | string

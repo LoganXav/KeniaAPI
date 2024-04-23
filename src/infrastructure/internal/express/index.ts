@@ -23,6 +23,8 @@ import ServerConfig from "~/config/ServerConfig"
 import { TypeParser } from "~/utils/TypeParser"
 import { IRouter } from "../types"
 import AppSettings from "~/api/shared/setttings/AppSettings"
+import { container } from "tsyringe"
+import BaseController from "~/api/modules/base/contollers/Base.controller"
 
 export default class Express {
   app: Server
@@ -69,16 +71,17 @@ export default class Express {
       const controllerPath = resolve(filePath)
 
       const { default: controller } = await import(controllerPath)
+      const resolvedController: BaseController = container.resolve(controller)
       // TODO -- Set Api Doc Generator to controllers
       this.loggingProvider.info(
         `Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()} ServiceContext`
       )
 
       // TODO -- Refactor Base Controller (1. Complete result methods in Base Controller 2. Let each Service pass their return state to the Base Controller)
-      controller.initializeRoutes(TypeParser.cast<IRouter>(Router))
+      resolvedController.initializeRoutes(TypeParser.cast<IRouter>(Router))
       this.app.use(
         AppSettings.ServerRoot,
-        TypeParser.cast<Application>(controller.router)
+        TypeParser.cast<Application>(resolvedController.router)
       )
       this.loggingProvider.info(
         `${controller?.constructor?.name} was initialized`

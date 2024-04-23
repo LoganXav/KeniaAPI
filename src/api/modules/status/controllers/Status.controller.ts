@@ -1,3 +1,4 @@
+import { autoInjectable } from "tsyringe"
 import {
   EntryPointHandler,
   INextFunction,
@@ -9,13 +10,16 @@ import BaseController from "../../base/contollers/Base.controller"
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum"
-import PingService from "../services/PingService"
+import PingService from "../services/Ping.service"
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum"
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum"
 
-class StatusController extends BaseController {
-  constructor() {
+@autoInjectable()
+export default class StatusController extends BaseController {
+  pingService: PingService
+  constructor(pingService: PingService) {
     super()
+    this.pingService = pingService
   }
 
   ping: EntryPointHandler = async (
@@ -23,7 +27,7 @@ class StatusController extends BaseController {
     res: IResponse,
     next: INextFunction
   ): Promise<void> => {
-    return this.handleResultData(res, next, PingService.execute(), {
+    return this.handleResultData(res, next, this.pingService.execute(), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.TEXT_PLAIN,
     })
   }
@@ -42,7 +46,18 @@ class StatusController extends BaseController {
       ],
       description: "API status endpoint",
     })
+    // NOTE -- This is how you add more routes
+    this.addRoute({
+      method: HttpMethodEnum.GET,
+      path: "/pong",
+      handlers: [this.ping],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.SUCCESS,
+          httpStatus: HttpStatusCodeEnum.SUCCESS,
+        },
+      ],
+      description: "API status endpoint",
+    })
   }
 }
-
-export default new StatusController()

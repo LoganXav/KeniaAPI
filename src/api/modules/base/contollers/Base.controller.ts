@@ -1,7 +1,7 @@
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum"
+// import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
 import { ServiceContext } from "~/api/shared/helpers/enums/ServiceContext.enum"
-import { UseCaseTrace } from "~/api/shared/helpers/logs/UseCaseTrace"
+// import { ServiceTrace } from "~/api/shared/helpers/logs/Service"
 import {
   HeaderType,
   INextFunction,
@@ -11,8 +11,10 @@ import {
 import { HttpStatusResolver } from "../helpers/HttpStatusResolver"
 import statusMapping from "../helpers/StatusMapping"
 import { RouteType } from "../types"
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages"
+// import { ERROR } from "~/api/shared/helpers/messages/SystemMessages"
 import { IResult } from "~/api/shared/helpers/results/IResult"
+
+// TODO - Fix the trace for error monitoring
 
 export default abstract class BaseController {
   router?: IRouter
@@ -21,14 +23,14 @@ export default abstract class BaseController {
     this.serviceContext = serviceContext
   }
 
-  abstract initializeRoutes(router: IRouter): void
+  public abstract initializeRoutes(router: IRouter): void
 
-  setRouter(router: IRouter): void {
+  public setRouter(router: IRouter): void {
     this.router = router
   }
 
-  addRoute(route: RouteType): void {
-    const { produces, method, handlers, path } = route
+  public addRoute(route: RouteType): void {
+    const { produces, method, handlers, path, description } = route
     produces.forEach(({ applicationStatus, httpStatus }) =>
       this.setProducesCode(applicationStatus, httpStatus)
     )
@@ -38,21 +40,17 @@ export default abstract class BaseController {
         "Router not initialized, you should call setRouter before addRoute."
       )
     }
+    // Calls the routes with the path and handlers i.e controllers
     this.router[method](path, ...handlers)
 
     // TODO -- Create Api Generator Route Doc
+    // method,
+    // path,
+    // produces,
+    // description,
   }
 
-  setProducesCode(
-    applicationStatus: string,
-    httpStatus: HttpStatusCodeEnum
-  ): void {
-    if (!statusMapping[applicationStatus]) {
-      statusMapping[applicationStatus] = httpStatus
-    }
-  }
-
-  async handleResultData(
+  public async handleResultData(
     res: IResponse,
     next: INextFunction,
     servicePromise: Promise<IResult>,
@@ -63,7 +61,22 @@ export default abstract class BaseController {
     } catch (error) {
       return next(error)
     } finally {
-      // this.manageUseCaseTrace(res.trace);
+      // this.serviceTrace(res.trace);
+    }
+  }
+
+  public async handleResult(
+    res: IResponse,
+    next: INextFunction,
+    servicePromise: Promise<IResult>,
+    headersToSet?: HeaderType
+  ): Promise<void> {
+    try {
+      return await this.getResult(res, await servicePromise, headersToSet)
+    } catch (error) {
+      return next(error)
+    } finally {
+      // this.serviceTrace(res.trace);
     }
   }
 
@@ -89,38 +102,32 @@ export default abstract class BaseController {
     }
   }
 
+  private async getResult(
+    res: IResponse,
+    result: IResult,
+    headersToSet?: HeaderType
+  ): Promise<void> {
+    // this.setTransactionId(res);
+    this.setHeaders(res, headersToSet)
+    res
+      .status(HttpStatusResolver.getCode(result.statusCode.toString()))
+      .json(result)
+  }
+
+  private setProducesCode(
+    applicationStatus: string,
+    httpStatus: HttpStatusCodeEnum
+  ): void {
+    if (!statusMapping[applicationStatus]) {
+      statusMapping[applicationStatus] = httpStatus
+    }
+  }
+
   // private setTransactionId(res: IResponse): void {
   //   res.setHeader(HttpHeaderEnum.TRANSACTION_ID, res.trace.transactionId)
   // }
 
-  // async handleResult(
-  //   res: IResponse,
-  //   next: INextFunction,
-  //   useCasePromise: Promise<any>,
-  //   headersToSet?: HeaderType
-  // ): Promise<void> {
-  //   try {
-  //     return await this.getResult(res, await useCasePromise, headersToSet)
-  //   } catch (error) {
-  //     return next(error)
-  //   } finally {
-  //     this.manageUseCaseTrace(res.trace)
-  //   }
-  // }
-
-  // private async getResult(
-  //   res: IResponse,
-  //   result: any,
-  //   headersToSet?: HeaderType
-  // ): Promise<void> {
-  //   this.setTransactionId(res)
-  //   this.setHeaders(res, headersToSet)
-  //   res
-  //     .status(HttpStatusResolver.getCode(result.statusCode.toString()))
-  //     .json(result)
-  // }
-
-  // private async manageUseCaseTrace(trace: UseCaseTrace): Promise<void> {
+  // private async serviceTrace(trace: UseCaseTrace): Promise<void> {
   //   if (trace?.context) {
   //     trace.finish(new Date())
   //     return Promise.resolve(
@@ -129,7 +136,7 @@ export default abstract class BaseController {
   //       this.#logProvider.logError(
   //         new ErrorLog({
   //           context: this.CONTEXT,
-  //           name: "ManageUseCaseTraceError",
+  //           name: "serviceTraceError",
   //           message: error.message,
   //           stack: error.stack,
   //         })

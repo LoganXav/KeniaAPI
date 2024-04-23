@@ -7,6 +7,7 @@ export class Result implements IResult {
   public error: string
   public data: string
   private metadata: Metadata = {}
+  
   setStatusCode(statusCode: number | string, success: boolean): void {
     this.statusCode = statusCode
     this.success = success

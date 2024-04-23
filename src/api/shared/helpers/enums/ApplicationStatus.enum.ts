@@ -1,5 +1,5 @@
 export default {
-  INTERNAL_SERVER_ERROR: "FF",
+  INTERNAL_ERROR: "FF",
   SUCCESS: "00",
   CREATED: "21",
   NOT_CONTENT: "24",

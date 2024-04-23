@@ -75,3 +75,10 @@
 [ERROR] 2024-04-21 19:41:50 Starting server error: ReferenceError: container is not defined
 [ERROR] 2024-04-21 20:16:46 Starting server error: ReferenceError: Must call super constructor in derived class before accessing 'this' or returning from derived constructor
 [ERROR] 2024-04-21 20:19:36 Starting server error: TypeError: controller.initializeRoutes is not a function
+[ERROR] 2024-04-23 11:34:14 Starting server error: ReferenceError: Must call super constructor in derived class before accessing 'this' or returning from derived constructor
+[ERROR] 2024-04-23 11:35:49 Starting server error: TypeError: Cannot read properties of undefined (reading 'initializeRoutes')
+[ERROR] 2024-04-23 11:36:45 Starting server error: TypeError: Cannot read properties of undefined (reading 'initializeRoutes')
+[ERROR] 2024-04-23 11:37:31 Starting server error: TypeError: Cannot read properties of undefined (reading 'initializeRoutes')
+[ERROR] 2024-04-23 11:38:09 Starting server error: TypeError: controller.initializeRoutes is not a function
+[ERROR] 2024-04-23 11:41:46 Starting server error: TypeError: Router.use() requires a middleware function but got a undefined
+[ERROR] 2024-04-23 11:42:08 Starting server error: TypeError: Router.use() requires a middleware function but got a undefined

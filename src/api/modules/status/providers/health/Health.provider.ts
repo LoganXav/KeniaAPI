@@ -1,7 +1,6 @@
-import { autoInjectable } from "tsyringe"
 import { IStatusProvider } from "../contracts/IStatus.provider"
 
-class HealthProvider implements IStatusProvider {
+export default class HealthProvider implements IStatusProvider {
   public async get(context: string, date: string): Promise<string> {
     // TODO -- Refactor to use express status monitor
 
@@ -10,5 +9,3 @@ class HealthProvider implements IStatusProvider {
     )
   }
 }
-
-export default new HealthProvider()
