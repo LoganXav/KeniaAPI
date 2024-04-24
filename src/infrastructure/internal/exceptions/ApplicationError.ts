@@ -9,7 +9,7 @@ interface ApplicationErrorArgs {
 export default class ApplicationError extends Error {
   public readonly description: string
   public readonly httpCode: HttpStatusCodeEnum
-  public readonly isOperational: boolean = true
+  public readonly isOperational: boolean
 
   constructor(applicationErrorArgs: ApplicationErrorArgs) {
     super(applicationErrorArgs.description)

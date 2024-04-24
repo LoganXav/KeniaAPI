@@ -7,7 +7,6 @@ import express, {
   Response,
   NextFunction,
 } from "express"
-import bodyParser from "body-parser"
 import helmet from "helmet"
 import cors from "cors"
 import { sync } from "fast-glob"
@@ -35,16 +34,14 @@ export default class Express {
     this.app = express()
     this.dbContext = dbContext
     this.loggingProvider = LoggingProviderFactory.build()
-    this.app.set("trust proxy", true)
     this.loadMiddlewares()
     this.loadErrorHandler()
   }
 
-  // TODO -- Connect db
   private loadMiddlewares(): void {
     this.app
       .use(helmet())
-      .use(bodyParser.urlencoded({ extended: true }))
+      .use(express.urlencoded())
       .use(express.json())
       .use(cors())
       .use(clientInfoMiddleware.handle)

@@ -19,11 +19,10 @@ class ErrorHandler {
     }
   }
 
-  private isTrustedError(error: Error): boolean {
+  private isTrustedError(error: Error) {
     if (error instanceof ApplicationError) {
-      return error.isOperational
+      return !!error.isOperational
     }
-    return false
   }
 
   private handleTrustedError(
@@ -47,7 +46,6 @@ class ErrorHandler {
         message: error.message,
       })
     }
-
     console.log(error)
     console.log(CRITICAL_ERROR_EXITING)
     process.exit(1)
