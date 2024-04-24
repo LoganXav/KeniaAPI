@@ -5,7 +5,7 @@ import { DefaultValue } from "~/utils/DefaultValue"
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum"
 
 class ClientInfoMiddleware {
-  handle: Middleware = (
+  public handle: Middleware = (
     req: Request,
     _res: Response,
     next: NextFunction

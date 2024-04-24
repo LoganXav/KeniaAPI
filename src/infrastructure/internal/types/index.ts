@@ -25,6 +25,7 @@ export interface IResponse {
 
 export interface IRequest {
   isWhiteList: boolean
+  isProtected: boolean
   session: ISession
   body: any
   params: Record<string, string>
