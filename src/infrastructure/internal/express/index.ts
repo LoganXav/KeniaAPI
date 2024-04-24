@@ -14,6 +14,7 @@ import { resolve } from "path"
 import clientInfoMiddleware from "../middleware/clientInfo"
 import routeWhiteListMiddleware from "../middleware/authorization/whiteList"
 import authorizationMiddleware from "../middleware/authorization/jwt"
+import serviceTraceMiddleware from "../middleware/trace"
 import { DbContext } from "~/infrastructure/internal/database"
 import { LoggingProviderFactory } from "../logger/LoggingProviderFactory"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
@@ -49,7 +50,7 @@ export default class Express {
       .use(clientInfoMiddleware.handle)
       .use(routeWhiteListMiddleware.handle)
       .use(authorizationMiddleware.handle)
-    // TODO -- add more middlewares
+      .use(serviceTraceMiddleware.handle)
 
     this.loggingProvider.info(MIDDLEWARES_ATTACHED)
   }

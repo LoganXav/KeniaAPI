@@ -46,6 +46,7 @@ class AuthorizationMiddleware {
     return next()
   }
 
+  // REFACTOR -- Create different exception types.
   private getUnauthorized(message: string): ApplicationError {
     return new ApplicationError({
       httpStatusCode: HttpStatusCodeEnum.UNAUTHORIZED,

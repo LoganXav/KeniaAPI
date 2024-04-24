@@ -17,6 +17,7 @@ export default {
   Environment: DefaultValue.evaluateAndGet(process.env.NODE_ENV, DEV),
   Controllers: {
     ContextPaths: [
+      // If you have business logic in multiple contexts -- similar to microservices
       Normalize.pathFromOS(
         Normalize.absolutePath(
           __dirname,
