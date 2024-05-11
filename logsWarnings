@@ -1,0 +1,15 @@
+[ERROR] 2024-04-24 14:36:12 Unauthorized: You are not authorized to access this resource.
+[ERROR] 2024-04-24 14:36:32 Unauthorized: You are not authorized to access this resource.
+[ERROR] 2024-04-24 14:36:51 Unauthorized: You are not authorized to access this resource.
+[ERROR] 2024-04-24 14:38:52 Unauthorized: You are not authorized to access this resource.
+[ERROR] 2024-04-24 15:34:18 Missing Token: Access token is missing.
+[ERROR] 2024-04-24 15:54:05 Missing Token: Access token is missing.
+[ERROR] 2024-04-24 15:55:46 Missing Token: Access token is missing.
+[ERROR] 2024-04-24 15:56:36 Missing Token: Access token is missing.
+[ERROR] 2024-04-24 16:07:56 Missing Token: Access token is missing.
+[ERROR] 2024-04-24 16:31:12 Starting server error: ReferenceError: Cannot access 'controllerPaths' before initialization
+[ERROR] 2024-04-24 16:59:39 Starting server error: SyntaxError: Unexpected token '.'
+[ERROR] 2024-04-24 17:01:52 Starting server error: SyntaxError: Unexpected token '.'
+[ERROR] 2024-04-24 17:11:16 Starting server error: SyntaxError: Unexpected token '.'
+[ERROR] 2024-04-24 17:18:00 Starting server error: SyntaxError: Unexpected token '.'
+[ERROR] 2024-04-27 22:20:20 Starting server error: Error: Attempted to construct an undefined constructor. Could mean a circular dependency problem. Try using `delay` function.
