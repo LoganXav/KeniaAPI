@@ -193,3 +193,17 @@ The table `public.User` does not exist in the current database.
     Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
         Cannot inject the dependency "prisma" at position #0 of "AuthProvider" constructor. Reason:
             TypeInfo not known for "r"
+[ERROR] 2024-05-22 21:00:56 Expected double-quoted property name in JSON at position 94
+[ERROR] 2024-05-22 21:13:29 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/modules/base/contollers/Base.controller.ts(98,27): error TS1005: ',' expected.
+
+[ERROR] 2024-05-22 21:33:16 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/modules/base/helpers/StatusMapping.ts(6,16): error TS1005: ',' expected.
+src/api/modules/base/helpers/StatusMapping.ts(7,14): error TS1005: ',' expected.
+
+[ERROR] 2024-05-22 21:48:53 Starting server error: Error: Cannot find module '../services/AuthSignUp.service'
+Require stack:
+- C:\Users\Olusegun Sogbesan\Documents\Logan\Web Development\Personal Workspace\kenia-monolithic-template-expressjs\backend\src\api\modules\auth\controllers\Auth.controller.ts
+- C:\Users\Olusegun Sogbesan\Documents\Logan\Web Development\Personal Workspace\kenia-monolithic-template-expressjs\backend\src\infrastructure\internal\express\index.ts
+- C:\Users\Olusegun Sogbesan\Documents\Logan\Web Development\Personal Workspace\kenia-monolithic-template-expressjs\backend\src\infrastructure\internal\application\index.ts
+- C:\Users\Olusegun Sogbesan\Documents\Logan\Web Development\Personal Workspace\kenia-monolithic-template-expressjs\backend\src\index.ts

@@ -1,5 +1,7 @@
-import { CreateUserDTO, User } from "../../types/userDTO"
+import { RegisterPrincipalUserAccountDTO, User } from "../../types/authDTO"
 
 export interface IAuthProvider {
-  createUser(args: CreateUserDTO): Promise<User>
+  registerPrincipalUserAccount(
+    args: RegisterPrincipalUserAccountDTO
+  ): Promise<User>
 }

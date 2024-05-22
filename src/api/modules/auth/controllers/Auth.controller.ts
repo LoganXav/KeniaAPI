@@ -12,28 +12,26 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum"
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum"
 import { autoInjectable } from "tsyringe"
-import AuthService from "../services/Auth.service"
+import { userRegistrationSchema } from "../validators/userRegistrationSchema"
+import { validateData } from "~/api/shared/helpers/middleware/validateData"
+import AuthSignUpService from "../services/AuthSignUp.service"
 
 @autoInjectable()
 export default class AuthController extends BaseController {
-  authService: AuthService
-  constructor(authService: AuthService) {
+  authSignUpService: AuthSignUpService
+  constructor(authSignUpService: AuthSignUpService) {
     super()
-    this.authService = authService
+    this.authSignUpService = authSignUpService
   }
-  createUser: EntryPointHandler = async (
+  register: EntryPointHandler = async (
     req: IRequest,
     res: IResponse,
     next: INextFunction
   ): Promise<void> => {
-    //   TODO - Validate First
-    const name = req.body?.name as string
-    const email = req.body?.email as string
-
     return this.handleResultData(
       res,
       next,
-      this.authService.execute({ name, email }),
+      this.authSignUpService.execute(req.body),
       {
         [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
       }
@@ -41,18 +39,17 @@ export default class AuthController extends BaseController {
   }
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router())
-
     this.addRoute({
-      method: HttpMethodEnum.GET,
-      path: "/user/create",
-      handlers: [this.createUser],
+      method: HttpMethodEnum.POST,
+      path: "/auth/signup",
+      handlers: [validateData(userRegistrationSchema), this.register],
       produces: [
         {
-          applicationStatus: ApplicationStatusEnum.SUCCESS,
-          httpStatus: HttpStatusCodeEnum.SUCCESS
+          applicationStatus: ApplicationStatusEnum.CREATED,
+          httpStatus: HttpStatusCodeEnum.CREATED
         }
       ],
-      description: "API status endpoint"
+      description: "Register a new user"
     })
   }
 }

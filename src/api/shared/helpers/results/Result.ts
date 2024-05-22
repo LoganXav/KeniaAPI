@@ -4,6 +4,7 @@ export class Result implements IResult {
   public statusCode: number | string
   public success: boolean
   public message: string
+  public status: string
   public error: string
   public data: unknown
   private metadata: Metadata = {}
@@ -12,10 +13,16 @@ export class Result implements IResult {
     this.statusCode = statusCode
     this.success = success
   }
-  setData(data: unknown, message: string, statusCode: number | string): void {
-    this.data = data
-    this.message = message
+  setData(
+    status: string,
+    statusCode: number | string,
+    message: string,
+    data: unknown
+  ): void {
+    this.status = status
     this.statusCode = statusCode
+    this.message = message
+    this.data = data
   }
   setMessage(message: string, statusCode: number | string): void {
     this.message = message
@@ -33,8 +40,10 @@ export class Result implements IResult {
   }
   toResultDto(): ResultDto {
     return {
-      data: this.data,
+      status: this.status,
+      statusCode: this.statusCode,
       message: this.message,
+      data: this.data,
       error: this.error
     }
   }

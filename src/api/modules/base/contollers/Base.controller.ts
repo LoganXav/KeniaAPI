@@ -5,7 +5,7 @@ import {
   HeaderType,
   INextFunction,
   IResponse,
-  IRouter,
+  IRouter
 } from "~/infrastructure/internal/types"
 import { HttpStatusResolver } from "../helpers/HttpStatusResolver"
 import statusMapping from "../helpers/StatusMapping"
@@ -94,7 +94,7 @@ export default abstract class BaseController {
     this.setTransactionId(res)
     this.setHeaders(res, headersToSet)
     res
-      .status(HttpStatusResolver.getCode(result.statusCode.toString()))
+      .status(Number(result.statusCode))
       .json(result.message ? result.toResultDto() : result.toResultDto().data)
   }
 
@@ -113,9 +113,7 @@ export default abstract class BaseController {
   ): Promise<void> {
     this.setTransactionId(res)
     this.setHeaders(res, headersToSet)
-    res
-      .status(HttpStatusResolver.getCode(result.statusCode.toString()))
-      .json(result)
+    res.status(Number(result.statusCode)).json(result)
   }
 
   private setProducesCode(

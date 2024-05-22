@@ -3,6 +3,8 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 
 const statusMapping: Record<string, number> & { default: number } = {
   default: HttpStatusCodeEnum.CONTINUE,
+  [AppStatusEnum.SUCCESS]: HttpStatusCodeEnum.SUCCESS,
+  [AppStatusEnum.CREATED]: HttpStatusCodeEnum.CREATED
 }
 
 /* 

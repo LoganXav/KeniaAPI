@@ -27,7 +27,7 @@ export default class StatusController extends BaseController {
     res: IResponse,
     next: INextFunction
   ): Promise<void> => {
-    return this.handleResultData(res, next, this.pingService.execute(), {
+    return this.handleResult(res, next, this.pingService.execute(), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.TEXT_PLAIN
     })
   }

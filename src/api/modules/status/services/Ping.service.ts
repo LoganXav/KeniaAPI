@@ -5,6 +5,7 @@ import { Result } from "~/api/shared/helpers/results/Result"
 import { BaseService } from "../../base/services/Base.service"
 import { IResult } from "~/api/shared/helpers/results/IResult"
 import { autoInjectable } from "tsyringe"
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
 
 @autoInjectable()
 export default class PingService extends BaseService<undefined> {
@@ -21,7 +22,7 @@ export default class PingService extends BaseService<undefined> {
       DateTimeUtils.getISONow()
     )
 
-    result.setMessage(message, this.applicationStatus.SUCCESS)
+    result.setMessage(message, HttpStatusCodeEnum.SUCCESS)
     return result
   }
 }

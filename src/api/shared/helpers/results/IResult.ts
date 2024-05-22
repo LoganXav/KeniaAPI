@@ -17,6 +17,8 @@ export interface IResult {
 type Metadata = Record<string, any>
 
 export interface ResultDto {
+  status: string
+  statusCode: number | string
   message: string
   error: string
   data: unknown
