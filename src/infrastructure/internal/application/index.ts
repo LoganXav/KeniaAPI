@@ -1,21 +1,13 @@
 import { Server, createServer } from "http"
-import { DependencyContainer } from "tsyringe"
 import AppSettings from "~/api/shared/setttings/AppSettings"
-import { Database } from "~/infrastructure/internal/database"
 import Express from "~/infrastructure/internal/express"
 
 export class Application {
-  container: DependencyContainer
   express: Express
   server: Server
 
-  constructor(container: DependencyContainer) {
-    this.container = container
-
-    container.registerSingleton(Database)
-    const dbClient: Database = this.container.resolve(Database)
-
-    this.express = new Express(dbClient)
+  constructor() {
+    this.express = new Express()
     this.server = createServer(this.express.app)
   }
 

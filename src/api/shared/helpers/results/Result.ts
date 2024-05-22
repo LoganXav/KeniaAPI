@@ -5,12 +5,17 @@ export class Result implements IResult {
   public success: boolean
   public message: string
   public error: string
-  public data: string
+  public data: unknown
   private metadata: Metadata = {}
-  
+
   setStatusCode(statusCode: number | string, success: boolean): void {
     this.statusCode = statusCode
     this.success = success
+  }
+  setData(data: unknown, message: string, statusCode: number | string): void {
+    this.data = data
+    this.message = message
+    this.statusCode = statusCode
   }
   setMessage(message: string, statusCode: number | string): void {
     this.message = message
@@ -30,7 +35,7 @@ export class Result implements IResult {
     return {
       data: this.data,
       message: this.message,
-      error: this.error,
+      error: this.error
     }
   }
   setMetadata(headers: Metadata): void {

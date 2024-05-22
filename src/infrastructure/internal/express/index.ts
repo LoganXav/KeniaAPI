@@ -15,7 +15,6 @@ import clientInfoMiddleware from "../middleware/clientInfo"
 import routeWhiteListMiddleware from "../middleware/authorization/whiteList"
 import authorizationMiddleware from "../middleware/authorization/jwt"
 import serviceTraceMiddleware from "../middleware/trace"
-import { Database } from "~/infrastructure/internal/database"
 import { LoggingProviderFactory } from "../logger/LoggingProviderFactory"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { MIDDLEWARES_ATTACHED } from "~/api/shared/helpers/messages/SystemMessages"
@@ -29,12 +28,10 @@ import BaseController from "~/api/modules/base/contollers/Base.controller"
 
 export default class Express {
   app: Server
-  dbClient: Database
   loggingProvider: ILoggingDriver
 
-  constructor(dbClient: Database) {
+  constructor() {
     this.app = express()
-    this.dbClient = dbClient
     this.loggingProvider = LoggingProviderFactory.build()
     this.loadMiddlewares()
     this.loadErrorHandler()
@@ -68,22 +65,22 @@ export default class Express {
           ignore: ServerConfig.Controllers.Ignore
         })
 
+    this.loggingProvider.info(
+      `Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()}`
+    )
     for (const filePath of controllerPaths) {
       const controllerPath = resolve(filePath)
 
       const { default: controller } = await import(controllerPath)
       const resolvedController: BaseController = container.resolve(controller)
       // TODO -- Set Api Doc Generator to controllers
-      this.loggingProvider.info(
-        `Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()} ServiceContext`
-      )
       resolvedController.initializeRoutes(TypeParser.cast<IRouter>(Router))
       this.app.use(
         AppSettings.ServerRoot,
         TypeParser.cast<Application>(resolvedController.router)
       )
       this.loggingProvider.info(
-        `${controller?.constructor?.name} was initialized`
+        `${resolvedController?.constructor?.name} was initialized`
       )
     }
     return Promise.resolve()
@@ -93,7 +90,6 @@ export default class Express {
     return new Promise((resolve, reject) => {
       this.loadControllersDynamically()
         .then(async () => {
-          const prisma = this.dbClient.initializeClient()
           // Initialize database service and other services here.
           // reject if any error with database or other service.
           return resolve()
@@ -101,7 +97,6 @@ export default class Express {
         .catch((error) => {
           return reject(error)
         })
-        .finally(async () => this.dbClient.disconnect())
     })
   }
 

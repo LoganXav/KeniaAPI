@@ -80,3 +80,32 @@ C:\Users\Olusegun Sogbesan\Documents\Logan\Web Development\Personal Workspace\ke
   96     const result = this.dbContext.initializeClient()
 → 97     const user = await result.user.findMany(
 The table `public.User` does not exist in the current database.
+[ERROR] 2024-05-22 13:19:46 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        TypeInfo not known for "AuthProvider"
+[ERROR] 2024-05-22 13:21:37 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        TypeInfo not known for "AuthProvider"
+[ERROR] 2024-05-22 13:23:45 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        TypeInfo not known for "AuthProvider"
+[ERROR] 2024-05-22 13:27:49 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        TypeInfo not known for "AuthProvider"
+[ERROR] 2024-05-22 13:29:54 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        TypeInfo not known for "AuthProvider"
+[ERROR] 2024-05-22 13:35:03 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        TypeInfo not known for "AuthProvider"
+[ERROR] 2024-05-22 13:35:49 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        TypeInfo not known for "AuthProvider"
+[ERROR] 2024-05-22 13:36:14 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        Cannot inject the dependency "prisma" at position #0 of "AuthProvider" constructor. Reason:
+            TypeInfo not known for "r"
+[ERROR] 2024-05-22 13:38:06 Starting server error: Error: Cannot inject the dependency "authService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "authProvider" at position #0 of "AuthService" constructor. Reason:
+        Cannot inject the dependency "prisma" at position #0 of "AuthProvider" constructor. Reason:
+            TypeInfo not known for "r"
