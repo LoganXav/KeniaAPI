@@ -1,7 +1,7 @@
 import { Server, createServer } from "http"
 import { DependencyContainer } from "tsyringe"
 import AppSettings from "~/api/shared/setttings/AppSettings"
-import { DbContext } from "~/infrastructure/internal/database"
+import { Database } from "~/infrastructure/internal/database"
 import Express from "~/infrastructure/internal/express"
 
 export class Application {
@@ -11,9 +11,11 @@ export class Application {
 
   constructor(container: DependencyContainer) {
     this.container = container
-    // TODO - Add Db Context
-    const dbContext: DbContext = this.container.resolve(DbContext)
-    this.express = new Express(dbContext)
+
+    container.registerSingleton(Database)
+    const dbClient: Database = this.container.resolve(Database)
+
+    this.express = new Express(dbClient)
     this.server = createServer(this.express.app)
   }
 

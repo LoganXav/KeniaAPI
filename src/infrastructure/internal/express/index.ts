@@ -5,7 +5,7 @@ import express, {
   Express as Server,
   Request,
   Response,
-  NextFunction,
+  NextFunction
 } from "express"
 import helmet from "helmet"
 import cors from "cors"
@@ -15,7 +15,7 @@ import clientInfoMiddleware from "../middleware/clientInfo"
 import routeWhiteListMiddleware from "../middleware/authorization/whiteList"
 import authorizationMiddleware from "../middleware/authorization/jwt"
 import serviceTraceMiddleware from "../middleware/trace"
-import { DbContext } from "~/infrastructure/internal/database"
+import { Database } from "~/infrastructure/internal/database"
 import { LoggingProviderFactory } from "../logger/LoggingProviderFactory"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { MIDDLEWARES_ATTACHED } from "~/api/shared/helpers/messages/SystemMessages"
@@ -29,12 +29,12 @@ import BaseController from "~/api/modules/base/contollers/Base.controller"
 
 export default class Express {
   app: Server
-  dbContext: DbContext
+  dbClient: Database
   loggingProvider: ILoggingDriver
 
-  constructor(dbContext: DbContext) {
+  constructor(dbClient: Database) {
     this.app = express()
-    this.dbContext = dbContext
+    this.dbClient = dbClient
     this.loggingProvider = LoggingProviderFactory.build()
     this.loadMiddlewares()
     this.loadErrorHandler()
@@ -60,12 +60,12 @@ export default class Express {
       ? ServerConfig.Controllers.ContextPaths.map((serviceContext) => {
           return sync(serviceContext, {
             onlyFiles: true,
-            ignore: ServerConfig.Controllers.Ignore,
+            ignore: ServerConfig.Controllers.Ignore
           })
         }).flat()
       : sync(ServerConfig.Controllers.DefaultPath, {
           onlyFiles: true,
-          ignore: ServerConfig.Controllers.Ignore,
+          ignore: ServerConfig.Controllers.Ignore
         })
 
     for (const filePath of controllerPaths) {
@@ -92,7 +92,8 @@ export default class Express {
   initializeServices(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.loadControllersDynamically()
-        .then(() => {
+        .then(async () => {
+          const prisma = this.dbClient.initializeClient()
           // Initialize database service and other services here.
           // reject if any error with database or other service.
           return resolve()
@@ -100,6 +101,7 @@ export default class Express {
         .catch((error) => {
           return reject(error)
         })
+        .finally(async () => this.dbClient.disconnect())
     })
   }
 
