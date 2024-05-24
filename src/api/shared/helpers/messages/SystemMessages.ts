@@ -1,7 +1,8 @@
-/** <---------------> Creation Success <---------------> */
+/** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account created successfully"
 
-/** <---------------> Misc Errors <---------------> */
+/** <---------------> Error Responses <---------------> */
+export const EMAIL_IN_USE = "Email is Already in Use"
 export const PROVIDER_NOT_FOUND = "Provider not found"
 export const MIDDLEWARES_ATTACHED = "Middlewares Attached Successfully"
 
@@ -9,21 +10,26 @@ export const MIDDLEWARES_ATTACHED = "Middlewares Attached Successfully"
 export const ERROR = "error"
 export const SUCCESS = "success"
 
+/** <---------------> Email Messages <---------------> */
+export const EMAIL_ACTIVATION_TOKEN_EMAIL_SUBJECT = "Kenia Email Activation"
+
+/** <---------------> Role Labels <---------------> */
+export const PRINCIPAL_ROLE_NAME = "principal"
+
 /** <---------------> Server Errors <---------------> */
 export const CRITICAL_ERROR_EXITING =
   "Application Encountered a Critical Error. Exiting"
-
 export const INTERNAL_SERVER_ERROR = "Internal Server Error"
+
+/** <---------------> Error States <---------------> */
+export const NULL_OBJECT = null
 
 /** <---------------> Authorization Errors <---------------> */
 export const AUTHORIZATION_REQUIRED =
   "Unauthorized: You are not authorized to access this resource."
-
 export const VALIDATION_ERROR = "Validation Error"
-
 export const ERROR_AUTHORIZATION_REQUIRED =
   "Authorization Required: Access token is missing or expired."
-
 export const ERROR_INVALID_TOKEN =
   "Invalid Token: The provided token is not valid."
 export const ERROR_EXPIRED_TOKEN =

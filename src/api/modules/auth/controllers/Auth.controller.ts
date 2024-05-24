@@ -31,7 +31,7 @@ export default class AuthController extends BaseController {
     return this.handleResultData(
       res,
       next,
-      this.authSignUpService.execute(req.body),
+      this.authSignUpService.execute(req.body, res),
       {
         [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
       }
@@ -49,7 +49,7 @@ export default class AuthController extends BaseController {
           httpStatus: HttpStatusCodeEnum.CREATED
         }
       ],
-      description: "Register a new user"
+      description: "Register a new principal"
     })
   }
 }

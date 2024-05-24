@@ -3,7 +3,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import {
   AUTHORIZATION_REQUIRED,
   ERROR_INVALID_TOKEN,
-  ERROR_MISSING_TOKEN,
+  ERROR_MISSING_TOKEN
 } from "~/api/shared/helpers/messages/SystemMessages"
 import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError"
 import { IRequest, ISession, Middleware } from "~/infrastructure/internal/types"
@@ -34,7 +34,7 @@ class AuthorizationMiddleware {
 
     const token = ArrayUtil.getWithIndex(jwtParts, TOKEN_POSITION_VALUE)
 
-    // TODO - Add an Auth Provider to verify tokens
+    // TODO - Add an Auth Provider to verify session
     // const sessionResult = TryWrapper.exec(AuthProvider.verifyJwt, [token])
     // if (!sessionResult.success)
     //   return next(this.getUnauthorized(ERROR_EXPIRED_TOKEN))
@@ -51,7 +51,7 @@ class AuthorizationMiddleware {
     return new ApplicationError({
       httpStatusCode: HttpStatusCodeEnum.UNAUTHORIZED,
       description: message,
-      isOperational: true,
+      isOperational: true
     })
   }
 }

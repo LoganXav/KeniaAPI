@@ -123,3 +123,28 @@ Require stack:
 - C:\Users\Olusegun Sogbesan\Documents\Logan\Web Development\Personal Workspace\kenia-monolithic-template-expressjs\backend\src\infrastructure\internal\express\index.ts
 - C:\Users\Olusegun Sogbesan\Documents\Logan\Web Development\Personal Workspace\kenia-monolithic-template-expressjs\backend\src\infrastructure\internal\application\index.ts
 - C:\Users\Olusegun Sogbesan\Documents\Logan\Web Development\Personal Workspace\kenia-monolithic-template-expressjs\backend\src\index.ts
+[ERROR] 2024-05-23 17:42:32 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/shared/helpers/results/Result.ts(26,11): error TS1005: ':' expected.
+src/api/shared/helpers/results/Result.ts(27,7): error TS1005: ',' expected.
+src/api/shared/helpers/results/Result.ts(27,11): error TS1005: ':' expected.
+
+[ERROR] 2024-05-23 17:42:48 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/shared/helpers/results/Result.ts(25,11): error TS1005: ':' expected.
+src/api/shared/helpers/results/Result.ts(25,19): error TS1005: ',' expected.
+src/api/shared/helpers/results/Result.ts(26,7): error TS1005: ',' expected.
+src/api/shared/helpers/results/Result.ts(26,11): error TS1005: ':' expected.
+src/api/shared/helpers/results/Result.ts(26,16): error TS1005: ',' expected.
+
+[ERROR] 2024-05-24 13:00:23 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/modules/auth/services/AuthSignUp.service.ts(84,22): error TS1003: Identifier expected.
+
+[ERROR] 2024-05-24 13:01:24 Starting server error: Error: Cannot inject the dependency "authSignUpService" at position #0 of "AuthController" constructor. Reason:
+    Cannot inject the dependency "prisma" at position #2 of "AuthSignUpService" constructor. Reason:
+        TypeInfo not known for "r"
+[ERROR] 2024-05-24 15:15:46 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/modules/auth/services/AuthSignUp.service.ts(81,6): error TS1005: ',' expected.
+src/api/modules/auth/services/AuthSignUp.service.ts(81,12): error TS1003: Identifier expected.
+src/api/modules/auth/services/AuthSignUp.service.ts(88,6): error TS1005: ';' expected.
+src/api/modules/auth/services/AuthSignUp.service.ts(90,1): error TS1472: 'catch' or 'finally' expected.
+src/api/modules/auth/services/AuthSignUp.service.ts(91,1): error TS1005: '}' expected.
+

@@ -3,9 +3,10 @@ export interface IResult {
   success: boolean
   message: string
   error: string
+  data: { message: string; data: unknown }
   setStatusCode(statusCode: number | string, success: boolean): void
   setMessage(message: string, statusCode: number | string): void
-  setError(error: string, statusCode: number | string): void
+  setError(status: string, statusCode: number | string, message: string): void
   hasError(): boolean
   hasMessage(): boolean
   toResultDto(): ResultDto
@@ -19,7 +20,8 @@ type Metadata = Record<string, any>
 export interface ResultDto {
   status: string
   statusCode: number | string
-  message: string
-  error: string
-  data: unknown
+  data: {
+    message: string
+    data: unknown
+  }
 }
