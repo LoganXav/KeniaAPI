@@ -29,7 +29,7 @@ export default {
           __dirname,
           `../api/modules/${serviceContext}/controllers/**.controller.??`
         )
-      ),
+      )
     ],
     DefaultPath: [
       Normalize.pathFromOS(
@@ -37,9 +37,9 @@ export default {
           __dirname,
           "../api/modules/**/controllers/**.controller.??"
         )
-      ),
+      )
     ],
-    Ignore: [Normalize.pathFromOS("**/base")],
+    Ignore: [Normalize.pathFromOS("**/base")]
   },
   Server: {
     Root: DefaultValue.evaluateAndGet(process.env.SERVER_ROOT, "/api"),
@@ -52,13 +52,20 @@ export default {
     ServiceName: DefaultValue.evaluateAndGet(process.env.SERVICE_NAME, "KENIA"),
     ServiceContext: {
       LoadWithContext: !!process.env.SERVICE_CONTEXT,
-      Context: serviceContext,
-    },
+      Context: serviceContext
+    }
   },
   Params: {
     DefaultHealthRemoteService: DefaultValue.evaluateAndGet(
       process.env.REMOTE_HEALTH_SERVICE,
       "https://google.com"
     ),
-  },
+
+    Security: {
+      JWT: {
+        SecretKey: process.env.JWT_SECRET_KEY,
+        ExpireInSeconds: 3600
+      }
+    }
+  }
 }

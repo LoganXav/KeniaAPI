@@ -7,6 +7,8 @@ class AppSettings {
   ServerPort: number
   ServerHost: string
   DefaultHealthRemoteService: string
+  JWTEncryptionKey: string
+  JWTExpirationTime: string
 
   constructor(serverConfig: Record<string, any>) {
     this.ServerPort = serverConfig.Server.Port
@@ -16,6 +18,8 @@ class AppSettings {
     this.ServiceContext = serverConfig.Server.ServiceContext.Context
     this.DefaultHealthRemoteService =
       serverConfig.Params.DefaultHealthRemoteService.Context
+    this.JWTEncryptionKey = serverConfig.Params.Security.JWT.SecretKey
+    this.JWTExpirationTime = serverConfig.Params.Security.JWT.ExpireInSeconds
   }
 }
 

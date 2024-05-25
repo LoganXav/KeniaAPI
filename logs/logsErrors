@@ -232,3 +232,43 @@ src/api/modules/auth/services/AuthSignUp.service.ts(88,6): error TS1005: ';' exp
 src/api/modules/auth/services/AuthSignUp.service.ts(90,1): error TS1472: 'catch' or 'finally' expected.
 src/api/modules/auth/services/AuthSignUp.service.ts(91,1): error TS1005: '}' expected.
 
+[ERROR] 2024-05-25 12:40:08 Error: Error: getaddrinfo ENOTFOUND gmail
+[ERROR] 2024-05-25 12:41:33 Error: Error: getaddrinfo ENOTFOUND gmail
+[ERROR] 2024-05-25 12:48:53 Error: Error: Invalid login: 534-5.7.9 Application-specific password required. For more information, go to
+534 5.7.9  https://support.google.com/mail/?p=InvalidSecondFactor 4fb4d7f45d1cf-578523d58afsm3071798a12.44 - gsmtp
+[ERROR] 2024-05-25 15:45:13 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/modules/auth/services/AuthSignUp.service.ts(55,9): error TS1005: ',' expected.
+
+[ERROR] 2024-05-25 16:33:53 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/modules/auth/services/AuthSignUp.service.ts(74,7): error TS1005: 'try' expected.
+src/api/modules/auth/services/AuthSignUp.service.ts(84,3): error TS1472: 'catch' or 'finally' expected.
+
+[ERROR] 2024-05-25 16:42:23 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/modules/auth/services/AuthSignUp.service.ts(97,57): error TS1005: ',' expected.
+
+[ERROR] 2024-05-25 16:55:41 Error: Error: Message failed: 502 5.7.0 Your SMTP account is not yet activated. Please contact us at contact@sendinblue.com to request activation.
+[ERROR] 2024-05-25 17:02:05 Error: Error: No recipients defined
+[ERROR] 2024-05-25 17:39:12 Error: Error: Message failed: 502 5.7.0 Your SMTP account is not yet activated. Please contact us at contact@sendinblue.com to request activation.
+[ERROR] 2024-05-25 17:54:35 Error: Error: Message failed: 502 5.7.0 Your SMTP account is not yet activated. Please contact us at contact@sendinblue.com to request activation.
+[ERROR] 2024-05-25 18:09:20 Error: Error: Message failed: 502 5.7.0 Your SMTP account is not yet activated. Please contact us at contact@sendinblue.com to request activation.
+[ERROR] 2024-05-25 20:19:10 Error: Error: Mail command failed: 550 5.7.1 Sending from domain gmail.com is not allowed
+[ERROR] 2024-05-25 21:19:06 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-25 23:27:50 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-25 23:46:19 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-25 23:47:41 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-25 23:52:05 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-25 23:57:11 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-25 23:58:52 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/shared/helpers/results/Result.ts(23,5): error TS1005: ',' expected.
+
+[ERROR] 2024-05-25 23:59:40 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/shared/helpers/results/Result.ts(29,25): error TS1005: ';' expected.
+
+[ERROR] 2024-05-26 00:01:12 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-26 00:03:18 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-26 00:03:40 Starting server error: Error: ⨯ Unable to compile TypeScript:
+src/api/shared/helpers/results/Result.ts(54,9): error TS1005: ',' expected.
+
+[ERROR] 2024-05-26 00:18:07 Missing Token: Access token is missing.
+[ERROR] 2024-05-26 00:18:26 Missing Token: Access token is missing.
+[ERROR] 2024-05-26 00:31:27 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.

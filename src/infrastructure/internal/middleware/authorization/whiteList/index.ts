@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { ROUTE_PROTECTED, ROUTE_WHITE_LIST } from "~/config/RoutesConfig"
+import { ROUTE_WHITE_LIST } from "~/config/RoutesConfig"
 import { Middleware, IRequest } from "~/infrastructure/internal/types"
 import { BooleanUtil } from "~/utils/BooleanUtil"
 import { TypeParser } from "~/utils/TypeParser"
@@ -15,15 +15,11 @@ class RouteWhiteListMiddleware {
     const existsUnauthorizedPath = ROUTE_WHITE_LIST.some((path) =>
       BooleanUtil.areEqual(path, req.path)
     )
-    const existsProtectedPath = ROUTE_PROTECTED.some((path) =>
-      BooleanUtil.areEqual(path, req.path)
-    )
+
     if (existsUnauthorizedPath) {
       TypeParser.cast<IRequest>(req).isWhiteList = true
     }
-    if (existsProtectedPath) {
-      TypeParser.cast<IRequest>(req).isProtected = true
-    }
+
     return next()
   }
 }

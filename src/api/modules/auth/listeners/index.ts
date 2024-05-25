@@ -1,4 +1,4 @@
-import { EmailService } from "~/api/shared/services/Email.service"
+import { EmailService } from "~/api/shared/services/email/Email.service"
 import { SignUpEventListenerDTO } from "../types/SignUpEventListenerDTO"
 
 export class UserListener {

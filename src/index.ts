@@ -1,10 +1,11 @@
 import "reflect-metadata"
+import "dotenv/config"
 
 import { errorHandler } from "./infrastructure/internal/exceptions/ErrorHandler"
-import { container } from "tsyringe"
+
 import { Application } from "./infrastructure/internal/application"
 
-const app = new Application(container)
+const app = new Application()
 
 app.start()
 

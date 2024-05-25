@@ -12,12 +12,3 @@ export type CreateUserTokenDTO = {
   tokenType: UserTokenTypesEnum
   expiresOn: Date
 }
-
-export interface User {
-  id: number
-  firstName: string
-  lastName: string
-  phoneNumber: string
-  email: string
-  // Modify to include schoolId
-}

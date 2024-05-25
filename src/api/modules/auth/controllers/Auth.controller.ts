@@ -31,7 +31,7 @@ export default class AuthController extends BaseController {
     return this.handleResultData(
       res,
       next,
-      this.authSignUpService.execute(req.body, res),
+      this.authSignUpService.execute(req.body),
       {
         [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
       }

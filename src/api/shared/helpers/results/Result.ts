@@ -5,6 +5,7 @@ export class Result implements IResult {
   public success: boolean
   public message: string
   public status: string
+  public token: string | undefined
   public error: string
   public result: unknown
   public data: { message: string; data: unknown }
@@ -18,12 +19,14 @@ export class Result implements IResult {
     status: string,
     statusCode: number | string,
     message: string,
-    result: unknown
+    result: unknown,
+    token?: string
   ): void {
     this.status = status
     this.statusCode = statusCode
     this.message = message
     this.result = result
+    this.token = token
   }
   setMessage(message: string, statusCode: number | string): void {
     this.message = message
@@ -47,7 +50,8 @@ export class Result implements IResult {
       statusCode: this.statusCode,
       data: {
         message: this.message,
-        data: this.result
+        data: this.result,
+        accessToken: this.token
       }
     }
   }
