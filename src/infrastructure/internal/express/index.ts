@@ -80,7 +80,7 @@ export default class Express {
         TypeParser.cast<Application>(resolvedController.router)
       )
       this.loggingProvider.info(
-        `${resolvedController?.constructor?.name} was initialized`
+        `${resolvedController?.controllerName} was initialized`
       )
     }
     return Promise.resolve()

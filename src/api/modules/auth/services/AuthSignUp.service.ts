@@ -19,20 +19,27 @@ import DbClient from "~/infrastructure/internal/database"
 import Event from "~/api/shared/helpers/events"
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum"
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service"
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreatePrincipalUserRecordDTO> {
+  static serviceName = "AuthSignUpService"
   authProvider: AuthProvider
   tokenProvider: TokenProvider
 
   constructor(authProvider: AuthProvider, tokenProvider: TokenProvider) {
-    super()
+    super(AuthSignUpService.serviceName)
+
     this.authProvider = authProvider
     this.tokenProvider = tokenProvider
   }
 
-  public async execute(args: CreatePrincipalUserRecordDTO): Promise<IResult> {
+  public async execute(
+    trace: ServiceTrace,
+    args: CreatePrincipalUserRecordDTO
+  ): Promise<IResult> {
     try {
+      this.initializeServiceTrace(trace, args)
       const foundUser = await this.authProvider.findPrincipalUserByEmail(args)
       if (foundUser) {
         this.result.setError(
@@ -63,6 +70,7 @@ export default class AuthSignUpService extends BaseService<CreatePrincipalUserRe
         accessToken
       )
 
+      trace.setSuccessful()
       return this.result
     } catch (error: any) {
       this.result.setError(

@@ -18,9 +18,11 @@ import AuthSignUpService from "../services/AuthSignUp.service"
 
 @autoInjectable()
 export default class AuthController extends BaseController {
+  static controllerName: string
   authSignUpService: AuthSignUpService
   constructor(authSignUpService: AuthSignUpService) {
     super()
+    this.controllerName = "AuthController"
     this.authSignUpService = authSignUpService
   }
   register: EntryPointHandler = async (
@@ -31,7 +33,7 @@ export default class AuthController extends BaseController {
     return this.handleResultData(
       res,
       next,
-      this.authSignUpService.execute(req.body),
+      this.authSignUpService.execute(res.trace, req.body),
       {
         [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
       }

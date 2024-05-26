@@ -7,18 +7,15 @@ import {
   IResponse,
   IRouter
 } from "~/infrastructure/internal/types"
-import { HttpStatusResolver } from "../helpers/HttpStatusResolver"
 import statusMapping from "../helpers/StatusMapping"
 import { RouteType } from "../types"
-// import { ERROR } from "~/api/shared/helpers/messages/SystemMessages"
 import { IResult } from "~/api/shared/helpers/results/IResult"
-import { ServiceTrace } from "~/api/shared/helpers/logs/ServiceTrace"
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
 
-// TODO - Fix the trace for error monitoring
-
 export default abstract class BaseController {
+  controllerName: string
   router?: IRouter
   serviceContext: ServiceContext
   loggingProvider: ILoggingDriver
@@ -132,14 +129,32 @@ export default abstract class BaseController {
   private async manageServiceTrace(trace: ServiceTrace): Promise<void> {
     if (trace?.context) {
       trace.finish(new Date())
-      return Promise.resolve()
-      // TODO -- Implement service trace repository
-      // return Promise.resolve(this.ServiceTraceRepository.register(trace)).catch(
-      //   (error) => {
-      //     this.loggingProvider.error(`context: ${this.serviceContext} name: serviceTraceError message: ${error.message} stack: ${error.stack}
-      //     `)
-      //   }
-      // )
+      try {
+        const logMessage = this.createServiceTraceLogMessage(trace)
+        trace.success
+          ? this.loggingProvider.success(logMessage)
+          : this.loggingProvider.warning(logMessage)
+      } catch (error: any) {
+        this.loggingProvider.error(
+          `context: ${this.serviceContext} name: serviceTraceError message: ${error.message} stack: ${error.stack}`
+        )
+      }
     }
+  }
+
+  private createServiceTraceLogMessage(trace: ServiceTrace): string {
+    return `
+      Service Trace Log:
+      Context: ${trace.context}
+      Transaction ID: ${trace.transactionId}
+      Origin: ${trace.origin}
+      Client IP: ${trace.client?.ip}
+      User Agent: ${trace.client?.agent}
+      Start Date: ${trace.startDate}
+      End Date: ${trace.endDate}
+      Success: ${trace.success}
+      Payload: ${JSON.stringify(trace.payload)}
+      Metadata: ${JSON.stringify(trace.metadata)}
+    `
   }
 }

@@ -16,9 +16,11 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 
 @autoInjectable()
 export default class StatusController extends BaseController {
+  static controllerName: string
   pingService: PingService
   constructor(pingService: PingService) {
     super()
+    this.controllerName = "StatusController"
     this.pingService = pingService
   }
 
@@ -27,7 +29,7 @@ export default class StatusController extends BaseController {
     res: IResponse,
     next: INextFunction
   ): Promise<void> => {
-    return this.handleResult(res, next, this.pingService.execute(), {
+    return this.handleResult(res, next, this.pingService.execute(res.trace), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.TEXT_PLAIN
     })
   }

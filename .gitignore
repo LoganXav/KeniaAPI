@@ -1,5 +1,6 @@
 # Logs
 *.log
+logs
 
 # Dev to-do-list
 todo.md
