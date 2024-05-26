@@ -7,6 +7,9 @@ export const userRegistrationSchema = z.object({
   lastName: z.string({
     required_error: "Parameter last name is missing"
   }),
+  password: z.string({
+    required_error: "Parameter password is missing"
+  }),
   phoneNumber: z.string({
     message: "Invalid phone number format"
   }),

@@ -8,6 +8,7 @@ import {
   ACCOUNT_CREATED,
   EMAIL_IN_USE,
   ERROR,
+  NULL_OBJECT,
   SUCCESS
 } from "~/api/shared/helpers/messages/SystemMessages"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
@@ -20,6 +21,7 @@ import Event from "~/api/shared/helpers/events"
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum"
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service"
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
+import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service"
 
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreatePrincipalUserRecordDTO> {
@@ -50,8 +52,13 @@ export default class AuthSignUpService extends BaseService<CreatePrincipalUserRe
         return this.result
       }
 
-      const data = await this.createPrincipalAndSchoolWithToken(args)
-      if (!data) return this.result
+      const hashedPassword = PasswordEncryptionService.hashPassword(
+        args.password
+      )
+      const input = { ...args, password: hashedPassword }
+
+      const data = await this.createPrincipalAndSchoolWithToken(input)
+      if (data === NULL_OBJECT) return this.result
 
       const { principal, otpToken } = data
 
@@ -62,11 +69,13 @@ export default class AuthSignUpService extends BaseService<CreatePrincipalUserRe
 
       const accessToken = await JwtService.getJwt(principal)
 
+      const { password, ...createdUserData } = principal
+
       this.result.setData(
         SUCCESS,
         HttpStatusCodeEnum.CREATED,
         ACCOUNT_CREATED,
-        principal,
+        createdUserData,
         accessToken
       )
 

@@ -10,12 +10,13 @@ export default class AuthProvider implements IAuthProvider {
     args: CreatePrincipalUserRecordDTO,
     dbClient: any
   ): Promise<User> {
-    const { firstName, lastName, phoneNumber, email } = args
+    const { firstName, lastName, password, phoneNumber, email } = args
     const result = await dbClient?.user?.create({
       data: {
         email: email,
         firstName: firstName,
         lastName: lastName,
+        password: password,
         phoneNumber: phoneNumber,
         role: UserRoleTypesEnum.PRINCIPAL,
         principal: {
