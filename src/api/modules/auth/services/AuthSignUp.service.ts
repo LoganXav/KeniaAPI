@@ -19,7 +19,6 @@ import DbClient from "~/infrastructure/internal/database"
 import Event from "~/api/shared/helpers/events"
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum"
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service"
-import { TryWrapper } from "~/utils/TryWrapper"
 
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreatePrincipalUserRecordDTO> {

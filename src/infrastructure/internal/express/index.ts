@@ -103,7 +103,6 @@ export default class Express {
   private loadErrorHandler(): void {
     this.app.use(
       (err: Error, req: Request, res: Response, next: NextFunction) => {
-        console.log(err)
         this.loggingProvider.error(err.message)
         next(err)
       }

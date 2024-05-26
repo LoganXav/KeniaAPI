@@ -30,8 +30,6 @@ class ServiceTraceMiddleware {
         agent: TypeParser.cast<IRequest>(req).userAgent
       })
 
-    console.log("passed!!!!!")
-
     return next()
   }
 }
