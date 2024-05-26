@@ -188,3 +188,7 @@ src/api/shared/helpers/results/Result.ts(54,9): error TS1005: ',' expected.
 [ERROR] 2024-05-26 00:18:07 Missing Token: Access token is missing.
 [ERROR] 2024-05-26 00:18:26 Missing Token: Access token is missing.
 [ERROR] 2024-05-26 00:31:27 Error: Error: Can't send mail - all recipients were rejected: 554 5.7.1 Demo domains can only be used to send emails to account owners. You can only send testing emails to your own email address.
+[ERROR] 2024-05-26 10:40:24 Missing Token: Access token is missing.
+[ERROR] 2024-05-26 10:40:24 Missing Token: Access token is missing.
+[ERROR] 2024-05-26 11:01:22 Missing Token: Access token is missing.
+[ERROR] 2024-05-26 11:04:32 Missing Token: Access token is missing.

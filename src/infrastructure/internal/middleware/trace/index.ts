@@ -23,12 +23,14 @@ class ServiceTraceMiddleware {
       .setRequest({
         params: req.params,
         query: req.query,
-        body: undefined,
+        body: undefined
       })
       .setClient({
         ip: TypeParser.cast<IRequest>(req).ipAddress,
-        agent: TypeParser.cast<IRequest>(req).userAgent,
+        agent: TypeParser.cast<IRequest>(req).userAgent
       })
+
+    console.log("passed!!!!!")
 
     return next()
   }

@@ -1,14 +1,13 @@
 import { Response, Request, NextFunction } from "express"
-import TokenProvider from "~/api/modules/auth/providers/auth/Token.provider"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
 import {
-  AUTHORIZATION_REQUIRED,
   ERROR_EXPIRED_TOKEN,
   ERROR_INVALID_TOKEN,
   ERROR_MISSING_TOKEN
 } from "~/api/shared/helpers/messages/SystemMessages"
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service"
 import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError"
+import { UnauthorizedError } from "~/infrastructure/internal/exceptions/UnauthorizedError"
 import { IRequest, ISession, Middleware } from "~/infrastructure/internal/types"
 import ArrayUtil from "~/utils/ArrayUtil"
 import { TryWrapper } from "~/utils/TryWrapper"
@@ -35,7 +34,6 @@ class AuthorizationMiddleware {
 
     const token = ArrayUtil.getWithIndex(jwtParts, TOKEN_POSITION_VALUE)
 
-    // TODO - Add an Auth Provider to verify session
     const tokenValidation = TryWrapper.exec(JwtService.verifyJwt, [token])
     if (!tokenValidation.success)
       return next(this.getUnauthorized(ERROR_EXPIRED_TOKEN))
@@ -47,13 +45,8 @@ class AuthorizationMiddleware {
     return next()
   }
 
-  // REFACTOR -- Create different exception types.
   private getUnauthorized(message: string): ApplicationError {
-    return new ApplicationError({
-      httpStatusCode: HttpStatusCodeEnum.UNAUTHORIZED,
-      description: message,
-      isOperational: true
-    })
+    return new UnauthorizedError(message)
   }
 }
 

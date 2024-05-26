@@ -1,6 +1,6 @@
 import {
   CRITICAL_ERROR_EXITING,
-  ERROR,
+  ERROR
 } from "~/api/shared/helpers/messages/SystemMessages"
 import ApplicationError from "./ApplicationError"
 import { Response } from "express"
@@ -30,9 +30,9 @@ class ErrorHandler {
     response: Response
   ): void {
     response.status(error.httpCode).json({
-      status_code: error.httpCode,
+      statusCode: error.httpCode,
       status: ERROR,
-      message: error.message,
+      message: error.message
     })
   }
   private handleCriticalError(
@@ -41,9 +41,9 @@ class ErrorHandler {
   ): void {
     if (response) {
       response.status(HttpStatusCodeEnum.INTERNAL_SERVER_ERROR).json({
-        status_code: HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
         status: ERROR,
-        message: error.message,
+        message: error.message
       })
     }
     console.log(error)
