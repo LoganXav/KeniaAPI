@@ -12,9 +12,9 @@ class ServiceTraceMiddleware {
     next: NextFunction
   ): void => {
     TypeParser.cast<IResponse>(res).trace = new ServiceTrace(
-      // TypeParser.cast<IRequest>(req).isWhiteList
-      // ? TypeParser.cast<ISession>({})
-      TypeParser.cast<IRequest>(req).session,
+      TypeParser.cast<IRequest>(req).isWhiteList
+        ? TypeParser.cast<ISession>({})
+        : TypeParser.cast<IRequest>(req).session,
       new Date(),
       TypeParser.cast<IRequest>(req).origin,
       (req.headers[HttpHeaderEnum.TRANSACTION_ID] as string) ||
