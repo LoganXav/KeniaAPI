@@ -12,18 +12,24 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum"
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum"
 import { autoInjectable } from "tsyringe"
-import { userRegistrationSchema } from "../validators/userRegistrationSchema"
 import { validateData } from "~/api/shared/helpers/middleware/validateData"
 import AuthSignUpService from "../services/AuthSignUp.service"
+import AuthRefreshTokenService from "../services/AuthRefreshToken.service"
+import { createProprietorRecordSchema } from "../validators/ProprietorRecordCreationSchema"
 
 @autoInjectable()
 export default class AuthController extends BaseController {
   static controllerName: string
   authSignUpService: AuthSignUpService
-  constructor(authSignUpService: AuthSignUpService) {
+  authRefreshTokenService: AuthRefreshTokenService
+  constructor(
+    authSignUpService: AuthSignUpService,
+    authRefreshTokenService: AuthRefreshTokenService
+  ) {
     super()
     this.controllerName = "AuthController"
     this.authSignUpService = authSignUpService
+    this.authRefreshTokenService = authRefreshTokenService
   }
   register: EntryPointHandler = async (
     req: IRequest,
@@ -39,19 +45,48 @@ export default class AuthController extends BaseController {
       }
     )
   }
+  refreshOtpToken: EntryPointHandler = async (
+    req: IRequest,
+    res: IResponse,
+    next: INextFunction
+  ): Promise<void> => {
+    return this.handleResultData(
+      res,
+      next,
+      this.authRefreshTokenService.execute(res.trace, req.body),
+      {
+        [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
+      }
+    )
+  }
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router())
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/auth/signup",
-      handlers: [validateData(userRegistrationSchema), this.register],
+      handlers: [validateData(createProprietorRecordSchema), this.register],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.CREATED,
           httpStatus: HttpStatusCodeEnum.CREATED
         }
       ],
-      description: "Register a new principal"
+      description: "Create New Tenant and Proprietor Record"
+    })
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/auth/otp/refresh",
+      handlers: [
+        validateData(createProprietorRecordSchema),
+        this.refreshOtpToken
+      ],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.SUCCESS,
+          httpStatus: HttpStatusCodeEnum.SUCCESS
+        }
+      ],
+      description: "Request Email Verification Token"
     })
   }
 }

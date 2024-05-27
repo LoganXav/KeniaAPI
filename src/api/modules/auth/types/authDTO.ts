@@ -1,14 +1,8 @@
 import { z } from "zod"
-import { userRegistrationSchema } from "../validators/userRegistrationSchema"
-import { UserTokenTypesEnum } from "@prisma/client"
 
-export type CreatePrincipalUserRecordDTO = z.infer<
-  typeof userRegistrationSchema
+import { createProprietorRecordSchema } from "../validators/ProprietorRecordCreationSchema"
+import { TokenType } from "@prisma/client"
+
+export type CreateProprietorRecordDTO = z.infer<
+  typeof createProprietorRecordSchema
 >
-
-export type CreateUserTokenDTO = {
-  userId: number
-  token: string
-  tokenType: UserTokenTypesEnum
-  expiresOn: Date
-}

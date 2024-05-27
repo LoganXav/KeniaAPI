@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
-
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
@@ -16,69 +13,64 @@ datasource db {
     directUrl = env("DIRECT_URL")
 }
 
+model Tenant {
+    id      Int     @id @default(autoincrement())
+    name    String?
+    address String?
+    users   User[]
+}
+
 model User {
-    id            Int            @id @default(autoincrement())
-    email         String         @unique
-    firstName     String
-    lastName      String
-    password      String
-    phoneNumber   String
-    role          Role
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
-    principal     Principal?
-    vicePrincipal VicePrincipal?
-    userTokens    UserToken[]
-}
-
-model School {
-    id            Int             @id @default(autoincrement())
-    createdAt     DateTime        @default(now())
-    updatedAt     DateTime?       @updatedAt
-    title         String?         @db.VarChar(255)
-    country       String?
-    state         String?
-    lga           String?
-    principalId   Int             @unique
-    principal     Principal       @relation(fields: [principalId], references: [id])
-    vicePrincipal VicePrincipal[]
-}
-
-model Principal {
-    id     Int     @id @default(autoincrement())
-    userId Int     @unique
-    user   User    @relation(fields: [userId], references: [id])
-    school School?
-}
-
-model VicePrincipal {
-    id       Int     @id @default(autoincrement())
-    userId   Int     @unique
-    user     User    @relation(fields: [userId], references: [id])
-    school   School? @relation(fields: [schoolId], references: [id])
-    schoolId Int?
-}
-
-model UserToken {
-    id         Int                @id @default(autoincrement())
-    userId     Int
-    token      String
-    tokenType  UserTokenTypesEnum
-    expiresOn  DateTime
-    hasExpired Boolean?
-    user       User               @relation(fields: [userId], references: [id])
-}
-
-enum UserTokenTypesEnum {
-    ACCESS
-    REFRESH
-    EMAIL
-    PASSWORD_RESET
+    id          Int         @id @default(autoincrement())
+    firstName   String
+    lastName    String
+    phoneNumber String
+    email       String      @unique
+    password    String
+    hasVerified Boolean     @default(false)
+    role        Role
+    tenantId    Int
+    tenant      Tenant      @relation(fields: [tenantId], references: [id])
+    tokens      UserToken[]
+    instructor  Instructor?
+    student     Student?
 }
 
 enum Role {
+    PROPRIETOR
     PRINCIPAL
     VICE_PRINCIPAL
-    TEACHER
+    ADMISSIONS_OFFICER
+    INSTRUCTOR
     STUDENT
+}
+
+model Instructor {
+    id             Int    @id @default(autoincrement())
+    userId         Int    @unique
+    subjectsTaught String
+    user           User   @relation(fields: [userId], references: [id])
+}
+
+model Student {
+    id             Int      @id @default(autoincrement())
+    userId         Int      @unique
+    gradeLevel     String
+    enrollmentDate DateTime
+    user           User     @relation(fields: [userId], references: [id])
+}
+
+model UserToken {
+    id        Int       @id @default(autoincrement())
+    userId    Int
+    user      User      @relation(fields: [userId], references: [id])
+    tokenType TokenType
+    token     String
+    expiresAt DateTime
+}
+
+enum TokenType {
+    EMAIL
+    ACCESS
+    REFRESH
 }
