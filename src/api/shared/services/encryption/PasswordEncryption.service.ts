@@ -1,6 +1,5 @@
-import * as bcrypt from "bcrypt"
 import ServerConfig from "~/config/ServerConfig"
-
+import bcrypt from "bcryptjs"
 export class PasswordEncryptionService {
   public static hashPassword(password: string): string {
     return bcrypt.hashSync(

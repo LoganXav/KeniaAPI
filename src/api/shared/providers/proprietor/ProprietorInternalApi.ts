@@ -10,7 +10,7 @@ export default class ProprietorInternalApiProvider
   implements IProprietorInternalApiProvider
 {
   public async findProprietorByEmail(args: CreateProprietorRecordDTO) {
-    const result = await DbClient?.user?.findUnique({
+    const result = await DbClient?.user?.findFirst({
       where: {
         email: args.email,
         role: Role.PROPRIETOR
@@ -33,7 +33,7 @@ export default class ProprietorInternalApiProvider
         lastName,
         password,
         phoneNumber,
-        role: Role.PRINCIPAL
+        role: Role.PROPRIETOR
       }
     })
 

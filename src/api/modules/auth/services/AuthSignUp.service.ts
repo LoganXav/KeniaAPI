@@ -14,7 +14,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { businessConfig } from "~/config/BusinessConfig"
 import { DateTime } from "luxon"
 import { generateStringOfLength } from "~/utils/GenerateStringOfLength"
-import { TokenType, User } from "@prisma/client"
+import { TokenType } from "@prisma/client"
 import DbClient from "~/infrastructure/internal/database"
 import Event from "~/api/shared/helpers/events"
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum"
@@ -37,7 +37,6 @@ export default class AuthSignUpService extends BaseService<CreateProprietorRecor
     tenantInternalApiProvider: TenantInternalApiProvider
   ) {
     super(AuthSignUpService.serviceName)
-
     this.tokenProvider = tokenProvider
     this.proprietorInternalApiProvider = proprietorInternalApiProvider
     this.tenantInternalApiProvider = tenantInternalApiProvider
@@ -63,6 +62,7 @@ export default class AuthSignUpService extends BaseService<CreateProprietorRecor
       const hashedPassword = PasswordEncryptionService.hashPassword(
         args.password
       )
+
       const input = { ...args, password: hashedPassword }
 
       const data = await this.createTenantAndProprietorRecordWithToken(input)
