@@ -3,8 +3,8 @@ import { BaseService } from "../../base/services/Base.service"
 import { IResult } from "~/api/shared/helpers/results/IResult"
 import TokenProvider from "../providers/Token.provider"
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
-import { UpdateUserTokenRecordDTO } from "../types/AuthDTO"
-import { TokenType, User } from "@prisma/client"
+import { RefreshUserTokenDTO, UpdateUserTokenRecordDTO } from "../types/AuthDTO"
+import { TokenType } from "@prisma/client"
 import {
   ACCOUNT_VERIFIED,
   EMAIL_VERIFICATION_TOKEN_REQUEST_SUCCESS,
@@ -20,7 +20,7 @@ import DbClient from "~/infrastructure/internal/database"
 import { EmailService } from "~/api/shared/services/email/Email.service"
 
 @autoInjectable()
-export default class AuthRefreshOtpTokenService extends BaseService<User> {
+export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserTokenDTO> {
   static serviceName = "AuthRefreshOtpTokenService"
   tokenProvider: TokenProvider
 
@@ -29,7 +29,10 @@ export default class AuthRefreshOtpTokenService extends BaseService<User> {
     this.tokenProvider = tokenProvider
   }
 
-  public async execute(trace: ServiceTrace, args: User): Promise<IResult> {
+  public async execute(
+    trace: ServiceTrace,
+    args: RefreshUserTokenDTO
+  ): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args)
 
@@ -68,7 +71,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<User> {
     }
   }
 
-  private async authRefreshTokenTransaction(args: User) {
+  private async authRefreshTokenTransaction(args: RefreshUserTokenDTO) {
     try {
       const result = await DbClient.$transaction(async (tx: any) => {
         const userTokens = await this.tokenProvider.findUserTokensByType(

@@ -1,7 +1,6 @@
 import { autoInjectable } from "tsyringe"
 import { BaseService } from "../../base/services/Base.service"
 import { IResult } from "~/api/shared/helpers/results/IResult"
-import { CreateProprietorRecordDTO } from "../types/AuthDTO"
 import TokenProvider from "../providers/Token.provider"
 import {
   ACCOUNT_CREATED,
@@ -23,6 +22,7 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service"
 import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
 import TenantInternalApiProvider from "~/api/shared/providers/tenant/TenantInternalApi"
+import { CreateProprietorRecordDTO } from "../types/AuthDTO"
 
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateProprietorRecordDTO> {
