@@ -1,6 +1,9 @@
 import { z } from "zod"
 
-export const principalUserRegistrationSchema = z.object({
+export const refreshOtpTokenSchema = z.object({
+  id: z.number({
+    required_error: "Parameter userId is missing"
+  }),
   email: z
     .string({
       required_error: "Parameter email is missing"

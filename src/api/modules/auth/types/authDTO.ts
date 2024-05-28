@@ -7,4 +7,13 @@ export type CreateProprietorRecordDTO = z.infer<
   typeof createProprietorRecordSchema
 >
 
-export type CreateUserTokenRecordDTO = Omit<UserToken, "id">
+export type CreateUserTokenRecordDTO = Omit<
+  UserToken,
+  "id" | "isActive" | "expired"
+>
+
+export type UpdateUserTokenRecordDTO = {
+  tokenId: number
+  expired: boolean
+  isActive: boolean
+}

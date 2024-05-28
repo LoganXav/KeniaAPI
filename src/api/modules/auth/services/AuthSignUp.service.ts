@@ -65,7 +65,8 @@ export default class AuthSignUpService extends BaseService<CreateProprietorRecor
 
       const input = { ...args, password: hashedPassword }
 
-      const data = await this.createTenantAndProprietorRecordWithToken(input)
+      const data =
+        await this.createTenantAndProprietorRecordWithTokenTransaction(input)
       if (data === NULL_OBJECT) return this.result
 
       const { proprietor, otpToken } = data
@@ -99,13 +100,13 @@ export default class AuthSignUpService extends BaseService<CreateProprietorRecor
     }
   }
 
-  private async createTenantAndProprietorRecordWithToken(
+  private async createTenantAndProprietorRecordWithTokenTransaction(
     args: CreateProprietorRecordDTO
   ) {
     try {
-      const result = await DbClient.$transaction(async (dbClient) => {
+      const result = await DbClient.$transaction(async (tx) => {
         const tenant = await this.tenantInternalApiProvider.createTenantRecord(
-          dbClient
+          tx
         )
 
         const input = { tenantId: tenant?.id, ...args }
@@ -113,7 +114,7 @@ export default class AuthSignUpService extends BaseService<CreateProprietorRecor
         const proprietor =
           await this.proprietorInternalApiProvider.createProprietorRecord(
             input,
-            dbClient
+            tx
           )
 
         const otpToken = generateStringOfLength(businessConfig.emailTokenLength)
@@ -128,7 +129,7 @@ export default class AuthSignUpService extends BaseService<CreateProprietorRecor
             expiresAt,
             token: otpToken
           },
-          dbClient
+          tx
         )
 
         return { proprietor, otpToken }

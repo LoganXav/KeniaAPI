@@ -67,6 +67,8 @@ model UserToken {
     tokenType TokenType
     token     String
     expiresAt DateTime
+    expired   Boolean   @default(false)
+    isActive  Boolean   @default(true)
 }
 
 enum TokenType {

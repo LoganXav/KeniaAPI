@@ -1,5 +1,8 @@
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account created successfully"
+export const ACCOUNT_VERIFIED = "Account Verified"
+export const EMAIL_VERIFICATION_TOKEN_REQUEST_SUCCESS =
+  "Email Verification Request Success"
 
 /** <---------------> Error Responses <---------------> */
 export const EMAIL_IN_USE = "Email is Already in Use"

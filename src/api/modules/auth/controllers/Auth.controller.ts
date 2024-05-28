@@ -14,22 +14,23 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { autoInjectable } from "tsyringe"
 import { validateData } from "~/api/shared/helpers/middleware/validateData"
 import AuthSignUpService from "../services/AuthSignUp.service"
-import AuthRefreshTokenService from "../services/AuthRefreshToken.service"
+import AuthRefreshOtpTokenService from "../services/AuthRefreshOtpToken.service"
 import { createProprietorRecordSchema } from "../validators/ProprietorRecordCreationSchema"
+import { refreshOtpTokenSchema } from "../validators/RefreshOtpTokenSchema"
 
 @autoInjectable()
 export default class AuthController extends BaseController {
   static controllerName: string
   authSignUpService: AuthSignUpService
-  authRefreshTokenService: AuthRefreshTokenService
+  authRefreshOtpTokenService: AuthRefreshOtpTokenService
   constructor(
     authSignUpService: AuthSignUpService,
-    authRefreshTokenService: AuthRefreshTokenService
+    authRefreshOtpTokenService: AuthRefreshOtpTokenService
   ) {
     super()
     this.controllerName = "AuthController"
     this.authSignUpService = authSignUpService
-    this.authRefreshTokenService = authRefreshTokenService
+    this.authRefreshOtpTokenService = authRefreshOtpTokenService
   }
   register: EntryPointHandler = async (
     req: IRequest,
@@ -53,7 +54,7 @@ export default class AuthController extends BaseController {
     return this.handleResultData(
       res,
       next,
-      this.authRefreshTokenService.execute(res.trace, req.body),
+      this.authRefreshOtpTokenService.execute(res.trace, req.body),
       {
         [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
       }
@@ -74,12 +75,9 @@ export default class AuthController extends BaseController {
       description: "Create New Tenant and Proprietor Record"
     })
     this.addRoute({
-      method: HttpMethodEnum.POST,
+      method: HttpMethodEnum.GET,
       path: "/auth/otp/refresh",
-      handlers: [
-        validateData(createProprietorRecordSchema),
-        this.refreshOtpToken
-      ],
+      handlers: [validateData(refreshOtpTokenSchema), this.refreshOtpToken],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

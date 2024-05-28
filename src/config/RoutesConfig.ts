@@ -6,5 +6,6 @@ const root = ServerConfig.Server.Root
 export const ROUTE_WHITE_LIST = [
   `${root}/ping`,
   `${root}/auth/signin`,
-  `${root}/auth/signup`
+  `${root}/auth/signup`,
+  `${root}/auth/otp/refresh`
 ]

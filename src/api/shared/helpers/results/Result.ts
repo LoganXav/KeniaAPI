@@ -19,7 +19,7 @@ export class Result implements IResult {
     status: string,
     statusCode: number | string,
     message: string,
-    result: unknown,
+    result?: unknown,
     token?: string
   ): void {
     this.status = status
