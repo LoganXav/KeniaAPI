@@ -3,6 +3,7 @@ import { UpdateUserTokenRecordDTO } from "../../types/AuthDTO"
 
 export interface ITokenProvider {
   createUserTokenRecord(args: UserToken, tx?: any): Promise<UserToken>
+
   findUserTokensByType(
     args: {
       userId: number
@@ -10,9 +11,11 @@ export interface ITokenProvider {
     },
     tx?: any
   ): Promise<UserToken[]>
+
   updateUserTokenRecord(
     args: UpdateUserTokenRecordDTO,
     tx?: any
   ): Promise<UserToken>
+
   findUserTokenByToken(otpToken: string, tx?: any): Promise<UserToken>
 }

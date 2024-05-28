@@ -1,5 +1,5 @@
-import { CreateProprietorRecordDTO } from "~/api/modules/auth/types/AuthDTO"
+import { SignUpUserRecordDTO } from "~/api/modules/auth/types/AuthDTO"
 
-export type ProprietorRecordDTO = CreateProprietorRecordDTO & {
+export type ProprietorRecordDTO = SignUpUserRecordDTO & {
   tenantId: number
 }

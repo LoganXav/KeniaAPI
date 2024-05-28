@@ -16,27 +16,34 @@ import { validateData } from "~/api/shared/helpers/middleware/validateData"
 import AuthSignUpService from "../services/AuthSignUp.service"
 import AuthRefreshOtpTokenService from "../services/AuthRefreshOtpToken.service"
 import AuthVerifyOtpTokenService from "../services/AuthVerifyOtpToken.service"
-import { createProprietorRecordSchema } from "../validators/ProprietorRecordCreationSchema"
+import AuthSignInService from "../services/AuthSignIn.service"
+
 import { refreshOtpTokenSchema } from "../validators/RefreshOtpTokenSchema"
 import { verifyOtpTokenSchema } from "../validators/VerifyOtpSchema"
+import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema"
+import { signInUserRecordSchema } from "../validators/SignInUserRecordSchema"
 
 @autoInjectable()
 export default class AuthController extends BaseController {
   static controllerName: string
   authSignUpService: AuthSignUpService
+  authSignInService: AuthSignInService
   authRefreshOtpTokenService: AuthRefreshOtpTokenService
   authVerifyOtpTokenService: AuthVerifyOtpTokenService
   constructor(
     authSignUpService: AuthSignUpService,
+    authSignInService: AuthSignInService,
     authRefreshOtpTokenService: AuthRefreshOtpTokenService,
     authVerifyOtpTokenService: AuthVerifyOtpTokenService
   ) {
     super()
     this.controllerName = "AuthController"
     this.authSignUpService = authSignUpService
+    this.authSignInService = authSignInService
     this.authRefreshOtpTokenService = authRefreshOtpTokenService
     this.authVerifyOtpTokenService = authVerifyOtpTokenService
   }
+
   signUp: EntryPointHandler = async (
     req: IRequest,
     res: IResponse,
@@ -51,6 +58,22 @@ export default class AuthController extends BaseController {
       }
     )
   }
+
+  signIn: EntryPointHandler = async (
+    req: IRequest,
+    res: IResponse,
+    next: INextFunction
+  ): Promise<void> => {
+    return this.handleResultData(
+      res,
+      next,
+      this.authSignInService.execute(res.trace, req.body),
+      {
+        [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
+      }
+    )
+  }
+
   refreshOtpToken: EntryPointHandler = async (
     req: IRequest,
     res: IResponse,
@@ -82,17 +105,31 @@ export default class AuthController extends BaseController {
 
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router())
+
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/auth/signup",
-      handlers: [validateData(createProprietorRecordSchema), this.signUp],
+      handlers: [validateData(signUpUserRecordSchema), this.signUp],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.CREATED,
           httpStatus: HttpStatusCodeEnum.CREATED
         }
       ],
-      description: "Create New Tenant and Proprietor Record"
+      description: "Sign Up New Tenant and User Record"
+    })
+
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/auth/signin",
+      handlers: [validateData(signInUserRecordSchema), this.signIn],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.SUCCESS,
+          httpStatus: HttpStatusCodeEnum.SUCCESS
+        }
+      ],
+      description: "Sign In User"
     })
 
     this.addRoute({
@@ -105,7 +142,7 @@ export default class AuthController extends BaseController {
           httpStatus: HttpStatusCodeEnum.SUCCESS
         }
       ],
-      description: "Request Email Verification Token"
+      description: "Request OTP Verification Token"
     })
 
     this.addRoute({
@@ -118,7 +155,7 @@ export default class AuthController extends BaseController {
           httpStatus: HttpStatusCodeEnum.SUCCESS
         }
       ],
-      description: "Request Email Verification Token"
+      description: "Verify OTP Verification Token"
     })
   }
 }

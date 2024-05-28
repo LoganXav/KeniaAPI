@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export const createProprietorRecordSchema = z.object({
+export const signUpUserRecordSchema = z.object({
   firstName: z.string({
     required_error: "Parameter first name is missing"
   }),

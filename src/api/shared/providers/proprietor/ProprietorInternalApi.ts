@@ -4,7 +4,7 @@ import { IProprietorInternalApiProvider } from "../contracts/IProprietorInternal
 import { autoInjectable } from "tsyringe"
 import { ProprietorRecordDTO } from "../../types/ProprietorInternalApiTypes"
 import {
-  CreateProprietorRecordDTO,
+  SignUpUserRecordDTO,
   UpdateUserAccountVerificationRecordDTO
 } from "~/api/modules/auth/types/AuthDTO"
 
@@ -12,14 +12,11 @@ import {
 export default class ProprietorInternalApiProvider
   implements IProprietorInternalApiProvider
 {
-  public async findProprietorByEmail(
-    args: CreateProprietorRecordDTO,
-    tx?: any
-  ) {
+  public async findProprietorByEmail(email: string, tx?: any) {
     const dbClient = tx ? tx : DbClient
     const result = await DbClient?.user?.findFirst({
       where: {
-        email: args.email,
+        email: email,
         role: Role.PROPRIETOR
       }
     })

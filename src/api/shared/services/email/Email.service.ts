@@ -10,8 +10,6 @@ export class EmailService {
   public static async sendAccountActivationEmail(
     sendAccountActivationEmailArgs: SendAccountActivationEmailArgs
   ) {
-    // TODO - Integrate rabbitMQ to guarantee otp mail delivery
-
     const { userEmail, activationToken } = sendAccountActivationEmailArgs
     const emailProvider = EmailProviderFactory.build()
     const emailTemplate =
