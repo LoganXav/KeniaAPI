@@ -4,9 +4,11 @@ import { IProprietorInternalApiProvider } from "../contracts/IProprietorInternal
 import { autoInjectable } from "tsyringe"
 import { ProprietorRecordDTO } from "../../types/ProprietorInternalApiTypes"
 import {
-  SignUpUserRecordDTO,
-  UpdateUserAccountVerificationRecordDTO
+  UpdateUserFirstTimeLoginRecordDTO,
+  UpdateUserAccountVerificationRecordDTO,
+  updateUserLastLoginDateDTO
 } from "~/api/modules/auth/types/AuthDTO"
+import DateTimeUtil from "~/utils/DateTimeUtil"
 
 @autoInjectable()
 export default class ProprietorInternalApiProvider
@@ -68,6 +70,38 @@ export default class ProprietorInternalApiProvider
         id: userId
       },
       data: { hasVerified }
+    })
+
+    return result
+  }
+
+  public async updateUserFirstTimeLoginRecord(
+    args: UpdateUserFirstTimeLoginRecordDTO,
+    tx?: any
+  ): Promise<User> {
+    const { userId, isFirstTimeLogin } = args
+    const dbClient = tx ? tx : DbClient
+    const result = await dbClient?.user?.update({
+      where: {
+        id: userId
+      },
+      data: { isFirstTimeLogin }
+    })
+
+    return result
+  }
+
+  public async updateUserLastLoginDate(
+    args: updateUserLastLoginDateDTO,
+    tx?: any
+  ): Promise<User> {
+    const { userId, lastLoginDate } = args
+    const dbClient = tx ? tx : DbClient
+    const result = await dbClient?.user?.update({
+      where: {
+        id: userId
+      },
+      data: { lastLoginDate }
     })
 
     return result

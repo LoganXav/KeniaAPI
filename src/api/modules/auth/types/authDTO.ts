@@ -5,6 +5,7 @@ import { verifyOtpTokenSchema } from "../validators/VerifyOtpSchema"
 import { refreshOtpTokenSchema } from "../validators/RefreshOtpTokenSchema"
 import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema"
 import { signInUserRecordSchema } from "../validators/SignInUserRecordSchema"
+import { DateTime } from "luxon"
 
 export type SignUpUserRecordDTO = z.infer<typeof signUpUserRecordSchema>
 
@@ -24,6 +25,15 @@ export type UpdateUserTokenRecordDTO = {
 export type UpdateUserAccountVerificationRecordDTO = {
   userId: number
   hasVerified: boolean
+}
+
+export type UpdateUserFirstTimeLoginRecordDTO = {
+  userId: number
+  isFirstTimeLogin: boolean
+}
+export type updateUserLastLoginDateDTO = {
+  userId: number
+  lastLoginDate: Date
 }
 
 export type RefreshUserTokenDTO = z.infer<typeof refreshOtpTokenSchema>
