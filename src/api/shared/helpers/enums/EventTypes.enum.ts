@@ -1,5 +1,6 @@
 export const eventTypes = {
   user: {
-    signUp: "onUserSignUp"
+    signUp: "onUserSignUp",
+    signIn: "onUserSignIn"
   }
 }

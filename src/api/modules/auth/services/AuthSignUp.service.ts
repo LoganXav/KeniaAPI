@@ -22,10 +22,10 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service"
 import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
 import TenantInternalApiProvider from "~/api/shared/providers/tenant/TenantInternalApi"
-import { CreateProprietorRecordDTO } from "../types/AuthDTO"
+import { SignUpUserRecordDTO } from "../types/AuthDTO"
 
 @autoInjectable()
-export default class AuthSignUpService extends BaseService<CreateProprietorRecordDTO> {
+export default class AuthSignUpService extends BaseService<SignUpUserRecordDTO> {
   static serviceName = "AuthSignUpService"
   tokenProvider: TokenProvider
   proprietorInternalApiProvider: ProprietorInternalApiProvider
@@ -44,12 +44,14 @@ export default class AuthSignUpService extends BaseService<CreateProprietorRecor
 
   public async execute(
     trace: ServiceTrace,
-    args: CreateProprietorRecordDTO
+    args: SignUpUserRecordDTO
   ): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args, ["password"])
       const foundProprietor =
-        await this.proprietorInternalApiProvider.findProprietorByEmail(args)
+        await this.proprietorInternalApiProvider.findProprietorByEmail(
+          args.email
+        )
       if (foundProprietor) {
         this.result.setError(
           ERROR,
@@ -101,7 +103,7 @@ export default class AuthSignUpService extends BaseService<CreateProprietorRecor
   }
 
   private async createTenantAndProprietorRecordWithTokenTransaction(
-    args: CreateProprietorRecordDTO
+    args: SignUpUserRecordDTO
   ) {
     try {
       const result = await DbClient.$transaction(async (tx) => {

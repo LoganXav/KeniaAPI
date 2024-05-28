@@ -10,6 +10,7 @@
 
 **_ Itenary _**
 
-- Verify Otp Flow.
-  - Send Otp and update the verified property to true
+Authentication
+
 - SignIn Flow.
+- Password Reset Flow.

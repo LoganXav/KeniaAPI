@@ -1,13 +1,14 @@
 import { z } from "zod"
 
-import { createProprietorRecordSchema } from "../validators/ProprietorRecordCreationSchema"
 import { UserToken } from "@prisma/client"
 import { verifyOtpTokenSchema } from "../validators/VerifyOtpSchema"
 import { refreshOtpTokenSchema } from "../validators/RefreshOtpTokenSchema"
+import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema"
+import { signInUserRecordSchema } from "../validators/SignInUserRecordSchema"
 
-export type CreateProprietorRecordDTO = z.infer<
-  typeof createProprietorRecordSchema
->
+export type SignUpUserRecordDTO = z.infer<typeof signUpUserRecordSchema>
+
+export type SignInUserRecordDTO = z.infer<typeof signInUserRecordSchema>
 
 export type CreateUserTokenRecordDTO = Omit<
   UserToken,
