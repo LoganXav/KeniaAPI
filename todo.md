@@ -7,10 +7,10 @@
 **_ Bug Fixes _**
 
 - Refactor ProprietorInternalApi providers to UserInternalApi for reusability
+- Prisma or Supabase time is one hour behind
 
 **_ Itenary _**
 
 Authentication
 
-- SignIn Flow.
 - Password Reset Flow.

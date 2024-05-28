@@ -65,7 +65,18 @@ export default class AuthSignInService extends BaseService<SignInUserRecordDTO> 
 
       const accessToken = await JwtService.getJwt(foundUser)
 
-      Event.emit(eventTypes.user.signIn, foundUser.id)
+      Event.emit(eventTypes.user.signIn, { userId: foundUser.id })
+
+      if (foundUser.isFirstTimeLogin) {
+        const updateUserRecordArgs = {
+          userId: foundUser.id,
+          isFirstTimeLogin: false
+        }
+
+        await this.proprietorInternalApiProvider.updateUserFirstTimeLoginRecord(
+          updateUserRecordArgs
+        )
+      }
 
       const { password, ...SignedInUserData } = foundUser
 

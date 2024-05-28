@@ -21,19 +21,21 @@ model Tenant {
 }
 
 model User {
-    id          Int         @id @default(autoincrement())
-    firstName   String
-    lastName    String
-    phoneNumber String
-    email       String      @unique
-    password    String
-    hasVerified Boolean     @default(false)
-    role        Role
-    tenantId    Int
-    tenant      Tenant      @relation(fields: [tenantId], references: [id])
-    tokens      UserToken[]
-    instructor  Instructor?
-    student     Student?
+    id               Int         @id @default(autoincrement())
+    firstName        String
+    lastName         String
+    phoneNumber      String
+    email            String      @unique
+    password         String
+    hasVerified      Boolean     @default(false)
+    isFirstTimeLogin Boolean     @default(true)
+    lastLoginDate    DateTime    @default(now())
+    role             Role
+    tenantId         Int
+    tenant           Tenant      @relation(fields: [tenantId], references: [id])
+    tokens           UserToken[]
+    instructor       Instructor?
+    student          Student?
 }
 
 enum Role {
