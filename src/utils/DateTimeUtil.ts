@@ -9,7 +9,7 @@ export class DateTimeUtils {
     return DateTime.now().toJSDate()
   }
 
-  getCurrentTime(): string {
+  getISOCurrentTime(): string {
     return DateTime.now().toISOTime() as string
   }
 }

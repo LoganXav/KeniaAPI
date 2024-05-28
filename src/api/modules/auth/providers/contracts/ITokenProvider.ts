@@ -14,4 +14,5 @@ export interface ITokenProvider {
     args: UpdateUserTokenRecordDTO,
     tx?: any
   ): Promise<UserToken>
+  findUserTokenByToken(otpToken: string, tx?: any): Promise<UserToken>
 }

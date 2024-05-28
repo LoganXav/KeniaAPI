@@ -20,5 +20,10 @@ export type UpdateUserTokenRecordDTO = {
   isActive: boolean
 }
 
+export type UpdateUserAccountVerificationRecordDTO = {
+  userId: number
+  hasVerified: boolean
+}
+
 export type RefreshUserTokenDTO = z.infer<typeof refreshOtpTokenSchema>
 export type VerifyUserTokenDTO = z.infer<typeof verifyOtpTokenSchema>

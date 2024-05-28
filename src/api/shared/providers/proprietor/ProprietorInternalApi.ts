@@ -3,7 +3,10 @@ import { Role, User } from "@prisma/client"
 import { IProprietorInternalApiProvider } from "../contracts/IProprietorInternalApiProvider"
 import { autoInjectable } from "tsyringe"
 import { ProprietorRecordDTO } from "../../types/ProprietorInternalApiTypes"
-import { CreateProprietorRecordDTO } from "~/api/modules/auth/types/AuthDTO"
+import {
+  CreateProprietorRecordDTO,
+  UpdateUserAccountVerificationRecordDTO
+} from "~/api/modules/auth/types/AuthDTO"
 
 @autoInjectable()
 export default class ProprietorInternalApiProvider
@@ -21,7 +24,19 @@ export default class ProprietorInternalApiProvider
       }
     })
 
-    return Promise.resolve(result)
+    return result
+  }
+
+  public async findProprietorById(id: number, tx?: any) {
+    const dbClient = tx ? tx : DbClient
+    const result = await DbClient?.user?.findFirst({
+      where: {
+        id,
+        role: Role.PROPRIETOR
+      }
+    })
+
+    return result
   }
 
   public async createProprietorRecord(
@@ -42,6 +57,22 @@ export default class ProprietorInternalApiProvider
       }
     })
 
-    return Promise.resolve(result)
+    return result
+  }
+
+  public async updateUserAccountVerificationRecord(
+    args: UpdateUserAccountVerificationRecordDTO,
+    tx?: any
+  ): Promise<User> {
+    const { userId, hasVerified } = args
+    const dbClient = tx ? tx : DbClient
+    const result = await dbClient?.user?.update({
+      where: {
+        id: userId
+      },
+      data: { hasVerified }
+    })
+
+    return result
   }
 }

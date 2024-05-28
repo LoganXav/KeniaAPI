@@ -1,8 +1,7 @@
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account created successfully"
-export const ACCOUNT_VERIFIED = "Account Verified"
-export const EMAIL_VERIFICATION_TOKEN_REQUEST_SUCCESS =
-  "Email Verification Request Success"
+export const ACCOUNT_VERIFIED = "Token Verification Success"
+export const TOKEN_REFRESH_SUCCESS = "Token Refresh Success"
 
 /** <---------------> Error Responses <---------------> */
 export const EMAIL_IN_USE = "Email is Already in Use"
@@ -38,3 +37,5 @@ export const ERROR_INVALID_TOKEN =
 export const ERROR_EXPIRED_TOKEN =
   "Expired Token: The provided token has expired."
 export const ERROR_MISSING_TOKEN = "Missing Token: Access token is missing."
+export const TOKEN_EXPIRED =
+  "This Token has Expired. Please Request a Fresh One."

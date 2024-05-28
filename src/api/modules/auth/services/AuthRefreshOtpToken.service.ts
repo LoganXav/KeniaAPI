@@ -7,7 +7,7 @@ import { RefreshUserTokenDTO, UpdateUserTokenRecordDTO } from "../types/AuthDTO"
 import { TokenType } from "@prisma/client"
 import {
   ACCOUNT_VERIFIED,
-  EMAIL_VERIFICATION_TOKEN_REQUEST_SUCCESS,
+  TOKEN_REFRESH_SUCCESS,
   ERROR,
   NULL_OBJECT,
   SUCCESS
@@ -56,7 +56,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
       this.result.setData(
         SUCCESS,
         HttpStatusCodeEnum.CREATED,
-        EMAIL_VERIFICATION_TOKEN_REQUEST_SUCCESS
+        TOKEN_REFRESH_SUCCESS
       )
 
       trace.setSuccessful()
