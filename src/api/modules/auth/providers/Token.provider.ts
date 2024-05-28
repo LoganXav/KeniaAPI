@@ -1,4 +1,4 @@
-import { TokenType } from "@prisma/client"
+import { TokenType, UserToken } from "@prisma/client"
 import { ITokenProvider } from "./contracts/ITokenProvider"
 import { autoInjectable } from "tsyringe"
 import {
@@ -8,7 +8,10 @@ import {
 import DbClient from "~/infrastructure/internal/database"
 @autoInjectable()
 export default class TokenProvider implements ITokenProvider {
-  public async createUserTokenRecord(args: CreateUserTokenRecordDTO, tx?: any) {
+  public async createUserTokenRecord(
+    args: CreateUserTokenRecordDTO,
+    tx?: any
+  ): Promise<UserToken> {
     const { userId, tokenType, expiresAt, token } = args
     const dbClient = tx ? tx : DbClient
     const userToken = await dbClient.userToken.create({
@@ -20,7 +23,7 @@ export default class TokenProvider implements ITokenProvider {
       }
     })
 
-    return Promise.resolve(userToken)
+    return userToken
   }
 
   public async findUserTokensByType(
@@ -29,7 +32,7 @@ export default class TokenProvider implements ITokenProvider {
       tokenType: TokenType
     },
     tx?: any
-  ) {
+  ): Promise<UserToken[]> {
     const { userId, tokenType } = args
     const dbClient = tx ? tx : DbClient
     const userTokens = await dbClient.userToken.findMany({
@@ -39,10 +42,13 @@ export default class TokenProvider implements ITokenProvider {
       }
     })
 
-    return Promise.resolve(userTokens)
+    return userTokens
   }
 
-  public async updateUserTokenRecord(args: UpdateUserTokenRecordDTO, tx?: any) {
+  public async updateUserTokenRecord(
+    args: UpdateUserTokenRecordDTO,
+    tx?: any
+  ): Promise<UserToken> {
     const { expired, tokenId, isActive } = args
     const dbClient = tx ? tx : DbClient
     const result = await dbClient.userToken.update({
@@ -52,6 +58,20 @@ export default class TokenProvider implements ITokenProvider {
       data: { expired, isActive }
     })
 
-    return Promise.resolve(result)
+    return result
+  }
+
+  public async findUserTokenByToken(
+    otpToken: string,
+    tx?: any
+  ): Promise<UserToken> {
+    const dbClient = tx ? tx : DbClient
+    const userToken = await dbClient.userToken.findFirst({
+      where: {
+        token: otpToken
+      }
+    })
+
+    return userToken
   }
 }

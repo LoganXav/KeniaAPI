@@ -7,5 +7,6 @@ export const ROUTE_WHITE_LIST = [
   `${root}/ping`,
   `${root}/auth/signin`,
   `${root}/auth/signup`,
-  `${root}/auth/otp/refresh`
+  `${root}/auth/otp/refresh`,
+  `${root}/auth/otp/verify`
 ]
