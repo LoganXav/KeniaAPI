@@ -1,9 +1,8 @@
 import { autoInjectable } from "tsyringe"
 import { BaseService } from "../../base/services/Base.service"
 import { IResult } from "~/api/shared/helpers/results/IResult"
-import { CreatePrincipalUserRecordDTO } from "../types/AuthDTO"
-import AuthProvider from "../providers/auth/Auth.provider"
-import TokenProvider from "../providers/auth/Token.provider"
+import { CreateProprietorRecordDTO } from "../types/AuthDTO"
+import TokenProvider from "../providers/Token.provider"
 import {
   ACCOUNT_CREATED,
   EMAIL_IN_USE,
@@ -15,35 +14,43 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { businessConfig } from "~/config/BusinessConfig"
 import { DateTime } from "luxon"
 import { generateStringOfLength } from "~/utils/GenerateStringOfLength"
-import { User, UserTokenTypesEnum } from "@prisma/client"
+import { TokenType } from "@prisma/client"
 import DbClient from "~/infrastructure/internal/database"
 import Event from "~/api/shared/helpers/events"
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum"
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service"
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service"
+import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
+import TenantInternalApiProvider from "~/api/shared/providers/tenant/TenantInternalApi"
 
 @autoInjectable()
-export default class AuthSignUpService extends BaseService<CreatePrincipalUserRecordDTO> {
+export default class AuthSignUpService extends BaseService<CreateProprietorRecordDTO> {
   static serviceName = "AuthSignUpService"
-  authProvider: AuthProvider
   tokenProvider: TokenProvider
+  proprietorInternalApiProvider: ProprietorInternalApiProvider
+  tenantInternalApiProvider: TenantInternalApiProvider
 
-  constructor(authProvider: AuthProvider, tokenProvider: TokenProvider) {
+  constructor(
+    tokenProvider: TokenProvider,
+    proprietorInternalApiProvider: ProprietorInternalApiProvider,
+    tenantInternalApiProvider: TenantInternalApiProvider
+  ) {
     super(AuthSignUpService.serviceName)
-
-    this.authProvider = authProvider
     this.tokenProvider = tokenProvider
+    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.tenantInternalApiProvider = tenantInternalApiProvider
   }
 
   public async execute(
     trace: ServiceTrace,
-    args: CreatePrincipalUserRecordDTO
+    args: CreateProprietorRecordDTO
   ): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args)
-      const foundUser = await this.authProvider.findPrincipalUserByEmail(args)
-      if (foundUser) {
+      this.initializeServiceTrace(trace, args, ["password"])
+      const foundProprietor =
+        await this.proprietorInternalApiProvider.findProprietorByEmail(args)
+      if (foundProprietor) {
         this.result.setError(
           ERROR,
           HttpStatusCodeEnum.UNPROCESSABLE_ENTITY,
@@ -55,21 +62,22 @@ export default class AuthSignUpService extends BaseService<CreatePrincipalUserRe
       const hashedPassword = PasswordEncryptionService.hashPassword(
         args.password
       )
+
       const input = { ...args, password: hashedPassword }
 
-      const data = await this.createPrincipalAndSchoolWithToken(input)
+      const data = await this.createTenantAndProprietorRecordWithToken(input)
       if (data === NULL_OBJECT) return this.result
 
-      const { principal, otpToken } = data
+      const { proprietor, otpToken } = data
 
       Event.emit(eventTypes.user.signUp, {
-        userEmail: principal.email,
+        userEmail: proprietor.email,
         activationToken: otpToken
       })
 
-      const accessToken = await JwtService.getJwt(principal)
+      const accessToken = await JwtService.getJwt(proprietor)
 
-      const { password, ...createdUserData } = principal
+      const { password, ...createdUserData } = proprietor
 
       this.result.setData(
         SUCCESS,
@@ -91,33 +99,39 @@ export default class AuthSignUpService extends BaseService<CreatePrincipalUserRe
     }
   }
 
-  private async createPrincipalAndSchoolWithToken(
-    args: CreatePrincipalUserRecordDTO
+  private async createTenantAndProprietorRecordWithToken(
+    args: CreateProprietorRecordDTO
   ) {
     try {
       const result = await DbClient.$transaction(async (dbClient) => {
-        const principal = await this.authProvider.createPrincipalUserRecord(
-          args,
+        const tenant = await this.tenantInternalApiProvider.createTenantRecord(
           dbClient
         )
-        await this.authProvider.createSchoolRecord(principal.id, dbClient)
+
+        const input = { tenantId: tenant?.id, ...args }
+
+        const proprietor =
+          await this.proprietorInternalApiProvider.createProprietorRecord(
+            input,
+            dbClient
+          )
 
         const otpToken = generateStringOfLength(businessConfig.emailTokenLength)
-        const expiresOn = DateTime.now()
+        const expiresAt = DateTime.now()
           .plus({ minutes: businessConfig.emailTokenExpiresInMinutes })
           .toJSDate()
 
         await this.tokenProvider.createUserTokenRecord(
           {
-            userId: principal.id,
-            tokenType: UserTokenTypesEnum.EMAIL,
-            expiresOn,
+            userId: proprietor.id,
+            tokenType: TokenType.EMAIL,
+            expiresAt,
             token: otpToken
           },
           dbClient
         )
 
-        return { principal, otpToken }
+        return { proprietor, otpToken }
       })
       return result
     } catch (error: any) {
