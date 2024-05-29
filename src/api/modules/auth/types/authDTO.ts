@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { UserToken } from "@prisma/client"
+import { TokenType, UserToken } from "@prisma/client"
 import { verifyOtpTokenSchema } from "../validators/VerifyOtpSchema"
 import { refreshOtpTokenSchema } from "../validators/RefreshOtpTokenSchema"
 import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema"
@@ -18,6 +18,13 @@ export type CreateUserTokenRecordDTO = Omit<
 
 export type UpdateUserTokenRecordDTO = {
   tokenId: number
+  expired: boolean
+  isActive: boolean
+}
+
+export type FindActiveUserTokenByTypeDTO = {
+  userId: number
+  tokenType: TokenType
   expired: boolean
   isActive: boolean
 }

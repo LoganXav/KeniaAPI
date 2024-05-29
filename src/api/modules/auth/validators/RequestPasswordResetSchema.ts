@@ -1,9 +1,6 @@
 import { z } from "zod"
 
-export const signInUserRecordSchema = z.object({
-  password: z.string({
-    required_error: "Argument password is missing"
-  }),
+export const requestPasswordRequestSchema = z.object({
   email: z
     .string({
       required_error: "Argument email is missing"

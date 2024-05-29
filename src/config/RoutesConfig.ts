@@ -8,5 +8,7 @@ export const ROUTE_WHITE_LIST = [
   `${root}/auth/signin`,
   `${root}/auth/signup`,
   `${root}/auth/otp/refresh`,
-  `${root}/auth/otp/verify`
+  `${root}/auth/otp/verify`,
+  `${root}/auth/password-reset/request`,
+  `${root}/auth/password-reset/reset`
 ]

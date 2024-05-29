@@ -2,6 +2,7 @@ import { TokenType, UserToken } from "@prisma/client"
 import { ITokenProvider } from "./contracts/ITokenProvider"
 import {
   CreateUserTokenRecordDTO,
+  FindActiveUserTokenByTypeDTO,
   UpdateUserTokenRecordDTO
 } from "../types/AuthDTO"
 import DbClient from "~/infrastructure/internal/database"
@@ -67,6 +68,23 @@ export default class TokenProvider implements ITokenProvider {
     const userToken = await dbClient.userToken.findFirst({
       where: {
         token: otpToken
+      }
+    })
+
+    return userToken
+  }
+  public async findActiveUserTokenByType(
+    args: FindActiveUserTokenByTypeDTO,
+    tx?: any
+  ): Promise<UserToken> {
+    const { userId, tokenType, expired, isActive } = args
+    const dbClient = tx ? tx : DbClient
+    const userToken = await dbClient.userToken.findFirst({
+      where: {
+        userId,
+        tokenType,
+        expired,
+        isActive
       }
     })
 

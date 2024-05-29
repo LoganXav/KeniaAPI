@@ -14,6 +14,7 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { autoInjectable } from "tsyringe"
 import { validateData } from "~/api/shared/helpers/middleware/validateData"
 import AuthPasswordResetRequestService from "../services/AuthPasswordResetRequest.service"
+import { requestPasswordRequestSchema } from "../validators/RequestPasswordResetSchema"
 
 @autoInjectable()
 export default class AuthPasswordResetController extends BaseController {
@@ -46,9 +47,9 @@ export default class AuthPasswordResetController extends BaseController {
     this.setRouter(router())
 
     this.addRoute({
-      method: HttpMethodEnum.POST,
+      method: HttpMethodEnum.GET,
       path: "/auth/password-reset/request",
-      handlers: [validateData(null as unknown as any), this.resetRequest],
+      handlers: [validateData(requestPasswordRequestSchema), this.resetRequest],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
