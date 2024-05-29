@@ -10,6 +10,7 @@ import {
   ERROR,
   ERROR_INVALID_TOKEN,
   NULL_OBJECT,
+  SOMETHING_WENT_WRONG,
   SUCCESS,
   TOKEN_EXPIRED
 } from "~/api/shared/helpers/messages/SystemMessages"
@@ -20,12 +21,15 @@ import { TokenType, UserToken } from "@prisma/client"
 import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
 import DateTimeUtil from "~/utils/DateTimeUtil"
 import DbClient from "~/infrastructure/internal/database"
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 
 @autoInjectable()
 export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTokenDTO> {
   static serviceName = "AuthVerifyOtpTokenService"
   tokenProvider: TokenProvider
   proprietorInternalApiProvider: ProprietorInternalApiProvider
+  loggingProvider: ILoggingDriver
 
   constructor(
     tokenProvider: TokenProvider,
@@ -34,72 +38,88 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
     super(AuthVerifyOtpTokenService.serviceName)
     this.tokenProvider = tokenProvider
     this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.loggingProvider = LoggingProviderFactory.build()
   }
 
   public async execute(trace: ServiceTrace, args: VerifyUserTokenDTO) {
-    const { id: userId, otpToken } = args
-    this.initializeServiceTrace(trace, args, ["otpToken"])
+    try {
+      const { id: userId, otpToken } = args
+      this.initializeServiceTrace(trace, args, ["otpToken"])
 
-    if (!otpToken) {
+      if (!otpToken) {
+        this.result.setError(
+          ERROR,
+          HttpStatusCodeEnum.BAD_REQUEST,
+          ERROR_INVALID_TOKEN
+        )
+        return this.result
+      }
+
+      const dbOtpToken = await this.tokenProvider.findUserTokenByToken(otpToken)
+      if (dbOtpToken === NULL_OBJECT) {
+        this.result.setError(
+          ERROR,
+          HttpStatusCodeEnum.BAD_REQUEST,
+          ERROR_INVALID_TOKEN
+        )
+        return this.result
+      }
+
+      if (dbOtpToken.tokenType != TokenType.EMAIL) {
+        await this.deactivateUserToken(dbOtpToken.id)
+        this.result.setError(
+          ERROR,
+          HttpStatusCodeEnum.BAD_REQUEST,
+          ERROR_INVALID_TOKEN
+        )
+        return this.result
+      }
+
+      const tokenOwner =
+        await this.proprietorInternalApiProvider.findProprietorById(userId)
+
+      if (tokenOwner === NULL_OBJECT) {
+        this.result.setError(
+          ERROR,
+          HttpStatusCodeEnum.BAD_REQUEST,
+          ERROR_INVALID_TOKEN
+        )
+        return this.result
+      }
+
+      if (tokenOwner.hasVerified) {
+        this.result.setData(
+          SUCCESS,
+          HttpStatusCodeEnum.CREATED,
+          ACCOUNT_VERIFIED
+        )
+        return this.result
+      }
+
+      if (tokenOwner.id !== userId) {
+        this.result.setError(
+          ERROR,
+          HttpStatusCodeEnum.BAD_REQUEST,
+          ERROR_INVALID_TOKEN
+        )
+        return this.result
+      }
+
+      const data = await this.verifyUserAccountTransaction(dbOtpToken, userId)
+      if (data === NULL_OBJECT) return this.result
+
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, ACCOUNT_VERIFIED)
+      trace.setSuccessful()
+      return this.result
+    } catch (error: any) {
+      this.loggingProvider.error(error)
       this.result.setError(
         ERROR,
-        HttpStatusCodeEnum.BAD_REQUEST,
-        ERROR_INVALID_TOKEN
+        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
+        SOMETHING_WENT_WRONG
       )
       return this.result
     }
-
-    const dbOtpToken = await this.tokenProvider.findUserTokenByToken(otpToken)
-    if (dbOtpToken === NULL_OBJECT) {
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.BAD_REQUEST,
-        ERROR_INVALID_TOKEN
-      )
-      return this.result
-    }
-
-    if (dbOtpToken.tokenType != TokenType.EMAIL) {
-      await this.deactivateUserToken(dbOtpToken.id)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.BAD_REQUEST,
-        ERROR_INVALID_TOKEN
-      )
-      return this.result
-    }
-
-    const tokenOwner =
-      await this.proprietorInternalApiProvider.findProprietorById(userId)
-
-    if (tokenOwner === NULL_OBJECT) {
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.BAD_REQUEST,
-        ERROR_INVALID_TOKEN
-      )
-      return this.result
-    }
-
-    if (tokenOwner.hasVerified) {
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, ACCOUNT_VERIFIED)
-      return this.result
-    }
-
-    if (tokenOwner.id !== userId) {
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.BAD_REQUEST,
-        ERROR_INVALID_TOKEN
-      )
-      return this.result
-    }
-
-    await this.verifyUserAccountTransaction(dbOtpToken, userId)
-
-    this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, ACCOUNT_VERIFIED)
-    trace.setSuccessful()
-    return this.result
   }
 
   private async verifyUserAccountTransaction(
@@ -127,10 +147,11 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
 
       return result
     } catch (error: any) {
+      this.loggingProvider.error(error)
       this.result.setError(
         ERROR,
         HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        error.message
+        SOMETHING_WENT_WRONG
       )
       return null
     }

@@ -20,12 +20,16 @@ import { generateStringOfLength } from "~/utils/GenerateStringOfLength"
 import { businessConfig } from "~/config/BusinessConfig"
 import { DateTime } from "luxon"
 import { EmailService } from "~/api/shared/services/email/Email.service"
+import { LoggingProvider } from "~/infrastructure/internal/logger/LoggingProvider"
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
 
 @autoInjectable()
 export default class AuthPasswordResetRequestService extends BaseService<unknown> {
   static serviceName = "AuthPasswordReserRequestService"
   proprietorInternalApiProvider: ProprietorInternalApiProvider
   tokenProvider: TokenProvider
+  loggingProvider: ILoggingDriver
   constructor(
     proprietorInternalApiProvider: ProprietorInternalApiProvider,
     tokenProvider: TokenProvider
@@ -33,6 +37,7 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
     super(AuthPasswordResetRequestService.serviceName)
     this.proprietorInternalApiProvider = proprietorInternalApiProvider
     this.tokenProvider = tokenProvider
+    this.loggingProvider = LoggingProviderFactory.build()
   }
   public async execute(trace: ServiceTrace, args: any): Promise<IResult> {
     try {
@@ -50,7 +55,12 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
         )
         return this.result
       }
-      await this.passwordResetTokenTransaction(foundUser.id, foundUser.email)
+      const data = await this.passwordResetTokenTransaction(
+        foundUser.id,
+        foundUser.email
+      )
+
+      if (data === NULL_OBJECT) return this.result
 
       this.result.setData(
         SUCCESS,
@@ -61,7 +71,7 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
-      console.error(error)
+      this.loggingProvider.error(error)
       this.result.setError(
         ERROR,
         HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
@@ -121,21 +131,18 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
           userEmail: email,
           passwordResetLink: passwordResetLink
         }
-
         await EmailService.sendPasswordResetLink(sendPasswordResetLinkArgs)
-
         return
       })
       return
     } catch (error: any) {
-      console.error(error)
-
+      this.loggingProvider.error(error)
       this.result.setError(
         ERROR,
         HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
         SOMETHING_WENT_WRONG
       )
-      return this.result
+      return null
     }
   }
 }

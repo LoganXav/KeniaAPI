@@ -5,7 +5,6 @@ import { verifyOtpTokenSchema } from "../validators/VerifyOtpSchema"
 import { refreshOtpTokenSchema } from "../validators/RefreshOtpTokenSchema"
 import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema"
 import { signInUserRecordSchema } from "../validators/SignInUserRecordSchema"
-import { DateTime } from "luxon"
 
 export type SignUpUserRecordDTO = z.infer<typeof signUpUserRecordSchema>
 

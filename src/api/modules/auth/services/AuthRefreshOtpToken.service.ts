@@ -4,13 +4,15 @@ import { IResult } from "~/api/shared/helpers/results/IResult"
 import TokenProvider from "../providers/Token.provider"
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { RefreshUserTokenDTO, UpdateUserTokenRecordDTO } from "../types/AuthDTO"
-import { TokenType } from "@prisma/client"
+import { TokenType, User } from "@prisma/client"
 import {
   ACCOUNT_VERIFIED,
   TOKEN_REFRESH_SUCCESS,
   ERROR,
   NULL_OBJECT,
-  SUCCESS
+  SUCCESS,
+  SOMETHING_WENT_WRONG,
+  USER_RESOURCE
 } from "~/api/shared/helpers/messages/SystemMessages"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
 import { generateStringOfLength } from "~/utils/GenerateStringOfLength"
@@ -18,15 +20,26 @@ import { businessConfig } from "~/config/BusinessConfig"
 import { DateTime } from "luxon"
 import DbClient from "~/infrastructure/internal/database"
 import { EmailService } from "~/api/shared/services/email/Email.service"
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
+import { RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction"
+import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
 
 @autoInjectable()
 export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserTokenDTO> {
   static serviceName = "AuthRefreshOtpTokenService"
   tokenProvider: TokenProvider
+  proprietorInternalApiProvider: ProprietorInternalApiProvider
+  loggingProvider: ILoggingDriver
 
-  constructor(tokenProvider: TokenProvider) {
+  constructor(
+    tokenProvider: TokenProvider,
+    proprietorInternalApiProvider: ProprietorInternalApiProvider
+  ) {
     super(AuthRefreshOtpTokenService.serviceName)
     this.tokenProvider = tokenProvider
+    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.loggingProvider = LoggingProviderFactory.build()
   }
 
   public async execute(
@@ -36,7 +49,21 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
     try {
       this.initializeServiceTrace(trace, args)
 
-      if (args.hasVerified) {
+      const foundUser =
+        await this.proprietorInternalApiProvider.findProprietorByEmail(
+          args.email
+        )
+
+      if (foundUser === NULL_OBJECT) {
+        this.result.setError(
+          ERROR,
+          HttpStatusCodeEnum.BAD_REQUEST,
+          RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE)
+        )
+        return this.result
+      }
+
+      if (foundUser.hasVerified) {
         this.result.setData(
           SUCCESS,
           HttpStatusCodeEnum.CREATED,
@@ -45,11 +72,11 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
         return this.result
       }
 
-      const otpToken = await this.authRefreshTokenTransaction(args)
+      const otpToken = await this.authRefreshTokenTransaction(foundUser)
       if (otpToken === NULL_OBJECT) return this.result
 
       await EmailService.sendAccountActivationEmail({
-        userEmail: args.email,
+        userEmail: foundUser.email,
         activationToken: otpToken
       })
 
@@ -62,21 +89,22 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
+      this.loggingProvider.error(error)
       this.result.setError(
         ERROR,
         HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        error.message
+        SOMETHING_WENT_WRONG
       )
       return this.result
     }
   }
 
-  private async authRefreshTokenTransaction(args: RefreshUserTokenDTO) {
+  private async authRefreshTokenTransaction(foundUser: User) {
     try {
       const result = await DbClient.$transaction(async (tx: any) => {
         const userTokens = await this.tokenProvider.findUserTokensByType(
           {
-            userId: args.id,
+            userId: foundUser.id,
             tokenType: TokenType.EMAIL
           },
           tx
@@ -96,7 +124,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
 
         await this.tokenProvider.createUserTokenRecord(
           {
-            userId: args.id,
+            userId: foundUser.id,
             tokenType: TokenType.EMAIL,
             expiresAt,
             token: otpToken
@@ -108,10 +136,11 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
       })
       return result
     } catch (error: any) {
+      this.loggingProvider.error(error)
       this.result.setError(
         ERROR,
         HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        error.message
+        SOMETHING_WENT_WRONG
       )
       return null
     }
