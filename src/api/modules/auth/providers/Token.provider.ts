@@ -1,12 +1,10 @@
 import { TokenType, UserToken } from "@prisma/client"
 import { ITokenProvider } from "./contracts/ITokenProvider"
-import { autoInjectable } from "tsyringe"
 import {
   CreateUserTokenRecordDTO,
   UpdateUserTokenRecordDTO
 } from "../types/AuthDTO"
 import DbClient from "~/infrastructure/internal/database"
-@autoInjectable()
 export default class TokenProvider implements ITokenProvider {
   public async createUserTokenRecord(
     args: CreateUserTokenRecordDTO,
