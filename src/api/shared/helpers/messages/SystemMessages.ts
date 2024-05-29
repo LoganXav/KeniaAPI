@@ -24,11 +24,20 @@ export const PRINCIPAL_ROLE_NAME = "principal"
 export const CRITICAL_ERROR_EXITING =
   "Application Encountered a Critical Error. Exiting"
 export const INTERNAL_SERVER_ERROR = "Internal Server Error"
+export const SOMETHING_WENT_WRONG =
+  "Something went wrong while performing this operation"
 
 /** <---------------> Error States <---------------> */
 export const NULL_OBJECT = null
 
-/** <---------------> Authorization Errors <---------------> */
+/** <---------------> Password Reset Responses <---------------> */
+export const PASSWORD_RESET_TOKEN_EMAIL_SUBJECT =
+  "Bexxle's Tradel Password Reset"
+export const PASSWORD_RESET_LINK_GENERATED =
+  "Password Recovery Link Generated. Please Check your mail"
+export const PASSWORD_RESET_SUCCESSFULLY = "Password Changed Successfully"
+
+/** <---------------> Authorization Responses <---------------> */
 export const AUTHORIZATION_REQUIRED =
   "Unauthorized: You are not authorized to access this resource."
 export const VALIDATION_ERROR = "Validation Error"
@@ -41,3 +50,6 @@ export const ERROR_EXPIRED_TOKEN =
 export const ERROR_MISSING_TOKEN = "Missing Token: Access token is missing."
 export const TOKEN_EXPIRED =
   "This Token has Expired. Please Request a Fresh One."
+
+/** <---------------> Resource Labels <---------------> */
+export const USER_RESOURCE = "User Resource"

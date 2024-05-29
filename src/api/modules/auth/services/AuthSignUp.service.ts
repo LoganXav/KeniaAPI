@@ -7,6 +7,7 @@ import {
   EMAIL_IN_USE,
   ERROR,
   NULL_OBJECT,
+  SOMETHING_WENT_WRONG,
   SUCCESS
 } from "~/api/shared/helpers/messages/SystemMessages"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
@@ -23,6 +24,8 @@ import { PasswordEncryptionService } from "~/api/shared/services/encryption/Pass
 import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
 import TenantInternalApiProvider from "~/api/shared/providers/tenant/TenantInternalApi"
 import { SignUpUserRecordDTO } from "../types/AuthDTO"
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<SignUpUserRecordDTO> {
@@ -30,6 +33,7 @@ export default class AuthSignUpService extends BaseService<SignUpUserRecordDTO> 
   tokenProvider: TokenProvider
   proprietorInternalApiProvider: ProprietorInternalApiProvider
   tenantInternalApiProvider: TenantInternalApiProvider
+  loggingProvider: ILoggingDriver
 
   constructor(
     tokenProvider: TokenProvider,
@@ -40,6 +44,7 @@ export default class AuthSignUpService extends BaseService<SignUpUserRecordDTO> 
     this.tokenProvider = tokenProvider
     this.proprietorInternalApiProvider = proprietorInternalApiProvider
     this.tenantInternalApiProvider = tenantInternalApiProvider
+    this.loggingProvider = LoggingProviderFactory.build()
   }
 
   public async execute(
@@ -93,10 +98,11 @@ export default class AuthSignUpService extends BaseService<SignUpUserRecordDTO> 
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
+      this.loggingProvider.error(error)
       this.result.setError(
         ERROR,
         HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        error.message
+        SOMETHING_WENT_WRONG
       )
       return this.result
     }
@@ -138,10 +144,11 @@ export default class AuthSignUpService extends BaseService<SignUpUserRecordDTO> 
       })
       return result
     } catch (error: any) {
+      this.loggingProvider.error(error)
       this.result.setError(
         ERROR,
         HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        error.message
+        SOMETHING_WENT_WRONG
       )
       return null
     }
