@@ -1,9 +1,7 @@
 import { ITenantInternalApiProvider } from "../contracts/ITenantInternalApiProvider"
-import { autoInjectable } from "tsyringe"
 import { Tenant } from "@prisma/client"
 import DbClient from "~/infrastructure/internal/database"
 
-@autoInjectable()
 export default class TenantInternalApiProvider
   implements ITenantInternalApiProvider
 {

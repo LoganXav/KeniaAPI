@@ -1,7 +1,6 @@
 import DbClient from "~/infrastructure/internal/database"
 import { Role, User } from "@prisma/client"
 import { IProprietorInternalApiProvider } from "../contracts/IProprietorInternalApiProvider"
-import { autoInjectable } from "tsyringe"
 import { ProprietorRecordDTO } from "../../types/ProprietorInternalApiTypes"
 import {
   UpdateUserFirstTimeLoginRecordDTO,
@@ -10,7 +9,6 @@ import {
 } from "~/api/modules/auth/types/AuthDTO"
 import DateTimeUtil from "~/utils/DateTimeUtil"
 
-@autoInjectable()
 export default class ProprietorInternalApiProvider
   implements IProprietorInternalApiProvider
 {
