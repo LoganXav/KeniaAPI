@@ -26,7 +26,7 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 
 @autoInjectable()
 export default class AuthPasswordResetRequestService extends BaseService<unknown> {
-  static serviceName = "AuthPasswordReserRequestService"
+  static serviceName = "AuthPasswordResetRequestService"
   proprietorInternalApiProvider: ProprietorInternalApiProvider
   tokenProvider: TokenProvider
   loggingProvider: ILoggingDriver
@@ -55,12 +55,15 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
         )
         return this.result
       }
+
       const data = await this.passwordResetTokenTransaction(
         foundUser.id,
         foundUser.email
       )
 
       if (data === NULL_OBJECT) return this.result
+
+      await EmailService.sendPasswordResetLink(data)
 
       this.result.setData(
         SUCCESS,
@@ -131,10 +134,9 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
           userEmail: email,
           passwordResetLink: passwordResetLink
         }
-        await EmailService.sendPasswordResetLink(sendPasswordResetLinkArgs)
-        return
+        return sendPasswordResetLinkArgs
       })
-      return
+      return result
     } catch (error: any) {
       this.loggingProvider.error(error)
       this.result.setError(
