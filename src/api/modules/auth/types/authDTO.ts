@@ -5,17 +5,21 @@ import { verifyOtpTokenSchema } from "../validators/VerifyOtpSchema"
 import { refreshOtpTokenSchema } from "../validators/RefreshOtpTokenSchema"
 import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema"
 import { signInUserRecordSchema } from "../validators/SignInUserRecordSchema"
+import { confirmPasswordResetSchema } from "../validators/ConfirmPasswordResetSchema"
+import { requestPasswordResetSchema } from "../validators/RequestPasswordResetSchema"
 
 export type SignUpUserRecordDTO = z.infer<typeof signUpUserRecordSchema>
-
 export type SignInUserRecordDTO = z.infer<typeof signInUserRecordSchema>
-
 export type CreateUserTokenRecordDTO = Omit<
   UserToken,
   "id" | "isActive" | "expired"
 >
+export type RefreshUserTokenDTO = z.infer<typeof refreshOtpTokenSchema>
+export type VerifyUserTokenDTO = z.infer<typeof verifyOtpTokenSchema>
+export type RequestPasswordResetDTO = z.infer<typeof requestPasswordResetSchema>
+export type ConfirmPasswordResetDTO = z.infer<typeof confirmPasswordResetSchema>
 
-export type UpdateUserTokenRecordDTO = {
+export type UpdateUserTokenActivationRecordDTO = {
   tokenId: number
   expired: boolean
   isActive: boolean
@@ -42,5 +46,7 @@ export type updateUserLastLoginDateDTO = {
   lastLoginDate: Date
 }
 
-export type RefreshUserTokenDTO = z.infer<typeof refreshOtpTokenSchema>
-export type VerifyUserTokenDTO = z.infer<typeof verifyOtpTokenSchema>
+export type updateUserPasswordDTO = {
+  userId: number
+  password: string
+}

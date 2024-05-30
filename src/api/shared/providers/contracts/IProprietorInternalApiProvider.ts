@@ -3,7 +3,8 @@ import {
   SignUpUserRecordDTO,
   UpdateUserAccountVerificationRecordDTO,
   UpdateUserFirstTimeLoginRecordDTO,
-  updateUserLastLoginDateDTO
+  updateUserLastLoginDateDTO,
+  updateUserPasswordDTO
 } from "~/api/modules/auth/types/AuthDTO"
 
 export interface IProprietorInternalApiProvider {
@@ -22,4 +23,5 @@ export interface IProprietorInternalApiProvider {
     args: updateUserLastLoginDateDTO,
     tx?: any
   ): Promise<User>
+  updateUserPassword(args: updateUserPasswordDTO, tx?: any): Promise<User>
 }
