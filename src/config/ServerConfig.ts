@@ -64,7 +64,10 @@ export default {
     Security: {
       JWT: {
         SecretKey: process.env.JWT_SECRET_KEY,
-        ExpireInSeconds: 3600
+        ExpireInSeconds: DefaultValue.evaluateAndGet(
+          parseInt(process.env.JWT_EXPIRATION_TIME!, 10),
+          3600
+        )
       },
       Bcrypt: {
         SaltRounds: parseInt(process.env["BCRYPT_SALT_ROUNDS"]!, 10)
