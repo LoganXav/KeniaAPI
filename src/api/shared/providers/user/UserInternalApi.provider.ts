@@ -1,18 +1,19 @@
 import DbClient from "~/infrastructure/internal/database"
 import { Role, User } from "@prisma/client"
-import { IProprietorInternalApiProvider } from "../contracts/IProprietorInternalApiProvider"
-import { ProprietorRecordDTO } from "../../types/ProprietorInternalApiTypes"
-import {
-  UpdateUserFirstTimeLoginRecordDTO,
-  UpdateUserAccountVerificationRecordDTO,
-  updateUserLastLoginDateDTO,
-  updateUserPasswordDTO
-} from "~/api/modules/auth/types/AuthDTO"
 
-export default class ProprietorInternalApiProvider
-  implements IProprietorInternalApiProvider
+import { IUserInternalApiProvider } from "../contracts/IUserInternalApiProvider"
+import {
+  CreateUserRecordType,
+  UpdateUserAccountVerificationRecordType,
+  UpdateUserFirstTimeLoginRecordType,
+  UpdateUserLastLoginDateType,
+  UpdateUserPasswordType
+} from "../../types/UserInternalApiTypes"
+
+export default class UserInternalApiProvider
+  implements IUserInternalApiProvider
 {
-  public async findProprietorByEmail(email: string, tx?: any) {
+  public async findUserByEmail(email: string, tx?: any) {
     const dbClient = tx ? tx : DbClient
     const result = await dbClient?.user?.findFirst({
       where: {
@@ -24,7 +25,7 @@ export default class ProprietorInternalApiProvider
     return result
   }
 
-  public async findProprietorById(id: number, tx?: any): Promise<User> {
+  public async findUserById(id: number, tx?: any): Promise<User> {
     const dbClient = tx ? tx : DbClient
     const result = await dbClient?.user?.findFirst({
       where: {
@@ -36,8 +37,8 @@ export default class ProprietorInternalApiProvider
     return result
   }
 
-  public async createProprietorRecord(
-    args: ProprietorRecordDTO,
+  public async createUserRecord(
+    args: CreateUserRecordType,
     tx?: any
   ): Promise<User> {
     const { tenantId, firstName, lastName, password, phoneNumber, email } = args
@@ -58,7 +59,7 @@ export default class ProprietorInternalApiProvider
   }
 
   public async updateUserAccountVerificationRecord(
-    args: UpdateUserAccountVerificationRecordDTO,
+    args: UpdateUserAccountVerificationRecordType,
     tx?: any
   ): Promise<User> {
     const { userId, hasVerified } = args
@@ -74,7 +75,7 @@ export default class ProprietorInternalApiProvider
   }
 
   public async updateUserFirstTimeLoginRecord(
-    args: UpdateUserFirstTimeLoginRecordDTO,
+    args: UpdateUserFirstTimeLoginRecordType,
     tx?: any
   ): Promise<User> {
     const { userId, isFirstTimeLogin } = args
@@ -90,7 +91,7 @@ export default class ProprietorInternalApiProvider
   }
 
   public async updateUserLastLoginDate(
-    args: updateUserLastLoginDateDTO,
+    args: UpdateUserLastLoginDateType,
     tx?: any
   ): Promise<User> {
     const { userId, lastLoginDate } = args
@@ -106,7 +107,7 @@ export default class ProprietorInternalApiProvider
   }
 
   public async updateUserPassword(
-    args: updateUserPasswordDTO,
+    args: UpdateUserPasswordType,
     tx?: any
   ): Promise<User> {
     const { userId, password } = args

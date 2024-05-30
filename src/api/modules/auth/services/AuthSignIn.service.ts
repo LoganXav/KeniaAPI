@@ -1,8 +1,7 @@
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { BaseService } from "../../base/services/Base.service"
-import { SignInUserRecordDTO } from "../types/AuthDTO"
 import { IResult } from "~/api/shared/helpers/results/IResult"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
 import {
   ERROR,
   INVALID_CREDENTIALS,
@@ -16,27 +15,27 @@ import { JwtService } from "~/api/shared/services/jwt/Jwt.service"
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum"
 import Event from "~/api/shared/helpers/events"
 import { autoInjectable } from "tsyringe"
+import { SignInUserType } from "~/api/shared/types/UserInternalApiTypes"
 
 @autoInjectable()
-export default class AuthSignInService extends BaseService<SignInUserRecordDTO> {
+export default class AuthSignInService extends BaseService<SignInUserType> {
   static serviceName: "AuthSignInService"
-  proprietorInternalApiProvider: ProprietorInternalApiProvider
-  constructor(proprietorInternalApiProvider: ProprietorInternalApiProvider) {
+  userInternalApiProvider: UserInternalApiProvider
+  constructor(userInternalApiProvider: UserInternalApiProvider) {
     super(AuthSignInService.serviceName)
-    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.userInternalApiProvider = userInternalApiProvider
   }
 
   public async execute(
     trace: ServiceTrace,
-    args: SignInUserRecordDTO
+    args: SignInUserType
   ): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args, ["password"])
 
-      const foundUser =
-        await this.proprietorInternalApiProvider.findProprietorByEmail(
-          args.email
-        )
+      const foundUser = await this.userInternalApiProvider.findUserByEmail(
+        args.email
+      )
 
       if (foundUser === NULL_OBJECT) {
         this.result.setError(
@@ -73,7 +72,7 @@ export default class AuthSignInService extends BaseService<SignInUserRecordDTO> 
           isFirstTimeLogin: false
         }
 
-        await this.proprietorInternalApiProvider.updateUserFirstTimeLoginRecord(
+        await this.userInternalApiProvider.updateUserFirstTimeLoginRecord(
           updateUserRecordArgs
         )
       }

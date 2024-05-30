@@ -3,7 +3,7 @@ import {
   SignUpEventListenerDTO,
   SignInEventListenerDTO
 } from "../types/EventsDTO"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
+import ProprietorInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
 import DateTimeUtil from "~/utils/DateTimeUtil"
 
 const proprietorInternalApiProvider = new ProprietorInternalApiProvider()

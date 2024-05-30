@@ -11,7 +11,7 @@ import {
   USER_RESOURCE
 } from "~/api/shared/helpers/messages/SystemMessages"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
 import { RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction"
 import DbClient from "~/infrastructure/internal/database"
 import TokenProvider from "../providers/Token.provider"
@@ -26,15 +26,15 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 @autoInjectable()
 export default class AuthPasswordResetRequestService extends BaseService<unknown> {
   static serviceName = "AuthPasswordResetRequestService"
-  proprietorInternalApiProvider: ProprietorInternalApiProvider
+  userInternalApiProvider: UserInternalApiProvider
   tokenProvider: TokenProvider
   loggingProvider: ILoggingDriver
   constructor(
-    proprietorInternalApiProvider: ProprietorInternalApiProvider,
+    userInternalApiProvider: UserInternalApiProvider,
     tokenProvider: TokenProvider
   ) {
     super(AuthPasswordResetRequestService.serviceName)
-    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.userInternalApiProvider = userInternalApiProvider
     this.tokenProvider = tokenProvider
     this.loggingProvider = LoggingProviderFactory.build()
   }
@@ -43,8 +43,9 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
       this.initializeServiceTrace(trace, args)
       const { email } = args
 
-      const foundUser =
-        await this.proprietorInternalApiProvider.findProprietorByEmail(email)
+      const foundUser = await this.userInternalApiProvider.findUserByEmail(
+        email
+      )
 
       if (foundUser === NULL_OBJECT) {
         this.result.setError(

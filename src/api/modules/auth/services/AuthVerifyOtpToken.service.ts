@@ -1,10 +1,6 @@
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { BaseService } from "../../base/services/Base.service"
-import {
-  UpdateUserAccountVerificationRecordDTO,
-  UpdateUserTokenActivationRecordDTO,
-  VerifyUserTokenDTO
-} from "../types/AuthDTO"
+
 import {
   ACCOUNT_VERIFIED,
   ERROR,
@@ -12,36 +8,42 @@ import {
   NULL_OBJECT,
   SOMETHING_WENT_WRONG,
   SUCCESS,
-  TOKEN_EXPIRED
+  TOKEN_EXPIRED,
+  TOKEN_VERIFIED
 } from "~/api/shared/helpers/messages/SystemMessages"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
 import TokenProvider from "../providers/Token.provider"
 import { autoInjectable } from "tsyringe"
 import { TokenType, UserToken } from "@prisma/client"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
 import DateTimeUtil from "~/utils/DateTimeUtil"
 import DbClient from "~/infrastructure/internal/database"
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
+import {
+  UpdateUserAccountVerificationRecordType,
+  UpdateUserTokenActivationRecordType,
+  VerifyUserTokenType
+} from "~/api/shared/types/UserInternalApiTypes"
 
 @autoInjectable()
-export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTokenDTO> {
+export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTokenType> {
   static serviceName = "AuthVerifyOtpTokenService"
   tokenProvider: TokenProvider
-  proprietorInternalApiProvider: ProprietorInternalApiProvider
+  userInternalApiProvider: UserInternalApiProvider
   loggingProvider: ILoggingDriver
 
   constructor(
     tokenProvider: TokenProvider,
-    proprietorInternalApiProvider: ProprietorInternalApiProvider
+    userInternalApiProvider: UserInternalApiProvider
   ) {
     super(AuthVerifyOtpTokenService.serviceName)
     this.tokenProvider = tokenProvider
-    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.userInternalApiProvider = userInternalApiProvider
     this.loggingProvider = LoggingProviderFactory.build()
   }
 
-  public async execute(trace: ServiceTrace, args: VerifyUserTokenDTO) {
+  public async execute(trace: ServiceTrace, args: VerifyUserTokenType) {
     try {
       const { id: userId, otpToken } = args
       this.initializeServiceTrace(trace, args, ["otpToken"])
@@ -75,8 +77,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
         return this.result
       }
 
-      const tokenOwner =
-        await this.proprietorInternalApiProvider.findProprietorById(userId)
+      const tokenOwner = await this.userInternalApiProvider.findUserById(userId)
 
       if (tokenOwner === NULL_OBJECT) {
         this.result.setError(
@@ -90,7 +91,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
       if (tokenOwner.hasVerified) {
         this.result.setData(
           SUCCESS,
-          HttpStatusCodeEnum.CREATED,
+          HttpStatusCodeEnum.ACCEPTED,
           ACCOUNT_VERIFIED
         )
         trace.setSuccessful()
@@ -109,7 +110,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
       const data = await this.verifyUserAccountTransaction(dbOtpToken, userId)
       if (data === NULL_OBJECT) return this.result
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, ACCOUNT_VERIFIED)
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, TOKEN_VERIFIED)
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
@@ -159,7 +160,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
   }
 
   private async deactivateUserToken(tokenId: number, tx?: any) {
-    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordDTO = {
+    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordType = {
       tokenId,
       expired: true,
       isActive: false
@@ -171,11 +172,11 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
   }
 
   private async verifyUserAccount(userId: number, tx?: any) {
-    const verifyUserAccountArgs: UpdateUserAccountVerificationRecordDTO = {
+    const verifyUserAccountArgs: UpdateUserAccountVerificationRecordType = {
       userId,
       hasVerified: true
     }
-    await this.proprietorInternalApiProvider.updateUserAccountVerificationRecord(
+    await this.userInternalApiProvider.updateUserAccountVerificationRecord(
       verifyUserAccountArgs,
       tx
     )

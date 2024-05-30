@@ -68,6 +68,7 @@ export default class Express {
     this.loggingProvider.info(
       `Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()}`
     )
+
     for (const filePath of controllerPaths) {
       const controllerPath = resolve(filePath)
 

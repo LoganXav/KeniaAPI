@@ -3,10 +3,7 @@ import { BaseService } from "../../base/services/Base.service"
 import { IResult } from "~/api/shared/helpers/results/IResult"
 import TokenProvider from "../providers/Token.provider"
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
-import {
-  RefreshUserTokenDTO,
-  UpdateUserTokenActivationRecordDTO
-} from "../types/AuthDTO"
+
 import { TokenType, User } from "@prisma/client"
 import {
   ACCOUNT_VERIFIED,
@@ -26,36 +23,39 @@ import { EmailService } from "~/api/shared/services/email/Email.service"
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
+import {
+  RefreshUserTokenType,
+  UpdateUserTokenActivationRecordType
+} from "~/api/shared/types/UserInternalApiTypes"
 
 @autoInjectable()
-export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserTokenDTO> {
+export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserTokenType> {
   static serviceName = "AuthRefreshOtpTokenService"
   tokenProvider: TokenProvider
-  proprietorInternalApiProvider: ProprietorInternalApiProvider
+  userInternalApiProvider: UserInternalApiProvider
   loggingProvider: ILoggingDriver
 
   constructor(
     tokenProvider: TokenProvider,
-    proprietorInternalApiProvider: ProprietorInternalApiProvider
+    userInternalApiProvider: UserInternalApiProvider
   ) {
     super(AuthRefreshOtpTokenService.serviceName)
     this.tokenProvider = tokenProvider
-    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.userInternalApiProvider = userInternalApiProvider
     this.loggingProvider = LoggingProviderFactory.build()
   }
 
   public async execute(
     trace: ServiceTrace,
-    args: RefreshUserTokenDTO
+    args: RefreshUserTokenType
   ): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args)
 
-      const foundUser =
-        await this.proprietorInternalApiProvider.findProprietorByEmail(
-          args.email
-        )
+      const foundUser = await this.userInternalApiProvider.findUserByEmail(
+        args.email
+      )
 
       if (foundUser === NULL_OBJECT) {
         this.result.setError(
@@ -69,9 +69,10 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
       if (foundUser.hasVerified) {
         this.result.setData(
           SUCCESS,
-          HttpStatusCodeEnum.CREATED,
+          HttpStatusCodeEnum.ACCEPTED,
           ACCOUNT_VERIFIED
         )
+        trace.setSuccessful()
         return this.result
       }
 
@@ -150,7 +151,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
   }
 
   private async deactivateUserToken(tokenId: number, tx: any) {
-    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordDTO = {
+    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordType = {
       tokenId,
       expired: true,
       isActive: false

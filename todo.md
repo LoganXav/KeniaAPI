@@ -6,13 +6,12 @@
 
 **_ Bug Fixes _**
 
-- Refactor ProprietorInternalApi providers to UserInternalApi for reusability
 - Prisma or Supabase time is one hour behind
 - Refactor prisma client queries using a more declarative approach
 
 **_ Itenary _**
 
-- Write tests form auth flow
+- Write tests for auth flow
 - Refactor access token to cookies / encrypt data transfer from api to client
 
 Staff Creation

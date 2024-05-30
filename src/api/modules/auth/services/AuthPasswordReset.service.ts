@@ -16,27 +16,27 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { IRequest } from "~/infrastructure/internal/types"
 import TokenProvider from "../providers/Token.provider"
 import { autoInjectable } from "tsyringe"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
-import { UpdateUserTokenActivationRecordDTO } from "../types/AuthDTO"
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
 import { UserToken } from "@prisma/client"
 import DbClient from "~/infrastructure/internal/database"
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service"
 import DateTimeUtil from "~/utils/DateTimeUtil"
+import { UpdateUserTokenActivationRecordType } from "~/api/shared/types/UserInternalApiTypes"
 
 @autoInjectable()
 export default class AuthPasswordResetService extends BaseService<IRequest> {
   static serviceName = "AuthPasswordResetService"
   loggingProvider: ILoggingDriver
   tokenProvider: TokenProvider
-  proprietorInternalApiProvider: ProprietorInternalApiProvider
+  userInternalApiProvider: UserInternalApiProvider
   constructor(
     tokenProvider: TokenProvider,
-    proprietorInternalApiProvider: ProprietorInternalApiProvider
+    userInternalApiProvider: UserInternalApiProvider
   ) {
     super(AuthPasswordResetService.serviceName)
     this.loggingProvider = LoggingProviderFactory.build()
     this.tokenProvider = tokenProvider
-    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.userInternalApiProvider = userInternalApiProvider
   }
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
@@ -56,10 +56,9 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
         return this.result
       }
 
-      const foundUser =
-        await this.proprietorInternalApiProvider.findProprietorById(
-          dbResetToken.userId
-        )
+      const foundUser = await this.userInternalApiProvider.findUserById(
+        dbResetToken.userId
+      )
 
       if (foundUser === NULL_OBJECT) {
         await this.deactivateUserToken(dbResetToken.id)
@@ -122,7 +121,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
           userId: dbResetToken.userId,
           password: PasswordEncryptionService.hashPassword(password)
         }
-        await this.proprietorInternalApiProvider.updateUserPassword(
+        await this.userInternalApiProvider.updateUserPassword(
           updateUserRecordPayload,
           tx
         )
@@ -143,7 +142,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
   }
 
   private async deactivateUserToken(tokenId: number, tx?: any) {
-    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordDTO = {
+    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordType = {
       tokenId,
       expired: true,
       isActive: false
