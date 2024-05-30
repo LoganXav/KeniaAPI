@@ -31,8 +31,7 @@ export const SOMETHING_WENT_WRONG =
 export const NULL_OBJECT = null
 
 /** <---------------> Password Reset Responses <---------------> */
-export const PASSWORD_RESET_TOKEN_EMAIL_SUBJECT =
-  "Bexxle's Tradel Password Reset"
+export const PASSWORD_RESET_TOKEN_EMAIL_SUBJECT = "Kenia's Password Reset"
 export const PASSWORD_RESET_LINK_GENERATED =
   "Password Recovery Link Generated. Please Check your mail"
 export const PASSWORD_RESET_SUCCESSFULLY = "Password Changed Successfully"

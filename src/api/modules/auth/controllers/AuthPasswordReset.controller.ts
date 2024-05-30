@@ -14,18 +14,22 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { autoInjectable } from "tsyringe"
 import { validateData } from "~/api/shared/helpers/middleware/validateData"
 import AuthPasswordResetRequestService from "../services/AuthPasswordResetRequest.service"
+import AuthPasswordResetService from "../services/AuthPasswordReset.service"
 import { requestPasswordRequestSchema } from "../validators/RequestPasswordResetSchema"
 
 @autoInjectable()
 export default class AuthPasswordResetController extends BaseController {
   static controllerName: string
   authPasswordResetRequestService: AuthPasswordResetRequestService
+  authPasswordResetService: AuthPasswordResetService
   constructor(
-    authPasswordResetRequestService: AuthPasswordResetRequestService
+    authPasswordResetRequestService: AuthPasswordResetRequestService,
+    authPasswordResetService: AuthPasswordResetService
   ) {
     super()
     this.controllerName = "AuthPasswordResetController"
     this.authPasswordResetRequestService = authPasswordResetRequestService
+    this.authPasswordResetService = authPasswordResetService
   }
 
   resetRequest: EntryPointHandler = async (
@@ -42,6 +46,20 @@ export default class AuthPasswordResetController extends BaseController {
       }
     )
   }
+  reset: EntryPointHandler = async (
+    req: IRequest,
+    res: IResponse,
+    next: INextFunction
+  ): Promise<void> => {
+    return this.handleResultData(
+      res,
+      next,
+      this.authPasswordResetService.execute(res.trace, req.body),
+      {
+        [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
+      }
+    )
+  }
 
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router())
@@ -50,6 +68,18 @@ export default class AuthPasswordResetController extends BaseController {
       method: HttpMethodEnum.GET,
       path: "/auth/password-reset/request",
       handlers: [validateData(requestPasswordRequestSchema), this.resetRequest],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.SUCCESS,
+          httpStatus: HttpStatusCodeEnum.SUCCESS
+        }
+      ],
+      description: "Request Password Reset"
+    })
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/auth/password-reset/:resettoken",
+      handlers: [validateData(requestPasswordRequestSchema), this.reset],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

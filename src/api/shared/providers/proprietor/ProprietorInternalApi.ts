@@ -14,7 +14,7 @@ export default class ProprietorInternalApiProvider
 {
   public async findProprietorByEmail(email: string, tx?: any) {
     const dbClient = tx ? tx : DbClient
-    const result = await DbClient?.user?.findFirst({
+    const result = await dbClient?.user?.findFirst({
       where: {
         email: email,
         role: Role.PROPRIETOR
@@ -26,7 +26,7 @@ export default class ProprietorInternalApiProvider
 
   public async findProprietorById(id: number, tx?: any) {
     const dbClient = tx ? tx : DbClient
-    const result = await DbClient?.user?.findFirst({
+    const result = await dbClient?.user?.findFirst({
       where: {
         id,
         role: Role.PROPRIETOR

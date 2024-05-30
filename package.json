@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "test:watch": "jest --watch --verbose",
+    "test:watch": "jest --watchA --verbose",
     "dev": "ts-node-dev --respawn --transpile-only --no-notify -r tsconfig-paths/register src/index.ts",
     "prisma:generate": "pnpm exec prisma generate --schema=src/infrastructure/internal/database/schema.prisma",
     "prisma:migrate": "pnpm exec prisma migrate dev --name migration_$(date +%s)"
