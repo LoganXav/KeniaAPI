@@ -8,9 +8,14 @@
 
 - Refactor ProprietorInternalApi providers to UserInternalApi for reusability
 - Prisma or Supabase time is one hour behind
+- Refactor prisma client queries using a more declarative approach
 
 **_ Itenary _**
 
-Authentication
+- Write tests form auth flow
+- Refactor access token to cookies / encrypt data transfer from api to client
 
-- Password Reset Flow.
+Staff Creation
+
+- Add permission levels
+- Employ a staff and assign role (Vice, Teacher)
