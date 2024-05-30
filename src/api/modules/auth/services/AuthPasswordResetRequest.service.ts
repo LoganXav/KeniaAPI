@@ -20,7 +20,6 @@ import { generateStringOfLength } from "~/utils/GenerateStringOfLength"
 import { businessConfig } from "~/config/BusinessConfig"
 import { DateTime } from "luxon"
 import { EmailService } from "~/api/shared/services/email/Email.service"
-import { LoggingProvider } from "~/infrastructure/internal/logger/LoggingProvider"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
 

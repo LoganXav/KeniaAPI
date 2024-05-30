@@ -3,7 +3,7 @@ import { ITokenProvider } from "./contracts/ITokenProvider"
 import {
   CreateUserTokenRecordDTO,
   FindActiveUserTokenByTypeDTO,
-  UpdateUserTokenRecordDTO
+  UpdateUserTokenActivationRecordDTO
 } from "../types/AuthDTO"
 import DbClient from "~/infrastructure/internal/database"
 export default class TokenProvider implements ITokenProvider {
@@ -45,7 +45,7 @@ export default class TokenProvider implements ITokenProvider {
   }
 
   public async updateUserTokenRecord(
-    args: UpdateUserTokenRecordDTO,
+    args: UpdateUserTokenActivationRecordDTO,
     tx?: any
   ): Promise<UserToken> {
     const { expired, tokenId, isActive } = args

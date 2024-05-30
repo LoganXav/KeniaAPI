@@ -10,5 +10,5 @@ export const ROUTE_WHITE_LIST = [
   `${root}/auth/otp/refresh`,
   `${root}/auth/otp/verify`,
   `${root}/auth/password-reset/request`,
-  `${root}/auth/password-reset/reset`
+  `${root}/auth/password-reset/:token`
 ]

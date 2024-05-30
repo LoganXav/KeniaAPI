@@ -3,7 +3,10 @@ import { BaseService } from "../../base/services/Base.service"
 import { IResult } from "~/api/shared/helpers/results/IResult"
 import TokenProvider from "../providers/Token.provider"
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
-import { RefreshUserTokenDTO, UpdateUserTokenRecordDTO } from "../types/AuthDTO"
+import {
+  RefreshUserTokenDTO,
+  UpdateUserTokenActivationRecordDTO
+} from "../types/AuthDTO"
 import { TokenType, User } from "@prisma/client"
 import {
   ACCOUNT_VERIFIED,
@@ -147,7 +150,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
   }
 
   private async deactivateUserToken(tokenId: number, tx: any) {
-    const updateUserTokenRecordArgs: UpdateUserTokenRecordDTO = {
+    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordDTO = {
       tokenId,
       expired: true,
       isActive: false

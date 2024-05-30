@@ -15,7 +15,8 @@ import { autoInjectable } from "tsyringe"
 import { validateData } from "~/api/shared/helpers/middleware/validateData"
 import AuthPasswordResetRequestService from "../services/AuthPasswordResetRequest.service"
 import AuthPasswordResetService from "../services/AuthPasswordReset.service"
-import { requestPasswordRequestSchema } from "../validators/RequestPasswordResetSchema"
+import { requestPasswordResetSchema } from "../validators/RequestPasswordResetSchema"
+import { confirmPasswordResetSchema } from "../validators/ConfirmPasswordResetSchema"
 
 @autoInjectable()
 export default class AuthPasswordResetController extends BaseController {
@@ -54,7 +55,7 @@ export default class AuthPasswordResetController extends BaseController {
     return this.handleResultData(
       res,
       next,
-      this.authPasswordResetService.execute(res.trace, req.body),
+      this.authPasswordResetService.execute(res.trace, req),
       {
         [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
       }
@@ -67,7 +68,7 @@ export default class AuthPasswordResetController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.GET,
       path: "/auth/password-reset/request",
-      handlers: [validateData(requestPasswordRequestSchema), this.resetRequest],
+      handlers: [validateData(requestPasswordResetSchema), this.resetRequest],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
@@ -78,15 +79,15 @@ export default class AuthPasswordResetController extends BaseController {
     })
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/auth/password-reset/:resettoken",
-      handlers: [validateData(requestPasswordRequestSchema), this.reset],
+      path: "/auth/password-reset/:token",
+      handlers: [validateData(confirmPasswordResetSchema), this.reset],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS
         }
       ],
-      description: "Request Password Reset"
+      description: "Confirm Password Reset"
     })
   }
 }

@@ -5,9 +5,9 @@ import { ProprietorRecordDTO } from "../../types/ProprietorInternalApiTypes"
 import {
   UpdateUserFirstTimeLoginRecordDTO,
   UpdateUserAccountVerificationRecordDTO,
-  updateUserLastLoginDateDTO
+  updateUserLastLoginDateDTO,
+  updateUserPasswordDTO
 } from "~/api/modules/auth/types/AuthDTO"
-import DateTimeUtil from "~/utils/DateTimeUtil"
 
 export default class ProprietorInternalApiProvider
   implements IProprietorInternalApiProvider
@@ -24,7 +24,7 @@ export default class ProprietorInternalApiProvider
     return result
   }
 
-  public async findProprietorById(id: number, tx?: any) {
+  public async findProprietorById(id: number, tx?: any): Promise<User> {
     const dbClient = tx ? tx : DbClient
     const result = await dbClient?.user?.findFirst({
       where: {
@@ -100,6 +100,22 @@ export default class ProprietorInternalApiProvider
         id: userId
       },
       data: { lastLoginDate }
+    })
+
+    return result
+  }
+
+  public async updateUserPassword(
+    args: updateUserPasswordDTO,
+    tx?: any
+  ): Promise<User> {
+    const { userId, password } = args
+    const dbClient = tx ? tx : DbClient
+    const result = await dbClient?.user?.update({
+      where: {
+        id: userId
+      },
+      data: { password }
     })
 
     return result

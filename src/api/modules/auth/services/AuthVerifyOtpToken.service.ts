@@ -2,7 +2,7 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { BaseService } from "../../base/services/Base.service"
 import {
   UpdateUserAccountVerificationRecordDTO,
-  UpdateUserTokenRecordDTO,
+  UpdateUserTokenActivationRecordDTO,
   VerifyUserTokenDTO
 } from "../types/AuthDTO"
 import {
@@ -93,6 +93,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
           HttpStatusCodeEnum.CREATED,
           ACCOUNT_VERIFIED
         )
+        trace.setSuccessful()
         return this.result
       }
 
@@ -139,7 +140,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
             HttpStatusCodeEnum.BAD_REQUEST,
             TOKEN_EXPIRED
           )
-          return this.result
+          return null
         }
         await this.verifyUserAccount(userId, tx)
         await this.deactivateUserToken(dbOtpToken.id, tx)
@@ -158,7 +159,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
   }
 
   private async deactivateUserToken(tokenId: number, tx?: any) {
-    const updateUserTokenRecordArgs: UpdateUserTokenRecordDTO = {
+    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordDTO = {
       tokenId,
       expired: true,
       isActive: false
