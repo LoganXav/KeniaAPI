@@ -25,6 +25,8 @@ import {
   UpdateUserTokenActivationRecordType,
   VerifyUserTokenType
 } from "~/api/shared/types/UserInternalApiTypes"
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError"
 
 @autoInjectable()
 export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTokenType> {
@@ -49,43 +51,27 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
       this.initializeServiceTrace(trace, args, ["otpToken"])
 
       if (!otpToken) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
       const dbOtpToken = await this.tokenProvider.findUserTokenByToken(otpToken)
       if (dbOtpToken === NULL_OBJECT) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
       if (dbOtpToken.tokenType != TokenType.EMAIL) {
         await this.deactivateUserToken(dbOtpToken.id)
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
       const tokenOwner = await this.userInternalApiProvider.findUserById(userId)
 
       if (tokenOwner === NULL_OBJECT) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
+      }
+
+      if (tokenOwner.id !== userId) {
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
       if (tokenOwner.hasVerified) {
@@ -98,28 +84,20 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
         return this.result
       }
 
-      if (tokenOwner.id !== userId) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+      if (dbOtpToken.expired || this.checkTokenExpired(dbOtpToken.expiresAt)) {
+        await this.deactivateUserToken(dbOtpToken.id)
+
+        throw new BadRequestError(TOKEN_EXPIRED)
       }
 
-      const data = await this.verifyUserAccountTransaction(dbOtpToken, userId)
-      if (data === NULL_OBJECT) return this.result
+      await this.verifyUserAccountTransaction(dbOtpToken, userId)
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, TOKEN_VERIFIED)
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
+      this.result.setError(ERROR, error.httpStatusCode, error.description)
       return this.result
     }
   }
@@ -130,32 +108,16 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
   ) {
     try {
       const result = await DbClient.$transaction(async (tx) => {
-        if (
-          dbOtpToken.expired ||
-          this.checkTokenExpired(dbOtpToken.expiresAt)
-        ) {
-          await this.deactivateUserToken(dbOtpToken.id, tx)
-
-          this.result.setError(
-            ERROR,
-            HttpStatusCodeEnum.BAD_REQUEST,
-            TOKEN_EXPIRED
-          )
-          return null
-        }
         await this.verifyUserAccount(userId, tx)
         await this.deactivateUserToken(dbOtpToken.id, tx)
+
+        return
       })
 
       return result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
-      return null
+      throw new InternalServerError(SOMETHING_WENT_WRONG)
     }
   }
 
