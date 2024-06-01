@@ -6,7 +6,6 @@ import {
   ACCOUNT_CREATED,
   EMAIL_IN_USE,
   ERROR,
-  NULL_OBJECT,
   SOMETHING_WENT_WRONG,
   SUCCESS
 } from "~/api/shared/helpers/messages/SystemMessages"
@@ -29,6 +28,8 @@ import {
   CreateUserRecordType,
   SignUpUserType
 } from "~/api/shared/types/UserInternalApiTypes"
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError"
 
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
@@ -60,12 +61,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         args.email
       )
       if (foundUser) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.UNPROCESSABLE_ENTITY,
-          EMAIL_IN_USE
-        )
-        return this.result
+        throw new BadRequestError(EMAIL_IN_USE)
       }
 
       const hashedPassword = PasswordEncryptionService.hashPassword(
@@ -77,7 +73,6 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       const data = await this.createTenantAndUserRecordWithTokenTransaction(
         input
       )
-      if (data === NULL_OBJECT) return this.result
 
       const { user, otpToken } = data
 
@@ -101,12 +96,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
-      this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
+      this.result.setError(ERROR, error.httpStatusCode, error.description)
       return this.result
     }
   }
@@ -147,12 +137,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       return result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
-      return null
+      throw new InternalServerError(SOMETHING_WENT_WRONG)
     }
   }
 }

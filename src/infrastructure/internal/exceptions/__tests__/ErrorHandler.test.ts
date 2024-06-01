@@ -22,9 +22,9 @@ describe("ErrorHandler", () => {
 
     const response = await request(server).get("/api/ping")
 
-    expect(response.status).toBe(error.httpCode)
+    expect(response.status).toBe(error.httpStatusCode)
     expect(response.body).toEqual({
-      statusCode: error.httpCode,
+      statusCode: error.httpStatusCode,
       status: ERROR,
       message: error.description
     })

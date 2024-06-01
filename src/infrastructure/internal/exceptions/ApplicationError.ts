@@ -8,14 +8,14 @@ interface ApplicationErrorArgs {
 
 export default class ApplicationError extends Error {
   public readonly description: string
-  public readonly httpCode: HttpStatusCodeEnum
+  public readonly httpStatusCode: HttpStatusCodeEnum
   public readonly isOperational: boolean
 
   constructor(applicationErrorArgs: ApplicationErrorArgs) {
     super(applicationErrorArgs.description)
     Object.setPrototypeOf(this, new.target.prototype)
     this.description = applicationErrorArgs.description
-    this.httpCode = applicationErrorArgs.httpStatusCode
+    this.httpStatusCode = applicationErrorArgs.httpStatusCode
 
     if (applicationErrorArgs.isOperational !== undefined) {
       this.isOperational = applicationErrorArgs.isOperational
