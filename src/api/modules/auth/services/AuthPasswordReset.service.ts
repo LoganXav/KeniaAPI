@@ -63,6 +63,15 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
         throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
+      if (
+        dbResetToken.expired ||
+        this.checkTokenExpired(dbResetToken.expiresAt)
+      ) {
+        await this.deactivateUserToken(dbResetToken.id)
+
+        throw new BadRequestError(ERROR_EXPIRED_TOKEN)
+      }
+
       await this.passwordResetConfirmTransaction(dbResetToken, password)
 
       this.result.setData(
@@ -86,15 +95,6 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
   ) {
     try {
       const result = await DbClient.$transaction(async (tx: any) => {
-        if (
-          dbResetToken.expired ||
-          this.checkTokenExpired(dbResetToken.expiresAt)
-        ) {
-          await this.deactivateUserToken(dbResetToken.id, tx)
-
-          throw new BadRequestError(ERROR_EXPIRED_TOKEN)
-        }
-
         const updateUserRecordPayload = {
           userId: dbResetToken.userId,
           password: PasswordEncryptionService.hashPassword(password)
