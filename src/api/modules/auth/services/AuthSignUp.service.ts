@@ -96,6 +96,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
+      this.loggingProvider.error(error)
       this.result.setError(ERROR, error.httpStatusCode, error.description)
       return this.result
     }

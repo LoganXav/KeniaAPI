@@ -17,14 +17,18 @@ import Event from "~/api/shared/helpers/events"
 import { autoInjectable } from "tsyringe"
 import { SignInUserType } from "~/api/shared/types/UserInternalApiTypes"
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
 
 @autoInjectable()
 export default class AuthSignInService extends BaseService<SignInUserType> {
   static serviceName: "AuthSignInService"
   userInternalApiProvider: UserInternalApiProvider
+  loggingProvider: ILoggingDriver
   constructor(userInternalApiProvider: UserInternalApiProvider) {
     super(AuthSignInService.serviceName)
     this.userInternalApiProvider = userInternalApiProvider
+    this.loggingProvider = LoggingProviderFactory.build()
   }
 
   public async execute(
@@ -81,6 +85,7 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
+      this.loggingProvider.error(error)
       this.result.setError(ERROR, error.httpStatusCode, error.description)
       return this.result
     }
