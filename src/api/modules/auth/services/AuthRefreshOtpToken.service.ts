@@ -28,6 +28,8 @@ import {
   RefreshUserTokenType,
   UpdateUserTokenActivationRecordType
 } from "~/api/shared/types/UserInternalApiTypes"
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError"
 
 @autoInjectable()
 export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserTokenType> {
@@ -58,12 +60,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
       )
 
       if (foundUser === NULL_OBJECT) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE)
-        )
-        return this.result
+        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE))
       }
 
       if (foundUser.hasVerified) {
@@ -77,7 +74,6 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
       }
 
       const otpToken = await this.authRefreshTokenTransaction(foundUser)
-      if (otpToken === NULL_OBJECT) return this.result
 
       await EmailService.sendAccountActivationEmail({
         userEmail: foundUser.email,
@@ -94,11 +90,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
       return this.result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
+      this.result.setError(ERROR, error.httpStatusCode, error.description)
       return this.result
     }
   }
@@ -141,12 +133,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
       return result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
-      return null
+      throw new InternalServerError(SOMETHING_WENT_WRONG)
     }
   }
 
