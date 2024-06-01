@@ -63,12 +63,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
         throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
-      const data = await this.passwordResetConfirmTransaction(
-        dbResetToken,
-        password
-      )
-
-      if (data === NULL_OBJECT) return this.result
+      await this.passwordResetConfirmTransaction(dbResetToken, password)
 
       this.result.setData(
         SUCCESS,
