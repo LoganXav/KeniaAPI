@@ -18,3 +18,7 @@ Staff Creation
 
 - Add permission levels
 - Employ a staff and assign role (Vice, Teacher)
+
+- Refactor error handlers
+- Learn system design
+- Plan and start implementing tests
