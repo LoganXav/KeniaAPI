@@ -22,6 +22,8 @@ import DbClient from "~/infrastructure/internal/database"
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service"
 import DateTimeUtil from "~/utils/DateTimeUtil"
 import { UpdateUserTokenActivationRecordType } from "~/api/shared/types/UserInternalApiTypes"
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError"
 
 @autoInjectable()
 export default class AuthPasswordResetService extends BaseService<IRequest> {
@@ -48,12 +50,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
       const dbResetToken = await this.tokenProvider.findUserTokenByToken(token)
 
       if (dbResetToken === NULL_OBJECT) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
       const foundUser = await this.userInternalApiProvider.findUserById(
@@ -63,12 +60,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
       if (foundUser === NULL_OBJECT) {
         await this.deactivateUserToken(dbResetToken.id)
 
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
       const data = await this.passwordResetConfirmTransaction(
@@ -87,11 +79,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
       return this.result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
+      this.result.setError(ERROR, error.httpStatusCode, error.description)
 
       return this.result
     }
@@ -109,12 +97,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
         ) {
           await this.deactivateUserToken(dbResetToken.id, tx)
 
-          this.result.setError(
-            ERROR,
-            HttpStatusCodeEnum.BAD_REQUEST,
-            ERROR_EXPIRED_TOKEN
-          )
-          return null
+          throw new BadRequestError(ERROR_EXPIRED_TOKEN)
         }
 
         const updateUserRecordPayload = {
@@ -132,12 +115,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
       return result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
-      return null
+      throw new InternalServerError(SOMETHING_WENT_WRONG)
     }
   }
 
