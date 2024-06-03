@@ -21,7 +21,7 @@ import { JwtService } from "~/api/shared/services/jwt/Jwt.service"
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service"
 import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
-import TenantInternalApiProvider from "~/api/shared/providers/tenant/TenantInternalApi"
+import TenantInternalApiProvider from "~/api/shared/providers/tenant/TenantInternalApi.provider"
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import {

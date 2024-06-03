@@ -1,7 +1,6 @@
 **_ Future Considerations _**
 
 - Consider using a message queuing system for the email service.
-- Implement more tests for the application.
 - Implement service trace db persistence.
 
 **_ Bug Fixes _**
@@ -12,9 +11,13 @@
 **_ Itenary _**
 
 - Write tests for auth flow
-- Refactor access token to cookies / encrypt data transfer from api to client
 
-Staff Creation
+  - authSignUpService: Write unit tests for successful signup and handling potential errors (e.g., duplicate email).
+  - authSignInService: Write test to ensure successful login with valid credentials, handling invalid credentials/user not found, and edge cases (e.g., locked accounts).
+  - authPasswordResetRequest service: Test successful reset request generation, handling invalid user email, and potential errors (e.g., sending emails).
 
-- Add permission levels
-- Employ a staff and assign role (Vice, Teacher)
+- Refactor access token delivery to cookies or encrypt data transfer from api to client
+
+- Staff Creation
+- Student Admission
+- Course Upload and Delivery

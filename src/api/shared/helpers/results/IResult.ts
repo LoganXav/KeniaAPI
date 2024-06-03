@@ -3,6 +3,7 @@ export interface IResult {
   success: boolean
   message: string
   error: string
+  token: string | undefined
   data: { message: string; data: unknown }
   setStatusCode(statusCode: number | string, success: boolean): void
   setMessage(message: string, statusCode: number | string): void
