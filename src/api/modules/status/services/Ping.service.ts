@@ -1,7 +1,6 @@
 import AppSettings from "~/api/shared/setttings/AppSettings"
 import DateTimeUtils from "~/utils/DateTimeUtil"
 import HealthProvider from "../providers/health/Health.provider"
-import { Result } from "~/api/shared/helpers/results/Result"
 import { BaseService } from "../../base/services/Base.service"
 import { IResult } from "~/api/shared/helpers/results/IResult"
 import { autoInjectable } from "tsyringe"
@@ -18,7 +17,6 @@ export default class PingService extends BaseService<undefined> {
   }
   public async execute(trace: ServiceTrace): Promise<IResult> {
     this.initializeServiceTrace(trace)
-    const result = new Result()
 
     const message = await this.healthProvider.get(
       AppSettings.ServiceContext,
@@ -26,7 +24,7 @@ export default class PingService extends BaseService<undefined> {
     )
     9
     trace.setSuccessful()
-    result.setMessage(message, HttpStatusCodeEnum.SUCCESS)
-    return result
+    this.result.setMessage(message, HttpStatusCodeEnum.SUCCESS)
+    return this.result
   }
 }

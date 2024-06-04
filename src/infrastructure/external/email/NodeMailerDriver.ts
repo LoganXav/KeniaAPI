@@ -11,7 +11,7 @@ export class NodeMailerDriver implements IEmailDriver {
   constructor() {
     this.transporter = nodemailer.createTransport({
       host: emailConfig.mailtrap.host,
-      port: 587,
+      port: emailConfig.mailtrap.port,
       secure: emailConfig.emailSecure,
       auth: {
         user: "api",

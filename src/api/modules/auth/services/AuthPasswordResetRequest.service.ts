@@ -11,7 +11,7 @@ import {
   USER_RESOURCE
 } from "~/api/shared/helpers/messages/SystemMessages"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
 import { RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction"
 import DbClient from "~/infrastructure/internal/database"
 import TokenProvider from "../providers/Token.provider"
@@ -22,19 +22,21 @@ import { DateTime } from "luxon"
 import { EmailService } from "~/api/shared/services/email/Email.service"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError"
 
 @autoInjectable()
 export default class AuthPasswordResetRequestService extends BaseService<unknown> {
   static serviceName = "AuthPasswordResetRequestService"
-  proprietorInternalApiProvider: ProprietorInternalApiProvider
+  userInternalApiProvider: UserInternalApiProvider
   tokenProvider: TokenProvider
   loggingProvider: ILoggingDriver
   constructor(
-    proprietorInternalApiProvider: ProprietorInternalApiProvider,
+    userInternalApiProvider: UserInternalApiProvider,
     tokenProvider: TokenProvider
   ) {
     super(AuthPasswordResetRequestService.serviceName)
-    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.userInternalApiProvider = userInternalApiProvider
     this.tokenProvider = tokenProvider
     this.loggingProvider = LoggingProviderFactory.build()
   }
@@ -43,24 +45,18 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
       this.initializeServiceTrace(trace, args)
       const { email } = args
 
-      const foundUser =
-        await this.proprietorInternalApiProvider.findProprietorByEmail(email)
+      const foundUser = await this.userInternalApiProvider.findUserByEmail(
+        email
+      )
 
       if (foundUser === NULL_OBJECT) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE)
-        )
-        return this.result
+        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE))
       }
 
       const data = await this.passwordResetTokenTransaction(
         foundUser.id,
         foundUser.email
       )
-
-      if (data === NULL_OBJECT) return this.result
 
       await EmailService.sendPasswordResetLink(data)
 
@@ -74,11 +70,7 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
       return this.result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
+      this.result.setError(ERROR, error.httpStatusCode, error.description)
       return this.result
     }
   }
@@ -138,12 +130,7 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
       return result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
-      return null
+      throw new InternalServerError(SOMETHING_WENT_WRONG)
     }
   }
 }

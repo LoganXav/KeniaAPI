@@ -1,14 +1,15 @@
 import { TokenType, UserToken } from "@prisma/client"
 import { ITokenProvider } from "./contracts/ITokenProvider"
-import {
-  CreateUserTokenRecordDTO,
-  FindActiveUserTokenByTypeDTO,
-  UpdateUserTokenActivationRecordDTO
-} from "../types/AuthDTO"
+
 import DbClient from "~/infrastructure/internal/database"
+import {
+  CreateUserTokenRecordType,
+  FindUserActiveTokenByTypeType,
+  UpdateUserTokenActivationRecordType
+} from "~/api/shared/types/UserInternalApiTypes"
 export default class TokenProvider implements ITokenProvider {
   public async createUserTokenRecord(
-    args: CreateUserTokenRecordDTO,
+    args: CreateUserTokenRecordType,
     tx?: any
   ): Promise<UserToken> {
     const { userId, tokenType, expiresAt, token } = args
@@ -45,7 +46,7 @@ export default class TokenProvider implements ITokenProvider {
   }
 
   public async updateUserTokenRecord(
-    args: UpdateUserTokenActivationRecordDTO,
+    args: UpdateUserTokenActivationRecordType,
     tx?: any
   ): Promise<UserToken> {
     const { expired, tokenId, isActive } = args
@@ -74,7 +75,7 @@ export default class TokenProvider implements ITokenProvider {
     return userToken
   }
   public async findActiveUserTokenByType(
-    args: FindActiveUserTokenByTypeDTO,
+    args: FindUserActiveTokenByTypeType,
     tx?: any
   ): Promise<UserToken> {
     const { userId, tokenType, expired, isActive } = args

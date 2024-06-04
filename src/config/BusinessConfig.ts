@@ -1,21 +1,21 @@
 export const businessConfig = {
-  emailTokenLength: parseInt(process.env["EMAIL_TOKEN_LENGTH"] || "5", 10),
+  emailTokenLength: parseInt(process.env["EMAIL_TOKEN_LENGTH"]!, 10),
 
   passwordResetTokenLength: parseInt(
-    process.env["PASSWORD_RESET_TOKEN_LENGTH"] || "5"
+    process.env["PASSWORD_RESET_TOKEN_LENGTH"]!!
   ),
 
   emailTokenExpiresInMinutes: parseInt(
-    process.env["EMAIL_TOKEN_EXPIRES_IN_MINUTES"] || "5",
+    process.env["EMAIL_TOKEN_EXPIRES_IN_MINUTES"]!,
     10
   ),
 
   passwordResetTokenExpiresInMinutes: parseInt(
-    process.env["PASSWORD_RESET_TOKEN_EXPIRES_IN_MINUTES"] || "5",
+    process.env["PASSWORD_RESET_TOKEN_EXPIRES_IN_MINUTES"]!,
     10
   ),
 
   passwordResetTokenLink: `${process.env[
-    "HOST"
+    "SERVER_HOST"
   ]!}/api/auth/password-reset/request`
 }

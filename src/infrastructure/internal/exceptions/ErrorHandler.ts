@@ -29,8 +29,8 @@ class ErrorHandler {
     error: ApplicationError,
     response: Response
   ): void {
-    response.status(error.httpCode).json({
-      statusCode: error.httpCode,
+    response.status(error.httpStatusCode).json({
+      statusCode: error.httpStatusCode,
       status: ERROR,
       message: error.message
     })

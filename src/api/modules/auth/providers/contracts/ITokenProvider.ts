@@ -1,8 +1,8 @@
 import { TokenType, UserToken } from "@prisma/client"
 import {
-  FindActiveUserTokenByTypeDTO,
-  UpdateUserTokenActivationRecordDTO
-} from "../../types/AuthDTO"
+  FindUserActiveTokenByTypeType,
+  UpdateUserTokenActivationRecordType
+} from "~/api/shared/types/UserInternalApiTypes"
 
 export interface ITokenProvider {
   createUserTokenRecord(args: UserToken, tx?: any): Promise<UserToken>
@@ -16,14 +16,14 @@ export interface ITokenProvider {
   ): Promise<UserToken[]>
 
   updateUserTokenRecord(
-    args: UpdateUserTokenActivationRecordDTO,
+    args: UpdateUserTokenActivationRecordType,
     tx?: any
   ): Promise<UserToken>
 
   findUserTokenByToken(otpToken: string, tx?: any): Promise<UserToken>
 
   findActiveUserTokenByType(
-    args: FindActiveUserTokenByTypeDTO,
+    args: FindUserActiveTokenByTypeType,
     tx?: any
   ): Promise<UserToken>
 }

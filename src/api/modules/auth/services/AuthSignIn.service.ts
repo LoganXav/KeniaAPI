@@ -1,8 +1,7 @@
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { BaseService } from "../../base/services/Base.service"
-import { SignInUserRecordDTO } from "../types/AuthDTO"
 import { IResult } from "~/api/shared/helpers/results/IResult"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
 import {
   ERROR,
   INVALID_CREDENTIALS,
@@ -16,35 +15,35 @@ import { JwtService } from "~/api/shared/services/jwt/Jwt.service"
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum"
 import Event from "~/api/shared/helpers/events"
 import { autoInjectable } from "tsyringe"
+import { SignInUserType } from "~/api/shared/types/UserInternalApiTypes"
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
 
 @autoInjectable()
-export default class AuthSignInService extends BaseService<SignInUserRecordDTO> {
+export default class AuthSignInService extends BaseService<SignInUserType> {
   static serviceName: "AuthSignInService"
-  proprietorInternalApiProvider: ProprietorInternalApiProvider
-  constructor(proprietorInternalApiProvider: ProprietorInternalApiProvider) {
+  userInternalApiProvider: UserInternalApiProvider
+  loggingProvider: ILoggingDriver
+  constructor(userInternalApiProvider: UserInternalApiProvider) {
     super(AuthSignInService.serviceName)
-    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.userInternalApiProvider = userInternalApiProvider
+    this.loggingProvider = LoggingProviderFactory.build()
   }
 
   public async execute(
     trace: ServiceTrace,
-    args: SignInUserRecordDTO
+    args: SignInUserType
   ): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args, ["password"])
 
-      const foundUser =
-        await this.proprietorInternalApiProvider.findProprietorByEmail(
-          args.email
-        )
+      const foundUser = await this.userInternalApiProvider.findUserByEmail(
+        args.email
+      )
 
       if (foundUser === NULL_OBJECT) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          INVALID_CREDENTIALS
-        )
-        return this.result
+        throw new BadRequestError(INVALID_CREDENTIALS)
       }
 
       const isPasswordMatch = await PasswordEncryptionService.verifyPassword(
@@ -55,12 +54,7 @@ export default class AuthSignInService extends BaseService<SignInUserRecordDTO> 
       const IS_NOT_MATCH = false
 
       if (isPasswordMatch === IS_NOT_MATCH) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          INVALID_CREDENTIALS
-        )
-        return this.result
+        throw new BadRequestError(INVALID_CREDENTIALS)
       }
 
       const accessToken = await JwtService.getJwt(foundUser)
@@ -73,7 +67,7 @@ export default class AuthSignInService extends BaseService<SignInUserRecordDTO> 
           isFirstTimeLogin: false
         }
 
-        await this.proprietorInternalApiProvider.updateUserFirstTimeLoginRecord(
+        await this.userInternalApiProvider.updateUserFirstTimeLoginRecord(
           updateUserRecordArgs
         )
       }
@@ -91,11 +85,8 @@ export default class AuthSignInService extends BaseService<SignInUserRecordDTO> 
       trace.setSuccessful()
       return this.result
     } catch (error: any) {
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        error.message
-      )
+      this.loggingProvider.error(error)
+      this.result.setError(ERROR, error.httpStatusCode, error.description)
       return this.result
     }
   }

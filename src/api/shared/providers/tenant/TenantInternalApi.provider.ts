@@ -1,4 +1,4 @@
-import { ITenantInternalApiProvider } from "../contracts/ITenantInternalApiProvider"
+import { ITenantInternalApiProvider } from "../contracts/ITenantInternalApi"
 import { Tenant } from "@prisma/client"
 import DbClient from "~/infrastructure/internal/database"
 

@@ -16,27 +16,29 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { IRequest } from "~/infrastructure/internal/types"
 import TokenProvider from "../providers/Token.provider"
 import { autoInjectable } from "tsyringe"
-import ProprietorInternalApiProvider from "~/api/shared/providers/proprietor/ProprietorInternalApi"
-import { UpdateUserTokenActivationRecordDTO } from "../types/AuthDTO"
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
 import { UserToken } from "@prisma/client"
 import DbClient from "~/infrastructure/internal/database"
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service"
 import DateTimeUtil from "~/utils/DateTimeUtil"
+import { UpdateUserTokenActivationRecordType } from "~/api/shared/types/UserInternalApiTypes"
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError"
 
 @autoInjectable()
 export default class AuthPasswordResetService extends BaseService<IRequest> {
   static serviceName = "AuthPasswordResetService"
   loggingProvider: ILoggingDriver
   tokenProvider: TokenProvider
-  proprietorInternalApiProvider: ProprietorInternalApiProvider
+  userInternalApiProvider: UserInternalApiProvider
   constructor(
     tokenProvider: TokenProvider,
-    proprietorInternalApiProvider: ProprietorInternalApiProvider
+    userInternalApiProvider: UserInternalApiProvider
   ) {
     super(AuthPasswordResetService.serviceName)
     this.loggingProvider = LoggingProviderFactory.build()
     this.tokenProvider = tokenProvider
-    this.proprietorInternalApiProvider = proprietorInternalApiProvider
+    this.userInternalApiProvider = userInternalApiProvider
   }
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
@@ -48,36 +50,29 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
       const dbResetToken = await this.tokenProvider.findUserTokenByToken(token)
 
       if (dbResetToken === NULL_OBJECT) {
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
-      const foundUser =
-        await this.proprietorInternalApiProvider.findProprietorById(
-          dbResetToken.userId
-        )
+      const foundUser = await this.userInternalApiProvider.findUserById(
+        dbResetToken.userId
+      )
 
       if (foundUser === NULL_OBJECT) {
         await this.deactivateUserToken(dbResetToken.id)
 
-        this.result.setError(
-          ERROR,
-          HttpStatusCodeEnum.BAD_REQUEST,
-          ERROR_INVALID_TOKEN
-        )
-        return this.result
+        throw new BadRequestError(ERROR_INVALID_TOKEN)
       }
 
-      const data = await this.passwordResetConfirmTransaction(
-        dbResetToken,
-        password
-      )
+      if (
+        dbResetToken.expired ||
+        this.checkTokenExpired(dbResetToken.expiresAt)
+      ) {
+        await this.deactivateUserToken(dbResetToken.id)
 
-      if (data === NULL_OBJECT) return this.result
+        throw new BadRequestError(ERROR_EXPIRED_TOKEN)
+      }
+
+      await this.passwordResetConfirmTransaction(dbResetToken, password)
 
       this.result.setData(
         SUCCESS,
@@ -88,11 +83,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
       return this.result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
+      this.result.setError(ERROR, error.httpStatusCode, error.description)
 
       return this.result
     }
@@ -104,25 +95,11 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
   ) {
     try {
       const result = await DbClient.$transaction(async (tx: any) => {
-        if (
-          dbResetToken.expired ||
-          this.checkTokenExpired(dbResetToken.expiresAt)
-        ) {
-          await this.deactivateUserToken(dbResetToken.id, tx)
-
-          this.result.setError(
-            ERROR,
-            HttpStatusCodeEnum.BAD_REQUEST,
-            ERROR_EXPIRED_TOKEN
-          )
-          return null
-        }
-
         const updateUserRecordPayload = {
           userId: dbResetToken.userId,
           password: PasswordEncryptionService.hashPassword(password)
         }
-        await this.proprietorInternalApiProvider.updateUserPassword(
+        await this.userInternalApiProvider.updateUserPassword(
           updateUserRecordPayload,
           tx
         )
@@ -133,17 +110,12 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
       return result
     } catch (error: any) {
       this.loggingProvider.error(error)
-      this.result.setError(
-        ERROR,
-        HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
-        SOMETHING_WENT_WRONG
-      )
-      return null
+      throw new InternalServerError(SOMETHING_WENT_WRONG)
     }
   }
 
   private async deactivateUserToken(tokenId: number, tx?: any) {
-    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordDTO = {
+    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordType = {
       tokenId,
       expired: true,
       isActive: false

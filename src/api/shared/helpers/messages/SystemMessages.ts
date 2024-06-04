@@ -1,13 +1,14 @@
 /** <---------------> Success Responses <---------------> */
-export const ACCOUNT_CREATED = "Account created successfully"
-export const ACCOUNT_VERIFIED = "Token Verification Success"
+export const ACCOUNT_CREATED = "Account Created Successfully"
+export const ACCOUNT_VERIFIED = "Token Already Used"
+export const TOKEN_VERIFIED = "Token Verification Success"
 export const TOKEN_REFRESH_SUCCESS = "Token Refresh Success"
 export const SIGN_IN_SUCCESSFUL = "Sign In Successful"
 
 /** <---------------> Error Responses <---------------> */
 export const EMAIL_IN_USE = "Email is Already in Use"
 export const INVALID_CREDENTIALS = "Invalid Credentials"
-export const PROVIDER_NOT_FOUND = "Provider not found"
+export const PROVIDER_NOT_FOUND = "Provider Not Found"
 export const MIDDLEWARES_ATTACHED = "Middlewares Attached Successfully"
 
 /** <---------------> Response Status <---------------> */
