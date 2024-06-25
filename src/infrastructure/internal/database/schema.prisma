@@ -39,7 +39,7 @@ model User {
 }
 
 model Department {
-    id           Int     @id @default(autoincrement())
+    id           Int     @id @default(autoincrement ())
     departmentId String  @unique @default(uuid())
     name         String
     staff        Staff[] @relation("StaffDepartment")
@@ -141,14 +141,6 @@ model Instructor {
     subjectsTaught String
     user           User   @relation(fields: [userId], references: [id])
 }
-
-// model Student {
-//     id             Int      @id @default(autoincrement())
-//     userId         Int      @unique
-//     gradeLevel     String
-//     enrollmentDate DateTime
-//     user           User     @relation(fields: [userId], references: [id])
-// }
 
 model UserToken {
     id        Int       @id @default(autoincrement())
