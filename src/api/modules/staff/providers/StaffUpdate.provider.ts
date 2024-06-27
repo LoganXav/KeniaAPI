@@ -23,13 +23,13 @@ export default class StaffUpdateProvider {
     return updatedStaffs as Promise<Staff[]>;
   }
 
-  public async addDeptToStaff(criteria: StaffCriteria, departmentId: number, tx?: any) : Promise<Staff> {
+  public async addDeptToStaff(criteria: StaffCriteria, updateData: UpdateStaffData, tx?: any) : Promise<Staff> {
     const dbClient = tx ? tx : DbClient;
     const updatedStaff = await dbClient?.staff?.update({
             where: criteria,
             data: {
                 department: {
-                    connect: { id: departmentId },
+                    connect: { id: updateData.departmentId },
                 },
             }
           });
@@ -37,13 +37,13 @@ export default class StaffUpdateProvider {
     return updatedStaff as Promise<Staff>;
   }
 
-  public async removeDeptFromStaff(criteria: StaffCriteria, departmentId: number, tx?: any) : Promise<Staff> {
+  public async removeDeptFromStaff(criteria: StaffCriteria, updateData: UpdateStaffData, tx?: any) : Promise<Staff> {
     const dbClient = tx ? tx : DbClient;
     const updatedStaff = await dbClient?.staff?.update({
             where: criteria,
             data: {
                 department: {
-                    disconnect: { id: departmentId },
+                    disconnect: { id: updateData.departmentId },
                 },
             }
           });
