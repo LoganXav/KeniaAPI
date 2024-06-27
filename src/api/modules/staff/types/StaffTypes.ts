@@ -23,4 +23,11 @@ export interface UpdateStaffData {
     jobTitle?: string;
     roleListId?: number;
     tenantId?: number;
+    departmentId?: number;
   }
+
+export interface GetAndUpdateStaff {
+    criteria: StaffCriteria;
+    data: UpdateStaffData;
+    updateStatus?: boolean;
+}
