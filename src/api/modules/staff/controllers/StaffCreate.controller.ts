@@ -45,7 +45,7 @@ import CreateStaffService from "../services/CreateStaff.service"
       this.setRouter(router())
   
       this.addRoute({
-        method: HttpMethodEnum.GET,
+        method: HttpMethodEnum.POST,
         path: "/staff/create",
         handlers: [this.create],
         produces: [
