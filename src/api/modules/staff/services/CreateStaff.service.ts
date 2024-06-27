@@ -11,22 +11,19 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import StaffCreateProvider from "../providers/StaffCreate.provider"
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
-import { CreateStaffData, StaffCriteria } from "../types/StaffTypes"
+import { CreateStaffData } from "../types/StaffTypes"
 import { CREATE_ERROR, ERROR } from "~/api/shared/helpers/messages/SystemMessages"
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError"
-import StaffReadProvider from "../providers/StaffRead.provider"
 
 @autoInjectable()
 export default class CreateStaffService extends BaseService<any> {
   static serviceName = "CreateStaffService"
   staffCreateProvider: StaffCreateProvider
-  staffReadProvider: StaffReadProvider
   loggingProvider: ILoggingDriver
 
   constructor(staffCreateProvider: StaffCreateProvider) {
     super(CreateStaffService.serviceName)
     this.staffCreateProvider = staffCreateProvider
-    this.staffReadProvider = new StaffReadProvider()
     this.loggingProvider = LoggingProviderFactory.build()
   }
 
@@ -34,31 +31,6 @@ export default class CreateStaffService extends BaseService<any> {
     try {
       this.initializeServiceTrace(trace, args, ["createStaff"])
       const createdStaff = await this.staffCreateProvider.createStaff(args)
-
-      if(createdStaff){
-        trace.setSuccessful()
-        this.result.setData(
-          SUCCESS,
-          HttpStatusCodeEnum.CREATED,
-          `Staff ${CREATED}`,
-          createdStaff
-        )
-        return this.result
-      } else {
-        throw new BadRequestError(`${CREATE_ERROR} Staff`)
-      }
-
-    } catch (error: any) {
-      this.loggingProvider.error(error)
-      this.result.setError(ERROR, error.httpStatusCode, error.description)
-      return this.result
-    }
-  }
-
-  public async test(trace: ServiceTrace, args: StaffCriteria): Promise<IResult> {
-    try {
-      this.initializeServiceTrace(trace, args, ["searchStaff"])
-      const createdStaff = await this.staffReadProvider.getByCriteria(args)
 
       if(createdStaff){
         trace.setSuccessful()
