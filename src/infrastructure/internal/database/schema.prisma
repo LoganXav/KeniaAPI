@@ -35,7 +35,95 @@ model User {
     tenant           Tenant      @relation(fields: [tenantId], references: [id])
     tokens           UserToken[]
     instructor       Instructor?
-    student          Student?
+    // student          Student?
+}
+
+model Department {
+    id           Int     @id @default(autoincrement ())
+    departmentId String  @unique @default(uuid())
+    name         String
+    staff        Staff[] @relation("StaffDepartment")
+    tenantId     Int
+}
+
+model Staff {
+    id               Int          @id @default(autoincrement())
+    staffId          String       @unique @default(uuid())
+    firstName        String
+    lastName         String
+    phoneNumber      String
+    email            String       @unique
+    password         String
+    jobTitle         String
+    roleListId       Int
+    rolelist         RoleList     @relation(fields: [roleListId], references: [id])
+    department       Department[] @relation("StaffDepartment")
+    classes          Class[]      @relation("ClassTeacher")
+    subjects         Subject[]    @relation("SubjectTeacher")
+    isFirstTimeLogin Boolean      @default(true)
+    tenantId         Int
+}
+
+model RoleList {
+    id       Int        @id @default(autoincrement())
+    name     String     @unique
+    features Features[] @relation("RoleFeatures")
+    staffs   Staff[]
+    tenantId Int
+}
+
+model Features {
+    id       Int        @id @default(autoincrement())
+    name     String     @unique
+    role     RoleList[] @relation("RoleFeatures")
+    tenantId Int
+}
+
+model Student {
+    id               Int      @id @default(autoincrement())
+    studentId        String   @unique @default(uuid())
+    firstName        String
+    lastName         String
+    phoneNumber      String
+    email            String
+    dob              DateTime
+    address          String
+    enrollmentDate   DateTime
+    classId          String
+    class            Class    @relation(fields: [classId], references: [classId])
+    isFirstTimeLogin Boolean  @default(true)
+    tenantId         Int
+}
+
+model Class {
+    id             Int       @id @default(autoincrement())
+    classId        String    @unique @default(uuid())
+    name           ClassList
+    classTeacherId String?
+    classTeacher   Staff?    @relation("ClassTeacher", fields: [classTeacherId], references: [staffId])
+    students       Student[]
+    subjects       Subject[] @relation("ClassSubjects")
+    tenantId       Int
+}
+
+model Subject {
+    id        Int    @id @default(autoincrement())
+    subjectId String @unique @default(uuid())
+    name      String
+    classId   String
+    teacherId String
+    class     Class  @relation("ClassSubjects", fields: [classId], references: [classId])
+    teacher   Staff  @relation("SubjectTeacher", fields: [teacherId], references: [staffId])
+    tenantId  Int
+}
+
+enum ClassList {
+    JSS1
+    JSS2
+    JSS3
+    SSS1
+    SSS2
+    SSS3
 }
 
 enum Role {
@@ -52,14 +140,6 @@ model Instructor {
     userId         Int    @unique
     subjectsTaught String
     user           User   @relation(fields: [userId], references: [id])
-}
-
-model Student {
-    id             Int      @id @default(autoincrement())
-    userId         Int      @unique
-    gradeLevel     String
-    enrollmentDate DateTime
-    user           User     @relation(fields: [userId], references: [id])
 }
 
 model UserToken {
