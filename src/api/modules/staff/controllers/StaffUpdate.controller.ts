@@ -56,7 +56,7 @@ import UpdateStaffService from "../services/UpdateStaff.service"
         )
       }
 
-    updateStaffDept: EntryPointHandler = async (
+    removeListFromStaff: EntryPointHandler = async (
         req: IRequest,
         res: IResponse,
         next: INextFunction
@@ -64,7 +64,7 @@ import UpdateStaffService from "../services/UpdateStaff.service"
         return this.handleResultData(
           res,
           next,
-          this.updateStaffService.updateDept(res.trace, req.body),
+          this.updateStaffService.removeListFromStaff(res.trace, req.body),
           {
             [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON
           }
@@ -102,8 +102,8 @@ import UpdateStaffService from "../services/UpdateStaff.service"
 
       this.addRoute({
         method: HttpMethodEnum.POST,
-        path: "/staff/update_staff_dept",
-        handlers: [this.updateStaffDept],
+        path: "/staff/remove_list",
+        handlers: [this.removeListFromStaff],
         produces: [
           {
             applicationStatus: ApplicationStatusEnum.SUCCESS,

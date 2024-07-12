@@ -77,15 +77,11 @@ export default class UpdateStaffService extends BaseService<any> {
     }
   }
 
-  public async updateDept(trace: ServiceTrace, args: GetAndUpdateStaff): Promise<IResult> {
+  public async removeListFromStaff(trace: ServiceTrace, args: GetAndUpdateStaff): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args, ["updateStaffDept"])
+      this.initializeServiceTrace(trace, args, ["removeListFromStaff"])
       let staff;
-      if(args.updateStatus){
-        staff = await this.staffUpdateProvider.addDeptToStaff(args.criteria, args.data)
-      } else{
-        staff = await this.staffUpdateProvider.removeDeptFromStaff(args.criteria, args.data)
-      }
+        staff = await this.staffUpdateProvider.removeListFromStaff(args.criteria, args.data)
 
       if(staff){
         trace.setSuccessful()

@@ -12,19 +12,33 @@ export default class StaffReadProvider {
 
   public async getByCriteria(criteria: StaffCriteria, tx?: any): Promise<Staff[]> {
     const dbClient = tx ? tx : DbClient;
-    const { departmentId, roleListId, ...restCriteria } = criteria;
+    const { id, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
     const staffs = await dbClient?.staff?.findMany({
       where: {
-        ...restCriteria,
-        ...(departmentId && {
-          department: {
+        ...(id && { id: id }),
+        ...(jobTitle && { jobTitle }),
+        ...(userId && { userId }),
+        ...(roleId && { roleId }),
+        ...(groupId && {
+          group: {
             some: {
-              id: departmentId,
+              id: groupId,
             },
           },
         }),
-        ...(roleListId && {
-          roleListId: roleListId,
+        ...(classId && {
+          class: {
+            some: {
+              id: classId,
+            },
+          },
+        }),
+        ...(subjectId && {
+          subject: {
+            some: {
+              id: subjectId,
+            },
+          },
         }),
       },
     });
@@ -34,8 +48,35 @@ export default class StaffReadProvider {
 
   public async getOneByCriteria(criteria: StaffCriteria, tx?: any): Promise<Staff> {
     const dbClient = tx ? tx : DbClient;
+    const { id, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
     const staff = await dbClient?.staff?.findFirst({
-      where: criteria,
+      where: {
+        ...(id && { id: id }),
+        ...(jobTitle && { jobTitle }),
+        ...(userId && { userId }),
+        ...(roleId && { roleId }),
+        ...(groupId && {
+          group: {
+            some: {
+              id: groupId,
+            },
+          },
+        }),
+        ...(classId && {
+          class: {
+            some: {
+              id: classId,
+            },
+          },
+        }),
+        ...(subjectId && {
+          subject: {
+            some: {
+              id: subjectId,
+            },
+          },
+        }),
+      },
     });
 
     return staff;

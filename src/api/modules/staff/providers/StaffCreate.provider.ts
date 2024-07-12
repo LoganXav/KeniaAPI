@@ -2,36 +2,37 @@ import DbClient from "~/infrastructure/internal/database";
 import { Staff } from "@prisma/client";
 import { CreateStaffData } from "../types/StaffTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 
 export default class StaffCreateProvider {
   public async createStaff(data: CreateStaffData, tx?: any): Promise<Staff> {
     try {
       const dbClient = tx ? tx : DbClient;
-      const newStaff = await dbClient?.staff?.create({
-        data: {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phoneNumber: data.phoneNumber,
-          email: data.email,
-          password: data.password,
-          jobTitle: data.jobTitle,
-          
-          // department: {
-          //   connect: data.departmentIds.map(id => ({ id })),
-          // },
-          // tenantId: {
-          //   connect: { id: data.tenantId },
-          // },
-          roleListId: data.roleListId,
-          // departmentIds: data.departmentIds,
-          tenantId: data.tenantId,
-          isFirstTimeLogin: true,
-        },
-      });
+      const staffData: any = {
+        jobTitle: data.jobTitle,
+        group: data.groupIds ? {
+          connect: data.groupIds.map(id => ({ id })),
+        } : undefined,
+        classes: data.classIds ? {
+          connect: data.classIds.map(id => ({ id })),
+        } : undefined,
+        subjects: data.subjectIds ? {
+          connect: data.subjectIds.map(id => ({ id })),
+        } : undefined,
+      };
+      if (data.roleId !== undefined) {
+        staffData.roleId = data.roleId;
+      }
+      if (data.userId !== undefined) {
+        staffData.userId = data.userId;
+      }
 
+      const newStaff = await dbClient?.staff?.create({
+        data: staffData,
+      });
+  
       return newStaff;
+
     } catch (error) {
       throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND)
     }
