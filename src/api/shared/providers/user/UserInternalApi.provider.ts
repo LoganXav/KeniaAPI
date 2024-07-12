@@ -1,5 +1,5 @@
 import DbClient from "~/infrastructure/internal/database"
-import { Role, User } from "@prisma/client"
+import { User } from "@prisma/client"
 
 import { IUserInternalApiProvider } from "../contracts/IUserInternalApi"
 import {
@@ -48,7 +48,7 @@ export default class UserInternalApiProvider
         firstName,
         lastName,
         password,
-        phoneNumber
+        phoneNumber,
       }
     })
 
