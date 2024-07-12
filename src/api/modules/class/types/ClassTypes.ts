@@ -1,21 +1,21 @@
 import { z } from "zod";
-import { createRoleSchema } from "../validators/RoleCreateSchema";
+import { createClassSchema } from "../validators/ClassCreateSchema";
 
-export type CreateRoleData = z.infer<typeof createRoleSchema>;
+export type CreateClassData = z.infer<typeof createClassSchema>;
 
-export interface RoleCriteria {
+export interface ClassCriteria {
   id?: number;
   name?: string;
   tenantId?: number;
 }
 
-export interface UpdateRoleData {
+export interface UpdateClassData {
     name?: string;
     tenantId?: number;
   }
 
-export interface GetAndUpdateRole {
-    criteria: RoleCriteria;
-    data: UpdateRoleData;
+export interface GetAndUpdateClass {
+    criteria: ClassCriteria;
+    data: UpdateClassData;
     updateStatus?: boolean;
 }

@@ -1,30 +1,30 @@
 import DbClient from "~/infrastructure/internal/database";
-import { Role } from "@prisma/client";
-import { RoleCriteria } from "../types/RoleTypes";
+import { Group } from "@prisma/client";
+import { GroupCriteria } from "../types/GroupTypes";
 
-export default class RoleReadProvider {
-  public async getAllRole(tx?: any): Promise<Role[]> {
+export default class GroupReadProvider {
+  public async getAllGroup(tx?: any): Promise<Group[]> {
     const dbClient = tx ? tx : DbClient;
-    const roles = await dbClient?.role?.findMany();
+    const groups = await dbClient?.group?.findMany();
 
-    return roles;
+    return groups;
   }
 
-  public async getByCriteria(criteria: RoleCriteria, tx?: any): Promise<Role[]> {
+  public async getByCriteria(criteria: GroupCriteria, tx?: any): Promise<Group[]> {
     const dbClient = tx ? tx : DbClient;
-    const roles = await dbClient?.role?.findMany({
+    const groups = await dbClient?.group?.findMany({
       where: criteria,
     });
 
-    return roles;
+    return groups;
   }
 
-  public async getOneByCriteria(criteria: RoleCriteria, tx?: any): Promise<Role> {
+  public async getOneByCriteria(criteria: GroupCriteria, tx?: any): Promise<Group> {
     const dbClient = tx ? tx : DbClient;
-    const role = await dbClient?.role?.findFirst({
+    const group = await dbClient?.group?.findFirst({
       where: criteria,
     });
 
-    return role;
+    return group;
   }
 }

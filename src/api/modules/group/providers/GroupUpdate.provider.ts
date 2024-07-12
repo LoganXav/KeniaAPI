@@ -1,25 +1,25 @@
 import DbClient from "~/infrastructure/internal/database";
-import { Role } from "@prisma/client";
-import { RoleCriteria, UpdateRoleData } from "../types/RoleTypes";
+import { Group } from "@prisma/client";
+import { GroupCriteria, UpdateGroupData } from "../types/GroupTypes";
 
-export default class RoleUpdateProvider {
-  public async updateOne(criteria: RoleCriteria, updateData: UpdateRoleData, tx?: any) : Promise<Role> {
+export default class GroupUpdateProvider {
+  public async updateOne(criteria: GroupCriteria, updateData: UpdateGroupData, tx?: any) : Promise<Group> {
     const dbClient = tx ? tx : DbClient;
-    const updatedRole = await dbClient?.role?.update({
+    const updatedGroup = await dbClient?.group?.update({
             where: criteria,
             data: updateData,
           });
 
-    return updatedRole as Promise<Role>;
+    return updatedGroup as Promise<Group>;
   }
 
-  public async updateMany(criteria: RoleCriteria, updateData: UpdateRoleData, tx?: any)  : Promise<Role[]> {
+  public async updateMany(criteria: GroupCriteria, updateData: UpdateGroupData, tx?: any)  : Promise<Group[]> {
     const dbClient = tx ? tx : DbClient;
-    const updatedRoles = await dbClient?.role?.updateMany({
+    const updatedGroups = await dbClient?.group?.updateMany({
             where: criteria,
             data: updateData,
           });
 
-    return updatedRoles as Promise<Role[]>;
+    return updatedGroups as Promise<Group[]>;
   }
 }

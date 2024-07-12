@@ -30,15 +30,17 @@ model User {
   hasVerified      Boolean     @default(false)
   isFirstTimeLogin Boolean     @default(true)
   lastLoginDate    DateTime    @default(now())
-  roleId           Int?
-  role             Role?        @relation(fields: [roleId], references: [id])
+  tokens           UserToken[]
+  // userType         UserType    @default(STAFF)
   tenantId         Int
   tenant           Tenant      @relation(fields: [tenantId], references: [id])
-  tokens           UserToken[]
-  studentId        String?
-  student          Student?    @relation(fields: [studentId], references: [studentId])
-  staffId          String?
-  staff            Staff?      @relation(fields: [staffId], references: [staffId])
+  student          Student?    @relation(name: "StudentUser")
+  staff            Staff?      @relation(name: "StaffUser")
+}
+
+enum UserType {
+  STUDENT
+  STAFF
 }
 
 model Group {
@@ -51,19 +53,22 @@ model Group {
 
 model Staff {
   id       Int       @id @default(autoincrement())
-  staffId  String    @unique @default(uuid())
+  // staffId  String    @unique @default(uuid())
   jobTitle String
+  userId   Int?      @unique
+  user     User?     @relation(fields: [userId], references: [id], name: "StaffUser")
+  roleId   Int?
+  role     Role?     @relation(fields: [roleId], references: [id])
   group    Group[]   @relation("StaffGroup")
   classes  Class[]   @relation("ClassTeacher")
   subjects Subject[] @relation("SubjectTeacher")
-  User     User[]
 }
 
 model Role {
   id         Int          @id @default(autoincrement())
   name       String       @unique
   permission Permission[] @relation("RolePermission")
-  users      User[]
+  staff      Staff[]
   tenantId   Int
 }
 
@@ -77,21 +82,21 @@ model Permission {
 model Student {
   id               Int      @id @default(autoincrement())
   studentId        String   @unique @default(uuid())
+  userId        Int?        @unique
+  user          User?       @relation(fields: [userId], references: [id], name: "StudentUser")
   dob              DateTime
   address          String
   enrollmentDate   DateTime
   classId          String
   class            Class    @relation(fields: [classId], references: [classId])
-  tenantId         Int
-  User             User[]
 }
 
 model Class {
   id             Int       @id @default(autoincrement())
   classId        String    @unique @default(uuid())
   name           ClassList
-  classTeacherId String?
-  classTeacher   Staff?    @relation("ClassTeacher", fields: [classTeacherId], references: [staffId])
+  classTeacherId Int?
+  classTeacher   Staff?    @relation("ClassTeacher", fields: [classTeacherId], references: [id])
   students       Student[]
   subjects       Subject[] @relation("ClassSubjects")
   tenantId       Int
@@ -102,9 +107,9 @@ model Subject {
   subjectId String @unique @default(uuid())
   name      String
   classId   String
-  teacherId String
+  teacherId Int
   class     Class  @relation("ClassSubjects", fields: [classId], references: [classId])
-  teacher   Staff  @relation("SubjectTeacher", fields: [teacherId], references: [staffId])
+  teacher   Staff  @relation("SubjectTeacher", fields: [teacherId], references: [id])
   tenantId  Int
 }
 

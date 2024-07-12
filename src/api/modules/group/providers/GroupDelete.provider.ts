@@ -1,30 +1,30 @@
 import DbClient from "~/infrastructure/internal/database";
-import { Role } from "@prisma/client";
-import { RoleCriteria } from "../types/RoleTypes";
+import { Group } from "@prisma/client";
+import { GroupCriteria } from "../types/GroupTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 
-export default class RoleDeleteProvider {
-  public async deleteOne(criteria: RoleCriteria, tx?: any): Promise<Role | any> {
+export default class GroupDeleteProvider {
+  public async deleteOne(criteria: GroupCriteria, tx?: any): Promise<Group | any> {
     const dbClient = tx ? tx : DbClient;
-    const toDelete = await dbClient?.role?.findFirst({
+    const toDelete = await dbClient?.group?.findFirst({
       where: criteria,
     });
     if(!toDelete) 
-      throw new BadRequestError(`Role ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
+      throw new BadRequestError(`Group ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
     
-    const deletedRole = await dbClient?.role?.delete({
+    const deletedGroup = await dbClient?.group?.delete({
         where: {id: toDelete.id},
     });
-    return deletedRole;
+    return deletedGroup;
   }
 
-  public async deleteMany(criteria: RoleCriteria, tx?: any): Promise<Role | any> {
+  public async deleteMany(criteria: GroupCriteria, tx?: any): Promise<Group | any> {
     const dbClient = tx ? tx : DbClient;
-    const deletedRole = await dbClient?.role?.deleteMany({
+    const deletedGroup = await dbClient?.group?.deleteMany({
         where: criteria,
     });
-    return deletedRole;
+    return deletedGroup;
   }
 }

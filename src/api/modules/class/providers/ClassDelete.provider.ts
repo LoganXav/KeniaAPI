@@ -1,30 +1,30 @@
 import DbClient from "~/infrastructure/internal/database";
-import { Role } from "@prisma/client";
-import { RoleCriteria } from "../types/RoleTypes";
+import { Class } from "@prisma/client";
+import { ClassCriteria } from "../types/ClassTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 
-export default class RoleDeleteProvider {
-  public async deleteOne(criteria: RoleCriteria, tx?: any): Promise<Role | any> {
+export default class ClassDeleteProvider {
+  public async deleteOne(criteria: ClassCriteria, tx?: any): Promise<Class | any> {
     const dbClient = tx ? tx : DbClient;
-    const toDelete = await dbClient?.role?.findFirst({
+    const toDelete = await dbClient?.class?.findFirst({
       where: criteria,
     });
     if(!toDelete) 
-      throw new BadRequestError(`Role ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
+      throw new BadRequestError(`Class ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
     
-    const deletedRole = await dbClient?.role?.delete({
+    const deletedClass = await dbClient?.class?.delete({
         where: {id: toDelete.id},
     });
-    return deletedRole;
+    return deletedClass;
   }
 
-  public async deleteMany(criteria: RoleCriteria, tx?: any): Promise<Role | any> {
+  public async deleteMany(criteria: ClassCriteria, tx?: any): Promise<Class | any> {
     const dbClient = tx ? tx : DbClient;
-    const deletedRole = await dbClient?.role?.deleteMany({
+    const deletedClass = await dbClient?.class?.deleteMany({
         where: criteria,
     });
-    return deletedRole;
+    return deletedClass;
   }
 }

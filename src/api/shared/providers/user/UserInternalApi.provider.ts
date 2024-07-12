@@ -17,8 +17,7 @@ export default class UserInternalApiProvider
     const dbClient = tx ? tx : DbClient
     const result = await dbClient?.user?.findFirst({
       where: {
-        email: email,
-        role: Role.PROPRIETOR
+        email: email
       }
     })
 
@@ -29,8 +28,7 @@ export default class UserInternalApiProvider
     const dbClient = tx ? tx : DbClient
     const result = await dbClient?.user?.findFirst({
       where: {
-        id,
-        role: Role.PROPRIETOR
+        id
       }
     })
 
@@ -50,8 +48,7 @@ export default class UserInternalApiProvider
         firstName,
         lastName,
         password,
-        phoneNumber,
-        role: Role.PROPRIETOR
+        phoneNumber
       }
     })
 
@@ -117,6 +114,27 @@ export default class UserInternalApiProvider
         id: userId
       },
       data: { password }
+    })
+
+    return result
+  }
+
+  public async updateUserProfile(
+    args: any,
+    tx?: any
+  ): Promise<User> {
+    const { userId, newTenantId, newRoleId, newStudentId, newStaffId} = args
+    const dbClient = tx ? tx : DbClient
+    const result = await dbClient?.user?.update({
+      where: {
+        id: userId
+      },
+      data: {
+        ...(newTenantId && { tenant: { connect: { id: newTenantId } } }),
+        ...(newRoleId && { role: { connect: { id: newRoleId } } }),
+        ...(newStudentId && { student: { connect: { studentId: newStudentId } } }),
+        ...(newStaffId && { staff: { connect: { staffId: newStaffId } } }),
+      },
     })
 
     return result
