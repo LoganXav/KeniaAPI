@@ -2,6 +2,7 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
 import { BaseService } from "../../base/services/Base.service"
 import { IResult } from "~/api/shared/helpers/results/IResult"
 import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider"
+import StaffReadProvider from "~/api/modules/staff/providers/StaffRead.provider"
 import {
   ERROR,
   INVALID_CREDENTIALS,
@@ -24,10 +25,12 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 export default class AuthSignInService extends BaseService<SignInUserType> {
   static serviceName: "AuthSignInService"
   userInternalApiProvider: UserInternalApiProvider
+  staffReadProvider: StaffReadProvider
   loggingProvider: ILoggingDriver
-  constructor(userInternalApiProvider: UserInternalApiProvider) {
+  constructor(userInternalApiProvider: UserInternalApiProvider, staffReadProvider: StaffReadProvider) {
     super(AuthSignInService.serviceName)
     this.userInternalApiProvider = userInternalApiProvider
+    this.staffReadProvider = staffReadProvider
     this.loggingProvider = LoggingProviderFactory.build()
   }
 
@@ -72,13 +75,18 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
         )
       }
 
+      let userTypeData: any;
+      if(args.usertype == 'staff'){
+        userTypeData = await this.staffReadProvider.getOneByCriteria({userId: foundUser.id})
+      }
+
       const { password, ...SignedInUserData } = foundUser
 
       this.result.setData(
         SUCCESS,
         HttpStatusCodeEnum.SUCCESS,
         SIGN_IN_SUCCESSFUL,
-        SignedInUserData,
+        {user: SignedInUserData, usertype: userTypeData},
         accessToken
       )
 
