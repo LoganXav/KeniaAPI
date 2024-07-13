@@ -5,22 +5,24 @@ export type CreateStaffData = z.infer<typeof createStaffSchema>;
 
 export interface StaffCriteria {
   id?: number;
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
-  email?: string;
+  userId?: number;
+  roleId?: number;
   jobTitle?: string;
-  roleListId?: number;
-  departmentId?: number;
-  tenantId?: number;
+  groupId?: number;
+  classId?: number;
+  subjectId?: number;
 }
 
 export interface UpdateStaffData {
-    firstName?: string;
-    lastName?: string;
-    phoneNumber?: string;
-    email?: string;
+    userId?: number;
     jobTitle?: string;
-    roleListId?: number;
-    tenantId?: number;
+    roleId?: number;
+    groupIds?: number[];
+    classIds?: number[];
+    subjectIds?: number[];
   }
+
+export interface GetAndUpdateStaff {
+    criteria: StaffCriteria;
+    data: UpdateStaffData;
+}

@@ -8,5 +8,8 @@ export const signInUserRecordSchema = z.object({
     .string({
       required_error: "Argument email is missing"
     })
-    .email("Not a valid email")
+    .email("Not a valid email"),
+  usertype: z.string({
+    required_error: "Specify the usertype"
+  }),
 })

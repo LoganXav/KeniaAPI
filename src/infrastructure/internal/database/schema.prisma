@@ -4,158 +4,138 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider  = "postgresql"
-    url       = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Tenant {
-    id      Int     @id @default(autoincrement())
-    name    String?
-    address String?
-    users   User[]
+  id      Int     @id @default(autoincrement())
+  name    String?
+  address String?
+  users   User[]
 }
 
 model User {
-    id               Int         @id @default(autoincrement())
-    firstName        String
-    lastName         String
-    phoneNumber      String
-    email            String      @unique
-    password         String
-    hasVerified      Boolean     @default(false)
-    isFirstTimeLogin Boolean     @default(true)
-    lastLoginDate    DateTime    @default(now())
-    role             Role
-    tenantId         Int
-    tenant           Tenant      @relation(fields: [tenantId], references: [id])
-    tokens           UserToken[]
-    instructor       Instructor?
-    // student          Student?
+  id               Int         @id @default(autoincrement())
+  firstName        String
+  lastName         String
+  phoneNumber      String
+  email            String      @unique
+  password         String
+  hasVerified      Boolean     @default(false)
+  isFirstTimeLogin Boolean     @default(true)
+  lastLoginDate    DateTime    @default(now())
+  tokens           UserToken[]
+  // userType         UserType    @default(STAFF)
+  tenantId         Int
+  tenant           Tenant      @relation(fields: [tenantId], references: [id])
+  student          Student?    @relation(name: "StudentUser")
+  staff            Staff?      @relation(name: "StaffUser")
 }
 
-model Department {
-    id           Int     @id @default(autoincrement ())
-    departmentId String  @unique @default(uuid())
-    name         String
-    staff        Staff[] @relation("StaffDepartment")
-    tenantId     Int
+enum UserType {
+  STUDENT
+  STAFF
+}
+
+model Group {
+  id       Int     @id @default(autoincrement())
+  groupId  String  @unique @default(uuid())
+  name     String
+  staff    Staff[] @relation("StaffGroup")
+  tenantId Int
 }
 
 model Staff {
-    id               Int          @id @default(autoincrement())
-    staffId          String       @unique @default(uuid())
-    firstName        String
-    lastName         String
-    phoneNumber      String
-    email            String       @unique
-    password         String
-    jobTitle         String
-    roleListId       Int
-    rolelist         RoleList     @relation(fields: [roleListId], references: [id])
-    department       Department[] @relation("StaffDepartment")
-    classes          Class[]      @relation("ClassTeacher")
-    subjects         Subject[]    @relation("SubjectTeacher")
-    isFirstTimeLogin Boolean      @default(true)
-    tenantId         Int
+  id       Int       @id @default(autoincrement())
+  // staffId  String    @unique @default(uuid())
+  jobTitle String
+  userId   Int?      @unique
+  user     User?     @relation(fields: [userId], references: [id], name: "StaffUser")
+  roleId   Int?
+  role     Role?     @relation(fields: [roleId], references: [id])
+  group    Group[]   @relation("StaffGroup")
+  classes  Class[]   @relation("ClassTeacher")
+  subjects Subject[] @relation("SubjectTeacher")
 }
 
-model RoleList {
-    id       Int        @id @default(autoincrement())
-    name     String     @unique
-    features Features[] @relation("RoleFeatures")
-    staffs   Staff[]
-    tenantId Int
+model Role {
+  id         Int          @id @default(autoincrement())
+  name       String       @unique
+  permission Permission[] @relation("RolePermission")
+  staff      Staff[]
+  tenantId   Int
 }
 
-model Features {
-    id       Int        @id @default(autoincrement())
-    name     String     @unique
-    role     RoleList[] @relation("RoleFeatures")
-    tenantId Int
+model Permission {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  role     Role[] @relation("RolePermission")
+  tenantId Int
 }
 
 model Student {
-    id               Int      @id @default(autoincrement())
-    studentId        String   @unique @default(uuid())
-    firstName        String
-    lastName         String
-    phoneNumber      String
-    email            String
-    dob              DateTime
-    address          String
-    enrollmentDate   DateTime
-    classId          String
-    class            Class    @relation(fields: [classId], references: [classId])
-    isFirstTimeLogin Boolean  @default(true)
-    tenantId         Int
+  id               Int      @id @default(autoincrement())
+  studentId        String   @unique @default(uuid())
+  userId        Int?        @unique
+  user          User?       @relation(fields: [userId], references: [id], name: "StudentUser")
+  dob              DateTime
+  address          String
+  enrollmentDate   DateTime
+  classId          String
+  class            Class    @relation(fields: [classId], references: [classId])
 }
 
 model Class {
-    id             Int       @id @default(autoincrement())
-    classId        String    @unique @default(uuid())
-    name           ClassList
-    classTeacherId String?
-    classTeacher   Staff?    @relation("ClassTeacher", fields: [classTeacherId], references: [staffId])
-    students       Student[]
-    subjects       Subject[] @relation("ClassSubjects")
-    tenantId       Int
+  id             Int       @id @default(autoincrement())
+  classId        String    @unique @default(uuid())
+  name           ClassList
+  classTeacherId Int?
+  classTeacher   Staff?    @relation("ClassTeacher", fields: [classTeacherId], references: [id])
+  students       Student[]
+  subjects       Subject[] @relation("ClassSubjects")
+  tenantId       Int
 }
 
 model Subject {
-    id        Int    @id @default(autoincrement())
-    subjectId String @unique @default(uuid())
-    name      String
-    classId   String
-    teacherId String
-    class     Class  @relation("ClassSubjects", fields: [classId], references: [classId])
-    teacher   Staff  @relation("SubjectTeacher", fields: [teacherId], references: [staffId])
-    tenantId  Int
+  id        Int    @id @default(autoincrement())
+  subjectId String @unique @default(uuid())
+  name      String
+  classId   String
+  teacherId Int
+  class     Class  @relation("ClassSubjects", fields: [classId], references: [classId])
+  teacher   Staff  @relation("SubjectTeacher", fields: [teacherId], references: [id])
+  tenantId  Int
 }
 
 enum ClassList {
-    JSS1
-    JSS2
-    JSS3
-    SSS1
-    SSS2
-    SSS3
-}
-
-enum Role {
-    PROPRIETOR
-    PRINCIPAL
-    VICE_PRINCIPAL
-    ADMISSIONS_OFFICER
-    INSTRUCTOR
-    STUDENT
-}
-
-model Instructor {
-    id             Int    @id @default(autoincrement())
-    userId         Int    @unique
-    subjectsTaught String
-    user           User   @relation(fields: [userId], references: [id])
+  JSS1
+  JSS2
+  JSS3
+  SSS1
+  SSS2
+  SSS3
 }
 
 model UserToken {
-    id        Int       @id @default(autoincrement())
-    userId    Int
-    user      User      @relation(fields: [userId], references: [id])
-    tokenType TokenType
-    token     String
-    expiresAt DateTime
-    expired   Boolean   @default(false)
-    isActive  Boolean   @default(true)
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  tokenType TokenType
+  token     String
+  expiresAt DateTime
+  expired   Boolean   @default(false)
+  isActive  Boolean   @default(true)
 }
 
 enum TokenType {
-    EMAIL
-    ACCESS
-    REFRESH
-    PASSWORD_RESET
+  EMAIL
+  ACCESS
+  REFRESH
+  PASSWORD_RESET
 }

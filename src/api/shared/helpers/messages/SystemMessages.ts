@@ -53,3 +53,16 @@ export const TOKEN_EXPIRED =
 
 /** <---------------> Resource Labels <---------------> */
 export const USER_RESOURCE = "User Resource"
+
+/** <---------------> CRUD Success <---------------> */
+export const CREATED = "Created Successfully"
+export const READ = "Read Successfully"
+export const UPDATED = "Updated Successfully"
+export const DELETED = "Delete Successfully"
+
+/** <---------------> CRUD Errors <---------------> */
+export const CREATE_ERROR = "Unable to Create"
+export const READ_ERROR = "Unable to Read"
+export const UPDATE_ERROR = "Unable to Update"
+export const DELETE_ERROR = "Unable to Delete"
+export const NOT_FOUND = "Not Found"

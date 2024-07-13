@@ -2,10 +2,10 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import ApplicationError from "./ApplicationError"
 
 export class BadRequestError extends ApplicationError {
-  constructor(description = "Bad Request Error") {
+  constructor(description = "Bad Request Error", httpStatusCode = HttpStatusCodeEnum.BAD_REQUEST) {
     super({
       description,
-      httpStatusCode: HttpStatusCodeEnum.BAD_REQUEST,
+      httpStatusCode,
       isOperational: undefined
     })
     Object.setPrototypeOf(this, new.target.prototype)
