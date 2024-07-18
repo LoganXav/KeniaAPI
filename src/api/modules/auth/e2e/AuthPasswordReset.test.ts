@@ -1,12 +1,12 @@
 import { Server } from "http";
 import request from "supertest";
 import { container } from "tsyringe";
-import TokenProvider from "../../providers/Token.provider";
-import AuthPasswordResetService from "../../services/AuthPasswordReset.service";
-import { Application } from "../../../../../infrastructure/internal/application";
-import AuthPasswordResetController from "../../controllers/AuthPasswordReset.controller";
-import AuthPasswordResetRequestService from "../../services/AuthPasswordResetRequest.service";
-import UserInternalApiProvider from "../../../../shared/providers/user/UserInternalApi.provider";
+import TokenProvider from "../providers/Token.provider";
+import AuthPasswordResetService from "../services/AuthPasswordReset.service";
+import { Application } from "../../../../infrastructure/internal/application";
+import AuthPasswordResetController from "../controllers/AuthPasswordReset.controller";
+import AuthPasswordResetRequestService from "../services/AuthPasswordResetRequest.service";
+import UserInternalApiProvider from "../../../shared/providers/user/UserInternalApi.provider";
 
 describe("Auth Password Reset Controller", () => {
   let server: Server;

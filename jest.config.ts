@@ -1,7 +1,7 @@
 export default {
   preset: "ts-jest",
   testEnvironment: "node",
-  collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/**/*.test.ts", "!src/**/__tests__/**"],
+  collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/**/*.test.ts", "!src/**/__tests__/**", "!src/**/e2e/**"],
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   moduleNameMapper: {
     "^~/api/(.*)$": "<rootDir>/src/api/$1",

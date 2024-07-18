@@ -1,14 +1,14 @@
 import { Server } from "http";
 import request from "supertest";
 import { container } from "tsyringe";
-import TokenProvider from "../../providers/Token.provider";
-import AuthSignUpService from "../../services/AuthSignUp.service";
-import AuthSignInService from "../../services/AuthSignIn.service";
-import AuthOnboardingController from "../AuthOnboarding.controller";
-import { Application } from "../../../../../infrastructure/internal/application";
-import StaffReadProvider from "../../../../modules/staff/providers/StaffRead.provider";
-import UserInternalApiProvider from "../../../../shared/providers/user/UserInternalApi.provider";
-import TenantInternalApiProvider from "../../../../shared/providers/tenant/TenantInternalApi.provider";
+import TokenProvider from "../providers/Token.provider";
+import AuthSignUpService from "../services/AuthSignUp.service";
+import AuthSignInService from "../services/AuthSignIn.service";
+import AuthOnboardingController from "../controllers/AuthOnboarding.controller";
+import { Application } from "../../../../infrastructure/internal/application";
+import StaffReadProvider from "../../staff/providers/StaffRead.provider";
+import UserInternalApiProvider from "../../../shared/providers/user/UserInternalApi.provider";
+import TenantInternalApiProvider from "../../../shared/providers/tenant/TenantInternalApi.provider";
 
 describe("Auth Onboarding Controller", () => {
   let server: Server;
