@@ -8,9 +8,6 @@
 4. [Folder Structure](#folder-structure)
 5. [Tech Stack](#tech-stack)
 6. [Setup Instructions](#setup-instructions)
-7. [Contributing](#contributing)
-8. [Testing](#testing)
-9. [License](#license)
 
 ---
 
@@ -20,9 +17,9 @@
 
 Kenia is an API server designed for managing various workflows within a school environment. It provides dynamic capabilities to encapsulate and manage school workflows using flexible templates.
 
-### Design Pattern/Architecture
+### Code Architecture
 
-Kenia follows a monolithic layered architecture, emphasizing separation of concerns:
+Kenia follows a modular, monolithic, layered architecture, emphasizing separation of concerns:
 
 - **Controllers:** Define and manage API endpoints.
 - **Services:** Implement business logic and workflow orchestration.
@@ -45,8 +42,12 @@ kenia/
 │ │ │ │ ├── services/
 │ │ │ │ └── providers/
 │ │ │ │ └── ...
-│ │ │ ├── status/
 │ │ │ ├── staff/
+│ │ │ │ ├── controllers/
+│ │ │ │ ├── services/
+│ │ │ │ └── providers/
+│ │ │ │ └── ...
+│ │ │ ├── status/
 │ │ │ │ ├── controllers/
 │ │ │ │ ├── services/
 │ │ │ │ └── providers/
@@ -58,6 +59,11 @@ kenia/
 │ │ │ └── providers/
 │ ├── config/
 │ ├── infrastructure/
+│ │ │ ├── external/
+│ │ │ └── internal/
+│ │ │ │ ├── application/
+│ │ │ │ ├── database/
+│ │ │ │ └── middlewares/
 │ ├── types/
 │ ├── utils/
 │ └── index.ts
@@ -74,7 +80,7 @@ Kenia is built using the following technologies and tools:
 - **TypeScript**
 - **Jest**
 - **Prisma**
-- **tsyringe**
+- **Tsyringe**
 
 The project was bootstrapped with `pnpm` and includes a setup script (`pnpm run dev`) for development.
 
