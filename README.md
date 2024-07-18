@@ -57,6 +57,7 @@ kenia/
 │ │ │ ├── controllers/
 │ │ │ ├── services/
 │ │ │ └── providers/
+│ │ │ └── ...
 │ ├── config/
 │ ├── infrastructure/
 │ │ │ ├── external/
@@ -64,6 +65,7 @@ kenia/
 │ │ │ │ ├── application/
 │ │ │ │ ├── database/
 │ │ │ │ └── middlewares/
+│ │ │ │ └── ...
 │ ├── types/
 │ ├── utils/
 │ └── index.ts
