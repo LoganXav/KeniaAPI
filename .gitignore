@@ -31,3 +31,7 @@ node_modules
 package-lock.json
 yarn.lock
 
+# Jest
+coverage
+
+.DS_Store
