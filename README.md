@@ -19,13 +19,19 @@ Kenia is an API server designed for managing various workflows within a school e
 
 ### Code Architecture
 
-Kenia follows a modular, monolithic, layered architecture, emphasizing separation of concerns:
+The project is bootstrapped using components defined in the `infrastructure` folder. This includes the initialization of essential services like the database, logger, and the Express server.
 
-- **Controllers:** Define and manage API endpoints.
-- **Services:** Implement business logic and workflow orchestration.
-- **Providers:** Handle database interactions.
+- **Database**: The database configuration and connection setup are handled in the `infrastructure/database` module. Prisma is used as the ORM for interacting with the database.
+- **Logger**: A centralized logging service is set up in the `infrastructure/logger` module to manage application-wide logging.
+- **Express**: The Express server configuration, including middleware setup and route initialization, is handled in the `infrastructure/express` module.
 
-The project adheres to object-oriented programming principles and utilizes `tsyringe` for dependency injection.
+The application logic is organized into modules under the `api/modules` folder. Each module encapsulates a specific domain of the application and follows the separation of concerns principle. By organizing the application into modules, we ensure that each module can operate independently and be maintained separately, promoting scalability, testability and maintainability
+
+- **Controllers**: Each module has its controllers that define and manage API endpoints.
+- **Services**: The services in each module contain the business logic and coordinate various operations.
+- **Providers**: Providers are responsible for data access and interactions with the database, ensuring a clear separation between business logic and data access.
+
+The project adheres to object-oriented programming principles and utilizes `tsyringe` for dependency injection to manage dependencies and promote modularity.
 
 ### Folder Structure
 
@@ -54,7 +60,7 @@ kenia/
 │ │ │ │ └── ...
 │ │ │ └── ...
 │ │ ├── shared/
-│ │ │ ├── controllers/
+│ │ │ ├── helpers/
 │ │ │ ├── services/
 │ │ │ └── providers/
 │ │ │ └── ...
