@@ -1,13 +1,13 @@
-# Kenia API Server for School Management System
+# Kenia API Server
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Project Overview](#project-overview-1)
-3. [Design Pattern/Architecture](#design-patternarchitecture-1)
-4. [Folder Structure](#folder-structure-1)
-5. [Tech Stack](#tech-stack-1)
-6. [Setup Instructions](#setup-instructions-1)
+2. [Project Overview](#project-overview)
+3. [Design Pattern/Architecture](#design-patternarchitecture)
+4. [Folder Structure](#folder-structure)
+5. [Tech Stack](#tech-stack)
+6. [Setup Instructions](#setup-instructions)
 7. [Contributing](#contributing)
 8. [Testing](#testing)
 9. [License](#license)
@@ -15,8 +15,6 @@
 ---
 
 ## Introduction
-
-Kenia is an API server designed for managing various workflows within a school environment. It provides dynamic capabilities to encapsulate and manage school workflows using flexible templates.
 
 ### Project Overview
 
@@ -37,18 +35,21 @@ The project adheres to object-oriented programming principles and utilizes `tsyr
 The project's folder structure is organized as follows:
 
 kenia/
-│
 ├── src/
 │ ├── api/
 │ │ ├── modules/
 │ │ │ ├── auth/
-│ │ │ ├── status/
-│ │ │ └── staff/
-│ │ │ └── ...
 │ │ │ │ ├── controllers/
 │ │ │ │ ├── services/
 │ │ │ │ └── providers/
 │ │ │ │ └── ...
+│ │ │ ├── status/
+│ │ │ ├── staff/
+│ │ │ │ ├── controllers/
+│ │ │ │ ├── services/
+│ │ │ │ └── providers/
+│ │ │ │ └── ...
+│ │ │ └── ...
 │ │ ├── shared/
 │ │ │ ├── controllers/
 │ │ │ ├── services/
@@ -58,7 +59,7 @@ kenia/
 │ ├── types/
 │ ├── utils/
 │ └── index.ts
-├── .env.example/
+├── .env.example
 └── README.md
 
 ### Tech Stack
