@@ -10,7 +10,7 @@ import StaffReadProvider from "../../../../modules/staff/providers/StaffRead.pro
 import UserInternalApiProvider from "../../../../shared/providers/user/UserInternalApi.provider";
 import TenantInternalApiProvider from "../../../../shared/providers/tenant/TenantInternalApi.provider";
 
-describe("AuthOnboardingController", () => {
+describe("AuthOnboarding Controller", () => {
   let server: Server;
   let app: Application;
   let authSignUpService: AuthSignUpService;
