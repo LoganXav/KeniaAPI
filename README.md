@@ -4,7 +4,7 @@
 
 1. [Introduction](#introduction)
 2. [Project Overview](#project-overview)
-3. [Design Pattern/Architecture](#design-patternarchitecture)
+3. [Code Architecture](#design-patternarchitecture)
 4. [Folder Structure](#folder-structure)
 5. [Tech Stack](#tech-stack)
 6. [Setup Instructions](#setup-instructions)

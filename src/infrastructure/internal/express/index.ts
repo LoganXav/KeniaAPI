@@ -42,7 +42,7 @@ export default class Express {
       .use(authorizationMiddleware.handle)
       .use(serviceTraceMiddleware.handle);
 
-    this.loggingProvider.info(MIDDLEWARES_ATTACHED);
+    // this.loggingProvider.info(MIDDLEWARES_ATTACHED);
   }
 
   private async loadControllersDynamically(): Promise<void> {
@@ -58,7 +58,7 @@ export default class Express {
           ignore: ServerConfig.Controllers.Ignore,
         });
 
-    this.loggingProvider.info(`Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()}`);
+    // this.loggingProvider.info(`Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()}`);
 
     for (const filePath of controllerPaths) {
       const controllerPath = resolve(filePath);
@@ -68,7 +68,7 @@ export default class Express {
       // TODO -- Set Api Doc Generator to controllers
       resolvedController.initializeRoutes(TypeParser.cast<IRouter>(Router));
       this.app.use(AppSettings.ServerRoot, TypeParser.cast<Application>(resolvedController.router));
-      this.loggingProvider.info(`${resolvedController?.controllerName} was initialized`);
+      // this.loggingProvider.info(`${resolvedController?.controllerName} was initialized`);
     }
     return Promise.resolve();
   }
