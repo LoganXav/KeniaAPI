@@ -34,6 +34,8 @@ The project adheres to object-oriented programming principles and utilizes `tsyr
 
 The project's folder structure is organized as follows:
 
+```bash
+
 kenia/
 ├── src/
 │ ├── api/
@@ -62,15 +64,17 @@ kenia/
 ├── .env.example
 └── README.md
 
+```
+
 ### Tech Stack
 
 Kenia is built using the following technologies and tools:
 
-- **Express**: Web framework for Node.js
-- **TypeScript**: Typed superset of JavaScript
-- **Jest**: Testing framework
-- **Prisma**: Database toolkit
-- **tsyringe**: Dependency injection library
+- **Express**
+- **TypeScript**
+- **Jest**
+- **Prisma**
+- **tsyringe**
 
 The project was bootstrapped with `pnpm` and includes a setup script (`pnpm run dev`) for development.
 
@@ -79,12 +83,7 @@ The project was bootstrapped with `pnpm` and includes a setup script (`pnpm run 
 To set up Kenia locally, follow these steps:
 Set environment variables in .env file based on .env.example.
 
-1. **Prerequisites**:
-
-   - Node.js installed (version X.X.X)
-   - PostgreSQL database
-
-2. **Installation**:
+1. **Installation**:
 
    ```bash
    pnpm install
