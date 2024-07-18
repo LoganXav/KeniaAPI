@@ -3,7 +3,7 @@ import { DefaultValue } from "~/utils/DefaultValue";
 import { Normalize } from "./Normalize";
 import { ServiceContext } from "~/api/shared/helpers/enums/ServiceContext.enum";
 
-const DEV = "development";
+export const DEV = "development";
 
 if (!process.env?.NODE_ENV || BooleanUtil.areEqual(process.env.NODE_ENV, DEV)) console.log("Running in dev mode");
 

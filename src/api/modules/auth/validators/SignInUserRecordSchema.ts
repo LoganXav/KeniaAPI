@@ -1,15 +1,15 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const signInUserRecordSchema = z.object({
   password: z.string({
-    required_error: "Argument password is missing"
+    required_error: "Argument password is missing",
   }),
   email: z
     .string({
-      required_error: "Argument email is missing"
+      required_error: "Argument email is missing",
     })
     .email("Not a valid email"),
-  usertype: z.string({
-    required_error: "Specify the usertype"
+  userType: z.string({
+    required_error: "Argument userType is missing",
   }),
-})
+});

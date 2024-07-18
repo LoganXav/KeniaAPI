@@ -9,4 +9,5 @@ export default {
     "^~/types/(.*)$": "<rootDir>/src/types/$1",
     "^~/utils/(.*)$": "<rootDir>/src/utils/$1",
   },
-}
+  moduleFileExtensions: ["js", "ts", "json", "node"],
+};
