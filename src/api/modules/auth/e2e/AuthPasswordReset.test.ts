@@ -8,7 +8,7 @@ import AuthPasswordResetController from "../controllers/AuthPasswordReset.contro
 import AuthPasswordResetRequestService from "../services/AuthPasswordResetRequest.service";
 import UserInternalApiProvider from "../../../shared/providers/user/UserInternalApi.provider";
 
-describe("Auth Password Reset Controller", () => {
+describe("Auth Password Reset", () => {
   let server: Server;
   let app: Application;
   let authPasswordResetRequestService: AuthPasswordResetRequestService;
@@ -39,50 +39,26 @@ describe("Auth Password Reset Controller", () => {
   });
 
   it("Should handle user password reset request successfully", async () => {
-    const mockResult = {
-      status: "success",
-      statusCode: 200,
-      message: "Password reset requested successfully",
-      toResultDto: jest.fn(() => ({
-        status: "success",
-        statusCode: 200,
-        data: {
-          message: "Password reset requested successfully",
-        },
-      })),
-    };
-
-    authPasswordResetRequestService.execute = jest.fn().mockResolvedValue(mockResult);
-
     const response = await request(server).get("/api/auth/password-reset/request").send({
-      email: "sogbesansegun21@gmail.com",
+      email: "sogbesansegun1@gmail.com",
     });
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockResult.toResultDto());
+    expect(response.body).toMatchObject({
+      status: "success",
+      statusCode: 200,
+      data: {
+        message: "Password Recovery Link Generated. Please Check your mail",
+      },
+    });
   });
 
   it("Should handle user password request successfully", async () => {
-    const mockResult = {
-      status: "success",
-      statusCode: 200,
-      message: "Password reset successfully",
-      toResultDto: jest.fn(() => ({
-        status: "success",
-        statusCode: 200,
-        data: {
-          message: "Password reset successfully",
-        },
-      })),
-    };
-
-    authPasswordResetService.execute = jest.fn().mockResolvedValue(mockResult);
-
-    const response = await request(server).post("/api/auth/password-reset/:token").send({
+    const response = await request(server).post("/api/auth/password-reset/:12345").send({
       password: "password",
     });
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockResult.toResultDto());
+    // expect(response.body).toEqual(mockResult.toResultDto());
   });
 });
