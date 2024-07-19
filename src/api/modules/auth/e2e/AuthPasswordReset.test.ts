@@ -1,6 +1,7 @@
 import { Server } from "http";
 import request from "supertest";
 import { container } from "tsyringe";
+import { PrismaClient } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import AuthPasswordResetService from "../services/AuthPasswordReset.service";
 import { Application } from "../../../../infrastructure/internal/application";
@@ -9,7 +10,6 @@ import { HttpStatusCodeEnum } from "../../../shared/helpers/enums/HttpStatusCode
 import AuthPasswordResetRequestService from "../services/AuthPasswordResetRequest.service";
 import UserInternalApiProvider from "../../../shared/providers/user/UserInternalApi.provider";
 import { ERROR, ERROR_INVALID_TOKEN, PASSWORD_RESET_LINK_GENERATED, SUCCESS } from "../../../shared/helpers/messages/SystemMessages";
-import { PrismaClient } from "@prisma/client";
 
 describe("Auth Password Reset", () => {
   let server: Server;

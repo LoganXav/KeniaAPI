@@ -1,0 +1,30 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Kenia API",
+    "version": "1.0.0",
+    "description": "Api documentation for Kenia",
+    "contact": {
+      "name": "Sogbesan Timilehin",
+      "url": "https://github.com/Loganxav/KeniaAPI",
+      "email": "sogbesansegun22@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:6000/api",
+      "description": "Local server"
+    }
+  ],
+  "paths": {},
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "bearer"
+      }
+    }
+  }
+}
