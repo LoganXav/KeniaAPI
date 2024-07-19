@@ -1,16 +1,19 @@
 import { Server } from "http";
 import request from "supertest";
 import { container } from "tsyringe";
+import { PrismaClient } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
-import AuthSignUpService from "../services/AuthSignUp.service";
 import AuthSignInService from "../services/AuthSignIn.service";
-import AuthOnboardingController from "../controllers/AuthOnboarding.controller";
-import { Application } from "../../../../infrastructure/internal/application";
+import AuthSignUpService from "../services/AuthSignUp.service";
 import StaffReadProvider from "../../staff/providers/StaffRead.provider";
+import { Application } from "../../../../infrastructure/internal/application";
+import AuthOnboardingController from "../controllers/AuthOnboarding.controller";
+import { HttpStatusCodeEnum } from "../../../shared/helpers/enums/HttpStatusCode.enum";
 import UserInternalApiProvider from "../../../shared/providers/user/UserInternalApi.provider";
 import TenantInternalApiProvider from "../../../shared/providers/tenant/TenantInternalApi.provider";
+import { ACCOUNT_CREATED, SIGN_IN_SUCCESSFUL, SUCCESS } from "../../../shared/helpers/messages/SystemMessages";
 
-describe("Auth Onboarding Controller", () => {
+describe("Auth Onboarding", () => {
   let server: Server;
   let app: Application;
   let authSignUpService: AuthSignUpService;
@@ -39,118 +42,82 @@ describe("Auth Onboarding Controller", () => {
   authOnboardingController = container.resolve(AuthOnboardingController);
 
   afterAll(async () => {
-    server.close();
+    const prisma = new PrismaClient();
+
+    try {
+      await prisma.$transaction([prisma.userToken.deleteMany()]);
+
+      await prisma.user.deleteMany();
+      await prisma.tenant.deleteMany();
+
+      await prisma.user.deleteMany();
+    } catch (error) {
+      console.error("Error during cleanup:", error);
+    } finally {
+      await prisma.$disconnect();
+      server.close();
+    }
   });
 
   it("Should sign up a user successfully", async () => {
-    const mockResult = {
-      status: "success",
-      statusCode: 201,
-      message: "User signed in successfully",
-      toResultDto: jest.fn(() => ({
-        status: "success",
-        statusCode: 201,
-        data: {
-          message: "User signed in successfully",
-          data: { token: "abcd1234" },
-          accessToken: "mockAccessToken",
-        },
-      })),
-    };
-
-    authSignUpService.execute = jest.fn().mockResolvedValue(mockResult);
-
     const response = await request(server).post("/api/auth/signup").send({
       firstName: "Luke",
       lastName: "Combs",
       phoneNumber: "09052916792",
-      email: "sogbesansegun21@gmail.com",
+      email: "sogbesansegun3@gmail.com",
       password: "123456",
     });
 
-    expect(response.status).toBe(201);
-    expect(response.body).toEqual(mockResult.toResultDto());
+    expect(response.status).toBe(HttpStatusCodeEnum.CREATED);
+    expect(response.body).toMatchObject({
+      status: SUCCESS,
+      statusCode: HttpStatusCodeEnum.CREATED,
+      data: {
+        message: ACCOUNT_CREATED,
+        data: {
+          id: expect.any(Number),
+          firstName: "Luke",
+          lastName: "Combs",
+          phoneNumber: "09052916792",
+          email: "sogbesansegun3@gmail.com",
+          hasVerified: expect.any(Boolean),
+          isFirstTimeLogin: expect.any(Boolean),
+          lastLoginDate: expect.any(String),
+          tenantId: expect.any(Number),
+        },
+        accessToken: expect.any(String),
+      },
+    });
   });
 
   it("Should sign in a user successfully", async () => {
-    const mockResult = {
-      status: "success",
-      statusCode: 200,
-      message: "User signed in successfully",
-      toResultDto: jest.fn(() => ({
-        status: "success",
-        statusCode: 200,
-        data: {
-          message: "User signed in successfully",
-          data: { token: "abcd1234" },
-          accessToken: "mockAccessToken",
-        },
-      })),
-    };
-
-    authSignInService.execute = jest.fn().mockResolvedValue(mockResult);
-
     const response = await request(server).post("/api/auth/signin").send({
-      email: "sogbesansegun21@gmail.com",
-      password: "123456",
-      userType: "string",
-    });
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockResult.toResultDto());
-  });
-
-  it("Should handle sign up errors", async () => {
-    const mockError = {
-      status: "error",
-      statusCode: 400,
-      message: "Sign up failed",
-      toResultDto: jest.fn(() => ({
-        status: "error",
-        statusCode: 400,
-        data: {
-          message: "Sign up failed",
-          data: null,
-          accessToken: undefined,
-        },
-      })),
-    };
-
-    authSignUpService.execute = jest.fn().mockResolvedValue(mockError);
-
-    const response = await request(server).post("/api/auth/signup").send({
-      firstName: "Luke",
-      lastName: "Combs",
-      phoneNumber: "09052916792",
-      email: "sogbesansegun21@gmail.com",
+      email: "sogbesansegun3@gmail.com",
+      userType: "Student",
       password: "123456",
     });
 
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual(mockError.toResultDto());
-  });
-
-  it("Should handle sign in errors", async () => {
-    const mockError = {
-      status: "error",
-      statusCode: 400,
-      message: "Sign up failed",
-      toResultDto: jest.fn(() => ({
-        status: "error",
-        statusCode: 400,
+    expect(response.status).toBe(HttpStatusCodeEnum.SUCCESS);
+    expect(response.body).toMatchObject({
+      status: SUCCESS,
+      statusCode: HttpStatusCodeEnum.SUCCESS,
+      data: {
+        message: SIGN_IN_SUCCESSFUL,
         data: {
-          message: "Sign up failed",
-          data: null,
-          accessToken: undefined,
+          user: {
+            id: expect.any(Number),
+            firstName: "Luke",
+            lastName: "Combs",
+            phoneNumber: "09052916792",
+            email: "sogbesansegun3@gmail.com",
+            hasVerified: expect.any(Boolean),
+            isFirstTimeLogin: expect.any(Boolean),
+            lastLoginDate: expect.any(String),
+            tenantId: expect.any(Number),
+          },
         },
-      })),
-    };
-
-    authSignInService.execute = jest.fn().mockResolvedValue(mockError);
-
-    const response = await request(server).post("/api/auth/signin").send({ email: "sogbesansegun21@gmail.com", password: "123456", userType: "string" });
-
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual(mockError.toResultDto());
+        accessToken: expect.any(String),
+      },
+    });
   });
 });
