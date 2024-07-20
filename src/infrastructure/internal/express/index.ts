@@ -10,7 +10,7 @@ import authorizationMiddleware from "../middleware/authorization/jwt";
 import serviceTraceMiddleware from "../middleware/trace";
 import { LoggingProviderFactory } from "../logger/LoggingProviderFactory";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import { MIDDLEWARES_ATTACHED } from "~/api/shared/helpers/messages/SystemMessages";
+// import { MIDDLEWARES_ATTACHED } from "~/api/shared/helpers/messages/SystemMessages";
 import { errorHandler } from "../exceptions/ErrorHandler";
 import ServerConfig from "~/config/ServerConfig";
 import { TypeParser } from "~/utils/TypeParser";
@@ -18,25 +18,32 @@ import { IRouter } from "../types";
 import AppSettings from "~/api/shared/setttings/AppSettings";
 import { container } from "tsyringe";
 import BaseController from "~/api/modules/base/contollers/Base.controller";
+import { ApiDocGenerator } from "~/infrastructure/internal/documentation/ApiDocGenerator";
+import { serve, setup } from "swagger-ui-express";
 
 export default class Express {
   app: Server;
   loggingProvider: ILoggingDriver;
+  apiDocGenerator: ApiDocGenerator;
 
   constructor() {
     this.app = express();
     this.loggingProvider = LoggingProviderFactory.build();
+    this.apiDocGenerator = new ApiDocGenerator(ServerConfig.Environment, ServerConfig.ApiDocsInfo);
     this.loadMiddlewares();
     this.loadErrorHandler();
   }
 
   private loadMiddlewares(): void {
+    const options: cors.CorsOptions = {
+      origin: ServerConfig.Server.Origins.split(","),
+    };
+
     this.app
       .use(helmet())
       .use(express.json())
       .use(express.urlencoded({ extended: true }))
-      // TODO - add cors options
-      .use(cors())
+      .use(cors(options))
       .use(clientInfoMiddleware.handle)
       .use(routeWhiteListMiddleware.handle)
       .use(authorizationMiddleware.handle)
@@ -70,6 +77,8 @@ export default class Express {
       this.app.use(AppSettings.ServerRoot, TypeParser.cast<Application>(resolvedController.router));
       // this.loggingProvider.info(`${resolvedController?.controllerName} was initialized`);
     }
+
+    this.loadApiDocs();
     return Promise.resolve();
   }
 
@@ -85,6 +94,11 @@ export default class Express {
           return reject(error);
         });
     });
+  }
+
+  private loadApiDocs(): void {
+    this.app.use(`${AppSettings.ServerRoot}/docs`, serve, setup(this.apiDocGenerator.apiDoc));
+    // .use(TypeParser.cast<RequestHandler>(statusController.resourceNotFound));
   }
 
   private loadErrorHandler(): void {
