@@ -29,8 +29,8 @@ export default class Express {
   constructor() {
     this.app = express();
     this.loggingProvider = LoggingProviderFactory.build();
-    this.apiDocGenerator = new ApiDocGenerator(ServerConfig.Environment, ServerConfig.ApiDocsInfo);
     this.loadMiddlewares();
+    this.apiDocGenerator = new ApiDocGenerator(ServerConfig.Environment, ServerConfig.ApiDocsInfo);
     this.loadErrorHandler();
   }
 
@@ -72,7 +72,7 @@ export default class Express {
 
       const { default: controller } = await import(controllerPath);
       const resolvedController: BaseController = container.resolve(controller);
-      // TODO -- Set Api Doc Generator to controllers
+      resolvedController.setApiDocGenerator(this.apiDocGenerator);
       resolvedController.initializeRoutes(TypeParser.cast<IRouter>(Router));
       this.app.use(AppSettings.ServerRoot, TypeParser.cast<Application>(resolvedController.router));
       // this.loggingProvider.info(`${resolvedController?.controllerName} was initialized`);
@@ -97,7 +97,7 @@ export default class Express {
   }
 
   private loadApiDocs(): void {
-    this.app.use(`${AppSettings.ServerRoot}/docs`, serve, setup(this.apiDocGenerator.apiDoc));
+    this.app.use(`${ServerConfig.Server.Root}/docs`, serve, setup(this.apiDocGenerator.apiDoc));
     // .use(TypeParser.cast<RequestHandler>(statusController.resourceNotFound));
   }
 

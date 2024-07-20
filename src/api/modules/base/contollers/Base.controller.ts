@@ -1,143 +1,114 @@
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum"
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
-import { ServiceContext } from "~/api/shared/helpers/enums/ServiceContext.enum"
-import {
-  HeaderType,
-  INextFunction,
-  IResponse,
-  IRouter
-} from "~/infrastructure/internal/types"
-import statusMapping from "../helpers/StatusMapping"
-import { RouteType } from "../types"
-import { IResult } from "~/api/shared/helpers/results/IResult"
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace"
-import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory"
+import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { ServiceContext } from "~/api/shared/helpers/enums/ServiceContext.enum";
+import { HeaderType, INextFunction, IResponse, IRouter } from "~/infrastructure/internal/types";
+import statusMapping from "../helpers/StatusMapping";
+import { RouteType } from "../types";
+import { IResult } from "~/api/shared/helpers/results/IResult";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { IApiDocGenerator } from "~/infrastructure/internal/documentation/IApiDocGenerator";
 
 export default abstract class BaseController {
-  controllerName: string
-  router?: IRouter
-  serviceContext: ServiceContext
-  loggingProvider: ILoggingDriver
+  controllerName: string;
+  router?: IRouter;
+  serviceContext: ServiceContext;
+  apiDocGenerator?: IApiDocGenerator;
+  loggingProvider: ILoggingDriver;
   constructor(serviceContext: ServiceContext = ServiceContext.KENIA_EXPRESS) {
-    this.serviceContext = serviceContext
-    this.loggingProvider = LoggingProviderFactory.build()
+    this.serviceContext = serviceContext;
+    this.loggingProvider = LoggingProviderFactory.build();
   }
 
-  public abstract initializeRoutes(router: IRouter): void
+  public abstract initializeRoutes(router: IRouter): void;
+  setApiDocGenerator(apiDocGenerator: IApiDocGenerator): void {
+    this.apiDocGenerator = apiDocGenerator;
+  }
 
   public setRouter(router: IRouter): void {
-    this.router = router
+    this.router = router;
   }
 
   public addRoute(route: RouteType): void {
-    const { produces, method, handlers, path, description } = route
-    produces.forEach(({ applicationStatus, httpStatus }) =>
-      this.setProducesCode(applicationStatus, httpStatus)
-    )
+    const { produces, method, handlers, path, description, apiDoc } = route;
+    produces.forEach(({ applicationStatus, httpStatus }) => this.setProducesCode(applicationStatus, httpStatus));
 
     if (!this.router) {
-      throw new Error(
-        "Router not initialized, you should call setRouter before addRoute."
-      )
+      throw new Error("Router not initialized, you should call setRouter before addRoute.");
     }
     // Calls the routes with the path and handlers i.e controllers
-    this.router[method](path, ...handlers)
+    this.router[method](path, ...handlers);
 
-    // TODO -- Create Api Generator Route Doc
-    // method,
-    // path,
-    // produces,
-    // description,
-  }
-
-  public async handleResultData(
-    res: IResponse,
-    next: INextFunction,
-    servicePromise: Promise<IResult>,
-    headersToSet?: HeaderType
-  ): Promise<void> {
-    try {
-      return await this.getResultData(res, await servicePromise, headersToSet)
-    } catch (error) {
-      return next(error)
-    } finally {
-      this.manageServiceTrace(res.trace)
+    if (this.apiDocGenerator) {
+      this.apiDocGenerator.createRouteDoc({
+        method,
+        path,
+        produces,
+        description,
+        apiDoc,
+      });
     }
   }
 
-  public async handleResult(
-    res: IResponse,
-    next: INextFunction,
-    servicePromise: Promise<IResult>,
-    headersToSet?: HeaderType
-  ): Promise<void> {
+  public async handleResultData(res: IResponse, next: INextFunction, servicePromise: Promise<IResult>, headersToSet?: HeaderType): Promise<void> {
     try {
-      return await this.getResult(res, await servicePromise, headersToSet)
+      return await this.getResultData(res, await servicePromise, headersToSet);
     } catch (error) {
-      return next(error)
+      return next(error);
     } finally {
-      this.manageServiceTrace(res.trace)
+      this.manageServiceTrace(res.trace);
+    }
+  }
+
+  public async handleResult(res: IResponse, next: INextFunction, servicePromise: Promise<IResult>, headersToSet?: HeaderType): Promise<void> {
+    try {
+      return await this.getResult(res, await servicePromise, headersToSet);
+    } catch (error) {
+      return next(error);
+    } finally {
+      this.manageServiceTrace(res.trace);
     }
   }
 
   // <===========+ Helper Methods +============>
 
-  private async getResultData(
-    res: IResponse,
-    result: IResult,
-    headersToSet?: HeaderType
-  ): Promise<void> {
-    this.setTransactionId(res)
-    this.setHeaders(res, headersToSet)
-    res
-      .status(Number(result.statusCode))
-      .json(result.message ? result.toResultDto() : result.toResultDto().data)
+  private async getResultData(res: IResponse, result: IResult, headersToSet?: HeaderType): Promise<void> {
+    this.setTransactionId(res);
+    this.setHeaders(res, headersToSet);
+    res.status(Number(result.statusCode)).json(result.message ? result.toResultDto() : result.toResultDto().data);
   }
 
   private setHeaders(res: IResponse, headersToSet?: HeaderType): void {
     if (headersToSet) {
-      Object.entries(headersToSet).forEach(([key, value]) =>
-        res.setHeader(key, value)
-      )
+      Object.entries(headersToSet).forEach(([key, value]) => res.setHeader(key, value));
     }
   }
 
-  private async getResult(
-    res: IResponse,
-    result: IResult,
-    headersToSet?: HeaderType
-  ): Promise<void> {
-    this.setTransactionId(res)
-    this.setHeaders(res, headersToSet)
-    res.status(Number(result.statusCode)).json(result)
+  private async getResult(res: IResponse, result: IResult, headersToSet?: HeaderType): Promise<void> {
+    this.setTransactionId(res);
+    this.setHeaders(res, headersToSet);
+    res.status(Number(result.statusCode)).json(result);
   }
 
-  private setProducesCode(
-    applicationStatus: string,
-    httpStatus: HttpStatusCodeEnum
-  ): void {
+  private setProducesCode(applicationStatus: string, httpStatus: HttpStatusCodeEnum): void {
     if (!statusMapping[applicationStatus]) {
-      statusMapping[applicationStatus] = httpStatus
+      statusMapping[applicationStatus] = httpStatus;
     }
   }
 
   private setTransactionId(res: IResponse): void {
-    res.setHeader(HttpHeaderEnum.TRANSACTION_ID, res.trace.transactionId)
+    res.setHeader(HttpHeaderEnum.TRANSACTION_ID, res.trace.transactionId);
   }
 
   private async manageServiceTrace(trace: ServiceTrace): Promise<void> {
     if (trace?.context) {
-      trace.finish(new Date())
+      trace.finish(new Date());
       try {
-        const logMessage = this.createServiceTraceLogMessage(trace)
-        trace.success
-          ? this.loggingProvider.success(logMessage)
-          : this.loggingProvider.warning(logMessage)
+        const logMessage = this.createServiceTraceLogMessage(trace);
+        trace.success ? this.loggingProvider.success(logMessage) : this.loggingProvider.warning(logMessage);
       } catch (error: any) {
-        this.loggingProvider.error(
-          `context: ${this.serviceContext} name: serviceTraceError message: ${error.message} stack: ${error.stack}`
-        )
+        this.loggingProvider.error(`context: ${this.serviceContext} name: serviceTraceError message: ${error.message} stack: ${error.stack}`);
       }
     }
   }
@@ -155,6 +126,6 @@ export default abstract class BaseController {
       Success: ${trace.success}
       Payload: ${JSON.stringify(trace.payload)}
       Metadata: ${JSON.stringify(trace.metadata)}
-    `
+    `;
   }
 }
