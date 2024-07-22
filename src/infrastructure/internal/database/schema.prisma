@@ -31,16 +31,68 @@ model User {
   isFirstTimeLogin Boolean     @default(true)
   lastLoginDate    DateTime    @default(now())
   tokens           UserToken[]
-  // userType         UserType    @default(STAFF)
+  userType         UserType
   tenantId         Int
   tenant           Tenant      @relation(fields: [tenantId], references: [id])
-  student          Student?    @relation(name: "StudentUser")
-  staff            Staff?      @relation(name: "StaffUser")
+  student          Student?    @relation("StudentUser")
+  staff            Staff?      @relation("StaffUser")
 }
 
 enum UserType {
   STUDENT
   STAFF
+}
+
+model Staff {
+  id       Int       @id @default(autoincrement())
+  jobTitle String
+  userId   Int       @unique
+  user     User      @relation(fields: [userId], references: [id], name: "StaffUser")
+  roleId   Int?
+  role     Role?     @relation(fields: [roleId], references: [id])
+  group    Group[]   @relation("StaffGroup")
+  classes  Class[]   @relation("ClassTeacher")
+  subjects Subject[] @relation("SubjectTeacher")
+}
+
+model Student {
+  id             Int      @id @default(autoincrement())
+  studentId      String   @unique @default(uuid())
+  userId         Int      @unique
+  user           User     @relation(fields: [userId], references: [id], name: "StudentUser")
+  dob            DateTime
+  address        String
+  enrollmentDate DateTime
+  classId        String
+  class          Class    @relation(fields: [classId], references: [classId])
+}
+
+model UserToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  tokenType TokenType
+  token     String
+  expiresAt DateTime
+  expired   Boolean   @default(false)
+  isActive  Boolean   @default(true)
+}
+
+enum TokenType {
+  EMAIL
+  ACCESS
+  REFRESH
+  PASSWORD_RESET
+}
+
+// ------------------------- UNDECIDED ------------------------- //  
+
+model Role {
+  id         Int          @id @default(autoincrement())
+  name       String       @unique
+  permission Permission[] @relation("RolePermission")
+  staff      Staff[]
+  tenantId   Int
 }
 
 model Group {
@@ -51,44 +103,11 @@ model Group {
   tenantId Int
 }
 
-model Staff {
-  id       Int       @id @default(autoincrement())
-  // staffId  String    @unique @default(uuid())
-  jobTitle String
-  userId   Int?      @unique
-  user     User?     @relation(fields: [userId], references: [id], name: "StaffUser")
-  roleId   Int?
-  role     Role?     @relation(fields: [roleId], references: [id])
-  group    Group[]   @relation("StaffGroup")
-  classes  Class[]   @relation("ClassTeacher")
-  subjects Subject[] @relation("SubjectTeacher")
-}
-
-model Role {
-  id         Int          @id @default(autoincrement())
-  name       String       @unique
-  permission Permission[] @relation("RolePermission")
-  staff      Staff[]
-  tenantId   Int
-}
-
 model Permission {
   id       Int    @id @default(autoincrement())
   name     String @unique
   role     Role[] @relation("RolePermission")
   tenantId Int
-}
-
-model Student {
-  id               Int      @id @default(autoincrement())
-  studentId        String   @unique @default(uuid())
-  userId        Int?        @unique
-  user          User?       @relation(fields: [userId], references: [id], name: "StudentUser")
-  dob              DateTime
-  address          String
-  enrollmentDate   DateTime
-  classId          String
-  class            Class    @relation(fields: [classId], references: [classId])
 }
 
 model Class {
@@ -120,22 +139,4 @@ enum ClassList {
   SSS1
   SSS2
   SSS3
-}
-
-model UserToken {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id])
-  tokenType TokenType
-  token     String
-  expiresAt DateTime
-  expired   Boolean   @default(false)
-  isActive  Boolean   @default(true)
-}
-
-enum TokenType {
-  EMAIL
-  ACCESS
-  REFRESH
-  PASSWORD_RESET
 }
