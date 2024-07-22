@@ -22,7 +22,8 @@ export default abstract class BaseController {
   }
 
   public abstract initializeRoutes(router: IRouter): void;
-  setApiDocGenerator(apiDocGenerator: IApiDocGenerator): void {
+
+  public setApiDocGenerator(apiDocGenerator: IApiDocGenerator): void {
     this.apiDocGenerator = apiDocGenerator;
   }
 
@@ -71,7 +72,7 @@ export default abstract class BaseController {
     }
   }
 
-  // <===========+ Helper Methods +============>
+  // <===========+ Helper Methods +============> //
 
   private async getResultData(res: IResponse, result: IResult, headersToSet?: HeaderType): Promise<void> {
     this.setTransactionId(res);

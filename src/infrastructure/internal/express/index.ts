@@ -37,13 +37,15 @@ export default class Express {
   private loadMiddlewares(): void {
     const options: cors.CorsOptions = {
       origin: ServerConfig.Server.Origins.split(","),
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      allowedHeaders: ["Content-Type", "Authorization"],
     };
 
     this.app
+      .use(cors())
       .use(helmet())
       .use(express.json())
       .use(express.urlencoded({ extended: true }))
-      .use(cors(options))
       .use(clientInfoMiddleware.handle)
       .use(routeWhiteListMiddleware.handle)
       .use(authorizationMiddleware.handle)

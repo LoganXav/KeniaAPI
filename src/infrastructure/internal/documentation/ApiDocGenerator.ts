@@ -4,7 +4,7 @@ import { SchemasSecurityStore } from "~/infrastructure/internal/documentation/Sc
 import { PropFormatEnum, PropTypeEnum } from "~/infrastructure/internal/documentation/TypeDescriber";
 import { ApiDoc, ParameterDescriber, RouteType, SecuritySchemes } from "~/infrastructure/internal/documentation/IApiDocGenerator";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
-import httpStatusDescriber from "./httpStatusDescriber";
+import HttpStatusDescriber from "./HttpStatusDescriber";
 
 type SchemaType = { type?: PropTypeEnum } | { $ref?: string } | { type?: PropTypeEnum.OBJECT | PropTypeEnum.ARRAY; items?: { $ref: string } };
 
@@ -187,7 +187,7 @@ export class ApiDocGenerator {
 
     produces.forEach(({ httpStatus }) => {
       this.apiDoc.paths[path][method].responses[httpStatus.toString()] = {
-        description: httpStatusDescriber[httpStatus],
+        description: HttpStatusDescriber[httpStatus],
         content: {
           [contentType]: {
             schema: this.buildSchema(schema),
