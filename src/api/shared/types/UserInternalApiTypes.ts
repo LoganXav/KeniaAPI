@@ -38,9 +38,9 @@ export type UpdateUserAccountVerificationRecordType = {
   hasVerified: boolean;
 };
 
-export type UpdateUserFirstTimeLoginRecordType = {
+export type UpdateUserRecordType = {
   userId: number;
-  isFirstTimeLogin: boolean;
+  isFirstTimeLogin?: boolean;
 };
 export type UpdateUserLastLoginDateType = {
   userId: number;

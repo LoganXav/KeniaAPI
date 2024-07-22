@@ -4,9 +4,8 @@ import { TokenType } from "@prisma/client";
 import Event from "~/api/shared/helpers/events";
 import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
-import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
+import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { generateStringOfLength } from "~/utils/GenerateStringOfLength";
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum";
@@ -62,11 +61,9 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         activationToken: otpToken,
       });
 
-      const accessToken = await JwtService.getJwt(user);
-
       const signUpUserData = { id: user.id, tenantId: user.tenantId };
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, ACCOUNT_CREATED, signUpUserData, accessToken);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, ACCOUNT_CREATED, signUpUserData);
 
       trace.setSuccessful();
       return this.result;

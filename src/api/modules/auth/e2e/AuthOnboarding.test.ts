@@ -78,7 +78,6 @@ describe("Auth Onboarding", () => {
           id: expect.any(Number),
           tenantId: expect.any(Number),
         },
-        accessToken: expect.any(String),
       },
     });
   });
