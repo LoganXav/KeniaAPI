@@ -4,7 +4,7 @@ import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/dat
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class UserCreateProvider {
-  public async createUserRecord(args: CreateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<User> {
+  public async create(args: CreateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<User> {
     const { tenantId, firstName, lastName, password, phoneNumber, email } = args;
 
     try {

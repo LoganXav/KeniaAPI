@@ -1,20 +1,19 @@
 import { autoInjectable } from "tsyringe";
 import Event from "~/api/shared/helpers/events";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum";
 import { SignInUserType } from "~/api/shared/types/UserInternalApiTypes";
 import UserReadProvider from "~/api/shared/providers/user/UserRead.provider";
+import UserUpdateProvider from "~/api/shared/providers/user/UserUpdate.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import StaffReadProvider from "~/api/modules/staff/providers/StaffRead.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
-import { ERROR, INVALID_CREDENTIALS, NULL_OBJECT, SIGN_IN_SUCCESSFUL, STAFF, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
-import UserUpdateProvider from "~/api/shared/providers/user/UserUpdate.provider";
+import { ERROR, INVALID_CREDENTIALS, NULL_OBJECT, SIGN_IN_SUCCESSFUL, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 
 @autoInjectable()
 export default class AuthSignInService extends BaseService<SignInUserType> {
@@ -26,8 +25,8 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
   constructor(userReadProvider: UserReadProvider, staffReadProvider: StaffReadProvider, userUpdateProvider: UserUpdateProvider) {
     super(AuthSignInService.serviceName);
     this.userReadProvider = userReadProvider;
-    this.userUpdateProvider = userUpdateProvider;
     this.staffReadProvider = staffReadProvider;
+    this.userUpdateProvider = userUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -60,7 +59,7 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
         await this.userUpdateProvider.updateOneByCriteria(updateUserRecordArgs);
       }
 
-      const { password, ...signedInUserData } = foundUser;
+      const signedInUserData = { id: foundUser.id, tenantId: foundUser.tenantId };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, SIGN_IN_SUCCESSFUL, signedInUserData);
 

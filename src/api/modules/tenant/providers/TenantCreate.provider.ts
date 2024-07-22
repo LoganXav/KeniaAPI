@@ -4,7 +4,7 @@ import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/dat
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class TenantCreateProvider {
-  public async createTenant(args: CreateTenantRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<Tenant> {
+  public async create(args: any, dbClient: PrismaTransactionClient = DbClient): Promise<Tenant> {
     try {
       const newTenant = await dbClient?.tenant?.create({
         data: {},

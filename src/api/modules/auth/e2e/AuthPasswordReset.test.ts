@@ -5,10 +5,11 @@ import { PrismaClient } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import AuthPasswordResetService from "../services/AuthPasswordReset.service";
 import { Application } from "../../../../infrastructure/internal/application";
+import UserReadProvider from "../../../shared/providers/user/UserRead.provider";
+import UserUpdateProvider from "../../../shared/providers/user/UserUpdate.provider";
 import AuthPasswordResetController from "../controllers/AuthPasswordReset.controller";
 import { HttpStatusCodeEnum } from "../../../shared/helpers/enums/HttpStatusCode.enum";
 import AuthPasswordResetRequestService from "../services/AuthPasswordResetRequest.service";
-import UserInternalApiProvider from "../../../shared/providers/user/UserInternalApi.provider";
 import { ERROR, ERROR_INVALID_TOKEN, PASSWORD_RESET_LINK_GENERATED, SUCCESS } from "../../../shared/helpers/messages/SystemMessages";
 
 describe("Auth Password Reset", () => {
@@ -22,10 +23,11 @@ describe("Auth Password Reset", () => {
     container.clearInstances();
 
     const tokenProvider = new TokenProvider();
-    const userInternalApiProvider = new UserInternalApiProvider();
+    const userReadProvider = new UserReadProvider();
+    const userUpdateProvider = new UserUpdateProvider();
 
-    authPasswordResetRequestService = new AuthPasswordResetRequestService(userInternalApiProvider, tokenProvider);
-    authPasswordResetService = new AuthPasswordResetService(tokenProvider, userInternalApiProvider);
+    authPasswordResetRequestService = new AuthPasswordResetRequestService(userReadProvider, tokenProvider);
+    authPasswordResetService = new AuthPasswordResetService(tokenProvider, userReadProvider, userUpdateProvider);
 
     container.registerInstance(AuthPasswordResetService, authPasswordResetService);
     container.registerInstance(AuthPasswordResetRequestService, authPasswordResetRequestService);

@@ -1,10 +1,10 @@
-import { TokenType, UserToken } from "@prisma/client";
 import { ITokenProvider } from "./contracts/ITokenProvider";
-
+import { CreateUserTokenRecordType } from "~/api/shared/types/UserInternalApiTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { CreateUserTokenRecordType, FindUserActiveTokenByTypeType, UpdateUserTokenActivationRecordType } from "~/api/shared/types/UserInternalApiTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { ReadOneTokenRecordType, ReadTokenRecordType, UpdateTokenRecordType } from "~/api/modules/auth/types/AuthTypes";
 export default class TokenProvider implements ITokenProvider {
-  public async createUserTokenRecord(args: CreateUserTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+  public async create(args: CreateUserTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
     const { userId, tokenType, expiresAt, token } = args;
     const userToken = await dbClient.userToken.create({
       data: {
@@ -18,56 +18,53 @@ export default class TokenProvider implements ITokenProvider {
     return userToken;
   }
 
-  public async findUserTokensByType(
-    args: {
-      userId: number;
-      tokenType: TokenType;
-    },
-    dbClient: PrismaTransactionClient = DbClient
-  ) {
-    const { userId, tokenType } = args;
-    const userTokens = await dbClient.userToken.findMany({
-      where: {
-        userId,
-        tokenType,
-      },
-    });
+  public async getOneByCriteria(criteria: ReadOneTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const { token } = criteria;
+      const result = await dbClient?.userToken?.findFirst({
+        where: {
+          ...(token && { token }),
+        },
+      });
 
-    return userTokens;
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
   }
 
-  public async updateUserTokenRecord(args: UpdateUserTokenActivationRecordType, dbClient: PrismaTransactionClient = DbClient) {
-    const { expired, tokenId, isActive } = args;
-    const result = await dbClient.userToken.update({
-      where: {
-        id: tokenId,
-      },
-      data: { expired, isActive },
-    });
+  public async getByCriteria(criteria: ReadTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const { userId, tokenType } = criteria;
+      const result = await dbClient?.userToken?.findMany({
+        where: {
+          ...(userId && { id: userId }),
+          ...(tokenType && { tokenType }),
+        },
+      });
 
-    return result;
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
   }
 
-  public async findUserTokenByToken(otpToken: string, dbClient: PrismaTransactionClient = DbClient) {
-    const userToken = await dbClient.userToken.findFirst({
-      where: {
-        token: otpToken,
-      },
-    });
+  public async updateOneByCriteria(args: UpdateTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const { tokenId, isActive, expired } = args;
+      const result = await dbClient?.userToken?.update({
+        where: {
+          id: tokenId,
+        },
+        data: {
+          ...(isActive && { isActive }),
+          ...(expired && { expired }),
+        },
+      });
 
-    return userToken;
-  }
-  public async findActiveUserTokenByType(args: FindUserActiveTokenByTypeType, dbClient: PrismaTransactionClient = DbClient) {
-    const { userId, tokenType, expired, isActive } = args;
-    const userToken = await dbClient.userToken.findFirst({
-      where: {
-        userId,
-        tokenType,
-        expired,
-        isActive,
-      },
-    });
-
-    return userToken;
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
   }
 }

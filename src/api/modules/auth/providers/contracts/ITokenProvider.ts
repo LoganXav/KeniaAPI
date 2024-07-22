@@ -1,15 +1,13 @@
 import { TokenType, UserToken } from "@prisma/client";
-import { FindUserActiveTokenByTypeType, UpdateUserTokenActivationRecordType } from "~/api/shared/types/UserInternalApiTypes";
 import { PrismaDbClient, PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { ReadOneTokenRecordType, ReadTokenRecordType, UpdateTokenRecordType } from "~/api/modules/auth/types/AuthTypes";
 
 export interface ITokenProvider {
-  createUserTokenRecord(args: UserToken, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken>;
+  create(args: UserToken, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken>;
 
-  findUserTokensByType(args: { userId: number; tokenType: TokenType }, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken[]>;
+  getOneByCriteria(criteria: ReadOneTokenRecordType, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken | null>;
 
-  updateUserTokenRecord(args: UpdateUserTokenActivationRecordType, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken>;
+  getByCriteria(criteria: ReadTokenRecordType, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken[]>;
 
-  findUserTokenByToken(otpToken: string, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken | null>;
-
-  findActiveUserTokenByType(args: FindUserActiveTokenByTypeType, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken | null>;
+  updateOneByCriteria(criteria: UpdateTokenRecordType, dbClient: PrismaTransactionClient | PrismaDbClient): Promise<UserToken | null>;
 }

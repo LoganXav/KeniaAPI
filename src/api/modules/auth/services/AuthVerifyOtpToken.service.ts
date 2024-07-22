@@ -6,26 +6,29 @@ import DbClient from "~/infrastructure/internal/database";
 import { BaseService } from "../../base/services/Base.service";
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import UserReadProvider from "~/api/shared/providers/user/UserRead.provider";
+import { VerifyUserTokenType } from "~/api/shared/types/UserInternalApiTypes";
+import UserUpdateProvider from "~/api/shared/providers/user/UserUpdate.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { UpdateUserAccountVerificationRecordType, UpdateUserTokenActivationRecordType, VerifyUserTokenType } from "~/api/shared/types/UserInternalApiTypes";
 import { ACCOUNT_VERIFIED, ERROR, ERROR_INVALID_TOKEN, NULL_OBJECT, SOMETHING_WENT_WRONG, SUCCESS, TOKEN_EXPIRED, TOKEN_VERIFIED } from "~/api/shared/helpers/messages/SystemMessages";
 
 @autoInjectable()
 export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTokenType> {
   static serviceName = "AuthVerifyOtpTokenService";
   tokenProvider: TokenProvider;
-  userInternalApiProvider: UserInternalApiProvider;
+  userReadProvider: UserReadProvider;
+  userUpdateProvider: UserUpdateProvider;
   loggingProvider: ILoggingDriver;
 
-  constructor(tokenProvider: TokenProvider, userInternalApiProvider: UserInternalApiProvider) {
+  constructor(tokenProvider: TokenProvider, userReadProvider: UserReadProvider, userUpdateProvider: UserUpdateProvider) {
     super(AuthVerifyOtpTokenService.serviceName);
     this.tokenProvider = tokenProvider;
-    this.userInternalApiProvider = userInternalApiProvider;
+    this.userReadProvider = userReadProvider;
+    this.userUpdateProvider = userUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -38,7 +41,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
         throw new BadRequestError(ERROR_INVALID_TOKEN);
       }
 
-      const dbOtpToken = await this.tokenProvider.findUserTokenByToken(otpToken);
+      const dbOtpToken = await this.tokenProvider.getOneByCriteria({ token: otpToken });
       if (dbOtpToken === NULL_OBJECT) {
         throw new BadRequestError(ERROR_INVALID_TOKEN);
       }
@@ -48,7 +51,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
         throw new BadRequestError(ERROR_INVALID_TOKEN);
       }
 
-      const tokenOwner = await this.userInternalApiProvider.findUserById(userId);
+      const tokenOwner = await this.userReadProvider.getOneByCriteria({ id: userId });
 
       if (tokenOwner === NULL_OBJECT) {
         throw new BadRequestError(ERROR_INVALID_TOKEN);
@@ -102,20 +105,20 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
   }
 
   private async deactivateUserToken(tokenId: number, tx?: any) {
-    const updateUserTokenRecordArgs: UpdateUserTokenActivationRecordType = {
+    const updateUserTokenRecordArgs = {
       tokenId,
       expired: true,
       isActive: false,
     };
-    await this.tokenProvider.updateUserTokenRecord(updateUserTokenRecordArgs, tx);
+    await this.tokenProvider.updateOneByCriteria(updateUserTokenRecordArgs, tx);
   }
 
   private async verifyUserAccount(userId: number, tx?: any) {
-    const verifyUserAccountArgs: UpdateUserAccountVerificationRecordType = {
+    const verifyUserAccountArgs = {
       userId,
       hasVerified: true,
     };
-    await this.userInternalApiProvider.updateUserAccountVerificationRecord(verifyUserAccountArgs, tx);
+    await this.userUpdateProvider.updateOneByCriteria(verifyUserAccountArgs, tx);
   }
 
   private checkTokenExpired(tokenExpiryDate: Date) {

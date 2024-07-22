@@ -77,16 +77,16 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
   private async createTenantAndUserRecordWithTokenTransaction(args: SignUpUserType) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        const tenant = await this.tenantCreateProvider.createTenant(null, tx);
+        const tenant = await this.tenantCreateProvider.create(null, tx);
 
         const input = { tenantId: tenant?.id, ...args };
 
-        const user = await this.userCreateProvider.createUserRecord(input, tx);
+        const user = await this.userCreateProvider.create(input, tx);
 
         const otpToken = generateStringOfLength(businessConfig.emailTokenLength);
         const expiresAt = DateTime.now().plus({ minutes: businessConfig.emailTokenExpiresInMinutes }).toJSDate();
 
-        await this.tokenProvider.createUserTokenRecord(
+        await this.tokenProvider.create(
           {
             userId: user.id,
             tokenType: TokenType.EMAIL,

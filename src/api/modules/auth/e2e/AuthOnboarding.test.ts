@@ -3,14 +3,16 @@ import request from "supertest";
 import { container } from "tsyringe";
 import { PrismaClient } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
-import AuthSignInService from "../services/AuthSignIn.service";
 import AuthSignUpService from "../services/AuthSignUp.service";
+import AuthSignInService from "../services/AuthSignIn.service";
 import StaffReadProvider from "../../staff/providers/StaffRead.provider";
 import { Application } from "../../../../infrastructure/internal/application";
 import AuthOnboardingController from "../controllers/AuthOnboarding.controller";
+import TenantCreateProvider from "../../tenant/providers/TenantCreate.provider";
+import UserReadProvider from "../../../shared/providers/user/UserRead.provider";
+import UserCreateProvider from "../../../shared/providers/user/UserCreate.provider";
+import UserUpdateProvider from "../../../shared/providers/user/UserUpdate.provider";
 import { HttpStatusCodeEnum } from "../../../shared/helpers/enums/HttpStatusCode.enum";
-import UserInternalApiProvider from "../../../shared/providers/user/UserInternalApi.provider";
-import TenantInternalApiProvider from "../../../shared/providers/tenant/TenantInternalApi.provider";
 import { ACCOUNT_CREATED, SIGN_IN_SUCCESSFUL, SUCCESS } from "../../../shared/helpers/messages/SystemMessages";
 
 describe("Auth Onboarding", () => {
@@ -24,12 +26,14 @@ describe("Auth Onboarding", () => {
     container.clearInstances();
 
     const tokenProvider = new TokenProvider();
+    const userReadProvider = new UserReadProvider();
     const staffReadProvider = new StaffReadProvider();
-    const userInternalApiProvider = new UserInternalApiProvider();
-    const tenantInternalApiProvider = new TenantInternalApiProvider();
+    const userCreateProvider = new UserCreateProvider();
+    const userUpdateProvider = new UserUpdateProvider();
+    const tenantCreateProvider = new TenantCreateProvider();
 
-    authSignInService = new AuthSignInService(userInternalApiProvider, staffReadProvider);
-    authSignUpService = new AuthSignUpService(tokenProvider, userInternalApiProvider, tenantInternalApiProvider);
+    authSignInService = new AuthSignInService(userReadProvider, staffReadProvider, userUpdateProvider);
+    authSignUpService = new AuthSignUpService(tokenProvider, userReadProvider, tenantCreateProvider, userCreateProvider);
 
     container.registerInstance(AuthSignUpService, authSignUpService);
     container.registerInstance(AuthSignInService, authSignInService);
@@ -96,19 +100,9 @@ describe("Auth Onboarding", () => {
       data: {
         message: SIGN_IN_SUCCESSFUL,
         data: {
-          user: {
-            id: expect.any(Number),
-            firstName: "Luke",
-            lastName: "Combs",
-            phoneNumber: "09052916792",
-            email: "sogbesansegun3@gmail.com",
-            hasVerified: expect.any(Boolean),
-            isFirstTimeLogin: expect.any(Boolean),
-            lastLoginDate: expect.any(String),
-            tenantId: expect.any(Number),
-          },
+          id: expect.any(Number),
+          tenantId: expect.any(Number),
         },
-        accessToken: expect.any(String),
       },
     });
   });
