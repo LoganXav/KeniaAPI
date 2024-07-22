@@ -1,9 +1,7 @@
 import "reflect-metadata";
 import "dotenv/config";
-
-import { errorHandler } from "./infrastructure/internal/exceptions/ErrorHandler";
-
 import { Application } from "./infrastructure/internal/application";
+import { errorHandler } from "./infrastructure/internal/exceptions/ErrorHandler";
 
 const app = new Application();
 

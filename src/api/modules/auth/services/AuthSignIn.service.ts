@@ -1,19 +1,19 @@
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import { autoInjectable } from "tsyringe";
+import Event from "~/api/shared/helpers/events";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider";
-import StaffReadProvider from "~/api/modules/staff/providers/StaffRead.provider";
-import { ERROR, INVALID_CREDENTIALS, NULL_OBJECT, SIGN_IN_SUCCESSFUL, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum";
-import Event from "~/api/shared/helpers/events";
-import { autoInjectable } from "tsyringe";
 import { SignInUserType } from "~/api/shared/types/UserInternalApiTypes";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import StaffReadProvider from "~/api/modules/staff/providers/StaffRead.provider";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import UserInternalApiProvider from "~/api/shared/providers/user/UserInternalApi.provider";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
+import { ERROR, INVALID_CREDENTIALS, NULL_OBJECT, SIGN_IN_SUCCESSFUL, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 
 @autoInjectable()
 export default class AuthSignInService extends BaseService<SignInUserType> {

@@ -23,8 +23,8 @@ export default {
   Server: {
     Root: DefaultValue.evaluateAndGet(process.env.SERVER_ROOT, "/api"),
     Host: DefaultValue.evaluateAndGet(process.env.SERVER_HOST, "localhost"),
-    Port: DefaultValue.evaluateAndGet(Number(process.env.SERVER_PORT), 6000),
-    Origins: DefaultValue.evaluateAndGet(process.env.ORIGINS, "http://localhost:3000,http://localhost:3001,http://localhost:3002"),
+    Port: DefaultValue.evaluateAndGet(Number(process.env.SERVER_PORT), 6500),
+    Origins: DefaultValue.evaluateAndGet(process.env.ORIGINS, "http://localhost:5500,http://localhost:5501,http://localhost:5502"),
     ServiceName: DefaultValue.evaluateAndGet(process.env.SERVICE_NAME, "KENIA"),
     ServiceContext: {
       LoadWithContext: !!process.env.SERVICE_CONTEXT,
@@ -42,6 +42,16 @@ export default {
       Bcrypt: {
         SaltRounds: parseInt(process.env["BCRYPT_SALT_ROUNDS"]!, 10),
       },
+    },
+  },
+  ApiDocsInfo: {
+    title: "Kenia API",
+    version: "1.0.0",
+    description: "Api documentation for Kenia",
+    contact: {
+      name: "KeniaAPI",
+      url: "https://github.com/Loganxav/KeniaAPI",
+      email: "sogbesansegun22@gmail.com",
     },
   },
 };

@@ -12,6 +12,8 @@ import AuthSignInService from "../services/AuthSignIn.service";
 
 import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema";
 import { signInUserRecordSchema } from "../validators/SignInUserRecordSchema";
+import { PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
+import { SignInUserType } from "~/api/shared/types/UserInternalApiTypes";
 
 @autoInjectable()
 export default class AuthOnboardingController extends BaseController {
@@ -64,6 +66,60 @@ export default class AuthOnboardingController extends BaseController {
         },
       ],
       description: "Sign In User",
+      apiDoc: {
+        contentType: HttpContentTypeEnum.APPLICATION_JSON,
+        requireAuth: false,
+        schema: new ResultTDescriber<any>({
+          name: "Sign In Response",
+          type: PropTypeEnum.OBJECT,
+          props: {
+            data: new TypeDescriber<any>({
+              name: "",
+              type: PropTypeEnum.OBJECT,
+              // TODO: Refactor to actual sign in response object
+              props: {
+                id: {
+                  type: PropTypeEnum.STRING,
+                },
+              },
+            }),
+            error: {
+              type: PropTypeEnum.STRING,
+            },
+            message: {
+              type: PropTypeEnum.STRING,
+            },
+            statusCode: {
+              type: PropTypeEnum.STRING,
+            },
+            success: {
+              type: PropTypeEnum.BOOLEAN,
+            },
+          },
+        }),
+        requestBody: {
+          description: "Sign In Credentials",
+          contentType: HttpContentTypeEnum.APPLICATION_JSON,
+          schema: new TypeDescriber<SignInUserType>({
+            name: "",
+            type: PropTypeEnum.OBJECT,
+            props: {
+              email: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              password: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              userType: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+            },
+          }),
+        },
+      },
     });
   }
 }
