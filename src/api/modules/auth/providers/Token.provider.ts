@@ -1,94 +1,73 @@
-import { TokenType, UserToken } from "@prisma/client"
-import { ITokenProvider } from "./contracts/ITokenProvider"
+import { TokenType, UserToken } from "@prisma/client";
+import { ITokenProvider } from "./contracts/ITokenProvider";
 
-import DbClient from "~/infrastructure/internal/database"
-import {
-  CreateUserTokenRecordType,
-  FindUserActiveTokenByTypeType,
-  UpdateUserTokenActivationRecordType
-} from "~/api/shared/types/UserInternalApiTypes"
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { CreateUserTokenRecordType, FindUserActiveTokenByTypeType, UpdateUserTokenActivationRecordType } from "~/api/shared/types/UserInternalApiTypes";
 export default class TokenProvider implements ITokenProvider {
-  public async createUserTokenRecord(
-    args: CreateUserTokenRecordType,
-    tx?: any
-  ): Promise<UserToken> {
-    const { userId, tokenType, expiresAt, token } = args
-    const dbClient = tx ? tx : DbClient
+  public async createUserTokenRecord(args: CreateUserTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    const { userId, tokenType, expiresAt, token } = args;
     const userToken = await dbClient.userToken.create({
       data: {
         userId,
         tokenType,
         token,
-        expiresAt
-      }
-    })
+        expiresAt,
+      },
+    });
 
-    return userToken
+    return userToken;
   }
 
   public async findUserTokensByType(
     args: {
-      userId: number
-      tokenType: TokenType
+      userId: number;
+      tokenType: TokenType;
     },
-    tx?: any
-  ): Promise<UserToken[]> {
-    const { userId, tokenType } = args
-    const dbClient = tx ? tx : DbClient
+    dbClient: PrismaTransactionClient = DbClient
+  ) {
+    const { userId, tokenType } = args;
     const userTokens = await dbClient.userToken.findMany({
       where: {
         userId,
-        tokenType
-      }
-    })
+        tokenType,
+      },
+    });
 
-    return userTokens
+    return userTokens;
   }
 
-  public async updateUserTokenRecord(
-    args: UpdateUserTokenActivationRecordType,
-    tx?: any
-  ): Promise<UserToken> {
-    const { expired, tokenId, isActive } = args
-    const dbClient = tx ? tx : DbClient
+  public async updateUserTokenRecord(args: UpdateUserTokenActivationRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    const { expired, tokenId, isActive } = args;
     const result = await dbClient.userToken.update({
       where: {
-        id: tokenId
+        id: tokenId,
       },
-      data: { expired, isActive }
-    })
+      data: { expired, isActive },
+    });
 
-    return result
+    return result;
   }
 
-  public async findUserTokenByToken(
-    otpToken: string,
-    tx?: any
-  ): Promise<UserToken> {
-    const dbClient = tx ? tx : DbClient
+  public async findUserTokenByToken(otpToken: string, dbClient: PrismaTransactionClient = DbClient) {
     const userToken = await dbClient.userToken.findFirst({
       where: {
-        token: otpToken
-      }
-    })
+        token: otpToken,
+      },
+    });
 
-    return userToken
+    return userToken;
   }
-  public async findActiveUserTokenByType(
-    args: FindUserActiveTokenByTypeType,
-    tx?: any
-  ): Promise<UserToken> {
-    const { userId, tokenType, expired, isActive } = args
-    const dbClient = tx ? tx : DbClient
+  public async findActiveUserTokenByType(args: FindUserActiveTokenByTypeType, dbClient: PrismaTransactionClient = DbClient) {
+    const { userId, tokenType, expired, isActive } = args;
     const userToken = await dbClient.userToken.findFirst({
       where: {
         userId,
         tokenType,
         expired,
-        isActive
-      }
-    })
+        isActive,
+      },
+    });
 
-    return userToken
+    return userToken;
   }
 }

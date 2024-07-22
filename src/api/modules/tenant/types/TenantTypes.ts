@@ -1,7 +1,5 @@
-import { z } from "zod";
-import { createTenantSchema } from "../validators/TenantCreateSchema";
-
-export type CreateTenantData = z.infer<typeof createTenantSchema>;
+// TODO: Add createTeneant record params
+export type CreateTenantRecordType = null;
 
 export interface TenantCriteria {
   id?: number;
@@ -15,7 +13,7 @@ export interface UpdateTenantData {
 }
 
 export interface GetAndUpdateTenant {
-    criteria: TenantCriteria;
-    data: UpdateTenantData;
-    updateStatus?: boolean;
+  criteria: TenantCriteria;
+  data: UpdateTenantData;
+  updateStatus?: boolean;
 }

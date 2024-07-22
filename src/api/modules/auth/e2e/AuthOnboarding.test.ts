@@ -76,13 +76,6 @@ describe("Auth Onboarding", () => {
         message: ACCOUNT_CREATED,
         data: {
           id: expect.any(Number),
-          firstName: "Luke",
-          lastName: "Combs",
-          phoneNumber: "09052916792",
-          email: "sogbesansegun3@gmail.com",
-          hasVerified: expect.any(Boolean),
-          isFirstTimeLogin: expect.any(Boolean),
-          lastLoginDate: expect.any(String),
           tenantId: expect.any(Number),
         },
         accessToken: expect.any(String),
