@@ -1,94 +1,70 @@
-import { TokenType, UserToken } from "@prisma/client"
-import { ITokenProvider } from "./contracts/ITokenProvider"
-
-import DbClient from "~/infrastructure/internal/database"
-import {
-  CreateUserTokenRecordType,
-  FindUserActiveTokenByTypeType,
-  UpdateUserTokenActivationRecordType
-} from "~/api/shared/types/UserInternalApiTypes"
+import { ITokenProvider } from "./contracts/ITokenProvider";
+import { CreateUserTokenRecordType } from "~/api/shared/types/UserInternalApiTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { ReadOneTokenRecordType, ReadTokenRecordType, UpdateTokenRecordType } from "~/api/modules/auth/types/AuthTypes";
 export default class TokenProvider implements ITokenProvider {
-  public async createUserTokenRecord(
-    args: CreateUserTokenRecordType,
-    tx?: any
-  ): Promise<UserToken> {
-    const { userId, tokenType, expiresAt, token } = args
-    const dbClient = tx ? tx : DbClient
+  public async create(args: CreateUserTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    const { userId, tokenType, expiresAt, token } = args;
     const userToken = await dbClient.userToken.create({
       data: {
         userId,
         tokenType,
         token,
-        expiresAt
-      }
-    })
-
-    return userToken
-  }
-
-  public async findUserTokensByType(
-    args: {
-      userId: number
-      tokenType: TokenType
-    },
-    tx?: any
-  ): Promise<UserToken[]> {
-    const { userId, tokenType } = args
-    const dbClient = tx ? tx : DbClient
-    const userTokens = await dbClient.userToken.findMany({
-      where: {
-        userId,
-        tokenType
-      }
-    })
-
-    return userTokens
-  }
-
-  public async updateUserTokenRecord(
-    args: UpdateUserTokenActivationRecordType,
-    tx?: any
-  ): Promise<UserToken> {
-    const { expired, tokenId, isActive } = args
-    const dbClient = tx ? tx : DbClient
-    const result = await dbClient.userToken.update({
-      where: {
-        id: tokenId
+        expiresAt,
       },
-      data: { expired, isActive }
-    })
+    });
 
-    return result
+    return userToken;
   }
 
-  public async findUserTokenByToken(
-    otpToken: string,
-    tx?: any
-  ): Promise<UserToken> {
-    const dbClient = tx ? tx : DbClient
-    const userToken = await dbClient.userToken.findFirst({
-      where: {
-        token: otpToken
-      }
-    })
+  public async getOneByCriteria(criteria: ReadOneTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const { token } = criteria;
+      const result = await dbClient?.userToken?.findFirst({
+        where: {
+          ...(token && { token }),
+        },
+      });
 
-    return userToken
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
   }
-  public async findActiveUserTokenByType(
-    args: FindUserActiveTokenByTypeType,
-    tx?: any
-  ): Promise<UserToken> {
-    const { userId, tokenType, expired, isActive } = args
-    const dbClient = tx ? tx : DbClient
-    const userToken = await dbClient.userToken.findFirst({
-      where: {
-        userId,
-        tokenType,
-        expired,
-        isActive
-      }
-    })
 
-    return userToken
+  public async getByCriteria(criteria: ReadTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const { userId, tokenType } = criteria;
+      const result = await dbClient?.userToken?.findMany({
+        where: {
+          ...(userId && { id: userId }),
+          ...(tokenType && { tokenType }),
+        },
+      });
+
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
+  }
+
+  public async updateOneByCriteria(args: UpdateTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const { tokenId, isActive, expired } = args;
+      const result = await dbClient?.userToken?.update({
+        where: {
+          id: tokenId,
+        },
+        data: {
+          ...(isActive && { isActive }),
+          ...(expired && { expired }),
+        },
+      });
+
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
   }
 }
