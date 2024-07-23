@@ -222,7 +222,6 @@ export class ApiDocGenerator {
       const securitys = Object.keys(securitySchemes);
       this.apiDoc.paths[path][method].security = securitys.map((key) => ({ [key]: [] }));
     }
-    console.log("Final method state:", this.apiDoc.paths[path][method].responses.content);
   }
 
   private setServer(url: string, description: "Local server"): void {

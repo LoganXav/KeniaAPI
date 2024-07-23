@@ -1,6 +1,6 @@
 import Express from "../index";
 import { resolve } from "path";
-import { Router } from "express";
+import { NextFunction, Router } from "express";
 import { container } from "tsyringe";
 import { sync } from "fast-glob";
 import ServerConfig from "../../../../config/ServerConfig";
@@ -19,6 +19,11 @@ jest.mock("tsyringe", () => ({
 jest.mock("path", () => ({
   ...jest.requireActual("path"),
   resolve: jest.fn(),
+}));
+
+jest.mock("swagger-ui-express", () => ({
+  serve: jest.fn(),
+  setup: jest.fn().mockReturnValue((req: Request, res: Response, next: NextFunction) => next()),
 }));
 
 describe("Load Controllers Dynamically", () => {
@@ -43,6 +48,7 @@ describe("Load Controllers Dynamically", () => {
     const mockController = {
       initializeRoutes: jest.fn(),
       router: Router(),
+      setApiDocGenerator: jest.fn(),
       controllerName: "MockController",
     };
 
@@ -58,7 +64,7 @@ describe("Load Controllers Dynamically", () => {
     await (app as any).loadControllersDynamically();
 
     expect(mockController.initializeRoutes).toHaveBeenCalledWith(expect.any(Function));
-
+    expect(mockController.setApiDocGenerator).toHaveBeenCalledWith(expect.any(Object));
     expect(appUseSpy).toHaveBeenCalledWith(AppSettings.ServerRoot, expect.any(Function));
 
     appUseSpy.mockRestore();
