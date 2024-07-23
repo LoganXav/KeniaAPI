@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { autoInjectable } from "tsyringe";
-import { TokenType } from "@prisma/client";
+import { TokenType, UserType } from "@prisma/client";
 import Event from "~/api/shared/helpers/events";
 import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
@@ -79,7 +79,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const tenant = await this.tenantCreateProvider.create(null, tx);
 
-        const input = { tenantId: tenant?.id, ...args };
+        const input = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
 
         const user = await this.userCreateProvider.create(input, tx);
 

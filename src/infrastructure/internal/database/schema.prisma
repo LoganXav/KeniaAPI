@@ -31,7 +31,7 @@ model User {
   isFirstTimeLogin Boolean     @default(true)
   lastLoginDate    DateTime    @default(now())
   tokens           UserToken[]
-  userType         UserType
+  userType         UserType    @default(STAFF)
   tenantId         Int
   tenant           Tenant      @relation(fields: [tenantId], references: [id])
   student          Student?    @relation("StudentUser")

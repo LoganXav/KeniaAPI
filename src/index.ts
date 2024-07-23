@@ -5,7 +5,7 @@ import { errorHandler } from "./infrastructure/internal/exceptions/ErrorHandler"
 
 const app = new Application();
 
-app.start();
+app.start(new Date());
 
 process.on("uncaughtException", (error: Error) => {
   console.log(`Uncaught Exception: ${error.message}`);
