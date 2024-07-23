@@ -5,6 +5,9 @@ import { PropFormatEnum, PropTypeEnum } from "~/infrastructure/internal/document
 import { ApiDoc, ParameterDescriber, RouteType, SecuritySchemes } from "~/infrastructure/internal/documentation/IApiDocGenerator";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import HttpStatusDescriber from "./HttpStatusDescriber";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { join, resolve } from "path";
+import { writeFileSync } from "fs";
 
 type SchemaType = { type?: PropTypeEnum } | { $ref?: string } | { type?: PropTypeEnum.OBJECT | PropTypeEnum.ARRAY; items?: { $ref: string } };
 
@@ -102,6 +105,16 @@ export class ApiDocGenerator {
     this.setServer(AppSettings.getServerUrl(), "Local server");
   }
 
+  saveApiDoc(): this {
+    const wasDocGenerated = !(this.env !== DEV || !Object.keys(this.apiDoc.paths).length);
+    if (!wasDocGenerated) return this;
+
+    const filePath = resolve(join(__dirname, "../../../../openapi.json"));
+    writeFileSync(filePath, JSON.stringify(this.apiDoc, null, 2), "utf8");
+
+    return this;
+  }
+
   private setSchemas(schemas: Record<string, any>): void {
     this.apiDoc.components.schemas = schemas;
   }
@@ -186,11 +199,14 @@ export class ApiDocGenerator {
     }
 
     produces.forEach(({ httpStatus }) => {
+      const responseSchema = this.getSchemaForStatus(httpStatus, schema);
+      const builtSchema = this.buildSchema(responseSchema);
+
       this.apiDoc.paths[path][method].responses[httpStatus.toString()] = {
         description: HttpStatusDescriber[httpStatus],
         content: {
           [contentType]: {
-            schema: this.buildSchema(schema),
+            schema: builtSchema,
           },
         },
       };
@@ -206,6 +222,7 @@ export class ApiDocGenerator {
       const securitys = Object.keys(securitySchemes);
       this.apiDoc.paths[path][method].security = securitys.map((key) => ({ [key]: [] }));
     }
+    console.log("Final method state:", this.apiDoc.paths[path][method].responses.content);
   }
 
   private setServer(url: string, description: "Local server"): void {
@@ -213,5 +230,44 @@ export class ApiDocGenerator {
       url,
       description,
     });
+  }
+
+  private getSchemaForStatus(applicationStatus: HttpStatusCodeEnum, defaultSchema: ApiDoc["schema"]): ApiDoc["schema"] {
+    switch (applicationStatus) {
+      case HttpStatusCodeEnum.SUCCESS:
+      case HttpStatusCodeEnum.CREATED:
+        return defaultSchema; // Success schema
+      case HttpStatusCodeEnum.UNAUTHORIZED:
+      case HttpStatusCodeEnum.BAD_REQUEST:
+        return {
+          properties: {
+            message: { type: PropTypeEnum.STRING },
+            error: { type: PropTypeEnum.STRING },
+            statusCode: { type: PropTypeEnum.STRING },
+            success: { type: PropTypeEnum.BOOLEAN },
+            data: { type: PropTypeEnum.NULL }, // or an appropriate error data schema
+          },
+          name: defaultSchema.schema.name,
+          type: PropTypeEnum.OBJECT,
+          schema: {
+            name: defaultSchema.schema.name,
+            type: PropTypeEnum.OBJECT,
+            properties: {
+              message: { type: PropTypeEnum.STRING },
+              statusCode: { type: PropTypeEnum.STRING },
+              error: { type: PropTypeEnum.STRING },
+              success: { type: PropTypeEnum.BOOLEAN },
+              data: { type: PropTypeEnum.NULL }, // or an appropriate error data schema
+            },
+          },
+        };
+      default:
+        return defaultSchema; // Default to the provided schema
+    }
+  }
+
+  finish(): void {
+    SchemasStore.dispose();
+    SchemasSecurityStore.dispose();
   }
 }

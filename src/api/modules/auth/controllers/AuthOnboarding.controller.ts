@@ -2,7 +2,7 @@ import { autoInjectable } from "tsyringe";
 import AuthSignUpService from "../services/AuthSignUp.service";
 import AuthSignInService from "../services/AuthSignIn.service";
 import BaseController from "../../base/contollers/Base.controller";
-import { SignInUserType } from "~/api/shared/types/UserInternalApiTypes";
+import { SignInUserType, SignUpUserType } from "~/api/shared/types/UserInternalApiTypes";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
@@ -13,6 +13,7 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 import { PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
+import { SignedInUserDataType, SignedUpUserDataType } from "../types/AuthTypes";
 
 @autoInjectable()
 export default class AuthOnboardingController extends BaseController {
@@ -47,34 +48,26 @@ export default class AuthOnboardingController extends BaseController {
       handlers: [validateData(signUpUserRecordSchema), this.signUp],
       produces: [
         { applicationStatus: ApplicationStatusEnum.CREATED, httpStatus: HttpStatusCodeEnum.CREATED },
-        { applicationStatus: ApplicationStatusEnum.INVALID_INPUT, httpStatus: HttpStatusCodeEnum.BAD_REQUEST },
+        //TODO: Fix error results
+        // { applicationStatus: ApplicationStatusEnum.INVALID_INPUT, httpStatus: HttpStatusCodeEnum.BAD_REQUEST },
       ],
       description: "Sign Up New Tenant and User Record",
-    });
-
-    this.addRoute({
-      method: HttpMethodEnum.POST,
-      path: "/auth/signin",
-      handlers: [validateData(signInUserRecordSchema), this.signIn],
-      produces: [
-        { applicationStatus: ApplicationStatusEnum.SUCCESS, httpStatus: HttpStatusCodeEnum.SUCCESS },
-        { applicationStatus: ApplicationStatusEnum.UNAUTHORIZED, httpStatus: HttpStatusCodeEnum.UNAUTHORIZED },
-      ],
-      description: "Sign In User",
       apiDoc: {
         contentType: HttpContentTypeEnum.APPLICATION_JSON,
         requireAuth: false,
-        schema: new ResultTDescriber<any>({
-          name: "Sign In Response",
+        schema: new ResultTDescriber<SignedUpUserDataType>({
+          name: "SignUpDTO",
           type: PropTypeEnum.OBJECT,
           props: {
-            data: new TypeDescriber<any>({
-              name: "",
+            data: new TypeDescriber<SignedUpUserDataType>({
+              name: "SignUpDTO",
               type: PropTypeEnum.OBJECT,
-              // TODO: Refactor to actual sign in response object
               props: {
                 id: {
-                  type: PropTypeEnum.STRING,
+                  type: PropTypeEnum.NUMBER,
+                },
+                tenantId: {
+                  type: PropTypeEnum.NUMBER,
                 },
               },
             }),
@@ -93,10 +86,86 @@ export default class AuthOnboardingController extends BaseController {
           },
         }),
         requestBody: {
-          description: "Sign In Credentials",
+          description: "SignUpCredentials",
+          contentType: HttpContentTypeEnum.APPLICATION_JSON,
+          schema: new TypeDescriber<SignUpUserType>({
+            name: "SignUpCredentials",
+            type: PropTypeEnum.OBJECT,
+            props: {
+              firstName: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              lastName: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              phoneNumber: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              email: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              password: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+            },
+          }),
+        },
+      },
+    });
+
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/auth/signin",
+      handlers: [validateData(signInUserRecordSchema), this.signIn],
+      produces: [
+        { applicationStatus: ApplicationStatusEnum.SUCCESS, httpStatus: HttpStatusCodeEnum.SUCCESS },
+        //TODO: Fix error results
+        // { applicationStatus: ApplicationStatusEnum.UNAUTHORIZED, httpStatus: HttpStatusCodeEnum.UNAUTHORIZED },
+      ],
+      description: "Sign In An Existing User",
+      apiDoc: {
+        contentType: HttpContentTypeEnum.APPLICATION_JSON,
+        requireAuth: false,
+        schema: new ResultTDescriber<SignedInUserDataType>({
+          name: "SignInDTO",
+          type: PropTypeEnum.OBJECT,
+          props: {
+            data: new TypeDescriber<SignedInUserDataType>({
+              name: "SignInDTO",
+              type: PropTypeEnum.OBJECT,
+              props: {
+                id: {
+                  type: PropTypeEnum.NUMBER,
+                },
+                tenantId: {
+                  type: PropTypeEnum.NUMBER,
+                },
+              },
+            }),
+            error: {
+              type: PropTypeEnum.STRING,
+            },
+            message: {
+              type: PropTypeEnum.STRING,
+            },
+            statusCode: {
+              type: PropTypeEnum.STRING,
+            },
+            success: {
+              type: PropTypeEnum.BOOLEAN,
+            },
+          },
+        }),
+        requestBody: {
+          description: "SignInCredentials",
           contentType: HttpContentTypeEnum.APPLICATION_JSON,
           schema: new TypeDescriber<SignInUserType>({
-            name: "",
+            name: "SignInCredentials",
             type: PropTypeEnum.OBJECT,
             props: {
               email: {

@@ -18,3 +18,12 @@ export interface UpdateTokenRecordType {
   expired?: boolean;
   isActive?: boolean;
 }
+
+export interface SignedInUserDataType {
+  id: number;
+  tenantId: number;
+}
+export interface SignedUpUserDataType {
+  id: number;
+  tenantId: number;
+}

@@ -5,26 +5,184 @@
     "version": "1.0.0",
     "description": "Api documentation for Kenia",
     "contact": {
-      "name": "Sogbesan Timilehin",
+      "name": "KeniaAPI",
       "url": "https://github.com/Loganxav/KeniaAPI",
       "email": "sogbesansegun22@gmail.com"
     }
   },
   "servers": [
     {
-      "url": "http://localhost:6000/api",
+      "url": "http://localhost:5500/api",
       "description": "Local server"
     }
   ],
-  "paths": {},
-  "components": {
-    "schemas": {},
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "bearer"
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "description": "Sign Up New Tenant and User Record",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTSignUpDTO"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "SignUpCredentials",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpCredentials"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signin": {
+      "post": {
+        "description": "Sign In An Existing User",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTSignInDTO"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "SignInCredentials",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInCredentials"
+              }
+            }
+          }
+        }
       }
     }
+  },
+  "components": {
+    "schemas": {
+      "SignUpDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "tenantId": {
+            "type": "number"
+          }
+        }
+      },
+      "ResultTSignUpDTO": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SignUpDTO"
+          }
+        }
+      },
+      "SignUpCredentials": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phoneNumber",
+          "email",
+          "password"
+        ]
+      },
+      "SignInDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "tenantId": {
+            "type": "number"
+          }
+        }
+      },
+      "ResultTSignInDTO": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SignInDTO"
+          }
+        }
+      },
+      "SignInCredentials": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "userType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "userType"
+        ]
+      }
+    },
+    "securitySchemes": {}
   }
 }

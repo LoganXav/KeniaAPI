@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UserToken } from "@prisma/client";
+import { UserToken, UserType } from "@prisma/client";
 import { verifyOtpTokenSchema } from "~/api/modules/auth/validators/VerifyOtpSchema";
 import { refreshOtpTokenSchema } from "~/api/modules/auth/validators/RefreshOtpTokenSchema";
 import { signUpUserRecordSchema } from "~/api/modules/auth/validators/SignUpUserRecordSchema";
@@ -11,6 +11,7 @@ export type SignUpUserType = z.infer<typeof signUpUserRecordSchema>;
 
 export type CreateUserRecordType = SignUpUserType & {
   tenantId: number;
+  userType: UserType;
 };
 
 export type SignInUserType = z.infer<typeof signInUserRecordSchema>;
