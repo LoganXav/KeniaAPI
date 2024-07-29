@@ -13,9 +13,9 @@
 
 ## Introduction
 
-<details>
+## Project Overview
 
-### Project Overview
+<details>
 
 <summary>[-]</summary>
 
@@ -39,9 +39,9 @@ The project adheres to object-oriented programming principles and utilizes `tsyr
 
 </details>
 
-<details>
-
 ### Folder Structure
+
+<details>
 
 <summary>[-]</summary>
 
@@ -95,9 +95,9 @@ kenia/
 
 </details>
 
-<details>
-
 ### Tech Stack
+
+<details>
 
 <summary>[-]</summary>
 
@@ -113,10 +113,9 @@ The project was bootstrapped with `pnpm` and includes a setup script (`pnpm run 
 
 </details>
 
+## Setup Instructions
+
 <details>
-
-### Setup Instructions
-
 <summary>[-]</summary>
 
 To set up Kenia locally, follow these steps:
