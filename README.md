@@ -8,22 +8,26 @@
 4. [Folder Structure](#folder-structure)
 5. [Tech Stack](#tech-stack)
 6. [Setup Instructions](#setup-instructions)
-
----
+7. [Testing](#testing)
+8. [Documentation](#documentation)
 
 ## Introduction
 
+## Project Overview
+
 <details>
 
-<summary>
-
-### Project Overview
-
-</summary>
+<summary>[-]</summary>
 
 Kenia is an API server designed for managing various workflows within a school environment. It provides dynamic capabilities to encapsulate and manage school workflows using flexible templates.
 
-### Code Architecture
+</details>
+
+## Code Architecture
+
+<details>
+
+<summary>[-]</summary>
 
 The project is bootstrapped using components defined in the `infrastructure` folder. This includes the initialization of essential services like the database, logger, middlewares, swagger doc, and the Express server.
 
@@ -41,7 +45,11 @@ The project adheres to object-oriented programming principles and utilizes `tsyr
 
 </details>
 
-### Folder Structure
+## Folder Structure
+
+<details>
+
+<summary>[-]</summary>
 
 The project's folder structure is organized as follows:
 
@@ -91,7 +99,13 @@ kenia/
 
 ```
 
-### Tech Stack
+</details>
+
+## Tech Stack
+
+<details>
+
+<summary>[-]</summary>
 
 Kenia is built using the following technologies and tools:
 
@@ -103,15 +117,111 @@ Kenia is built using the following technologies and tools:
 
 The project was bootstrapped with `pnpm` and includes a setup script (`pnpm run dev`) for development.
 
-### Setup Instructions
+</details>
+
+## Setup Instructions
+
+<details>
+<summary>[-]</summary>
 
 To set up Kenia locally, follow these steps:
 Set environment variables in .env file based on .env.example.
 
-1. **Installation**:
+1. **Clone the repository**:
+
+   ```bash
+   git clone https://github.com/your-username/kenia-api-server.git
+   ```
+
+2. **Navigate to the project directory**:
+
+   ```bash
+   cd KeniaAPI
+   ```
+
+3. **Install dependencies**:
 
    ```bash
    pnpm install
-   pnpm run dev
-
    ```
+
+4. **Run Docker to start the local PostgreSQL database**:
+
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Generate Prisma client**:
+
+   ```bash
+   pnpm run prisma:generate
+   ```
+
+6. **Run migrations**:
+
+   ```bash
+   pnpm run prisma:migrate
+   ```
+
+7. **Start the application**:
+   ```bash
+   pnpm run dev
+   ```
+
+</details>
+
+## Testing
+
+<details>
+<summary>[-]</summary>
+
+- **Tool**: Jest
+- **Location**: `api/modules/[module]/services/__tests__/`
+- **Description**: Unit tests are written to verify the functionality of individual services. Each service has corresponding tests to ensure that the business logic works as expected.
+
+### End-to-End (E2E) Tests
+
+- **Tool**: Jest, Supertest
+- **Location**: `api/modules/[module]/e2e/`
+- **Description**: E2E tests are used to test the entire application flow, from controllers handling HTTP requests to the database access layer returned by providers. These tests ensure that the API endpoints work correctly with the Prisma ORM.
+
+### Database for E2E Tests
+
+- **Configuration**: A local SQL database running in a Docker container is used for E2E tests. The Docker container is defined in `docker-compose.yml`.
+
+- **Test**: Runs all tests
+
+  ```bash
+  pnpm run test
+  ```
+
+- **Test Coverage**: Runs tests with coverage reporting
+
+  ```bash
+  pnpm run test:coverage
+  ```
+
+- **Test Watch**: Runs tests in watch mode
+
+  ```bash
+  pnpm run test:watch
+  ```
+
+<!-- - **E2E Test**: Runs end-to-end tests -->
+
+  <!-- ```bash -->
+  <!-- pnpm test:e2e -->
+  <!-- ``` -->
+
+</details>
+
+## Documentation
+
+<details>
+<summary>[-]</summary>
+
+The project uses `swagger-ui-express` for API documentation. Swagger documentation is dynamically generated when routes are registered.
+
+**Endpoint for Swagger UI**: `/docs`
+
+</details>
