@@ -21,7 +21,13 @@
 
 Kenia is an API server designed for managing various workflows within a school environment. It provides dynamic capabilities to encapsulate and manage school workflows using flexible templates.
 
-### Code Architecture
+</details>
+
+## Code Architecture
+
+<details>
+
+<summary>[-]</summary>
 
 The project is bootstrapped using components defined in the `infrastructure` folder. This includes the initialization of essential services like the database, logger, middlewares, swagger doc, and the Express server.
 
@@ -39,7 +45,7 @@ The project adheres to object-oriented programming principles and utilizes `tsyr
 
 </details>
 
-### Folder Structure
+## Folder Structure
 
 <details>
 
@@ -95,7 +101,7 @@ kenia/
 
 </details>
 
-### Tech Stack
+## Tech Stack
 
 <details>
 
