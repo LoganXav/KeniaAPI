@@ -2,18 +2,18 @@ import { autoInjectable } from "tsyringe";
 import AuthSignUpService from "../services/AuthSignUp.service";
 import AuthSignInService from "../services/AuthSignIn.service";
 import BaseController from "../../base/contollers/Base.controller";
-import { SignInUserType, SignUpUserType } from "~/api/shared/types/UserInternalApiTypes";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema";
 import { signInUserRecordSchema } from "../validators/SignInUserRecordSchema";
+import { SignedInUserDataType, SignedUpUserDataType } from "../types/AuthTypes";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { SignInUserType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 import { PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
-import { SignedInUserDataType, SignedUpUserDataType } from "../types/AuthTypes";
 
 @autoInjectable()
 export default class AuthOnboardingController extends BaseController {

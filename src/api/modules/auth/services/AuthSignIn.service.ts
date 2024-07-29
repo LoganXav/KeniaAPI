@@ -1,12 +1,12 @@
 import { autoInjectable } from "tsyringe";
 import Event from "~/api/shared/helpers/events";
 import { IResult } from "~/api/shared/helpers/results/IResult";
+import { SignInUserType } from "~/api/modules/user/types/UserTypes";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum";
-import { SignInUserType } from "~/api/shared/types/UserInternalApiTypes";
-import UserReadProvider from "~/api/shared/providers/user/UserRead.provider";
-import UserUpdateProvider from "~/api/shared/providers/user/UserUpdate.provider";
+import UserReadProvider from "~/api/modules/user/providers/UserRead.provider";
+import UserUpdateProvider from "~/api/modules/user/providers/UserUpdate.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import StaffReadProvider from "~/api/modules/staff/providers/StaffRead.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Server } from "http";
 import request from "supertest";
 import { container } from "tsyringe";
@@ -9,13 +11,13 @@ import StaffReadProvider from "../../staff/providers/StaffRead.provider";
 import { Application } from "../../../../infrastructure/internal/application";
 import AuthOnboardingController from "../controllers/AuthOnboarding.controller";
 import TenantCreateProvider from "../../tenant/providers/TenantCreate.provider";
-import UserReadProvider from "../../../shared/providers/user/UserRead.provider";
-import UserCreateProvider from "../../../shared/providers/user/UserCreate.provider";
-import UserUpdateProvider from "../../../shared/providers/user/UserUpdate.provider";
+import UserReadProvider from "../../../modules/user/providers/UserRead.provider";
+import UserCreateProvider from "../../../modules/user/providers/UserCreate.provider";
+import UserUpdateProvider from "../../../modules/user/providers/UserUpdate.provider";
 import { HttpStatusCodeEnum } from "../../../shared/helpers/enums/HttpStatusCode.enum";
 import { ACCOUNT_CREATED, SIGN_IN_SUCCESSFUL, SUCCESS } from "../../../shared/helpers/messages/SystemMessages";
 
-describe("Auth Onboarding", () => {
+describe("Auth Onboarding Controller", () => {
   let server: Server;
   let app: Application;
   let authSignUpService: AuthSignUpService;
@@ -46,19 +48,19 @@ describe("Auth Onboarding", () => {
   authOnboardingController = container.resolve(AuthOnboardingController);
 
   afterAll(async () => {
-    const prisma = new PrismaClient();
+    const dbClient = new PrismaClient();
 
     try {
-      await prisma.$transaction([prisma.userToken.deleteMany()]);
+      await dbClient.$transaction([dbClient.userToken.deleteMany()]);
 
-      await prisma.user.deleteMany();
-      await prisma.tenant.deleteMany();
+      await dbClient.user.deleteMany();
+      await dbClient.tenant.deleteMany();
 
-      await prisma.user.deleteMany();
+      await dbClient.user.deleteMany();
     } catch (error) {
       console.error("Error during cleanup:", error);
     } finally {
-      await prisma.$disconnect();
+      await dbClient.$disconnect();
       server.close();
     }
   });
