@@ -13,17 +13,23 @@
 
 ## Introduction
 
+<details>
+
+<summary>
+
 ### Project Overview
+
+</summary>
 
 Kenia is an API server designed for managing various workflows within a school environment. It provides dynamic capabilities to encapsulate and manage school workflows using flexible templates.
 
 ### Code Architecture
 
-The project is bootstrapped using components defined in the `infrastructure` folder. This includes the initialization of essential services like the database, logger, and the Express server.
+The project is bootstrapped using components defined in the `infrastructure` folder. This includes the initialization of essential services like the database, logger, middlewares, swagger doc, and the Express server.
 
-- **Database**: The database configuration and connection setup are handled in the `infrastructure/database` module. Prisma is used as the ORM for interacting with the database.
-- **Logger**: A centralized logging service is set up in the `infrastructure/logger` module to manage application-wide logging.
-- **Express**: The Express server configuration, including middleware setup and route initialization, is handled in the `infrastructure/express` module.
+- **Database**: The database configuration and connection setup are handled in the `infrastructure/internal/database` module. Prisma is used as the ORM for interacting with the database.
+- **Logger**: A centralized logging service is set up in the `infrastructure/internal/logger` module to manage application-wide logging.
+- **Express**: The Express server configuration, including middleware setup and route initialization, is handled in the `infrastructure/internal/express` module.
 
 The application logic is organized into modules under the `api/modules` folder. Each module encapsulates a specific domain of the application and follows the separation of concerns principle. By organizing the application into modules, we ensure that each module can operate independently and be maintained separately, promoting scalability, testability and maintainability
 
@@ -32,6 +38,8 @@ The application logic is organized into modules under the `api/modules` folder. 
 - **Providers**: Providers are responsible for data access and interactions with the database, ensuring a clear separation between business logic and data access.
 
 The project adheres to object-oriented programming principles and utilizes `tsyringe` for dependency injection to manage dependencies and promote modularity.
+
+</details>
 
 ### Folder Structure
 
@@ -45,24 +53,27 @@ kenia/
 │ │ ├── modules/
 │ │ │ ├── auth/
 │ │ │ │ ├── controllers/
+│ │ │ │ ├── e2e/
 │ │ │ │ ├── services/
+│ │ │ │ │ ├── __tests__/
 │ │ │ │ └── providers/
 │ │ │ │ └── ...
 │ │ │ ├── staff/
 │ │ │ │ ├── controllers/
+│ │ │ │ ├── e2e/
 │ │ │ │ ├── services/
+│ │ │ │ │ ├── __tests__/
 │ │ │ │ └── providers/
 │ │ │ │ └── ...
-│ │ │ ├── status/
+│ │ │ ├── base/
 │ │ │ │ ├── controllers/
 │ │ │ │ ├── services/
-│ │ │ │ └── providers/
 │ │ │ │ └── ...
 │ │ │ └── ...
 │ │ ├── shared/
 │ │ │ ├── helpers/
 │ │ │ ├── services/
-│ │ │ └── providers/
+│ │ │ └── types/
 │ │ │ └── ...
 │ ├── config/
 │ ├── infrastructure/
