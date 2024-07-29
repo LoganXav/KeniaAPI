@@ -1,7 +1,6 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { User } from "@prisma/client";
-
-import { UpdateUserRecordType } from "../../types/UserInternalApiTypes";
+import { UpdateUserRecordType } from "~/api/modules/user/types/UserTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 
 export default class UserUpdateProvider {
   public async updateOneByCriteria(args: UpdateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<User> {

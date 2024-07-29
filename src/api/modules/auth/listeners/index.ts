@@ -1,7 +1,7 @@
-import { EmailService } from "~/api/shared/services/email/Email.service";
-import { SignUpEventListenerDTO, SignInEventListenerDTO } from "../types/EventsDTO";
 import DateTimeUtil from "~/utils/DateTimeUtil";
-import UserUpdateProvider from "~/api/shared/providers/user/UserUpdate.provider";
+import { EmailService } from "~/api/shared/services/email/Email.service";
+import UserUpdateProvider from "~/api/modules/user/providers/UserUpdate.provider";
+import { SignUpEventListenerDTO, SignInEventListenerDTO } from "~/api/modules/auth/types/EventsDTO";
 
 const userUpdateProvider = new UserUpdateProvider();
 export class UserListener {

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Server } from "http";
 import request from "supertest";
 import { container } from "tsyringe";
@@ -5,14 +7,14 @@ import { PrismaClient } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import AuthPasswordResetService from "../services/AuthPasswordReset.service";
 import { Application } from "../../../../infrastructure/internal/application";
-import UserReadProvider from "../../../shared/providers/user/UserRead.provider";
-import UserUpdateProvider from "../../../shared/providers/user/UserUpdate.provider";
+import UserReadProvider from "../../../modules/user/providers/UserRead.provider";
+import UserUpdateProvider from "../../../modules/user/providers/UserUpdate.provider";
 import AuthPasswordResetController from "../controllers/AuthPasswordReset.controller";
 import { HttpStatusCodeEnum } from "../../../shared/helpers/enums/HttpStatusCode.enum";
 import AuthPasswordResetRequestService from "../services/AuthPasswordResetRequest.service";
 import { ERROR, ERROR_INVALID_TOKEN, PASSWORD_RESET_LINK_GENERATED, SUCCESS } from "../../../shared/helpers/messages/SystemMessages";
 
-describe("Auth Password Reset", () => {
+describe("Auth Password Reset Controller", () => {
   let server: Server;
   let app: Application;
   let authPasswordResetRequestService: AuthPasswordResetRequestService;
@@ -40,18 +42,18 @@ describe("Auth Password Reset", () => {
   authPasswordResetController = container.resolve(AuthPasswordResetController);
 
   afterAll(async () => {
-    const prisma = new PrismaClient();
+    const dbClient = new PrismaClient();
     try {
-      await prisma.$transaction([prisma.userToken.deleteMany()]);
+      await dbClient.$transaction([dbClient.userToken.deleteMany()]);
 
-      await prisma.user.deleteMany();
-      await prisma.tenant.deleteMany();
+      await dbClient.user.deleteMany();
+      await dbClient.tenant.deleteMany();
 
-      await prisma.user.deleteMany();
+      await dbClient.user.deleteMany();
     } catch (error) {
       console.error("Error during cleanup:", error);
     } finally {
-      await prisma.$disconnect();
+      await dbClient.$disconnect();
       server.close();
     }
   });

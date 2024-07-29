@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { autoInjectable } from "tsyringe";
-import { TokenType, UserType } from "@prisma/client";
 import Event from "~/api/shared/helpers/events";
+import { TokenType, UserType } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
 import { IResult } from "~/api/shared/helpers/results/IResult";
@@ -9,19 +9,18 @@ import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { generateStringOfLength } from "~/utils/GenerateStringOfLength";
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum";
-import UserReadProvider from "~/api/shared/providers/user/UserRead.provider";
+import UserReadProvider from "~/api/modules/user/providers/UserRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import UserCreateProvider from "~/api/shared/providers/user/UserCreate.provider";
+import UserCreateProvider from "~/api/modules/user/providers/UserCreate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import TenantCreateProvider from "~/api/modules/tenant/providers/TenantCreate.provider";
-import { CreateUserRecordType, SignUpUserType } from "~/api/shared/types/UserInternalApiTypes";
+import { CreateUserRecordType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
-
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
   static serviceName = "AuthSignUpService";

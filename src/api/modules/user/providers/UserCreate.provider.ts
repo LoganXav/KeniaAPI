@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { CreateUserRecordType } from "~/api/shared/types/UserInternalApiTypes";
+import { CreateUserRecordType } from "~/api/modules/user/types/UserTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 

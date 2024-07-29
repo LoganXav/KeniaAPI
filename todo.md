@@ -6,7 +6,6 @@
 **_ Bug Fixes _**
 
 - Prisma or Supabase time is one hour behind
-- Refactor prisma client queries using a more declarative approach
 
 **_ Itenary _**
 

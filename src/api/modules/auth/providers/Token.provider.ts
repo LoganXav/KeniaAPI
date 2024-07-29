@@ -1,5 +1,5 @@
 import { ITokenProvider } from "./contracts/ITokenProvider";
-import { CreateUserTokenRecordType } from "~/api/shared/types/UserInternalApiTypes";
+import { CreateUserTokenRecordType } from "~/api/modules/user/types/UserTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { ReadOneTokenRecordType, ReadTokenRecordType, UpdateTokenRecordType } from "~/api/modules/auth/types/AuthTypes";
