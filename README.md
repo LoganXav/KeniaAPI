@@ -130,7 +130,7 @@ Set environment variables in .env file based on .env.example.
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-username/kenia-api-server.git
+   git clone https://github.com/LoganXav/KeniaAPIr.git
    ```
 
 2. **Navigate to the project directory**:
