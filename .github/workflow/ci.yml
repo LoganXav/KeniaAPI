@@ -33,7 +33,7 @@ jobs:
       - name: Run lint
         run: npm run lint
 
-      - name: Run format check
+      - name: Run format
         run: npm run format
 
       - name: Check commit messages
