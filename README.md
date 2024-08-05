@@ -29,11 +29,11 @@ Kenia is an API server designed for managing various workflows within a school e
 
 <summary>[-]</summary>
 
-The project is bootstrapped using components defined in the `infrastructure` folder. This includes the initialization of essential services like the database, logger, middlewares, swagger doc, and the Express server.
+The project is bootstrapped using components defined in the `infrastructure` folder. This includes the initialization of essential services like the database, logger, middlewares, swagger doc, and the sxpress server.
 
 - **Database**: The database configuration and connection setup are handled in the `infrastructure/internal/database` module. Prisma is used as the ORM for interacting with the database.
 - **Logger**: A centralized logging service is set up in the `infrastructure/internal/logger` module to manage application-wide logging.
-- **Express**: The Express server configuration, including middleware setup and route initialization, is handled in the `infrastructure/internal/express` module.
+- **Express**: The express server configuration, including middleware setup and route initialization, is handled in the `infrastructure/internal/express` module.
 
 The application logic is organized into modules under the `api/modules` folder. Each module encapsulates a specific domain of the application and follows the separation of concerns principle. By organizing the application into modules, we ensure that each module can operate independently and be maintained separately, promoting scalability, testability and maintainability
 
@@ -130,7 +130,7 @@ Set environment variables in .env file based on .env.example.
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-username/kenia-api-server.git
+   git clone https://github.com/LoganXav/KeniaAPIr.git
    ```
 
 2. **Navigate to the project directory**:
@@ -174,6 +174,8 @@ Set environment variables in .env file based on .env.example.
 
 <details>
 <summary>[-]</summary>
+
+### Unit Tests
 
 - **Tool**: Jest
 - **Location**: `api/modules/[module]/services/__tests__/`

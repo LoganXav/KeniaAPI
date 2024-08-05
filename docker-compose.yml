@@ -1,12 +1,27 @@
 version: "3.9"
 services:
-  db:
+  postgres_dev:
     image: postgres:13
     restart: always
-    container_name: integration-tests-prisma
+    container_name: kenia-dev-db
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
+      POSTGRES_HOST: kenia-dev-db
       POSTGRES_USER: prisma
       POSTGRES_PASSWORD: prisma
-      POSTGRES_DB: tests
+      POSTGRES_DB: dev_db
+
+  kenia-api:
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    ports:
+      - "5500:5500"
+    volumes:
+      - /usr/app/node_modules
+      - .:/usr/app
+    environment:
+      NODE_ENV: development
+    depends_on:
+      - postgres_dev

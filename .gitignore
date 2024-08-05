@@ -19,6 +19,7 @@ node_modules
 # dotenv environment variables file
 .env
 .env.local
+.env.dev
 
 # Editor directories and files
 .idea
@@ -29,6 +30,7 @@ node_modules
 *.sln
 
 package-lock.json
+pnpm-lock.yaml
 yarn.lock
 
 # Jest

@@ -22,7 +22,6 @@ export class Application {
       });
 
     this.server.on("listening", () => {
-      // TODO: Add Api Doc generator
       this.express.apiDocGenerator.saveApiDoc().finish();
       this.express.loggingProvider.info(`${AppSettings.ServiceName} Server running on ${AppSettings.ServerHost}:${AppSettings.ServerPort}${AppSettings.ServerRoot}`);
       const seconds = ((new Date().valueOf() - startAt.valueOf()) / 1000).toFixed(3);

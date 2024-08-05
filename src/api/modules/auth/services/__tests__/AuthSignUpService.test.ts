@@ -54,28 +54,8 @@ describe("Auth Signup Service", () => {
     const service = new AuthSignUpService(mockTokenProvider, mockUserReadProvider, mockTenantCreateProvider, mockUserCreateProvider);
 
     // Mock Input Arguments
-    const trace = {
-      setSuccessful: jest.fn(),
-      context: "",
-      client: { ip: "", agent: "" },
-      startDate: "",
-      endDate: "",
-      success: true,
-      payload: {},
-      metadata: {},
-      session: {} as ISession,
-      origin: "",
-      transactionId: "",
-      toJSON: jest.fn(),
-      setContext: jest.fn(),
-      setClient: jest.fn(),
-      setRequest: jest.fn(),
-      setArgs: jest.fn(),
-      addMetadata: jest.fn(),
-      finish: jest.fn(),
-    };
-
-    const args = { firstName: "Ricky", lastName: "Holmes", phoneNumber: "08026372526", email: "test@example.com", password: "password123", tenantId: 1, userType: UserType.STAFF };
+    const trace = getSuccessTrace();
+    const args = getUser();
 
     // Mock Results
     const otpToken = "123456";
@@ -116,3 +96,38 @@ describe("Auth Signup Service", () => {
     expect(result.toResultDto()).toMatchObject({ status: SUCCESS, statusCode: HttpStatusCodeEnum.CREATED, data: { message: ACCOUNT_CREATED, data: { id: createdUser.id, tenantId: createdUser.tenantId } } });
   });
 });
+
+function getUser() {
+  return {
+    firstName: "Ricky",
+    lastName: "Holmes",
+    phoneNumber: "08026372526",
+    email: "test@example.com",
+    password: "password123",
+    tenantId: 1,
+    userType: UserType.STAFF,
+  };
+}
+
+function getSuccessTrace() {
+  return {
+    setSuccessful: jest.fn(),
+    context: "",
+    client: { ip: "", agent: "" },
+    startDate: "",
+    endDate: "",
+    success: true,
+    payload: {},
+    metadata: {},
+    session: {} as ISession,
+    origin: "",
+    transactionId: "",
+    toJSON: jest.fn(),
+    setContext: jest.fn(),
+    setClient: jest.fn(),
+    setRequest: jest.fn(),
+    setArgs: jest.fn(),
+    addMetadata: jest.fn(),
+    finish: jest.fn(),
+  };
+}
