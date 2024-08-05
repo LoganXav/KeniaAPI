@@ -1,0 +1,42 @@
+name: Continuous Integration
+
+# this triggers CI on push and PR for master branch only
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# this triggers CI on all kinds of branches and PRs
+# on:
+#   push:
+#   pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔖Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 🌳Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 🛠️Install dependencies
+        run: npm install
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run format check
+        run: npm run format
+
+      - name: Check commit messages
+        uses: wagoid/commitlint-github-action@v3
+        with:
+          configFile: commitlint.config.mjs
