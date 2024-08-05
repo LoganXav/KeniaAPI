@@ -15,13 +15,13 @@ export default class StudentCreateProvider {
           address: data.address,
           enrollmentDate: data.enrollmentDate,
           classId: data.tenantId,
-          tenantId: data.tenantId
+          tenantId: data.tenantId,
         },
       });
 
       return newStudent;
     } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND)
+      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
     }
   }
 }

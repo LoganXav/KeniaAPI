@@ -10,15 +10,21 @@ export default class StaffCreateProvider {
       const dbClient = tx ? tx : DbClient;
       const staffData: any = {
         jobTitle: data.jobTitle,
-        group: data.groupIds ? {
-          connect: data.groupIds.map(id => ({ id })),
-        } : undefined,
-        classes: data.classIds ? {
-          connect: data.classIds.map(id => ({ id })),
-        } : undefined,
-        subjects: data.subjectIds ? {
-          connect: data.subjectIds.map(id => ({ id })),
-        } : undefined,
+        group: data.groupIds
+          ? {
+              connect: data.groupIds.map((id) => ({ id })),
+            }
+          : undefined,
+        classes: data.classIds
+          ? {
+              connect: data.classIds.map((id) => ({ id })),
+            }
+          : undefined,
+        subjects: data.subjectIds
+          ? {
+              connect: data.subjectIds.map((id) => ({ id })),
+            }
+          : undefined,
       };
       if (data.roleId !== undefined) {
         staffData.roleId = data.roleId;
@@ -30,11 +36,10 @@ export default class StaffCreateProvider {
       const newStaff = await dbClient?.staff?.create({
         data: staffData,
       });
-  
-      return newStaff;
 
+      return newStaff;
     } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND)
+      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
     }
   }
 }

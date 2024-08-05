@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createStaffSchema = z.object({
   userId: z.number().int("User ID must be an integer").optional(),
@@ -8,4 +8,3 @@ export const createStaffSchema = z.object({
   classIds: z.array(z.number().int("Department ID must be an integer")).optional(),
   subjectIds: z.array(z.number().int("Department ID must be an integer")).optional(),
 });
-

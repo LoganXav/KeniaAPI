@@ -1,1 +1,1 @@
-export type Nulldefined = undefined | null
+export type Nulldefined = undefined | null;

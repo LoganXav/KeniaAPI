@@ -1,7 +1,7 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const confirmPasswordResetSchema = z.object({
   password: z.string({
-    required_error: "Argument password is missing"
-  })
-})
+    required_error: "Argument password is missing",
+  }),
+});

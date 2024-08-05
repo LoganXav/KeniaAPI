@@ -8,4 +8,4 @@ export default {
   NOT_FOUND: "44",
   NOT_IMPLEMENTED: "51",
   WORKER_ERROR: "91",
-}
+};

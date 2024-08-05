@@ -11,11 +11,10 @@ export default class PermissionDeleteProvider {
     const toDelete = await dbClient?.permission?.findFirst({
       where: criteria,
     });
-    if(!toDelete) 
-      throw new BadRequestError(`Permission ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
-    
+    if (!toDelete) throw new BadRequestError(`Permission ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
+
     const deletedPermission = await dbClient?.permission?.delete({
-        where: {id: toDelete.id},
+      where: { id: toDelete.id },
     });
     return deletedPermission;
   }
@@ -23,7 +22,7 @@ export default class PermissionDeleteProvider {
   public async deleteMany(criteria: PermissionCriteria, tx?: any): Promise<Permission | any> {
     const dbClient = tx ? tx : DbClient;
     const deletedPermission = await dbClient?.permission?.deleteMany({
-        where: criteria,
+      where: criteria,
     });
     return deletedPermission;
   }

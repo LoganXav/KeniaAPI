@@ -7,5 +7,5 @@ export enum HttpHeaderEnum {
   ORIGIN = "origin",
   REFERRER = "referrer",
 
-  CONTENT_TYPE = "content-type"
+  CONTENT_TYPE = "content-type",
 }

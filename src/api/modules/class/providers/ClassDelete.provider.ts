@@ -11,11 +11,10 @@ export default class ClassDeleteProvider {
     const toDelete = await dbClient?.class?.findFirst({
       where: criteria,
     });
-    if(!toDelete) 
-      throw new BadRequestError(`Class ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
-    
+    if (!toDelete) throw new BadRequestError(`Class ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
+
     const deletedClass = await dbClient?.class?.delete({
-        where: {id: toDelete.id},
+      where: { id: toDelete.id },
     });
     return deletedClass;
   }
@@ -23,7 +22,7 @@ export default class ClassDeleteProvider {
   public async deleteMany(criteria: ClassCriteria, tx?: any): Promise<Class | any> {
     const dbClient = tx ? tx : DbClient;
     const deletedClass = await dbClient?.class?.deleteMany({
-        where: criteria,
+      where: criteria,
     });
     return deletedClass;
   }

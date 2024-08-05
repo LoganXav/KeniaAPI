@@ -1,7 +1,7 @@
 export type SignUpEventListenerDTO = {
-  userEmail: string
-  activationToken: string
-}
+  userEmail: string;
+  activationToken: string;
+};
 export type SignInEventListenerDTO = {
-  userId: number
-}
+  userId: number;
+};

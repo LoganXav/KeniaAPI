@@ -10,12 +10,12 @@ export interface RoleCriteria {
 }
 
 export interface UpdateRoleData {
-    name?: string;
-    tenantId?: number;
-  }
+  name?: string;
+  tenantId?: number;
+}
 
 export interface GetAndUpdateRole {
-    criteria: RoleCriteria;
-    data: UpdateRoleData;
-    updateStatus?: boolean;
+  criteria: RoleCriteria;
+  data: UpdateRoleData;
+  updateStatus?: boolean;
 }

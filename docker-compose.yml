@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  postgres_dev:
+  kenia_db:
     image: postgres:13
     restart: always
     container_name: kenia-dev-db
@@ -24,4 +24,4 @@ services:
     environment:
       NODE_ENV: development
     depends_on:
-      - postgres_dev
+      - kenia_db

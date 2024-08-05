@@ -10,12 +10,12 @@ export interface PermissionCriteria {
 }
 
 export interface UpdatePermissionData {
-    name?: string;
-    tenantId?: number;
-  }
+  name?: string;
+  tenantId?: number;
+}
 
 export interface GetAndUpdatePermission {
-    criteria: PermissionCriteria;
-    data: UpdatePermissionData;
-    updateStatus?: boolean;
+  criteria: PermissionCriteria;
+  data: UpdatePermissionData;
+  updateStatus?: boolean;
 }
