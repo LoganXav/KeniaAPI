@@ -11,11 +11,10 @@ export default class RoleDeleteProvider {
     const toDelete = await dbClient?.role?.findFirst({
       where: criteria,
     });
-    if(!toDelete) 
-      throw new BadRequestError(`Role ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
-    
+    if (!toDelete) throw new BadRequestError(`Role ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
+
     const deletedRole = await dbClient?.role?.delete({
-        where: {id: toDelete.id},
+      where: { id: toDelete.id },
     });
     return deletedRole;
   }
@@ -23,7 +22,7 @@ export default class RoleDeleteProvider {
   public async deleteMany(criteria: RoleCriteria, tx?: any): Promise<Role | any> {
     const dbClient = tx ? tx : DbClient;
     const deletedRole = await dbClient?.role?.deleteMany({
-        where: criteria,
+      where: criteria,
     });
     return deletedRole;
   }

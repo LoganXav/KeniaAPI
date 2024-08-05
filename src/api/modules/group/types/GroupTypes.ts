@@ -10,12 +10,12 @@ export interface GroupCriteria {
 }
 
 export interface UpdateGroupData {
-    name?: string;
-    tenantId?: number;
-  }
+  name?: string;
+  tenantId?: number;
+}
 
 export interface GetAndUpdateGroup {
-    criteria: GroupCriteria;
-    data: UpdateGroupData;
-    updateStatus?: boolean;
+  criteria: GroupCriteria;
+  data: UpdateGroupData;
+  updateStatus?: boolean;
 }

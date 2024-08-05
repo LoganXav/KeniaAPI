@@ -12,13 +12,13 @@ export default class GroupCreateProvider {
       const newGroup = await dbClient?.group?.create({
         data: {
           name: data.name,
-          tenantId: data.tenantId
+          tenantId: data.tenantId,
         },
       });
 
       return newGroup;
     } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND)
+      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
     }
   }
 }

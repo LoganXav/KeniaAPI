@@ -12,13 +12,13 @@ export default class PermissionCreateProvider {
       const newPermission = await dbClient?.permission?.create({
         data: {
           name: data.name,
-          tenantId: data.tenantId
+          tenantId: data.tenantId,
         },
       });
 
       return newPermission;
     } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND)
+      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
     }
   }
 }

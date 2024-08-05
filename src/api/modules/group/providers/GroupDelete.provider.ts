@@ -11,11 +11,10 @@ export default class GroupDeleteProvider {
     const toDelete = await dbClient?.group?.findFirst({
       where: criteria,
     });
-    if(!toDelete) 
-      throw new BadRequestError(`Group ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
-    
+    if (!toDelete) throw new BadRequestError(`Group ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
+
     const deletedGroup = await dbClient?.group?.delete({
-        where: {id: toDelete.id},
+      where: { id: toDelete.id },
     });
     return deletedGroup;
   }
@@ -23,7 +22,7 @@ export default class GroupDeleteProvider {
   public async deleteMany(criteria: GroupCriteria, tx?: any): Promise<Group | any> {
     const dbClient = tx ? tx : DbClient;
     const deletedGroup = await dbClient?.group?.deleteMany({
-        where: criteria,
+      where: criteria,
     });
     return deletedGroup;
   }

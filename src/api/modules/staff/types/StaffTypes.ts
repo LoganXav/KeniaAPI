@@ -14,15 +14,15 @@ export interface StaffCriteria {
 }
 
 export interface UpdateStaffData {
-    userId?: number;
-    jobTitle?: string;
-    roleId?: number;
-    groupIds?: number[];
-    classIds?: number[];
-    subjectIds?: number[];
-  }
+  userId?: number;
+  jobTitle?: string;
+  roleId?: number;
+  groupIds?: number[];
+  classIds?: number[];
+  subjectIds?: number[];
+}
 
 export interface GetAndUpdateStaff {
-    criteria: StaffCriteria;
-    data: UpdateStaffData;
+  criteria: StaffCriteria;
+  data: UpdateStaffData;
 }

@@ -1,25 +1,25 @@
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum"
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 
 interface ApplicationErrorArgs {
-  httpStatusCode: HttpStatusCodeEnum
-  description: string
-  isOperational?: boolean
+  httpStatusCode: HttpStatusCodeEnum;
+  description: string;
+  isOperational?: boolean;
 }
 
 export default class ApplicationError extends Error {
-  public readonly description: string
-  public readonly httpStatusCode: HttpStatusCodeEnum
-  public readonly isOperational: boolean
+  public readonly description: string;
+  public readonly httpStatusCode: HttpStatusCodeEnum;
+  public readonly isOperational: boolean;
 
   constructor(applicationErrorArgs: ApplicationErrorArgs) {
-    super(applicationErrorArgs.description)
-    Object.setPrototypeOf(this, new.target.prototype)
-    this.description = applicationErrorArgs.description
-    this.httpStatusCode = applicationErrorArgs.httpStatusCode
+    super(applicationErrorArgs.description);
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.description = applicationErrorArgs.description;
+    this.httpStatusCode = applicationErrorArgs.httpStatusCode;
 
     if (applicationErrorArgs.isOperational !== undefined) {
-      this.isOperational = applicationErrorArgs.isOperational
+      this.isOperational = applicationErrorArgs.isOperational;
     }
-    Error.captureStackTrace(this)
+    Error.captureStackTrace(this);
   }
 }

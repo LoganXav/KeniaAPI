@@ -21,7 +21,7 @@ export interface UpdateStudentData {
 }
 
 export interface GetAndUpdateStaff {
-    criteria: StudentCriteria;
-    data: UpdateStudentData;
-    updateStatus?: boolean;
+  criteria: StudentCriteria;
+  data: UpdateStudentData;
+  updateStatus?: boolean;
 }

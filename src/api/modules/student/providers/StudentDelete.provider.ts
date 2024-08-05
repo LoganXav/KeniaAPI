@@ -11,11 +11,10 @@ export default class StudentDeleteProvider {
     const toDelete = await dbClient?.student?.findFirst({
       where: criteria,
     });
-    if(!toDelete) 
-      throw new BadRequestError(`Staff ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
-    
+    if (!toDelete) throw new BadRequestError(`Staff ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
+
     const deletedStudent = await dbClient?.student?.delete({
-        where: {id: toDelete.id},
+      where: { id: toDelete.id },
     });
     return deletedStudent;
   }
@@ -23,7 +22,7 @@ export default class StudentDeleteProvider {
   public async deleteMany(criteria: StudentCriteria, tx?: any): Promise<Student | any> {
     const dbClient = tx ? tx : DbClient;
     const deletedStudent = await dbClient?.student?.deleteMany({
-        where: criteria,
+      where: criteria,
     });
     return deletedStudent;
   }

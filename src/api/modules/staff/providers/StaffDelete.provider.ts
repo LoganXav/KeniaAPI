@@ -12,11 +12,10 @@ export default class StaffDeleteProvider {
       where: criteria,
     });
     // if(!toDelete) throw new Error("Staff not found");
-    if(!toDelete) 
-      throw new BadRequestError(`Staff ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
-    
+    if (!toDelete) throw new BadRequestError(`Staff ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
+
     const deletedStaff = await dbClient?.staff?.delete({
-        where: {id: toDelete.id},
+      where: { id: toDelete.id },
     });
     return deletedStaff;
   }
@@ -24,7 +23,7 @@ export default class StaffDeleteProvider {
   public async deleteMany(criteria: StaffCriteria, tx?: any): Promise<Staff | any> {
     const dbClient = tx ? tx : DbClient;
     const deletedStaff = await dbClient?.staff?.deleteMany({
-        where: criteria,
+      where: criteria,
     });
     return deletedStaff;
   }

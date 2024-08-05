@@ -10,12 +10,12 @@ export interface ClassCriteria {
 }
 
 export interface UpdateClassData {
-    name?: string;
-    tenantId?: number;
-  }
+  name?: string;
+  tenantId?: number;
+}
 
 export interface GetAndUpdateClass {
-    criteria: ClassCriteria;
-    data: UpdateClassData;
-    updateStatus?: boolean;
+  criteria: ClassCriteria;
+  data: UpdateClassData;
+  updateStatus?: boolean;
 }

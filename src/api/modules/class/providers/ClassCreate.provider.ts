@@ -12,13 +12,13 @@ export default class ClassCreateProvider {
       const newClass = await dbClient?.class?.create({
         data: {
           name: data.name,
-          tenantId: data.tenantId
+          tenantId: data.tenantId,
         },
       });
 
       return newClass;
     } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND)
+      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
     }
   }
 }

@@ -12,13 +12,13 @@ export default class RoleCreateProvider {
       const newRole = await dbClient?.role?.create({
         data: {
           name: data.name,
-          tenantId: data.tenantId
+          tenantId: data.tenantId,
         },
       });
 
       return newRole;
     } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND)
+      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
     }
   }
 }

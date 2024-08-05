@@ -1,32 +1,32 @@
-import axios from "axios"
-import { IGetRequest, IPostRequest } from "../types/httpTypes"
+import axios from "axios";
+import { IGetRequest, IPostRequest } from "../types/httpTypes";
 
 export class HttpClient {
   public static async get(getRequestDto: IGetRequest) {
-    const { url, headers } = getRequestDto
+    const { url, headers } = getRequestDto;
 
-    const axiosInstance = axios.create({ headers })
+    const axiosInstance = axios.create({ headers });
 
     try {
-      const response = await axiosInstance.get(url)
+      const response = await axiosInstance.get(url);
 
-      return response.data
+      return response.data;
     } catch (axiosPostRequestError) {
-      console.log(axiosPostRequestError)
+      console.log(axiosPostRequestError);
     }
   }
 
   public static async post(postRequestDto: IPostRequest) {
-    const { url, headers, body } = postRequestDto
+    const { url, headers, body } = postRequestDto;
 
-    const axiosInstance = axios.create({ headers })
+    const axiosInstance = axios.create({ headers });
 
     try {
-      const response = await axiosInstance.post(url, body)
+      const response = await axiosInstance.post(url, body);
 
-      return response.data
+      return response.data;
     } catch (axiosPostRequestError) {
-      console.log(axiosPostRequestError)
+      console.log(axiosPostRequestError);
     }
   }
 }
