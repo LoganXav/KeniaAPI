@@ -2,7 +2,6 @@ import DbClient from "~/infrastructure/internal/database";
 import { Permission } from "@prisma/client";
 import { CreatePermissionData } from "../types/PermissionTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 
 export default class PermissionCreateProvider {

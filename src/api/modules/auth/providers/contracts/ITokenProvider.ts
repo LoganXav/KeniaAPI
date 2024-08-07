@@ -1,4 +1,4 @@
-import { TokenType, UserToken } from "@prisma/client";
+import { UserToken } from "@prisma/client";
 import { PrismaDbClient, PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { ReadOneTokenRecordType, ReadTokenRecordType, UpdateTokenRecordType } from "~/api/modules/auth/types/AuthTypes";
 

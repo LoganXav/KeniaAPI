@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { autoInjectable } from "tsyringe";
-import { TokenType, User } from "@prisma/client";
+import { TokenType } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
 import DbClient from "~/infrastructure/internal/database";
@@ -30,7 +30,7 @@ export default class AuthPasswordResetRequestService extends BaseService<unknown
     this.userReadProvider = userReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
-  public async execute(trace: ServiceTrace, args: any): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: { email: string }): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
       const { email } = args;

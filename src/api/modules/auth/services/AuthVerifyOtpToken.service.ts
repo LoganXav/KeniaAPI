@@ -2,7 +2,6 @@ import { autoInjectable } from "tsyringe";
 import DateTimeUtil from "~/utils/DateTimeUtil";
 import { TokenType, UserToken } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
-import DbClient from "~/infrastructure/internal/database";
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { BaseService } from "~/api/modules/base/services/Base.service";
@@ -12,6 +11,7 @@ import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import UserUpdateProvider from "~/api/modules/user/providers/UserUpdate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { ACCOUNT_VERIFIED, ERROR, ERROR_INVALID_TOKEN, NULL_OBJECT, SOMETHING_WENT_WRONG, SUCCESS, TOKEN_EXPIRED, TOKEN_VERIFIED } from "~/api/shared/helpers/messages/SystemMessages";
@@ -62,6 +62,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
       }
 
       const accessToken = await JwtService.getJwt(tokenOwner);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...verifyUserData } = tokenOwner;
 
       if (tokenOwner.hasVerified) {
@@ -104,7 +105,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
     }
   }
 
-  private async deactivateUserToken(tokenId: number, tx?: any) {
+  private async deactivateUserToken(tokenId: number, tx?: PrismaTransactionClient) {
     const updateUserTokenRecordArgs = {
       tokenId,
       expired: true,
@@ -113,7 +114,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
     await this.tokenProvider.updateOneByCriteria(updateUserTokenRecordArgs, tx);
   }
 
-  private async verifyUserAccount(userId: number, tx?: any) {
+  private async verifyUserAccount(userId: number, tx?: PrismaTransactionClient) {
     const verifyUserAccountArgs = {
       userId,
       hasVerified: true,

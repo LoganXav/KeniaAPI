@@ -3,7 +3,6 @@ import { autoInjectable } from "tsyringe";
 import { TokenType, User } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
-import DbClient from "~/infrastructure/internal/database";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
@@ -14,6 +13,7 @@ import UserReadProvider from "~/api/modules/user/providers/UserRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
@@ -69,7 +69,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
 
   private async authRefreshTokenTransaction(foundUser: User) {
     try {
-      const result = await DbClient.$transaction(async (tx: any) => {
+      const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const userTokens = await this.tokenProvider.getByCriteria(
           {
             userId: foundUser.id,
@@ -107,7 +107,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
     }
   }
 
-  private async deactivateUserToken(tokenId: number, tx: any) {
+  private async deactivateUserToken(tokenId: number, tx: PrismaTransactionClient) {
     const updateUserTokenRecordArgs = {
       tokenId,
       expired: true,

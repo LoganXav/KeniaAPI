@@ -4,6 +4,7 @@ import { DEV } from "~/config/ServerConfig";
 import { BooleanUtil } from "~/utils/BooleanUtil";
 
 declare global {
+  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 

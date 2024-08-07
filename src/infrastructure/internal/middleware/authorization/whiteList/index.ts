@@ -12,7 +12,7 @@ class RouteWhiteListMiddleware {
     TypeParser.cast<IRequest>(req).isWhiteList = false;
     TypeParser.cast<IRequest>(req).isProtected = false;
 
-    const isDynamicPath = ROUTE_WHITE_LIST.some((path) => {
+    const isDynamicPath = ROUTE_WHITE_LIST.some(() => {
       // TODO: Refactor to parse dynamic routes
       // Match root, auth/password-reset, and capture a combination of alphanumeric characters
       const dynamicRegex = new RegExp(`${root}/auth/password-reset/([a-zA-Z0-9])`);

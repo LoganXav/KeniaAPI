@@ -1,5 +1,4 @@
 import { Tenant } from "@prisma/client";
-import { CreateTenantRecordType } from "../types/TenantTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 

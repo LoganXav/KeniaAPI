@@ -1,4 +1,5 @@
 import { z } from "zod";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createStudentSchema } from "../validators/StudentCreateSchema";
 
 export type CreateStudentData = z.infer<typeof createStudentSchema>;

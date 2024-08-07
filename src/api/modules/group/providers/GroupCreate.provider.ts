@@ -2,7 +2,6 @@ import DbClient from "~/infrastructure/internal/database";
 import { Group } from "@prisma/client";
 import { CreateGroupData } from "../types/GroupTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 
 export default class GroupCreateProvider {

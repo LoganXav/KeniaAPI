@@ -30,6 +30,7 @@ export class JwtService {
         algorithms: [AppConstants.HS512_ALGORITHM],
       }) as JwtPayload;
     } catch (error) {
+      console.log(error);
       throw Error("Unauthenticated");
     }
   }

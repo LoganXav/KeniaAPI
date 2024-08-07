@@ -1,17 +1,15 @@
-// @ts-nocheck
-
 import { DateTime } from "luxon";
-import { TokenType, UserType } from "@prisma/client";
+import { UserType } from "@prisma/client";
 import Event from "../../../../shared/helpers/events";
 import AuthSignUpService from "../AuthSignUp.service";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import DbClient from "../../../../../infrastructure/internal/database";
 import { ISession } from "../../../../../infrastructure/internal/types";
 import { eventTypes } from "../../../../shared/helpers/enums/EventTypes.enum";
-import ServiceTrace from "../../../../../infrastructure/internal/middleware/trace";
 import { generateStringOfLength } from "../../../../../utils/GenerateStringOfLength";
 import { HttpStatusCodeEnum } from "../../../../shared/helpers/enums/HttpStatusCode.enum";
 import { PasswordEncryptionService } from "../../../../shared/services/encryption/PasswordEncryption.service";
-import { ERROR, EMAIL_IN_USE, ACCOUNT_CREATED, SUCCESS } from "../../../../shared/helpers/messages/SystemMessages";
+import { ACCOUNT_CREATED, SUCCESS } from "../../../../shared/helpers/messages/SystemMessages";
 
 jest.mock("../../../../shared/helpers/events");
 jest.mock("../../../../../utils/GenerateStringOfLength");
@@ -45,6 +43,7 @@ describe("Auth Signup Service", () => {
     const mockUserCreateProvider = {
       create: jest.fn(),
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const mockLoggingProvider = {
       error: jest.fn(),
     };

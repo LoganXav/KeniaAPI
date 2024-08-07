@@ -1,5 +1,4 @@
 import { Response, Request, NextFunction } from "express";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { ERROR_EXPIRED_TOKEN, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN } from "~/api/shared/helpers/messages/SystemMessages";
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
 import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError";
