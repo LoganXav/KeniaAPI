@@ -3,6 +3,7 @@ import { TypeParser } from "./TypeParser";
 export type TryResult<T> = { success: boolean; value?: T; error?: Error };
 
 export class TryWrapper {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   static exec<T>(action: Function, params: any[]): TryResult<T> {
     try {
       const value = action(...params) as T;

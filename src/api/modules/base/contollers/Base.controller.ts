@@ -107,7 +107,11 @@ export default abstract class BaseController {
       trace.finish(new Date());
       try {
         const logMessage = this.createServiceTraceLogMessage(trace);
-        trace.success ? this.loggingProvider.success(logMessage) : this.loggingProvider.warning(logMessage);
+        if (trace.success) {
+          this.loggingProvider.success(logMessage);
+        } else {
+          this.loggingProvider.warning(logMessage);
+        }
       } catch (error: any) {
         this.loggingProvider.error(`context: ${this.serviceContext} name: serviceTraceError message: ${error.message} stack: ${error.stack}`);
       }

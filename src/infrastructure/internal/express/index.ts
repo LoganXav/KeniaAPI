@@ -42,7 +42,7 @@ export default class Express {
     };
 
     this.app
-      .use(cors())
+      .use(cors(options))
       .use(helmet())
       .use(express.json())
       .use(express.urlencoded({ extended: true }))

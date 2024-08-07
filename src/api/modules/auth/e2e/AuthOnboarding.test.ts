@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { Server } from "http";
 import request from "supertest";
 import { container } from "tsyringe";
@@ -22,7 +20,6 @@ describe("Auth Onboarding Controller", () => {
   let app: Application;
   let authSignUpService: AuthSignUpService;
   let authSignInService: AuthSignInService;
-  let authOnboardingController: AuthOnboardingController;
 
   beforeAll(async () => {
     container.clearInstances();
@@ -45,7 +42,7 @@ describe("Auth Onboarding Controller", () => {
     await app.express.initializeServices();
   });
 
-  authOnboardingController = container.resolve(AuthOnboardingController);
+  container.resolve(AuthOnboardingController);
 
   afterAll(async () => {
     const dbClient = new PrismaClient();

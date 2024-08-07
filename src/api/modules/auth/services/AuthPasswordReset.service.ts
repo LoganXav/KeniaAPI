@@ -1,7 +1,6 @@
 import { autoInjectable } from "tsyringe";
 import { UserToken } from "@prisma/client";
 import DateTimeUtil from "~/utils/DateTimeUtil";
-import DbClient from "~/infrastructure/internal/database";
 import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { BaseService } from "~/api/modules/base/services/Base.service";
@@ -12,6 +11,7 @@ import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import UserUpdateProvider from "~/api/modules/user/providers/UserUpdate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
@@ -73,7 +73,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
 
   private async passwordResetConfirmTransaction(dbResetToken: UserToken, password: string) {
     try {
-      const result = await DbClient.$transaction(async (tx: any) => {
+      const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const updateUserRecordPayload = {
           userId: dbResetToken.userId,
           password: PasswordEncryptionService.hashPassword(password),
@@ -90,7 +90,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
     }
   }
 
-  private async deactivateUserToken(tokenId: number, tx?: any) {
+  private async deactivateUserToken(tokenId: number, tx?: PrismaTransactionClient) {
     const updateUserTokenRecordArgs = {
       tokenId,
       expired: true,

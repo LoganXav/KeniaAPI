@@ -1,4 +1,4 @@
-import winston = require("winston");
+import winston from "winston";
 import { ILoggingDriver } from "./ILoggingDriver";
 
 const customLevels = {

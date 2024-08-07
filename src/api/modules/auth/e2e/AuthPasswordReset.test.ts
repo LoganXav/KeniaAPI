@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { Server } from "http";
 import request from "supertest";
 import { container } from "tsyringe";
@@ -19,7 +17,6 @@ describe("Auth Password Reset Controller", () => {
   let app: Application;
   let authPasswordResetRequestService: AuthPasswordResetRequestService;
   let authPasswordResetService: AuthPasswordResetService;
-  let authPasswordResetController: AuthPasswordResetController;
 
   beforeAll(async () => {
     container.clearInstances();
@@ -39,7 +36,7 @@ describe("Auth Password Reset Controller", () => {
     await app.express.initializeServices();
   });
 
-  authPasswordResetController = container.resolve(AuthPasswordResetController);
+  container.resolve(AuthPasswordResetController);
 
   afterAll(async () => {
     const dbClient = new PrismaClient();

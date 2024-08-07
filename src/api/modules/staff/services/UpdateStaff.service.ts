@@ -6,7 +6,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { GetAndUpdateStaff, StaffCriteria } from "../types/StaffTypes";
+import { GetAndUpdateStaff } from "../types/StaffTypes";
 import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import StaffUpdateProvider from "../providers/StaffUpdate.provider";
@@ -64,8 +64,7 @@ export default class UpdateStaffService extends BaseService<any> {
   public async removeListFromStaff(trace: ServiceTrace, args: GetAndUpdateStaff): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args, ["removeListFromStaff"]);
-      let staff;
-      staff = await this.staffUpdateProvider.removeListFromStaff(args.criteria, args.data);
+      const staff = await this.staffUpdateProvider.removeListFromStaff(args.criteria, args.data);
 
       if (staff) {
         trace.setSuccessful();

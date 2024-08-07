@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import request from "supertest";
 import { Application } from "../../application";
 import ApplicationError from "../ApplicationError";

@@ -19,7 +19,6 @@ export default class PingService extends BaseService<undefined> {
     this.initializeServiceTrace(trace);
 
     const message = await this.healthProvider.get(AppSettings.ServiceContext, DateTimeUtils.getISONow());
-    9;
     trace.setSuccessful();
     this.result.setMessage(message, HttpStatusCodeEnum.SUCCESS);
     return this.result;

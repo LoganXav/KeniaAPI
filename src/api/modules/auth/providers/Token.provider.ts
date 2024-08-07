@@ -5,17 +5,21 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { ReadOneTokenRecordType, ReadTokenRecordType, UpdateTokenRecordType } from "~/api/modules/auth/types/AuthTypes";
 export default class TokenProvider implements ITokenProvider {
   public async create(args: CreateUserTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {
-    const { userId, tokenType, expiresAt, token } = args;
-    const userToken = await dbClient.userToken.create({
-      data: {
-        userId,
-        tokenType,
-        token,
-        expiresAt,
-      },
-    });
+    try {
+      const { userId, tokenType, expiresAt, token } = args;
+      const userToken = await dbClient.userToken.create({
+        data: {
+          userId,
+          tokenType,
+          token,
+          expiresAt,
+        },
+      });
 
-    return userToken;
+      return userToken;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
   }
 
   public async getOneByCriteria(criteria: ReadOneTokenRecordType, dbClient: PrismaTransactionClient = DbClient) {

@@ -2,7 +2,6 @@ import DbClient from "~/infrastructure/internal/database";
 import { Student } from "@prisma/client";
 import { CreateStudentData } from "../types/StudentTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 
 export default class StudentCreateProvider {
