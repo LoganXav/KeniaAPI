@@ -36,7 +36,7 @@ jobs:
         run: pnpm run format
 
       - name: Run tests
-        run: pnpm run test
+        run: pnpm run test:stage
 
       - name: Check commit messages
         uses: wagoid/commitlint-github-action@v3
