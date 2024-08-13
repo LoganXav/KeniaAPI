@@ -1,5 +1,6 @@
 import axios from "axios";
 import { IGetRequest, IPostRequest } from "../types/httpTypes";
+import { InternalServerError } from "../exceptions/InternalServerError";
 
 export class HttpClient {
   public static async get(getRequestDto: IGetRequest) {
@@ -11,8 +12,8 @@ export class HttpClient {
       const response = await axiosInstance.get(url);
 
       return response.data;
-    } catch (axiosPostRequestError) {
-      console.log(axiosPostRequestError);
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
     }
   }
 
@@ -25,8 +26,8 @@ export class HttpClient {
       const response = await axiosInstance.post(url, body);
 
       return response.data;
-    } catch (axiosPostRequestError) {
-      console.log(axiosPostRequestError);
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
     }
   }
 }
