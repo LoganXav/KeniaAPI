@@ -1,25 +1,25 @@
-import "express-async-errors";
-import express, { Application, Router, Express as Server, Request, Response, NextFunction } from "express";
-import helmet from "helmet";
 import cors from "cors";
-import { sync } from "fast-glob";
+import helmet from "helmet";
+import "express-async-errors";
 import { resolve } from "path";
-import clientInfoMiddleware from "../middleware/clientInfo";
-import routeWhiteListMiddleware from "../middleware/authorization/whiteList";
-import authorizationMiddleware from "../middleware/authorization/jwt";
-import serviceTraceMiddleware from "../middleware/trace";
-import { LoggingProviderFactory } from "../logger/LoggingProviderFactory";
-import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-// import { MIDDLEWARES_ATTACHED } from "~/api/shared/helpers/messages/SystemMessages";
-import { errorHandler } from "../exceptions/ErrorHandler";
-import ServerConfig from "~/config/ServerConfig";
-import { TypeParser } from "~/utils/TypeParser";
+import { sync } from "fast-glob";
 import { IRouter } from "../types";
-import AppSettings from "~/api/shared/setttings/AppSettings";
 import { container } from "tsyringe";
-import BaseController from "~/api/modules/base/contollers/Base.controller";
-import { ApiDocGenerator } from "~/infrastructure/internal/documentation/ApiDocGenerator";
+import { TypeParser } from "~/utils/TypeParser";
+import ServerConfig from "~/config/ServerConfig";
 import { serve, setup } from "swagger-ui-express";
+import serviceTraceMiddleware from "../middleware/trace";
+import { errorHandler } from "../exceptions/ErrorHandler";
+import clientInfoMiddleware from "../middleware/clientInfo";
+import AppSettings from "~/api/shared/setttings/AppSettings";
+import authorizationMiddleware from "../middleware/authorization/jwt";
+import { LoggingProviderFactory } from "../logger/LoggingProviderFactory";
+import BaseController from "~/api/modules/base/contollers/Base.controller";
+import routeWhiteListMiddleware from "../middleware/authorization/whiteList";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { MIDDLEWARES_ATTACHED } from "~/api/shared/helpers/messages/SystemMessages";
+import { ApiDocGenerator } from "~/infrastructure/internal/documentation/ApiDocGenerator";
+import express, { Application, Router, Express as Server, Request, Response, NextFunction } from "express";
 
 export default class Express {
   app: Server;
@@ -51,7 +51,7 @@ export default class Express {
       .use(authorizationMiddleware.handle)
       .use(serviceTraceMiddleware.handle);
 
-    // this.loggingProvider.info(MIDDLEWARES_ATTACHED);
+    this.loggingProvider.info(MIDDLEWARES_ATTACHED);
   }
 
   private async loadControllersDynamically(): Promise<void> {
@@ -67,7 +67,7 @@ export default class Express {
           ignore: ServerConfig.Controllers.Ignore,
         });
 
-    // this.loggingProvider.info(`Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()}`);
+    this.loggingProvider.info(`Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()}`);
 
     for (const filePath of controllerPaths) {
       const controllerPath = resolve(filePath);
@@ -77,7 +77,7 @@ export default class Express {
       resolvedController.setApiDocGenerator(this.apiDocGenerator);
       resolvedController.initializeRoutes(TypeParser.cast<IRouter>(Router));
       this.app.use(AppSettings.ServerRoot, TypeParser.cast<Application>(resolvedController.router));
-      // this.loggingProvider.info(`${resolvedController?.controllerName} was initialized`);
+      this.loggingProvider.info(`${resolvedController?.controllerName} was initialized`);
     }
 
     this.loadApiDocs();
@@ -100,6 +100,7 @@ export default class Express {
 
   private loadApiDocs(): void {
     this.app.use(`${ServerConfig.Server.Root}/docs`, serve, setup(this.apiDocGenerator.apiDoc));
+    // TODO: Load a not found controller
     // .use(TypeParser.cast<RequestHandler>(statusController.resourceNotFound));
   }
 
