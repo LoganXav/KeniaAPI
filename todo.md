@@ -11,7 +11,6 @@
 
 - Update documentation
 - Add api doc for auth token and password controllers
-
 - Refactor access token delivery to cookies or encrypt data transfer from api to client
 
 - Staff Creation
