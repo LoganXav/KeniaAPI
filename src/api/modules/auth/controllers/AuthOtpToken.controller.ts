@@ -64,7 +64,11 @@ export default class AuthOtpTokenController extends BaseController {
             data: new TypeDescriber<RefreshOtpTokenResponseType>({
               name: "RefreshOtpTokenResponse",
               type: PropTypeEnum.OBJECT,
-              props: {},
+              props: {
+                data: {
+                  type: PropTypeEnum.NULL,
+                },
+              },
             }),
             error: {
               type: PropTypeEnum.STRING,

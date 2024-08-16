@@ -236,6 +236,14 @@
           "userType"
         ]
       },
+      "RefreshOtpTokenResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "null"
+          }
+        }
+      },
       "ResultTRefreshOtpTokenResponse": {
         "type": "object",
         "properties": {
