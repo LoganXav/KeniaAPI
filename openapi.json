@@ -71,9 +71,36 @@
         }
       }
     },
+    "/auth/otp/refresh": {
+      "get": {
+        "description": "Refresh OTP Token",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTRefreshOtpTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "RefreshOtpTokenRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshOtpTokenRequest"
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/otp/verify": {
       "post": {
-        "description": "Verify OTP Verification Token",
+        "description": "Verify OTP Token",
         "responses": {
           "200": {
             "description": "Success",
@@ -209,6 +236,37 @@
           "userType"
         ]
       },
+      "ResultTRefreshOtpTokenResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RefreshOtpTokenResponse"
+          }
+        }
+      },
+      "RefreshOtpTokenRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
       "VerifyOtpTokenResponse": {
         "type": "object",
         "properties": {
@@ -235,7 +293,7 @@
           },
           "lastLoginDate": {
             "type": "string",
-            "format": "date-time"
+            "format": "date"
           },
           "userType": {
             "type": "string"

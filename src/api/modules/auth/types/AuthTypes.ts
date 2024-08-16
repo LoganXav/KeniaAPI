@@ -40,3 +40,5 @@ export interface VerifyOtpTokenResponseType {
   userType: UserType;
   tenantId: number;
 }
+
+export type RefreshOtpTokenResponseType = null;

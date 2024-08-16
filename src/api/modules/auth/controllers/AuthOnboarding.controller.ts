@@ -48,7 +48,7 @@ export default class AuthOnboardingController extends BaseController {
       handlers: [validateData(signUpUserRecordSchema), this.signUp],
       produces: [
         { applicationStatus: ApplicationStatusEnum.CREATED, httpStatus: HttpStatusCodeEnum.CREATED },
-        //TODO: Fix error results
+        //TODO: Document error results
         // { applicationStatus: ApplicationStatusEnum.INVALID_INPUT, httpStatus: HttpStatusCodeEnum.BAD_REQUEST },
       ],
       description: "Sign Up New Tenant and User Record",
@@ -124,7 +124,7 @@ export default class AuthOnboardingController extends BaseController {
       handlers: [validateData(signInUserRecordSchema), this.signIn],
       produces: [
         { applicationStatus: ApplicationStatusEnum.SUCCESS, httpStatus: HttpStatusCodeEnum.SUCCESS },
-        //TODO: Fix error results
+        //TODO: Document error results
         // { applicationStatus: ApplicationStatusEnum.UNAUTHORIZED, httpStatus: HttpStatusCodeEnum.UNAUTHORIZED },
       ],
       description: "Sign In An Existing User",

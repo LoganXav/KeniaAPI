@@ -56,7 +56,7 @@ export default class AuthRefreshOtpTokenService extends BaseService<RefreshUserT
         activationToken: otpToken,
       });
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, TOKEN_REFRESH_SUCCESS);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, TOKEN_REFRESH_SUCCESS, NULL_OBJECT);
 
       trace.setSuccessful();
       return this.result;

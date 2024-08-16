@@ -1,6 +1,4 @@
 import { autoInjectable } from "tsyringe";
-import { VerifyOtpTokenResponseType } from "../types/AuthTypes";
-import { VerifyUserTokenType } from "../../user/types/UserTypes";
 import BaseController from "../../base/contollers/Base.controller";
 import { verifyOtpTokenSchema } from "../validators/VerifyOtpSchema";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
@@ -12,6 +10,8 @@ import AuthRefreshOtpTokenService from "../services/AuthRefreshOtpToken.service"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import { RefreshUserTokenType, VerifyUserTokenType } from "../../user/types/UserTypes";
+import { RefreshOtpTokenResponseType, VerifyOtpTokenResponseType } from "../types/AuthTypes";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 import { PropFormatEnum, PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
 
@@ -50,8 +50,51 @@ export default class AuthOtpTokenController extends BaseController {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
+        //TODO: Document error results
+        // { applicationStatus: ApplicationStatusEnum.INVALID_INPUT, httpStatus: HttpStatusCodeEnum.BAD_REQUEST },
       ],
-      description: "Request OTP Verification Token",
+      description: "Refresh OTP Token",
+      apiDoc: {
+        contentType: HttpContentTypeEnum.APPLICATION_JSON,
+        requireAuth: false,
+        schema: new ResultTDescriber<RefreshOtpTokenResponseType>({
+          name: "RefreshOtpTokenResponse",
+          type: PropTypeEnum.OBJECT,
+          props: {
+            data: new TypeDescriber<RefreshOtpTokenResponseType>({
+              name: "RefreshOtpTokenResponse",
+              type: PropTypeEnum.OBJECT,
+              props: {},
+            }),
+            error: {
+              type: PropTypeEnum.STRING,
+            },
+            message: {
+              type: PropTypeEnum.STRING,
+            },
+            statusCode: {
+              type: PropTypeEnum.STRING,
+            },
+            success: {
+              type: PropTypeEnum.BOOLEAN,
+            },
+          },
+        }),
+        requestBody: {
+          description: "RefreshOtpTokenRequest",
+          contentType: HttpContentTypeEnum.APPLICATION_JSON,
+          schema: new TypeDescriber<RefreshUserTokenType>({
+            name: "RefreshOtpTokenRequest",
+            type: PropTypeEnum.OBJECT,
+            props: {
+              email: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+            },
+          }),
+        },
+      },
     });
 
     this.addRoute({
@@ -63,8 +106,10 @@ export default class AuthOtpTokenController extends BaseController {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
+        //TODO: Document error results
+        // { applicationStatus: ApplicationStatusEnum.INVALID_INPUT, httpStatus: HttpStatusCodeEnum.BAD_REQUEST },
       ],
-      description: "Verify OTP Verification Token",
+      description: "Verify OTP Token",
       apiDoc: {
         contentType: HttpContentTypeEnum.APPLICATION_JSON,
         requireAuth: false,
@@ -99,7 +144,8 @@ export default class AuthOtpTokenController extends BaseController {
                 },
                 lastLoginDate: {
                   type: PropTypeEnum.STRING,
-                  format: PropFormatEnum.DATE_TIME,
+                  // TODO - refactor to date time
+                  format: PropFormatEnum.DATE,
                 },
                 userType: {
                   type: PropTypeEnum.STRING,
