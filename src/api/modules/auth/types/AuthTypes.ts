@@ -1,4 +1,4 @@
-import { TokenType } from "@prisma/client";
+import { TokenType, UserType } from "@prisma/client";
 
 export interface ReadOneTokenRecordType {
   token?: string;
@@ -19,11 +19,24 @@ export interface UpdateTokenRecordType {
   isActive?: boolean;
 }
 
-export interface SignedInUserDataType {
+export interface SignInUserResponseType {
   id: number;
   tenantId: number;
 }
-export interface SignedUpUserDataType {
+export interface SignUpUserResponseType {
   id: number;
+  tenantId: number;
+}
+
+export interface VerifyOtpTokenResponseType {
+  id: number;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  hasVerified: boolean;
+  isFirstTimeLogin: boolean;
+  lastLoginDate: Date;
+  userType: UserType;
   tenantId: number;
 }
