@@ -9,7 +9,8 @@
 5. [Tech Stack](#tech-stack)
 6. [Setup Instructions](#setup-instructions)
 7. [Testing](#testing)
-8. [Documentation](#documentation)
+8. [Tooling](#tooling)
+9. [Documentation](#documentation)
 
 ## Introduction
 
@@ -114,6 +115,7 @@ Kenia is built using the following technologies and tools:
 - **Jest**
 - **Prisma**
 - **Tsyringe**
+- **Docker**
 
 The project was bootstrapped with `pnpm` and includes a setup script (`pnpm run dev`) for development.
 
@@ -125,7 +127,9 @@ The project was bootstrapped with `pnpm` and includes a setup script (`pnpm run 
 <summary>[-]</summary>
 
 To set up Kenia locally, follow these steps:
-Set environment variables in .env file based on .env.example.
+
+- Ensure you have docker installed.
+- Set environment variables in .env.dev file based on .env.example.
 
 1. **Clone the repository**:
 
@@ -139,33 +143,22 @@ Set environment variables in .env file based on .env.example.
    cd KeniaAPI
    ```
 
-3. **Install dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-4. **Run Docker to start the local PostgreSQL database**:
+3. **Run Docker to start the application**:
 
    ```bash
    docker-compose up -d
    ```
 
-5. **Generate Prisma client**:
+4. **Generate Prisma client**:
 
    ```bash
    pnpm run prisma:generate
    ```
 
-6. **Run migrations**:
+5. **Run migrations**:
 
    ```bash
    pnpm run prisma:migrate
-   ```
-
-7. **Start the application**:
-   ```bash
-   pnpm run dev
    ```
 
 </details>
@@ -189,7 +182,7 @@ Set environment variables in .env file based on .env.example.
 
 ### Database for E2E Tests
 
-- **Configuration**: A local SQL database running in a Docker container is used for E2E tests. The Docker container is defined in `docker-compose.yml`.
+- **Configuration**: A local Postgres database running in a Docker container is used for E2E tests. The Docker container is defined in `docker-compose.yml`.
 
 - **Test**: Runs all tests
 
@@ -214,6 +207,29 @@ Set environment variables in .env file based on .env.example.
   <!-- ```bash -->
   <!-- pnpm test:e2e -->
   <!-- ``` -->
+
+</details>
+
+## Tooling
+
+<details>
+<summary>[-]</summary>
+
+To maintain code quality and consistency, Kenia utilizes the following tooling:
+
+- **Husky**: The project uses Husky to manage Git hooks, ensuring that linters and tests run automatically before any code is committed or pushed.
+
+- **ESLint**: ESLint is our go-to tool for linting JavaScript and TypeScript. We've configured it with a set of rules tailored to our coding style and best practices,
+
+- **Prettier**: Using prettier ensures that all code adheres to a consistent style, making it easier to read and maintain. It automatically formats code on commit using Husky's pre-commit hooks.
+
+- **Commit Lint**: We enforce a strict commit message format as defined in `/commitlint.config.mjs` using a linter setup via Husky's commit-msg hook.
+  e.g
+
+  ```bash
+  Feat: add new user login feature
+  Fix: resolve issue with user permissions
+  ```
 
 </details>
 
