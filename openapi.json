@@ -26,18 +26,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResultTSignUpDTO"
+                  "$ref": "#/components/schemas/ResultTSignUpUserResponse"
                 }
               }
             }
           }
         },
         "requestBody": {
-          "description": "SignUpCredentials",
+          "description": "SignUpUserRequest",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SignUpCredentials"
+                "$ref": "#/components/schemas/SignUpUserRequest"
               }
             }
           }
@@ -53,18 +53,72 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResultTSignInDTO"
+                  "$ref": "#/components/schemas/ResultTSignInResponse"
                 }
               }
             }
           }
         },
         "requestBody": {
-          "description": "SignInCredentials",
+          "description": "SignInRequest",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SignInCredentials"
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/otp/refresh": {
+      "get": {
+        "description": "Refresh OTP Token",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTRefreshOtpTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "RefreshOtpTokenRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshOtpTokenRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/otp/verify": {
+      "post": {
+        "description": "Verify OTP Token",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTVerifyOtpTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "VerifyOtpTokenRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpTokenRequest"
               }
             }
           }
@@ -74,7 +128,7 @@
   },
   "components": {
     "schemas": {
-      "SignUpDTO": {
+      "SignUpUserResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -85,7 +139,7 @@
           }
         }
       },
-      "ResultTSignUpDTO": {
+      "ResultTSignUpUserResponse": {
         "type": "object",
         "properties": {
           "message": {
@@ -101,11 +155,11 @@
             "type": "boolean"
           },
           "data": {
-            "$ref": "#/components/schemas/SignUpDTO"
+            "$ref": "#/components/schemas/SignUpUserResponse"
           }
         }
       },
-      "SignUpCredentials": {
+      "SignUpUserRequest": {
         "type": "object",
         "properties": {
           "firstName": {
@@ -132,7 +186,7 @@
           "password"
         ]
       },
-      "SignInDTO": {
+      "SignInResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -143,7 +197,7 @@
           }
         }
       },
-      "ResultTSignInDTO": {
+      "ResultTSignInResponse": {
         "type": "object",
         "properties": {
           "message": {
@@ -159,11 +213,11 @@
             "type": "boolean"
           },
           "data": {
-            "$ref": "#/components/schemas/SignInDTO"
+            "$ref": "#/components/schemas/SignInResponse"
           }
         }
       },
-      "SignInCredentials": {
+      "SignInRequest": {
         "type": "object",
         "properties": {
           "email": {
@@ -180,6 +234,108 @@
           "email",
           "password",
           "userType"
+        ]
+      },
+      "ResultTRefreshOtpTokenResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RefreshOtpTokenResponse"
+          }
+        }
+      },
+      "RefreshOtpTokenRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "VerifyOtpTokenResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "hasVerified": {
+            "type": "boolean"
+          },
+          "isFirstTimeLogin": {
+            "type": "boolean"
+          },
+          "lastLoginDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "userType": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "number"
+          }
+        }
+      },
+      "ResultTVerifyOtpTokenResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/VerifyOtpTokenResponse"
+          }
+        }
+      },
+      "VerifyOtpTokenRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "otpToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "otpToken"
         ]
       }
     },

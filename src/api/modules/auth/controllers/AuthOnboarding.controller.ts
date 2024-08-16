@@ -7,7 +7,7 @@ import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { signUpUserRecordSchema } from "../validators/SignUpUserRecordSchema";
 import { signInUserRecordSchema } from "../validators/SignInUserRecordSchema";
-import { SignedInUserDataType, SignedUpUserDataType } from "../types/AuthTypes";
+import { SignInUserResponseType, SignUpUserResponseType } from "../types/AuthTypes";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { SignInUserType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
@@ -48,19 +48,19 @@ export default class AuthOnboardingController extends BaseController {
       handlers: [validateData(signUpUserRecordSchema), this.signUp],
       produces: [
         { applicationStatus: ApplicationStatusEnum.CREATED, httpStatus: HttpStatusCodeEnum.CREATED },
-        //TODO: Fix error results
+        //TODO: Document error results
         // { applicationStatus: ApplicationStatusEnum.INVALID_INPUT, httpStatus: HttpStatusCodeEnum.BAD_REQUEST },
       ],
       description: "Sign Up New Tenant and User Record",
       apiDoc: {
         contentType: HttpContentTypeEnum.APPLICATION_JSON,
         requireAuth: false,
-        schema: new ResultTDescriber<SignedUpUserDataType>({
-          name: "SignUpDTO",
+        schema: new ResultTDescriber<SignUpUserResponseType>({
+          name: "SignUpUserResponse",
           type: PropTypeEnum.OBJECT,
           props: {
-            data: new TypeDescriber<SignedUpUserDataType>({
-              name: "SignUpDTO",
+            data: new TypeDescriber<SignUpUserResponseType>({
+              name: "SignUpUserResponse",
               type: PropTypeEnum.OBJECT,
               props: {
                 id: {
@@ -86,10 +86,10 @@ export default class AuthOnboardingController extends BaseController {
           },
         }),
         requestBody: {
-          description: "SignUpCredentials",
+          description: "SignUpUserRequest",
           contentType: HttpContentTypeEnum.APPLICATION_JSON,
           schema: new TypeDescriber<SignUpUserType>({
-            name: "SignUpCredentials",
+            name: "SignUpUserRequest",
             type: PropTypeEnum.OBJECT,
             props: {
               firstName: {
@@ -124,19 +124,19 @@ export default class AuthOnboardingController extends BaseController {
       handlers: [validateData(signInUserRecordSchema), this.signIn],
       produces: [
         { applicationStatus: ApplicationStatusEnum.SUCCESS, httpStatus: HttpStatusCodeEnum.SUCCESS },
-        //TODO: Fix error results
+        //TODO: Document error results
         // { applicationStatus: ApplicationStatusEnum.UNAUTHORIZED, httpStatus: HttpStatusCodeEnum.UNAUTHORIZED },
       ],
       description: "Sign In An Existing User",
       apiDoc: {
         contentType: HttpContentTypeEnum.APPLICATION_JSON,
         requireAuth: false,
-        schema: new ResultTDescriber<SignedInUserDataType>({
-          name: "SignInDTO",
+        schema: new ResultTDescriber<SignInUserResponseType>({
+          name: "SignInResponse",
           type: PropTypeEnum.OBJECT,
           props: {
-            data: new TypeDescriber<SignedInUserDataType>({
-              name: "SignInDTO",
+            data: new TypeDescriber<SignInUserResponseType>({
+              name: "SignInResponse",
               type: PropTypeEnum.OBJECT,
               props: {
                 id: {
@@ -162,10 +162,10 @@ export default class AuthOnboardingController extends BaseController {
           },
         }),
         requestBody: {
-          description: "SignInCredentials",
+          description: "SignInRequest",
           contentType: HttpContentTypeEnum.APPLICATION_JSON,
           schema: new TypeDescriber<SignInUserType>({
-            name: "SignInCredentials",
+            name: "SignInRequest",
             type: PropTypeEnum.OBJECT,
             props: {
               email: {
