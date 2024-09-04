@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: dockerfile.dev
     ports:
-      - "5500:5500"
+      - "80:5500"
     volumes:
       - /usr/app/node_modules
       - .:/usr/app
