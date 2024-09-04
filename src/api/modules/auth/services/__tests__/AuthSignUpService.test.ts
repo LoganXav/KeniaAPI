@@ -62,8 +62,9 @@ describe("Auth Signup Service", () => {
     const hashedPassword = "hashedPassword123";
     const createdUser = { id: 2, tenantId: 1, email: args.email };
 
-    PasswordEncryptionService.hashPassword.mockReturnValue(hashedPassword);
-    generateStringOfLength.mockReturnValue(otpToken);
+    jest.spyOn(PasswordEncryptionService, "hashPassword").mockReturnValue(hashedPassword);
+    (generateStringOfLength as jest.Mock).mockReturnValue(otpToken);
+
     DateTime.now = jest.fn().mockReturnValue({
       plus: jest.fn().mockReturnValue({
         toJSDate: jest.fn().mockReturnValue(new Date()),
