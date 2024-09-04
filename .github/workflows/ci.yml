@@ -52,6 +52,7 @@ jobs:
       - name: Run prisma migrations
         env:
           DATABASE_URL: postgresql://prisma:prisma@localhost:5432/dev_db
+          DIRECT_URL: postgresql://prisma:prisma@localhost:5432/dev_db
         run: pnpm run prisma:migrate
 
       - name: Run lint
