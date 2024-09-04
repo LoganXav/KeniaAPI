@@ -12,6 +12,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: prisma
+          POSTGRES_PASSWORD: prisma
+          POSTGRES_DB: dev_db
+        ports:
+          - 5432:5432
+        options: >
+          --health-cmd="pg_isready -U prisma" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
+
     steps:
       - name: 🔖 Checkout repository
         uses: actions/checkout@v3
@@ -33,6 +48,8 @@ jobs:
         run: pnpm run prisma:generate
 
       - name: Run prisma migrations
+        env:
+          DATABASE_URL: postgresql://prisma:prisma@localhost:5432/dev_db
         run: pnpm run prisma:migrate
 
       - name: Run lint
