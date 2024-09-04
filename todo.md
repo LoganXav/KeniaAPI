@@ -15,4 +15,9 @@
 
 - Staff Creation
 - Student Admission
-<!-- - Course Upload and Delivery -->
+- Course Upload and Delivery
+
+- Write deployment scripts
+
+
+
