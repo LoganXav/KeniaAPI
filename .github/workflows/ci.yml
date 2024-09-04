@@ -29,6 +29,12 @@ jobs:
       - name: 🛠️ Install dependencies
         run: pnpm install
 
+      - name: Generate prisma client
+        run: pnpm run prisma:generate
+
+      - name: Run prisma migrations
+        run: pnpm run prisma:migrate
+
       - name: Run lint
         run: pnpm run lint
 
