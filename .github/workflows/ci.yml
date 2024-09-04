@@ -36,13 +36,13 @@ jobs:
         run: pnpm run format
 
       - name: Run tests
-        run: pnpm run test:stage
+        run: pnpm run test
 
       - name: Check commit messages
         uses: wagoid/commitlint-github-action@v3
         with:
           configFile: commitlint.config.cjs
-  
+
   deploy:
     runs-on: ubuntu-latest
 
