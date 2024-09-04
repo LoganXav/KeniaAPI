@@ -39,6 +39,13 @@ jobs:
       - name: 🛠️ Install dependencies
         run: pnpm install
 
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          while ! pg_isready -h localhost -p 5432 -U prisma; do
+            sleep 1
+          done
+
       - name: Generate prisma client
         run: pnpm run prisma:generate
 
