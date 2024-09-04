@@ -95,12 +95,6 @@ jobs:
               exit 1
             fi
 
-            # Ensure Git is installed
-            if ! command -v git &> /dev/null; then
-              echo "Git is not installed. Installing now."
-              sudo yum install -y git
-            fi
-
             git pull origin master
             docker-compose down
             docker-compose up -d --build
