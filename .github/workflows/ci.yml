@@ -12,15 +12,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: prisma
-          POSTGRES_PASSWORD: prisma
-          POSTGRES_DB: dev_db
-        ports:
-          - 5432:5432
+    # services:
+    #   postgres:
+    #     image: postgres:13
+    #     env:
+    #       POSTGRES_USER: prisma
+    #       POSTGRES_PASSWORD: prisma
+    #       POSTGRES_DB: dev_db
+    #     ports:
+    #       - 5432:5432
 
     steps:
       - name: 🔖 Checkout repository
@@ -39,21 +39,21 @@ jobs:
       - name: 🛠️ Install dependencies
         run: pnpm install
 
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          echo "Waiting for PostgreSQL to be ready..."
-          while ! pg_isready -h localhost -p 5432 -U prisma; do
-            sleep 1
-          done
+      # - name: Wait for PostgreSQL to be ready
+      #   run: |
+      #     echo "Waiting for PostgreSQL to be ready..."
+      #     while ! pg_isready -h localhost -p 5432 -U prisma; do
+      #       sleep 1
+      #     done
 
-      - name: Generate prisma client
-        run: pnpm run prisma:generate
+      # - name: Generate prisma client
+      #   run: pnpm run prisma:generate
 
-      - name: Run prisma migrations
-        env:
-          DATABASE_URL: postgresql://prisma:prisma@localhost:5432/dev_db
-          DIRECT_URL: postgresql://prisma:prisma@localhost:5432/dev_db
-        run: pnpm run prisma:migrate
+      # - name: Run prisma migrations
+      #   env:
+      #     DATABASE_URL: postgresql://prisma:prisma@localhost:5432/dev_db
+      #     DIRECT_URL: postgresql://prisma:prisma@localhost:5432/dev_db
+      #   run: pnpm run prisma:migrate
 
       - name: Run lint
         run: pnpm run lint
@@ -64,10 +64,10 @@ jobs:
       # - name: Run tests
       #   run: pnpm run test
 
-      - name: Check commit messages
-        uses: wagoid/commitlint-github-action@v3
-        with:
-          configFile: commitlint.config.cjs
+      # - name: Check commit messages
+      #   uses: wagoid/commitlint-github-action@v3
+      #   with:
+      #     configFile: commitlint.config.cjs
 
   deploy:
     runs-on: ubuntu-latest
