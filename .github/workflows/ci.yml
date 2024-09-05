@@ -35,11 +35,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: 🚀 Install pnpm
-        run: npm install -g pnpm
-
       - name: 🛠️ Install dependencies
-        run: pnpm install
+        run: npm install -g pnpm && pnpm install
 
       # - name: Wait for PostgreSQL to be ready
       #   run: |
@@ -97,5 +94,6 @@ jobs:
 
             git pull origin master
             docker-compose down
-            docker-compose up -d --build
+            docker-compose up --build -d
+            docker exec -it kenia-api pnpm run prisma:stage-migrate
           EOF
