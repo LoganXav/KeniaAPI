@@ -10,6 +10,8 @@ RUN pnpm install
 
 COPY ./ ./
 
+RUN pnpm run prisma:stage-generate
+
 EXPOSE 5500
 
 CMD ["pnpm", "run", "dev"]

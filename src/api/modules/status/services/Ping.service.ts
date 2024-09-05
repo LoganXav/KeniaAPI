@@ -18,7 +18,7 @@ export default class PingService extends BaseService<undefined> {
   public async execute(trace: ServiceTrace): Promise<IResult> {
     this.initializeServiceTrace(trace);
 
-    const message = await this.healthProvider.get(AppSettings.ServiceContext, DateTimeUtils.getISONow());
+    const message = await this.healthProvider.get(AppSettings.ServiceName, DateTimeUtils.getISONow());
     trace.setSuccessful();
     this.result.setMessage(message, HttpStatusCodeEnum.SUCCESS);
     return this.result;

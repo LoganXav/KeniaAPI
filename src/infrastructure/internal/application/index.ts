@@ -23,9 +23,9 @@ export class Application {
 
     this.server.on("listening", () => {
       this.express.apiDocGenerator.saveApiDoc().finish();
-      this.express.loggingProvider.info(`${AppSettings.ServiceName} Server running on ${AppSettings.ServerHost}:${AppSettings.ServerPort}${AppSettings.ServerRoot}`);
+      this.express.loggingProvider.info(`${AppSettings.ServiceName.toUpperCase()} Server running on ${AppSettings.ServerHost}:${AppSettings.ServerPort}${AppSettings.ServerRoot}`);
       const seconds = ((new Date().valueOf() - startAt.valueOf()) / 1000).toFixed(3);
-      console.log(`Started Application in ${process.uptime().toFixed(3)} seconds (${AppSettings.ServiceName} running for ${seconds})`);
+      console.log(`Started Application in ${process.uptime().toFixed(3)} seconds (${AppSettings.ServiceName.toUpperCase()} running for ${seconds})`);
     });
   }
 }

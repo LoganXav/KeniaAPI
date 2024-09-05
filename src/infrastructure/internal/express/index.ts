@@ -67,7 +67,7 @@ export default class Express {
           ignore: ServerConfig.Controllers.Ignore,
         });
 
-    this.loggingProvider.info(`Initializing controllers for ${AppSettings.ServiceContext.toUpperCase()}`);
+    this.loggingProvider.info(`Initializing controllers for ${AppSettings.ServiceName.toUpperCase()}`);
 
     for (const filePath of controllerPaths) {
       const controllerPath = resolve(filePath);

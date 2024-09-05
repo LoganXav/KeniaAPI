@@ -13,9 +13,7 @@ services:
       POSTGRES_DB: dev_db
 
   kenia-api:
-    build:
-      context: .
-      dockerfile: dockerfile.dev
+    build: .
     ports:
       - "80:5500"
     volumes:
