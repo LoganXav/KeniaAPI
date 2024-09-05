@@ -16,7 +16,7 @@ docker-compose down
 
 docker-compose up --build -d
 
-# docker exec -it backend-kenia-api-1 pnpm run prisma:stage-generate
-docker exec -it backend-kenia-api-1 pnpm run prisma:stage-migrate
+# docker exec backend-kenia-api-1 pnpm run prisma:stage-generate
+docker exec backend-kenia-api-1 pnpm run prisma:stage-migrate
 
 echo "Deployment completed successfully!"
