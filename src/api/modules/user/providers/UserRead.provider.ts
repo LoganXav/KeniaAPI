@@ -15,7 +15,7 @@ export default class UserReadProvider {
 
       return result;
     } catch (error: any) {
-      throw new InternalServerError(error.message);
+      throw new InternalServerError(error);
     }
   }
 }
