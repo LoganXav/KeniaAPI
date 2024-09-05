@@ -85,15 +85,5 @@ jobs:
       - name: 🚀 Deploy to Kenia Web Server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_HOST }} << 'EOF'
-            if [ -d "/home/ec2-user/apps/kenia/backend" ]; then
-              cd /home/ec2-user/apps/kenia/backend || exit 1
-            else
-              echo "Directory /home/ec2-user/apps/kenia/backend does not exist!"
-              exit 1
-            fi
-
-            git pull origin master
-            docker-compose down
-            docker-compose up --build -d
-            docker exec -it kenia-api pnpm run prisma:stage-migrate
+            ../../src/scripts/deploy.sh
           EOF
