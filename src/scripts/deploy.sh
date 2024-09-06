@@ -15,6 +15,6 @@ docker-compose up --build -d &
 
 sleep 30
 
-docker exec kenia-api pnpm run prisma:stage-migrate
+docker exec kenia_api pnpm run prisma:stage-migrate
 
 echo "Deployment completed successfully!"
