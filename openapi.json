@@ -72,7 +72,7 @@
       }
     },
     "/auth/otp/refresh": {
-      "get": {
+      "post": {
         "description": "Refresh OTP Token",
         "responses": {
           "200": {
