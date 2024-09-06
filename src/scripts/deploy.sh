@@ -13,13 +13,8 @@ docker-compose down --volumes --remove-orphans
 
 docker-compose up --build -d &  
 
-sleep 30
+sleep 60
 
-if docker ps --filter "name=kenia_api" | grep -q "kenia_api"; then
-  docker exec kenia_api pnpm run prisma:stage-migrate
-else
-  echo "Container kenia_api is not running. Exiting."
-  exit 1
-fi
+docker exec -i kenia_api pnpm run prisma:stage-migrate
 
 echo "Deployment completed successfully!"
