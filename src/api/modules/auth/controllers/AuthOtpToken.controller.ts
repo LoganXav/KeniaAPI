@@ -42,7 +42,7 @@ export default class AuthOtpTokenController extends BaseController {
     this.setRouter(router());
 
     this.addRoute({
-      method: HttpMethodEnum.GET,
+      method: HttpMethodEnum.POST,
       path: "/auth/otp/refresh",
       handlers: [validateData(refreshOtpTokenSchema), this.refreshOtpToken],
       produces: [

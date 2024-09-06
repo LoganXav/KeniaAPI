@@ -9,6 +9,8 @@
 
 **_ Itenary _**
 
+- Persist postgres data inside docker container
+
 - Update documentation
 - Add api doc for password controllers
 - Refactor access token delivery to cookies or encrypt data transfer from api to client
@@ -18,6 +20,3 @@
 - Course Upload and Delivery
 
 - Write deployment scripts
-
-
-
