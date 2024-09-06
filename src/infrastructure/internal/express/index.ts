@@ -12,6 +12,7 @@ import serviceTraceMiddleware from "../middleware/trace";
 import { errorHandler } from "../exceptions/ErrorHandler";
 import clientInfoMiddleware from "../middleware/clientInfo";
 import AppSettings from "~/api/shared/setttings/AppSettings";
+import { UnauthorizedError } from "../exceptions/UnauthorizedError";
 import authorizationMiddleware from "../middleware/authorization/jwt";
 import { LoggingProviderFactory } from "../logger/LoggingProviderFactory";
 import BaseController from "~/api/modules/base/contollers/Base.controller";
@@ -36,9 +37,17 @@ export default class Express {
 
   private loadMiddlewares(): void {
     const options: cors.CorsOptions = {
-      origin: ServerConfig.Server.Origins.split(","),
+      origin: (origin, callback) => {
+        const allowedOrigins = ServerConfig.Server.Origins.split(",");
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new UnauthorizedError("Not allowed by CORS"));
+        }
+      },
       methods: ["GET", "POST", "PUT", "DELETE"],
       allowedHeaders: ["Content-Type", "Authorization"],
+      optionsSuccessStatus: 200,
     };
 
     this.app
