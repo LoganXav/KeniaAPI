@@ -3,11 +3,11 @@ services:
   kenia_db:
     image: postgres:13
     restart: always
-    container_name: kenia-dev-db
+    container_name: kenia_db
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_HOST: kenia-dev-db
+      POSTGRES_HOST: kenia_db
       POSTGRES_USER: prisma
       POSTGRES_PASSWORD: prisma
       POSTGRES_DB: dev_db
