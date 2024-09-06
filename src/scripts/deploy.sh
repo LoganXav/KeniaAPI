@@ -9,11 +9,12 @@ git clean -fd
 git fetch --all
 git reset --hard origin/HEAD
 
-docker-compose down
+docker-compose down --volumes --remove-orphans
+
 docker-compose up --build -d &  
 
 sleep 30
 
-docker exec backend-kenia-api-1 pnpm run prisma:stage-migrate
+docker exec kenia-api pnpm run prisma:stage-migrate
 
 echo "Deployment completed successfully!"

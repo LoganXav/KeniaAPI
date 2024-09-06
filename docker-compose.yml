@@ -12,8 +12,9 @@ services:
       POSTGRES_PASSWORD: prisma
       POSTGRES_DB: dev_db
 
-  kenia-api:
+  kenia_api:
     build: .
+    container_name: kenia_api
     ports:
       - "80:5500"
     volumes:
