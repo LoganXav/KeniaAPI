@@ -19,7 +19,7 @@ services:
       - "80:5500"
     volumes:
       - /usr/app/node_modules
-      - .:/usr/app
+      # - .:/usr/app
     environment:
       NODE_ENV: development
     depends_on:
