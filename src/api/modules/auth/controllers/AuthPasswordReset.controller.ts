@@ -39,7 +39,7 @@ export default class AuthPasswordResetController extends BaseController {
     this.setRouter(router());
 
     this.addRoute({
-      method: HttpMethodEnum.GET,
+      method: HttpMethodEnum.POST,
       path: "/auth/password-reset/request",
       handlers: [validateData(requestPasswordResetSchema), this.resetRequest],
       produces: [

@@ -2,6 +2,9 @@
 export const STAFF = "staff";
 export const STUDENT = "student";
 
+/** <---------------> Resource Labels <---------------> */
+export const USER_RESOURCE = "User";
+
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account Created Successfully";
 export const ACCOUNT_VERIFIED = "Token Already Used";
@@ -46,9 +49,6 @@ export const ERROR_INVALID_TOKEN = "Invalid Token: The provided token is not val
 export const ERROR_EXPIRED_TOKEN = "Expired Token: The provided token has expired.";
 export const ERROR_MISSING_TOKEN = "Missing Token: Access token is missing.";
 export const TOKEN_EXPIRED = "This Token has Expired. Please Request a Fresh One.";
-
-/** <---------------> Resource Labels <---------------> */
-export const USER_RESOURCE = "User Resource";
 
 /** <---------------> CRUD Success <---------------> */
 export const CREATED = "Created Successfully";
