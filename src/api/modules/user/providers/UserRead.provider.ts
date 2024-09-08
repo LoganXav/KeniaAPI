@@ -6,9 +6,10 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class UserReadProvider {
   public async getOneByCriteria(criteria: ReadUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<User | null> {
     try {
-      const { email } = criteria;
+      const { id, email } = criteria;
       const result = await dbClient?.user?.findFirst({
         where: {
+          ...(id && { id }),
           ...(email && { email }),
         },
       });
