@@ -14,6 +14,7 @@ import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequest
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { ERROR, INVALID_CREDENTIALS, NULL_OBJECT, SIGN_IN_SUCCESSFUL, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
 
 @autoInjectable()
 export default class AuthSignInService extends BaseService<SignInUserType> {
@@ -59,9 +60,11 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
         await this.userUpdateProvider.updateOneByCriteria(updateUserRecordArgs);
       }
 
-      const signedInUserData = { id: foundUser.id, tenantId: foundUser.tenantId };
+      const accessToken = await JwtService.getJwt(foundUser);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...signedInUserData } = foundUser;
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, SIGN_IN_SUCCESSFUL, signedInUserData);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, SIGN_IN_SUCCESSFUL, signedInUserData, accessToken);
 
       trace.setSuccessful();
       return this.result;
