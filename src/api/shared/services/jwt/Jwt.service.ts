@@ -1,6 +1,7 @@
 import { sign, verify } from "jsonwebtoken";
 import AppSettings, { AppConstants } from "../../setttings/AppSettings";
 import { User } from "@prisma/client";
+import { UnauthenticatedError } from "~/infrastructure/internal/exceptions/UnauthenticatedError";
 
 type JwtPayload = {
   id: string;
@@ -31,7 +32,7 @@ export class JwtService {
       }) as JwtPayload;
     } catch (error) {
       console.log(error);
-      throw Error("Unauthenticated");
+      throw new UnauthenticatedError();
     }
   }
 }

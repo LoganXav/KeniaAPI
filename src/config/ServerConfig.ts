@@ -42,6 +42,10 @@ export default {
       Bcrypt: {
         SaltRounds: parseInt(process.env["BCRYPT_SALT_ROUNDS"]!, 10),
       },
+      Decrypt: {
+        Key: process.env.AES_ENCRYPTION_KEY!,
+        Iv: process.env.AES_ENCRYPTION_IV!,
+      },
     },
   },
   ApiDocsInfo: {
