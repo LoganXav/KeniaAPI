@@ -10,6 +10,7 @@ import ServerConfig from "~/config/ServerConfig";
 import { serve, setup } from "swagger-ui-express";
 import serviceTraceMiddleware from "../middleware/trace";
 import { errorHandler } from "../exceptions/ErrorHandler";
+import decryptionMiddleware from "../middleware/decryption";
 import clientInfoMiddleware from "../middleware/clientInfo";
 import AppSettings from "~/api/shared/setttings/AppSettings";
 import { UnauthorizedError } from "../exceptions/UnauthorizedError";
@@ -55,6 +56,7 @@ export default class Express {
       .use(helmet())
       .use(express.json())
       .use(express.urlencoded({ extended: true }))
+      .use(decryptionMiddleware.handle)
       .use(clientInfoMiddleware.handle)
       .use(routeWhiteListMiddleware.handle)
       .use(authorizationMiddleware.handle)

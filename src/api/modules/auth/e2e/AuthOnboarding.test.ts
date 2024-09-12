@@ -88,7 +88,7 @@ describe("Auth Onboarding Controller", () => {
   it("Should sign in a user successfully", async () => {
     const response = await request(server).post("/api/auth/signin").send({
       email: "sogbesansegun3@gmail.com",
-      userType: "Student",
+      userType: "Staff",
       password: "123456",
     });
 
@@ -99,8 +99,16 @@ describe("Auth Onboarding Controller", () => {
       data: {
         message: SIGN_IN_SUCCESSFUL,
         data: {
+          email: expect.any(String),
+          firstName: expect.any(String),
+          hasVerified: expect.any(Boolean),
           id: expect.any(Number),
+          isFirstTimeLogin: expect.any(Boolean),
+          lastLoginDate: expect.any(Date),
+          lastName: expect.any(String),
+          phoneNumber: expect.any(String),
           tenantId: expect.any(Number),
+          userType: expect.stringMatching(/^(STAFF|STUDENT)$/),
         },
       },
     });

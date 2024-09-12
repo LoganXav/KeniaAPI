@@ -15,7 +15,7 @@ class AuthorizationMiddleware {
   public handle: Middleware = (req: Request, _res: Response, next: NextFunction): void => {
     if (TypeParser.cast<IRequest>(req).isWhiteList) return next();
 
-    const auth = req.headers.authorization;
+    const auth = req.body.authorization;
 
     if (!auth) return next(this.getUnauthorized(ERROR_MISSING_TOKEN));
 
