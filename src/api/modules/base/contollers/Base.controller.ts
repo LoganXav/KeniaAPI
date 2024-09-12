@@ -9,6 +9,7 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { IApiDocGenerator } from "~/infrastructure/internal/documentation/IApiDocGenerator";
+import { PayloadEncryptService } from "~/api/shared/services/encryption/PayloadEncryptService";
 
 export default abstract class BaseController {
   controllerName: string;
@@ -77,7 +78,10 @@ export default abstract class BaseController {
   private async getResultData(res: IResponse, result: IResult, headersToSet?: HeaderType): Promise<void> {
     this.setTransactionId(res);
     this.setHeaders(res, headersToSet);
-    res.status(Number(result.statusCode)).json(result.message ? result.toResultDto() : result.toResultDto().data);
+    const encryptedResult = PayloadEncryptService.encrypt(result?.toResultDto());
+    const encryptedResultWithoutMessage = PayloadEncryptService.encrypt(result?.toResultDto().data);
+
+    res.status(Number(result.statusCode)).json(result.message ? encryptedResult : encryptedResultWithoutMessage);
   }
 
   private setHeaders(res: IResponse, headersToSet?: HeaderType): void {
