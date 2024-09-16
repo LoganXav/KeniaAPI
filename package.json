@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
     "format": "prettier --write 'src/**/*.{ts,js,tsx}'",
     "dev": "ts-node-dev --respawn --transpile-only --no-notify -r tsconfig-paths/register src/index.ts",
     "test": "jest -i",
