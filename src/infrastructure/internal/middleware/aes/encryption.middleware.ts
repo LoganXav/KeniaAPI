@@ -15,6 +15,10 @@ export class EncryptionMiddleware {
     // Overwrite res.json to encrypt the response data
     res.json = (data: any): Response => {
       try {
+        if (process.env.NODE_ENV === "development") {
+          return originalJson(data);
+        }
+
         const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(data), this.secretKey).toString();
 
         const encryptedResponse = {
