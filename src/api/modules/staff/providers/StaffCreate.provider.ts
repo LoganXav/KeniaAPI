@@ -1,5 +1,5 @@
 import DbClient from "~/infrastructure/internal/database";
-import { Staff } from "@prisma/client";
+import { Staff, User } from "@prisma/client";
 import { CreateStaffData } from "../types/StaffTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
@@ -38,6 +38,40 @@ export default class StaffCreateProvider {
       });
 
       return newStaff;
+    } catch (error) {
+      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
+    }
+  }
+
+  public async createStaffUser(data: any, tx?: any): Promise<User> {
+    try {
+      const dbClient = tx ? tx : DbClient;
+      const { firstName, lastName, phoneNumber, email, password, tenantId, jobTitle } = data;
+
+      const newUserAndStaff = await dbClient?.$transaction(async () => {
+        const newUser = await dbClient?.user.create({
+          data: {
+            firstName,
+            lastName,
+            phoneNumber,
+            email,
+            password,
+            tenantId,
+            userType: "STAFF",
+          },
+        });
+
+        const newStaff = await dbClient?.staff.create({
+          data: {
+            jobTitle,
+            userId: newUser.id,
+          },
+        });
+
+        return { user: newUser, staff: newStaff };
+      });
+
+      return newUserAndStaff;
     } catch (error) {
       throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
     }
