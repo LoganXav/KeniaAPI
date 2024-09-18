@@ -46,6 +46,10 @@ export default {
         Key: process.env.AES_ENCRYPTION_KEY!,
         Iv: process.env.AES_ENCRYPTION_IV!,
       },
+      DefaultPassword: {
+        Staff: process.env.DEFAULT_STAFF_PASSWORD!,
+        Student: process.env.DEFAULT_STUDENT_PASSWORD!,
+      },
     },
   },
   ApiDocsInfo: {
