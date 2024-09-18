@@ -14,8 +14,15 @@ export class PayloadEncryptService {
         iv: IV,
       });
 
-      const encryptedResult = { result: encrypted.toString(), encoded: true };
-      console.log(encryptedResult);
+      let encryptedResult: Record<string, any> = {};
+
+      if (ServerConfig.Environment == "development") {
+        encryptedResult = { result: result.data, encoded: false };
+        console.log(encryptedResult);
+      } else {
+        encryptedResult = { result: encrypted.toString(), encoded: true };
+      }
+
       return encryptedResult;
     } catch (error) {
       console.log(error);
