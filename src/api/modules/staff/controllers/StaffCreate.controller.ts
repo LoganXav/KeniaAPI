@@ -7,6 +7,8 @@ import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
 import CreateStaffService from "../services/CreateStaff.service";
+import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { createStaffUserSchema } from "../validators/StaffCreateSchema";
 
 @autoInjectable()
 export default class StaffCreateController extends BaseController {
@@ -20,6 +22,12 @@ export default class StaffCreateController extends BaseController {
 
   create: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
     return this.handleResultData(res, next, this.createStaffService.execute(res.trace, req.body), {
+      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+    });
+  };
+
+  createStaffUser: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.createStaffService.createStaffUser(res.trace, req.body), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -38,6 +46,19 @@ export default class StaffCreateController extends BaseController {
         },
       ],
       description: "Create Staff",
+    });
+
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/staff/createstaffuser",
+      handlers: [validateData(createStaffUserSchema), this.createStaffUser],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.CREATED,
+          httpStatus: HttpStatusCodeEnum.CREATED,
+        },
+      ],
+      description: "Create Staff User",
     });
   }
 }
