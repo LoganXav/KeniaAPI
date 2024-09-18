@@ -41,5 +41,4 @@ coverage
 notes.md
 
 # db migrations
-*/database/migrations/
-*/database/migrations
+**/database/migrations/
