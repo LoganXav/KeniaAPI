@@ -28,3 +28,25 @@ export interface GetAndUpdateStaff {
   criteria: StaffCriteria;
   data: UpdateStaffData;
 }
+
+export interface CreateStaffUserResponse {
+  user: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    email: string;
+    password: string;
+    hasverified: boolean;
+    isFirstTimeLogin: boolean;
+    lastLoginDate: string;
+    usertype: string;
+    tenantId: string;
+  };
+  staff: {
+    id: number;
+    jobTitle: string;
+    userId: number;
+    roleId: number;
+  };
+}

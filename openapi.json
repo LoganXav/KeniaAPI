@@ -124,6 +124,33 @@
           }
         }
       }
+    },
+    "/staff/createstaffuser": {
+      "post": {
+        "description": "Create Staff User",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTCreateStaffUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "CreateStaffUserRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStaffUserRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -131,11 +158,11 @@
       "SignUpUserResponse": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "number"
+          "user": {
+            "type": "object"
           },
-          "tenantId": {
-            "type": "number"
+          "staff": {
+            "type": "object"
           }
         }
       },
@@ -344,6 +371,57 @@
         "required": [
           "id",
           "otpToken"
+        ]
+      },
+      "ResultTCreateStaffUserResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SignUpUserResponse"
+          }
+        }
+      },
+      "CreateStaffUserRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "jobTitle": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phoneNumber",
+          "email",
+          "jobTitle",
+          "tenantId"
         ]
       }
     },
