@@ -8,7 +8,7 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { autoInjectable } from "tsyringe";
 import CreateStaffService from "../services/CreateStaff.service";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
-import { createStaffUserSchema } from "../validators/StaffCreateSchema";
+import { createStaffSchema, createStaffUserSchema } from "../validators/StaffCreateSchema";
 import { PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
 import { CreateStaffUserData, CreateStaffUserResponse } from "../types/StaffTypes";
 
@@ -40,7 +40,7 @@ export default class StaffCreateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/create",
-      handlers: [this.create],
+      handlers: [validateData(createStaffSchema), this.create],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.CREATED,
@@ -69,7 +69,7 @@ export default class StaffCreateController extends BaseController {
           type: PropTypeEnum.OBJECT,
           props: {
             data: new TypeDescriber<CreateStaffUserResponse>({
-              name: "SignUpUserResponse",
+              name: "CreateStaffUserResponse",
               type: PropTypeEnum.OBJECT,
               props: {
                 user: {
@@ -77,6 +77,20 @@ export default class StaffCreateController extends BaseController {
                 },
                 staff: {
                   type: PropTypeEnum.OBJECT,
+                  props: {
+                    id: {
+                      type: PropTypeEnum.NUMBER,
+                    },
+                    userId: {
+                      type: PropTypeEnum.NUMBER,
+                    },
+                    jobtitle: {
+                      type: PropTypeEnum.STRING,
+                    },
+                    roleId: {
+                      type: PropTypeEnum.NUMBER,
+                    },
+                  },
                 },
               },
             }),
