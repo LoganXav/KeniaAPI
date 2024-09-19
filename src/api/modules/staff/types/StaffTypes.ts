@@ -1,9 +1,12 @@
 import { z } from "zod";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { createStaffSchema, createStaffUserSchema } from "../validators/StaffCreateSchema";
+import { createStaffSchema, createStaffUserSchema, getAndUpdateStaffSchema, staffCriteriaSchema, updateStaffDataSchema } from "../validators/StaffCreateSchema";
 
 export type CreateStaffData = z.infer<typeof createStaffSchema>;
 export type CreateStaffUserData = z.infer<typeof createStaffUserSchema>;
+export type StaffCriteriaV = z.infer<typeof staffCriteriaSchema>;
+export type UpdateStaffV = z.infer<typeof updateStaffDataSchema>;
+export type GetAndUpdateStaffV = z.infer<typeof getAndUpdateStaffSchema>;
 
 export interface StaffCriteria {
   id?: number;
@@ -49,4 +52,11 @@ export interface CreateStaffUserResponse {
     userId: number;
     roleId: number;
   };
+}
+
+export interface UpdateStaffResponse {
+  id: number;
+  jobTitle: string;
+  userId: number;
+  roleId: number;
 }
