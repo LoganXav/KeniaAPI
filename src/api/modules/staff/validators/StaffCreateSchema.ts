@@ -21,3 +21,27 @@ export const createStaffUserSchema = z.object({
   jobTitle: z.string().min(1, "Job title is required").max(100, "Job title must be less than 100 characters"),
   tenantId: z.number().positive("Tenant ID must be a positive number").optional(),
 });
+
+export const staffCriteriaSchema = z.object({
+  id: z.number().optional(),
+  userId: z.number().optional(),
+  roleId: z.number().optional(),
+  jobTitle: z.string().optional(),
+  groupId: z.number().optional(),
+  classId: z.number().optional(),
+  subjectId: z.number().optional(),
+});
+
+export const updateStaffDataSchema = z.object({
+  userId: z.number().optional(),
+  jobTitle: z.string().optional(),
+  roleId: z.number().optional(),
+  groupIds: z.array(z.number()).optional(),
+  classIds: z.array(z.number()).optional(),
+  subjectIds: z.array(z.number()).optional(),
+});
+
+export const getAndUpdateStaffSchema = z.object({
+  criteria: staffCriteriaSchema,
+  data: updateStaffDataSchema,
+});
