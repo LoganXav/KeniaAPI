@@ -4,12 +4,13 @@ import { PayloadEncryptService } from "~/api/shared/services/encryption/PayloadE
 
 class DecryptionMiddleware {
   public handle: Middleware = (req: Request, _res: Response, next: NextFunction): void => {
-    const decryptedRequestBody = PayloadEncryptService.decrypt(req.body.request);
+    if (process.env.NODE_ENV == "production") {
+      const decryptedRequestBody = PayloadEncryptService.decrypt(req.body.request);
 
-    // Replace the request body with the decrypted data
-    req.body = decryptedRequestBody;
+      req.body = decryptedRequestBody;
 
-    delete req.body.request;
+      delete req.body.request;
+    }
 
     return next();
   };

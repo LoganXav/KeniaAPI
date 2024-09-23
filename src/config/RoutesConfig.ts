@@ -15,4 +15,5 @@ export const ROUTE_WHITE_LIST = [
   `${root}/staff`,
   `${root}/staff/all`,
   `${root}/staff/create`,
+  `${root}/staff/createstaffuser`,
 ];
