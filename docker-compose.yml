@@ -21,6 +21,6 @@ services:
       - /usr/app/node_modules
       # - .:/usr/app
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
     depends_on:
       - kenia_db
