@@ -18,7 +18,6 @@ export class PayloadEncryptService {
 
       if (ServerConfig.Environment == "development") {
         encryptedResult = { result: result.data, encoded: false };
-        console.log(encryptedResult);
       } else {
         encryptedResult = { result: encrypted.toString(), encoded: true };
       }
