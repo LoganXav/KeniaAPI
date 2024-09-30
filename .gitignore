@@ -39,3 +39,6 @@ coverage
 .DS_Store
 *.pem
 notes.md
+
+# db migrations
+**/database/migrations/

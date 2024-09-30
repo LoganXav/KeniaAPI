@@ -124,6 +124,60 @@
           }
         }
       }
+    },
+    "/staff/createstaffuser": {
+      "post": {
+        "description": "Create Staff User",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTCreateStaffUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "CreateStaffUserRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStaffUserRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/staff/update_one": {
+      "post": {
+        "description": "Update Staff Information",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTCreateStaffResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "UpdateStaffRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStaffRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -344,6 +398,120 @@
         "required": [
           "id",
           "otpToken"
+        ]
+      },
+      "CreateStaffUserResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object"
+          },
+          "staff": {
+            "type": "object"
+          }
+        }
+      },
+      "ResultTCreateStaffUserResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CreateStaffUserResponse"
+          }
+        }
+      },
+      "CreateStaffUserRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "jobTitle": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phoneNumber",
+          "email",
+          "jobTitle",
+          "tenantId"
+        ]
+      },
+      "CreateStaffResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "jobTitle": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "roleId": {
+            "type": "number"
+          }
+        }
+      },
+      "ResultTCreateStaffResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CreateStaffResponse"
+          }
+        }
+      },
+      "UpdateStaffRequest": {
+        "type": "object",
+        "properties": {
+          "criteria": {
+            "type": "object"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "criteria",
+          "data"
         ]
       }
     },

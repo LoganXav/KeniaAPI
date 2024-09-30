@@ -7,7 +7,7 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import StaffCreateProvider from "../providers/StaffCreate.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { CreateStaffData } from "../types/StaffTypes";
+import { CreateStaffData, CreateStaffUserData } from "../types/StaffTypes";
 import { CREATE_ERROR, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 
@@ -31,6 +31,25 @@ export default class CreateStaffService extends BaseService<any> {
       if (createdStaff) {
         trace.setSuccessful();
         this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, `Staff ${CREATED}`, createdStaff);
+        return this.result;
+      } else {
+        throw new BadRequestError(`${CREATE_ERROR} Staff`);
+      }
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      this.result.setError(ERROR, error.httpStatusCode, error.description);
+      return this.result;
+    }
+  }
+
+  public async createStaffUser(trace: ServiceTrace, args: CreateStaffUserData): Promise<IResult> {
+    try {
+      this.initializeServiceTrace(trace, args, ["createStaffUser"]);
+      const createdStaffUser = await this.staffCreateProvider.createStaffUser(args);
+
+      if (createdStaffUser) {
+        trace.setSuccessful();
+        this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, `Staff ${CREATED}`, createdStaffUser);
         return this.result;
       } else {
         throw new BadRequestError(`${CREATE_ERROR} Staff`);

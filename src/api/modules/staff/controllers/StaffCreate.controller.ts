@@ -7,6 +7,10 @@ import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
 import CreateStaffService from "../services/CreateStaff.service";
+import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { createStaffSchema, createStaffUserSchema } from "../validators/StaffCreateSchema";
+import { PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
+import { CreateStaffUserData, CreateStaffUserResponse } from "../types/StaffTypes";
 
 @autoInjectable()
 export default class StaffCreateController extends BaseController {
@@ -24,13 +28,19 @@ export default class StaffCreateController extends BaseController {
     });
   };
 
+  createStaffUser: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.createStaffService.createStaffUser(res.trace, req.body), {
+      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+    });
+  };
+
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router());
 
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/create",
-      handlers: [this.create],
+      handlers: [validateData(createStaffSchema), this.create],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.CREATED,
@@ -38,6 +48,101 @@ export default class StaffCreateController extends BaseController {
         },
       ],
       description: "Create Staff",
+    });
+
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/staff/createstaffuser",
+      handlers: [validateData(createStaffUserSchema), this.createStaffUser],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.CREATED,
+          httpStatus: HttpStatusCodeEnum.CREATED,
+        },
+      ],
+      description: "Create Staff User",
+      apiDoc: {
+        contentType: HttpContentTypeEnum.APPLICATION_JSON,
+        requireAuth: true,
+        schema: new ResultTDescriber<CreateStaffUserResponse>({
+          name: "CreateStaffUserResponse",
+          type: PropTypeEnum.OBJECT,
+          props: {
+            data: new TypeDescriber<CreateStaffUserResponse>({
+              name: "CreateStaffUserResponse",
+              type: PropTypeEnum.OBJECT,
+              props: {
+                user: {
+                  type: PropTypeEnum.OBJECT,
+                },
+                staff: {
+                  type: PropTypeEnum.OBJECT,
+                  props: {
+                    id: {
+                      type: PropTypeEnum.NUMBER,
+                    },
+                    userId: {
+                      type: PropTypeEnum.NUMBER,
+                    },
+                    jobtitle: {
+                      type: PropTypeEnum.STRING,
+                    },
+                    roleId: {
+                      type: PropTypeEnum.NUMBER,
+                    },
+                  },
+                },
+              },
+            }),
+            error: {
+              type: PropTypeEnum.STRING,
+            },
+            message: {
+              type: PropTypeEnum.STRING,
+            },
+            statusCode: {
+              type: PropTypeEnum.STRING,
+            },
+            success: {
+              type: PropTypeEnum.BOOLEAN,
+            },
+          },
+        }),
+        requestBody: {
+          description: "CreateStaffUserRequest",
+          contentType: HttpContentTypeEnum.APPLICATION_JSON,
+          schema: new TypeDescriber<CreateStaffUserData>({
+            name: "CreateStaffUserRequest",
+            type: PropTypeEnum.OBJECT,
+            props: {
+              firstName: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              lastName: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              phoneNumber: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              email: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              jobTitle: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              tenantId: {
+                type: PropTypeEnum.NUMBER,
+                required: true,
+              },
+            },
+          }),
+        },
+      },
     });
   }
 }
