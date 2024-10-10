@@ -1,14 +1,14 @@
 import { z } from "zod";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { createStaffSchema, createStaffUserSchema, getAndUpdateStaffSchema, staffCriteriaSchema, updateStaffDataSchema } from "../validators/StaffCreateSchema";
+import { staffCreateSchema, staffGetAndUpdateSchema, staffCriteriaSchema, staffUpdateDataSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
 
-export type CreateStaffData = z.infer<typeof createStaffSchema>;
-export type CreateStaffUserData = z.infer<typeof createStaffUserSchema>;
-export type StaffCriteriaV = z.infer<typeof staffCriteriaSchema>;
-export type UpdateStaffV = z.infer<typeof updateStaffDataSchema>;
-export type GetAndUpdateStaffV = z.infer<typeof getAndUpdateStaffSchema>;
+export type StaffCreateDataType = z.infer<typeof staffCreateSchema>;
+export type StaffCreateRequestType = z.infer<typeof staffCreateRequestSchema>;
+export type StaffCriteriaVType = z.infer<typeof staffCriteriaSchema>;
+export type UpdateStaffVType = z.infer<typeof staffUpdateDataSchema>;
+export type GetAndUpdateStaffVType = z.infer<typeof staffGetAndUpdateSchema>;
 
-export interface StaffCriteria {
+export interface StaffCriteriaType {
   id?: number;
   userId?: number;
   roleId?: number;
@@ -18,7 +18,7 @@ export interface StaffCriteria {
   subjectId?: number;
 }
 
-export interface UpdateStaffData {
+export interface StaffUpdateDataType {
   userId?: number;
   jobTitle?: string;
   roleId?: number;
@@ -27,12 +27,12 @@ export interface UpdateStaffData {
   subjectIds?: number[];
 }
 
-export interface GetAndUpdateStaff {
-  criteria: StaffCriteria;
-  data: UpdateStaffData;
+export interface StaffGetAndUpdateType {
+  criteria: StaffCriteriaType;
+  data: StaffUpdateDataType;
 }
 
-export interface CreateStaffUserResponse {
+export interface StaffCreateResponseType {
   user: {
     id: number;
     firstName: string;
@@ -54,7 +54,7 @@ export interface CreateStaffUserResponse {
   };
 }
 
-export interface UpdateStaffResponse {
+export interface StaffUpdateResponseType {
   id: number;
   jobTitle: string;
   userId: number;
