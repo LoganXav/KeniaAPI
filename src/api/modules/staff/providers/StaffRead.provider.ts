@@ -16,7 +16,11 @@ export default class StaffReadProvider {
     const staffs = await dbClient?.staff?.findMany({
       where: {
         ...(id && { id: id }),
-        ...(jobTitle && { jobTitle }),
+        ...(jobTitle && {
+          jobTitle: {
+            contains: jobTitle,
+          },
+        }),
         ...(userId && { userId }),
         ...(roleId && { roleId }),
         ...(groupId && {
@@ -52,7 +56,11 @@ export default class StaffReadProvider {
     const staff = await dbClient?.staff?.findFirst({
       where: {
         ...(id && { id: id }),
-        ...(jobTitle && { jobTitle }),
+        ...(jobTitle && {
+          jobTitle: {
+            contains: jobTitle,
+          },
+        }),
         ...(userId && { userId }),
         ...(roleId && { roleId }),
         ...(groupId && {
