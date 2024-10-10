@@ -20,6 +20,7 @@ export default class StaffUpdateProvider {
           ...(roleId && { roleId }),
           ...(groupIds && {
             group: {
+              set: [],
               connect: groupIds.map((groupId) => ({ id: groupId })),
             },
           }),

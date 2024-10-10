@@ -7,6 +7,8 @@ import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
 import ReadStaffService from "../services/ReadStaff.service";
+import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { staffCriteriaSchema } from "../validators/StaffCreateSchema";
 
 @autoInjectable()
 export default class StaffUpdateController extends BaseController {
@@ -36,7 +38,7 @@ export default class StaffUpdateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff",
-      handlers: [this.getOneStaff],
+      handlers: [validateData(staffCriteriaSchema), this.getOneStaff],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
@@ -49,7 +51,7 @@ export default class StaffUpdateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/all",
-      handlers: [this.getStaffs],
+      handlers: [validateData(staffCriteriaSchema), this.getStaffs],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

@@ -400,14 +400,94 @@
           "otpToken"
         ]
       },
-      "CreateStaffUserResponse": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "number"
+          }
+        }
+      },
+      "Staff": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "jobTitle": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "roleId": {
+            "type": "number"
+          }
+        }
+      },
+      "Data": {
         "type": "object",
         "properties": {
           "user": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "password": {
+                "type": "string"
+              },
+              "phoneNumber": {
+                "type": "string"
+              },
+              "tenantId": {
+                "type": "number"
+              }
+            }
           },
           "staff": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "jobTitle": {
+                "type": "string"
+              },
+              "userId": {
+                "type": "number"
+              },
+              "roleId": {
+                "type": "number"
+              }
+            }
           }
         }
       },
@@ -427,7 +507,7 @@
             "type": "boolean"
           },
           "data": {
-            "$ref": "#/components/schemas/CreateStaffUserResponse"
+            "$ref": "#/components/schemas/Data"
           }
         }
       },

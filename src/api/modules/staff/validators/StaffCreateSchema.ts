@@ -42,6 +42,10 @@ export const updateStaffDataSchema = z.object({
 });
 
 export const getAndUpdateStaffSchema = z.object({
-  criteria: staffCriteriaSchema,
-  data: updateStaffDataSchema,
+  criteria: staffCriteriaSchema.refine((data) => Object.keys(data).length > 0, {
+    message: "At least one criterion is required",
+  }),
+  data: updateStaffDataSchema.refine((data) => Object.keys(data).length > 0, {
+    message: "At least one data field is required",
+  }),
 });
