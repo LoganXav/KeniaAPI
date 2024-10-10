@@ -68,30 +68,33 @@ export default class StaffCreateController extends BaseController {
           name: "CreateStaffUserResponse",
           type: PropTypeEnum.OBJECT,
           props: {
-            data: new TypeDescriber<CreateStaffUserResponse>({
-              name: "CreateStaffUserResponse",
+            data: new TypeDescriber<any>({
+              name: "Data",
               type: PropTypeEnum.OBJECT,
               props: {
-                user: {
-                  type: PropTypeEnum.OBJECT,
-                },
-                staff: {
+                user: new TypeDescriber<any>({
+                  name: "User",
                   type: PropTypeEnum.OBJECT,
                   props: {
-                    id: {
-                      type: PropTypeEnum.NUMBER,
-                    },
-                    userId: {
-                      type: PropTypeEnum.NUMBER,
-                    },
-                    jobtitle: {
-                      type: PropTypeEnum.STRING,
-                    },
-                    roleId: {
-                      type: PropTypeEnum.NUMBER,
-                    },
+                    id: { type: PropTypeEnum.NUMBER },
+                    firstName: { type: PropTypeEnum.STRING },
+                    lastName: { type: PropTypeEnum.STRING },
+                    email: { type: PropTypeEnum.STRING },
+                    password: { type: PropTypeEnum.STRING },
+                    phoneNumber: { type: PropTypeEnum.STRING },
+                    tenantId: { type: PropTypeEnum.NUMBER },
                   },
-                },
+                }),
+                staff: new TypeDescriber<any>({
+                  name: "Staff",
+                  type: PropTypeEnum.OBJECT,
+                  props: {
+                    id: { type: PropTypeEnum.NUMBER },
+                    jobTitle: { type: PropTypeEnum.STRING },
+                    userId: { type: PropTypeEnum.NUMBER },
+                    roleId: { type: PropTypeEnum.NUMBER },
+                  },
+                }),
               },
             }),
             error: {
