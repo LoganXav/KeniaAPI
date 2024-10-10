@@ -10,6 +10,7 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 import { CreateStaffData, CreateStaffUserData } from "../types/StaffTypes";
 import { CREATE_ERROR, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+// import { PrismaTransactionClient } from "~/infrastructure/internal/database";
 
 @autoInjectable()
 export default class CreateStaffService extends BaseService<any> {
@@ -45,6 +46,9 @@ export default class CreateStaffService extends BaseService<any> {
   public async createStaffUser(trace: ServiceTrace, args: CreateStaffUserData): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args, ["createStaffUser"]);
+
+      //TODO: Validate if staffUser already exists
+
       const createdStaffUser = await this.staffCreateProvider.createStaffUser(args);
 
       if (createdStaffUser) {
@@ -60,4 +64,18 @@ export default class CreateStaffService extends BaseService<any> {
       return this.result;
     }
   }
+  //
+  // // TODO: Refactor create User and staff from provider layer
+  // private async function createUserAndStaff(args: CreateStaffData) {
+  //   try {
+  //     const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
+  //     const user = await this.userCreateProvider.create(args, tx)
+  //     const userArgs = {jobTitle: args.jobTitle, userId: user.id}
+  //
+  //
+  //     const staff = await this.StaffCreateProvider.create(userArgs, tx);
+  //
+  // } catch (error: any) {
+  //
+  //   }
 }

@@ -49,6 +49,7 @@ export default class StaffCreateProvider {
     try {
       const dbClient = tx ? tx : DbClient;
       const { firstName, lastName, phoneNumber, email, tenantId, jobTitle } = data;
+      //TODO: move to StaffCreateService (business logic)
       const hashedPassword = PasswordEncryptionService.hashPassword(ServerConfig.Params.Security.DefaultPassword.Staff);
 
       const newUserAndStaff = await dbClient?.$transaction(async () => {

@@ -11,7 +11,6 @@ class DecryptionMiddleware {
 
       delete req.body.request;
     }
-
     return next();
   };
 }
