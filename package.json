@@ -17,7 +17,7 @@
     "dev:stage": "dotenv -e .env.stage -- ts-node-dev --respawn --transpile-only --no-notify -r tsconfig-paths/register src/index.ts",
     "test:stage": "dotenv -e .env.stage -- jest -i",
     "prisma:stage-generate": "dotenv -e .env.stage -- pnpm exec prisma generate --schema=src/infrastructure/internal/database/schema.prisma",
-    "prisma:stage-migrate": "dotenv -e .env.stage -- pnpm exec prisma migrate dev --name migration_$(date +%s)",
+    "prisma:stage-migrate": "dotenv -e .env.stage -- pnpm exec prisma migrate deploy",
     "prepare": "husky"
   },
   "keywords": [],
