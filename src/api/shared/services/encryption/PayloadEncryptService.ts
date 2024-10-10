@@ -40,6 +40,7 @@ export class PayloadEncryptService {
       // Convert decrypted WordArray to UTF-8 string
       const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
 
+      console.log(decryptedText, "decryptedTextdec");
       // Parse the decrypted text as JSON
       return JSON.parse(decryptedText);
     } catch (error) {
