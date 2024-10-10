@@ -6,30 +6,24 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import CreateStaffService from "../services/CreateStaff.service";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
-import { createStaffSchema, createStaffUserSchema } from "../validators/StaffCreateSchema";
+import { staffCreateSchema } from "../validators/StaffCreateSchema";
 import { PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
-import { CreateStaffUserData, CreateStaffUserResponse } from "../types/StaffTypes";
+import { StaffCreateRequestType, StaffCreateResponseType } from "../types/StaffTypes";
+import StaffCreateService from "../services/StaffCreate.service";
 
 @autoInjectable()
 export default class StaffCreateController extends BaseController {
   static controllerName: string;
-  private createStaffService: CreateStaffService;
-  constructor(createStaffService: CreateStaffService) {
+  private staffCreateService: StaffCreateService;
+  constructor(StaffCreateService: StaffCreateService) {
     super();
     this.controllerName = "StaffCreateController";
-    this.createStaffService = createStaffService;
+    this.staffCreateService = StaffCreateService;
   }
 
-  create: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.createStaffService.execute(res.trace, req.body), {
-      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
-    });
-  };
-
-  createStaffUser: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.createStaffService.createStaffUser(res.trace, req.body), {
+  staffCreate: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.staffCreateService.execute(res.trace, req.body), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -40,7 +34,7 @@ export default class StaffCreateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/create",
-      handlers: [validateData(createStaffSchema), this.create],
+      handlers: [validateData(staffCreateSchema), this.staffCreate],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.CREATED,
@@ -48,24 +42,11 @@ export default class StaffCreateController extends BaseController {
         },
       ],
       description: "Create Staff",
-    });
-
-    this.addRoute({
-      method: HttpMethodEnum.POST,
-      path: "/staff/createstaffuser",
-      handlers: [validateData(createStaffUserSchema), this.createStaffUser],
-      produces: [
-        {
-          applicationStatus: ApplicationStatusEnum.CREATED,
-          httpStatus: HttpStatusCodeEnum.CREATED,
-        },
-      ],
-      description: "Create Staff User",
       apiDoc: {
         contentType: HttpContentTypeEnum.APPLICATION_JSON,
         requireAuth: true,
-        schema: new ResultTDescriber<CreateStaffUserResponse>({
-          name: "CreateStaffUserResponse",
+        schema: new ResultTDescriber<StaffCreateResponseType>({
+          name: "StaffCreateResponse",
           type: PropTypeEnum.OBJECT,
           props: {
             data: new TypeDescriber<any>({
@@ -112,10 +93,10 @@ export default class StaffCreateController extends BaseController {
           },
         }),
         requestBody: {
-          description: "CreateStaffUserRequest",
+          description: "StaffCreateRequest",
           contentType: HttpContentTypeEnum.APPLICATION_JSON,
-          schema: new TypeDescriber<CreateStaffUserData>({
-            name: "CreateStaffUserRequest",
+          schema: new TypeDescriber<StaffCreateRequestType>({
+            name: "StaffCreateRequest",
             type: PropTypeEnum.OBJECT,
             props: {
               firstName: {

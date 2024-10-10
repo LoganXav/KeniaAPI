@@ -125,27 +125,27 @@
         }
       }
     },
-    "/staff/createstaffuser": {
+    "/staff/create": {
       "post": {
-        "description": "Create Staff User",
+        "description": "Create Staff",
         "responses": {
           "201": {
             "description": "Created",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResultTCreateStaffUserResponse"
+                  "$ref": "#/components/schemas/ResultTStaffCreateResponse"
                 }
               }
             }
           }
         },
         "requestBody": {
-          "description": "CreateStaffUserRequest",
+          "description": "StaffCreateRequest",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateStaffUserRequest"
+                "$ref": "#/components/schemas/StaffCreateRequest"
               }
             }
           }
@@ -491,7 +491,7 @@
           }
         }
       },
-      "ResultTCreateStaffUserResponse": {
+      "ResultTStaffCreateResponse": {
         "type": "object",
         "properties": {
           "message": {
@@ -511,7 +511,7 @@
           }
         }
       },
-      "CreateStaffUserRequest": {
+      "StaffCreateRequest": {
         "type": "object",
         "properties": {
           "firstName": {
