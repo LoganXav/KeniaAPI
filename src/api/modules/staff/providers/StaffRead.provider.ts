@@ -1,6 +1,7 @@
-import DbClient from "~/infrastructure/internal/database";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Staff } from "@prisma/client";
-import { StaffCriteria } from "../types/StaffTypes";
+import { StaffCriteriaType } from "../types/StaffTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StaffReadProvider {
   public async getAllStaff(tx?: any): Promise<Staff[]> {
@@ -10,8 +11,7 @@ export default class StaffReadProvider {
     return staffs;
   }
 
-  public async getByCriteria(criteria: StaffCriteria, tx?: any): Promise<Staff[]> {
-    const dbClient = tx ? tx : DbClient;
+  public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
     const { id, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
     const staffs = await dbClient?.staff?.findMany({
       where: {
@@ -50,43 +50,20 @@ export default class StaffReadProvider {
     return staffs;
   }
 
-  public async getOneByCriteria(criteria: StaffCriteria, tx?: any): Promise<Staff> {
-    const dbClient = tx ? tx : DbClient;
-    const { id, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
-    const staff = await dbClient?.staff?.findFirst({
-      where: {
-        ...(id && { id: id }),
-        ...(jobTitle && {
-          jobTitle: {
-            contains: jobTitle,
-          },
-        }),
-        ...(userId && { userId }),
-        ...(roleId && { roleId }),
-        ...(groupId && {
-          group: {
-            some: {
-              id: groupId,
-            },
-          },
-        }),
-        ...(classId && {
-          class: {
-            some: {
-              id: classId,
-            },
-          },
-        }),
-        ...(subjectId && {
-          subject: {
-            some: {
-              id: subjectId,
-            },
-          },
-        }),
-      },
-    });
+  public async getOneByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff | null> {
+    try {
+      const { id } = criteria;
+      const numericId = id ? Number(id) : undefined;
 
-    return staff;
+      const result = await dbClient?.staff?.findFirst({
+        where: {
+          ...(numericId && { id: numericId }),
+        },
+      });
+
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
   }
 }

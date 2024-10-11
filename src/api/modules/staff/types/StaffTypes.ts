@@ -5,8 +5,8 @@ import { staffCreateSchema, staffGetAndUpdateSchema, staffCriteriaSchema, staffU
 export type StaffCreateDataType = z.infer<typeof staffCreateSchema>;
 export type StaffCreateRequestType = z.infer<typeof staffCreateRequestSchema>;
 export type StaffCriteriaVType = z.infer<typeof staffCriteriaSchema>;
-export type UpdateStaffVType = z.infer<typeof staffUpdateDataSchema>;
-export type GetAndUpdateStaffVType = z.infer<typeof staffGetAndUpdateSchema>;
+export type StaffUpdateVType = z.infer<typeof staffUpdateDataSchema>;
+export type StaffGetAndUpdateVType = z.infer<typeof staffGetAndUpdateSchema>;
 
 export interface StaffCriteriaType {
   id?: number;

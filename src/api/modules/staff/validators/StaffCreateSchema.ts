@@ -23,13 +23,13 @@ export const staffCreateRequestSchema = z.object({
 });
 
 export const staffCriteriaSchema = z.object({
-  id: z.number().optional(),
-  userId: z.number().optional(),
-  roleId: z.number().optional(),
+  id: z.string().optional(),
+  userId: z.string().optional(),
+  roleId: z.string().optional(),
   jobTitle: z.string().optional(),
-  groupId: z.number().optional(),
-  classId: z.number().optional(),
-  subjectId: z.number().optional(),
+  groupId: z.string().optional(),
+  classId: z.string().optional(),
+  subjectId: z.string().optional(),
 });
 
 export const staffUpdateDataSchema = z.object({

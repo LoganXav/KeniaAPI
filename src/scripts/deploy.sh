@@ -18,3 +18,6 @@ sleep 60
 docker exec -i kenia_api pnpm run prisma:stage-migrate
 
 echo "Deployment completed successfully!"
+
+
+#  "prisma:stage-migrate": "dotenv -e .env.stage -- pnpm exec prisma migrate dev --name migration_$(date +%s)",

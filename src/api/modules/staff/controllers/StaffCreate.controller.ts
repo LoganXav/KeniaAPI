@@ -7,7 +7,7 @@ import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
-import { staffCreateSchema } from "../validators/StaffCreateSchema";
+import { staffCreateRequestSchema } from "../validators/StaffCreateSchema";
 import { PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
 import { StaffCreateRequestType, StaffCreateResponseType } from "../types/StaffTypes";
 import StaffCreateService from "../services/StaffCreate.service";
@@ -22,7 +22,7 @@ export default class StaffCreateController extends BaseController {
     this.staffCreateService = StaffCreateService;
   }
 
-  staffCreate: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+  create: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
     return this.handleResultData(res, next, this.staffCreateService.execute(res.trace, req.body), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
@@ -34,7 +34,7 @@ export default class StaffCreateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/create",
-      handlers: [validateData(staffCreateSchema), this.staffCreate],
+      handlers: [validateData(staffCreateRequestSchema), this.create],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.CREATED,
