@@ -31,21 +31,3 @@ export const staffCriteriaSchema = z.object({
   classId: z.string().optional(),
   subjectId: z.string().optional(),
 });
-
-export const staffUpdateDataSchema = z.object({
-  userId: z.number().optional(),
-  jobTitle: z.string().optional(),
-  roleId: z.number().optional(),
-  groupIds: z.array(z.number()).optional(),
-  classIds: z.array(z.number()).optional(),
-  subjectIds: z.array(z.number()).optional(),
-});
-
-export const staffGetAndUpdateSchema = z.object({
-  criteria: staffCriteriaSchema.refine((data) => Object.keys(data).length > 0, {
-    message: "At least one criterion is required",
-  }),
-  data: staffUpdateDataSchema.refine((data) => Object.keys(data).length > 0, {
-    message: "At least one data field is required",
-  }),
-});

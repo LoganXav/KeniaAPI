@@ -151,33 +151,6 @@
           }
         }
       }
-    },
-    "/staff/update_one": {
-      "post": {
-        "description": "Update Staff Information",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResultTCreateStaffResponse"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "description": "UpdateStaffRequest",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateStaffRequest"
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -540,58 +513,6 @@
           "email",
           "jobTitle",
           "tenantId"
-        ]
-      },
-      "CreateStaffResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "jobTitle": {
-            "type": "string"
-          },
-          "userId": {
-            "type": "number"
-          },
-          "roleId": {
-            "type": "number"
-          }
-        }
-      },
-      "ResultTCreateStaffResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "statusCode": {
-            "type": "string"
-          },
-          "error": {
-            "type": "string"
-          },
-          "success": {
-            "type": "boolean"
-          },
-          "data": {
-            "$ref": "#/components/schemas/CreateStaffResponse"
-          }
-        }
-      },
-      "UpdateStaffRequest": {
-        "type": "object",
-        "properties": {
-          "criteria": {
-            "type": "object"
-          },
-          "data": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "criteria",
-          "data"
         ]
       }
     },

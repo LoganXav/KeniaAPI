@@ -1,15 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { z } from "zod";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { staffCreateSchema, staffGetAndUpdateSchema, staffCriteriaSchema, staffUpdateDataSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
+import { staffCreateSchema, staffCriteriaSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
+import { staffUpdateManySchema, staffUpdateSchema } from "../validators/StaffUpdateSchema";
 
 export type StaffCreateDataType = z.infer<typeof staffCreateSchema>;
 export type StaffCreateRequestType = z.infer<typeof staffCreateRequestSchema>;
 export type StaffCriteriaVType = z.infer<typeof staffCriteriaSchema>;
-export type StaffUpdateVType = z.infer<typeof staffUpdateDataSchema>;
-export type StaffGetAndUpdateVType = z.infer<typeof staffGetAndUpdateSchema>;
+// export type StaffUpdateVType = z.infer<typeof staffUpdateDataSchema>;
+export type StaffUpdateRequestType = z.infer<typeof staffUpdateSchema>;
+export type StaffUpdateManyRequestType = z.infer<typeof staffUpdateManySchema>;
 
 export interface StaffCriteriaType {
   id?: number;
+  ids?: number[];
   userId?: number;
   roleId?: number;
   jobTitle?: string;

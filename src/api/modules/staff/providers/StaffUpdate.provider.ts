@@ -1,39 +1,40 @@
-import DbClient from "~/infrastructure/internal/database";
-import { Staff } from "@prisma/client";
-import { StaffCriteria, UpdateStaffData } from "../types/StaffTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { Prisma, Staff } from "@prisma/client";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/StaffTypes";
 
 export default class StaffUpdateProvider {
-  public async updateOne(criteria: StaffCriteria, updateData: UpdateStaffData, tx?: any): Promise<Staff> {
-    const dbClient = tx ? tx : DbClient;
-    const { jobTitle, userId, roleId, groupIds, classIds, subjectIds } = updateData;
-
+  public async updateOne(criteria: StaffUpdateRequestType & { id: string }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
+      const { jobTitle, roleId, groupIds, classIds, subjectIds, id, userId } = criteria;
+
+      const numericId = Number(id);
+      const numericUserId = Number(userId);
+
       const updatedStaff = await dbClient?.staff?.update({
         where: {
-          ...(criteria.id && { id: criteria.id }),
-          ...(criteria.userId && { userId: criteria.userId }),
+          id: numericId,
+          userId: numericUserId,
         },
         data: {
           ...(jobTitle && { jobTitle }),
-          ...(userId && { userId }),
           ...(roleId && { roleId }),
           ...(groupIds && {
             group: {
               set: [],
-              connect: groupIds.map((groupId) => ({ id: groupId })),
+              connect: groupIds.map((groupId: number) => ({ id: groupId })),
             },
           }),
           ...(classIds && {
             classes: {
               set: [],
-              connect: classIds.map((classId) => ({ id: classId })),
+              connect: classIds.map((classId: number) => ({ id: classId })),
             },
           }),
           ...(subjectIds && {
             subjects: {
               set: [],
-              connect: subjectIds.map((subjectId) => ({ id: subjectId })),
+              connect: subjectIds.map((subjectId: number) => ({ id: subjectId })),
             },
           }),
         },
@@ -44,18 +45,19 @@ export default class StaffUpdateProvider {
     }
   }
 
-  public async updateMany(criteria: StaffCriteria, updateData: UpdateStaffData, tx?: any): Promise<Staff[]> {
-    const { userId, roleId, groupIds, classIds, subjectIds } = updateData;
-    const dbClient = tx ? tx : DbClient;
+  public async updateMany(criteria: StaffUpdateManyRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Prisma.BatchPayload> {
     try {
+      const { roleId, jobTitle, groupIds, classIds, subjectIds, ids } = criteria;
+
       const updatedStaffs = await dbClient?.staff?.updateMany({
         where: {
-          ...(criteria.id && { id: criteria.id }),
-          ...(criteria.userId && { userId: criteria.userId }),
+          id: {
+            in: ids,
+          },
         },
         data: {
-          ...(userId && { userId }),
           ...(roleId && { roleId }),
+          ...(jobTitle && { jobTitle }),
           ...(groupIds && {
             group: {
               connect: groupIds.map((groupId) => ({ id: groupId })),
@@ -74,42 +76,42 @@ export default class StaffUpdateProvider {
         },
       });
 
-      return updatedStaffs as Promise<Staff[]>;
+      return updatedStaffs;
     } catch (error: any) {
       throw new InternalServerError(error.message);
     }
   }
 
-  public async removeListFromStaff(criteria: StaffCriteria, updateData: UpdateStaffData, tx?: any): Promise<Staff> {
-    const dbClient = tx ? tx : DbClient;
-    const { groupIds, classIds, subjectIds } = updateData;
-    try {
-      const updatedStaff = await dbClient?.staff?.update({
-        where: {
-          id: criteria.id,
-        },
-        data: {
-          ...(groupIds && {
-            group: {
-              disconnect: groupIds.map((groupId) => ({ id: groupId })),
-            },
-          }),
-          ...(classIds && {
-            classes: {
-              disconnect: classIds.map((classId) => ({ id: classId })),
-            },
-          }),
-          ...(subjectIds && {
-            subjects: {
-              disconnect: subjectIds.map((subjectId) => ({ id: subjectId })),
-            },
-          }),
-        },
-      });
+  // public async removeListFromStaff(criteria: StaffCriteria, updateData: UpdateStaffData, tx?: any): Promise<Staff> {
+  //   const dbClient = tx ? tx : DbClient;
+  //   const { groupIds, classIds, subjectIds } = updateData;
+  //   try {
+  //     const updatedStaff = await dbClient?.staff?.update({
+  //       where: {
+  //         id: criteria.id,
+  //       },
+  //       data: {
+  //         ...(groupIds && {
+  //           group: {
+  //             disconnect: groupIds.map((groupId) => ({ id: groupId })),
+  //           },
+  //         }),
+  //         ...(classIds && {
+  //           classes: {
+  //             disconnect: classIds.map((classId) => ({ id: classId })),
+  //           },
+  //         }),
+  //         ...(subjectIds && {
+  //           subjects: {
+  //             disconnect: subjectIds.map((subjectId) => ({ id: subjectId })),
+  //           },
+  //         }),
+  //       },
+  //     });
 
-      return updatedStaff as Promise<Staff>;
-    } catch (error: any) {
-      throw new InternalServerError(error.message);
-    }
-  }
+  //     return updatedStaff as Promise<Staff>;
+  //   } catch (error: any) {
+  //     throw new InternalServerError(error.message);
+  //   }
+  // }
 }

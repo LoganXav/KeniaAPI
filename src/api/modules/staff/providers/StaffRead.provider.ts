@@ -12,10 +12,13 @@ export default class StaffReadProvider {
   }
 
   public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
-    const { id, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
+    const { id, ids, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
     const staffs = await dbClient?.staff?.findMany({
       where: {
         ...(id && { id: id }),
+        id: {
+          in: ids,
+        },
         ...(jobTitle && {
           jobTitle: {
             contains: jobTitle,
