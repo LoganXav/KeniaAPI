@@ -6,28 +6,28 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import ReadStaffService from "../services/ReadStaff.service";
-import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import StaffReadService from "../services/StaffRead.service";
 import { staffCriteriaSchema } from "../validators/StaffCreateSchema";
+import { validateParams } from "~/api/shared/helpers/middleware/validateData";
 
 @autoInjectable()
 export default class StaffUpdateController extends BaseController {
   static controllerName: string;
-  private readStaffService: ReadStaffService;
-  constructor(readStaffService: ReadStaffService) {
+  private staffReadService: StaffReadService;
+  constructor(staffReadService: StaffReadService) {
     super();
     this.controllerName = "StaffReadController";
-    this.readStaffService = readStaffService;
+    this.staffReadService = staffReadService;
   }
 
-  getOneStaff: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.readStaffService.execute(res.trace, req.body), {
+  staffRead: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.staffReadService.staffRead(res.trace, req.query), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
 
-  getStaffs: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.readStaffService.getStaffs(res.trace, req.body), {
+  staffReadOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.staffReadService.execute(res.trace, req.params), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -36,29 +36,29 @@ export default class StaffUpdateController extends BaseController {
     this.setRouter(router());
 
     this.addRoute({
-      method: HttpMethodEnum.POST,
-      path: "/staff",
-      handlers: [validateData(staffCriteriaSchema), this.getOneStaff],
+      method: HttpMethodEnum.GET,
+      path: "/staff/list",
+      handlers: [validateParams(staffCriteriaSchema), this.staffRead],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Get Staff Information",
+      description: "Get Staff List",
     });
 
     this.addRoute({
-      method: HttpMethodEnum.POST,
-      path: "/staff/all",
-      handlers: [validateData(staffCriteriaSchema), this.getStaffs],
+      method: HttpMethodEnum.GET,
+      path: "/staff/:id",
+      handlers: [this.staffReadOne],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Get Staffs Information",
+      description: "Get Single Staff",
     });
   }
 }

@@ -1,5 +1,5 @@
 export function RESOURCE_FETCHED_SUCCESSFULLY(resourceName = "Resource") {
-  return ` ${resourceName} fetched successfully.`;
+  return `${resourceName} fetched successfully.`;
 }
 
 export function RESOURCE_RECORD_NOT_FOUND(resourceName = "Resource") {

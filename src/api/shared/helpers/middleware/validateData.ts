@@ -20,3 +20,21 @@ export function validateData(schema: z.ZodObject<any, any>) {
     }
   };
 }
+
+export function validateParams(schema: z.ZodObject<any, any>) {
+  return async (req: IRequest, res: IResponse, next: INextFunction) => {
+    try {
+      await schema.parseAsync(req.query);
+      next();
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const errorMessages = error.errors.map((issue: any) => ({
+          message: issue.message,
+        }));
+        res.status(HttpStatusCodeEnum.BAD_REQUEST).json({ error: VALIDATION_ERROR, details: errorMessages });
+      } else {
+        res.status(HttpStatusCodeEnum.INTERNAL_SERVER_ERROR).json({ error: INTERNAL_SERVER_ERROR });
+      }
+    }
+  };
+}
