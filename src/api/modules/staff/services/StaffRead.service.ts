@@ -63,10 +63,17 @@ export default class StaffReadService extends BaseService<any> {
       } else {
         staffs = await this.staffReadProvider.getByCriteria(args);
       }
+      const fetchedStaffData = [];
+
+      for (const staff of staffs) {
+        const user = await this.userReadProvider.getOneByCriteria({ id: staff.userId });
+        const mergedData = { ...staff, user };
+        fetchedStaffData.push(mergedData);
+      }
 
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STAFF_RESOURCE), staffs);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STAFF_RESOURCE), fetchedStaffData);
 
       return this.result;
     } catch (error: any) {
