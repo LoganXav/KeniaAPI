@@ -2,9 +2,6 @@
 import * as z from "zod";
 
 export const staffUpdateSchema = z.object({
-  userId: z.number({
-    required_error: "Argument userId is missing",
-  }),
   jobTitle: z.string().optional(),
   roleId: z.number().optional(),
   groupIds: z.array(z.number()).optional(),
