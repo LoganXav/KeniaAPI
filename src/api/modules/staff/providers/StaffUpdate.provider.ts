@@ -6,15 +6,13 @@ import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/Sta
 export default class StaffUpdateProvider {
   public async updateOne(criteria: StaffUpdateRequestType & { id: string }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
-      const { jobTitle, roleId, groupIds, classIds, subjectIds, id, userId } = criteria;
+      const { jobTitle, roleId, groupIds, classIds, subjectIds, id } = criteria;
 
       const numericId = Number(id);
-      const numericUserId = Number(userId);
 
       const updatedStaff = await dbClient?.staff?.update({
         where: {
           id: numericId,
-          userId: numericUserId,
         },
         data: {
           ...(jobTitle && { jobTitle }),
