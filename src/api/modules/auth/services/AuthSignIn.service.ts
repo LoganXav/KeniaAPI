@@ -43,6 +43,10 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
 
       const isPasswordMatch = await PasswordEncryptionService.verifyPassword(args.password, foundUser.password);
 
+      if (args.userType.toUpperCase() !== foundUser.userType) {
+        throw new BadRequestError(INVALID_CREDENTIALS);
+      }
+
       const IS_NOT_MATCH = false;
 
       if (isPasswordMatch === IS_NOT_MATCH) {
