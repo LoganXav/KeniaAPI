@@ -66,9 +66,12 @@ export default class StaffReadService extends BaseService<any> {
       const fetchedStaffData = [];
 
       for (const staff of staffs) {
-        const user = await this.userReadProvider.getOneByCriteria({ id: staff.userId });
-        const mergedData = { ...staff, user };
-        fetchedStaffData.push(mergedData);
+        const _user = await this.userReadProvider.getOneByCriteria({ id: staff.userId });
+        if (_user) {
+          const { password, ...user } = _user;
+          const mergedData = { ...staff, user };
+          fetchedStaffData.push(mergedData);
+        }
       }
 
       trace.setSuccessful();
