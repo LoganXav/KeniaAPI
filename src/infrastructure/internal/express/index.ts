@@ -121,11 +121,8 @@ export default class Express {
       next(err);
     });
 
-    this.app.use(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (err: Error, req: Request, res: Response, next: NextFunction) => {
-        errorHandler.handleError(err, res);
-      }
-    );
+    this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      errorHandler.handleError(err, res);
+    });
   }
 }

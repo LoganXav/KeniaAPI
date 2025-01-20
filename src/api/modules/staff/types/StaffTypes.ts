@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { z } from "zod";
 import { staffCreateSchema, staffCriteriaSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
 import { staffUpdateManySchema, staffUpdateSchema } from "../validators/StaffUpdateSchema";

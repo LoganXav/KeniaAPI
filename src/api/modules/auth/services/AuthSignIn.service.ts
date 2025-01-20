@@ -65,7 +65,7 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
       }
 
       const accessToken = await JwtService.getJwt(foundUser);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       const { password, ...signedInUserData } = foundUser;
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, SIGN_IN_SUCCESSFUL, signedInUserData, accessToken);
