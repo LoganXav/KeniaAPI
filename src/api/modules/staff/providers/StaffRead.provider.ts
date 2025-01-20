@@ -8,7 +8,7 @@ export default class StaffReadProvider {
     const dbClient = tx ? tx : DbClient;
     const _staffs = await dbClient?.staff?.findMany();
 
-    const staffs = _staffs.map(({...otherStaffInto }) => otherStaffInto);
+    const staffs = _staffs.map(({ password, ...otherStaffInto }) => otherStaffInto);
     return staffs;
   }
 
@@ -51,7 +51,7 @@ export default class StaffReadProvider {
       },
     });
 
-    const staffs = _staffs.map(({...otherStaffInfo }) => otherStaffInfo);
+    const staffs = _staffs.map(({ password, ...otherStaffInfo }) => otherStaffInfo);
     return staffs;
   }
 
@@ -67,7 +67,7 @@ export default class StaffReadProvider {
       });
 
       if (result) {
-        const {...staff } = result;
+        const { password, ...staff } = result;
         return staff;
       }
 
