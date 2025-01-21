@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { z } from "zod";
 import { staffCreateSchema, staffCriteriaSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
 import { staffUpdateManySchema, staffUpdateSchema } from "../validators/StaffUpdateSchema";
@@ -62,4 +61,11 @@ export interface StaffUpdateResponseType {
   jobTitle: string;
   userId: number;
   roleId: number;
+}
+
+export interface StaffCreateType {
+  jobTitle: string;
+  userId: number;
+  roleId: number;
+  tenantId: number;
 }

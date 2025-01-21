@@ -62,7 +62,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
       }
 
       const accessToken = await JwtService.getJwt(tokenOwner);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       const { password, ...verifyUserData } = tokenOwner;
 
       if (tokenOwner.hasVerified) {

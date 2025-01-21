@@ -21,6 +21,9 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import RoleCreateProvider from "../../role/providers/RoleCreate.provider";
+import StaffCreateProvider from "../../staff/providers/StaffCreate.provider";
+import { permission } from "process";
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
   static serviceName = "AuthSignUpService";
@@ -29,13 +32,17 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
   userReadProvider: UserReadProvider;
   userCreateProvider: UserCreateProvider;
   tenantCreateProvider: TenantCreateProvider;
+  roleCreateProvider: RoleCreateProvider;
+  staffCreateProvider: StaffCreateProvider;
 
-  constructor(tokenProvider: TokenProvider, userReadProvider: UserReadProvider, tenantCreateProvider: TenantCreateProvider, userCreateProvider: UserCreateProvider) {
+  constructor(tokenProvider: TokenProvider, userReadProvider: UserReadProvider, tenantCreateProvider: TenantCreateProvider, userCreateProvider: UserCreateProvider, roleCreateProvider: RoleCreateProvider, staffCreateProvider: StaffCreateProvider) {
     super(AuthSignUpService.serviceName);
     this.tokenProvider = tokenProvider;
     this.userReadProvider = userReadProvider;
     this.userCreateProvider = userCreateProvider;
     this.tenantCreateProvider = tenantCreateProvider;
+    this.roleCreateProvider = roleCreateProvider;
+    this.staffCreateProvider = staffCreateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -81,6 +88,15 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         const input = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
 
         const user = await this.userCreateProvider.create(input, tx);
+
+        // TODO: move constants to constants folder
+        const roleCreateInput = { name: "Proprietor", rank: 1, permissions: [], tenantId: tenant?.id };
+        const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
+
+        // TODO: move constants to constants folder
+
+        const staffCreateInput = { jobTitle: "Proprietor", userId: user?.id, roleId: role?.id, tenantId: tenant?.id };
+        await this.staffCreateProvider.create(staffCreateInput, tx);
 
         const otpToken = generateStringOfLength(businessConfig.emailTokenLength);
         const expiresAt = DateTime.now().plus({ minutes: businessConfig.emailTokenExpiresInMinutes }).toJSDate();

@@ -1,5 +1,5 @@
 import { z } from "zod";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { createPermissionSchema } from "../validators/PermissionCreateSchema";
 
 export type CreatePermissionData = z.infer<typeof createPermissionSchema>;
