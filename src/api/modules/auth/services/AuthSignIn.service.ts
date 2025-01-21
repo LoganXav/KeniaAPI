@@ -65,7 +65,7 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
       }
 
       const accessToken = await JwtService.getJwt(foundUser);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       const { password, ...signedInUserData } = foundUser;
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, SIGN_IN_SUCCESSFUL, signedInUserData, accessToken);
@@ -74,6 +74,7 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);
+      this.result.setData(ERROR, error.httpStatusCode, error.description);
       this.result.setError(ERROR, error.httpStatusCode, error.description);
       return this.result;
     }

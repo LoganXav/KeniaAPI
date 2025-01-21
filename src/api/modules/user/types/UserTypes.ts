@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { z } from "zod";
 import { UserToken, UserType } from "@prisma/client";
 import { verifyOtpTokenSchema } from "~/api/modules/auth/validators/VerifyOtpSchema";

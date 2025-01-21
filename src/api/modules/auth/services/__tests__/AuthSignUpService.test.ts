@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import { UserType } from "@prisma/client";
 import Event from "../../../../shared/helpers/events";
 import AuthSignUpService from "../AuthSignUp.service";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import DbClient from "../../../../../infrastructure/internal/database";
 import { ISession } from "../../../../../infrastructure/internal/types";
 import { eventTypes } from "../../../../shared/helpers/enums/EventTypes.enum";
@@ -43,7 +43,7 @@ describe("Auth Signup Service", () => {
     const mockUserCreateProvider = {
       create: jest.fn(),
     };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const mockLoggingProvider = {
       error: jest.fn(),
     };

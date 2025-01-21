@@ -1,23 +1,27 @@
-import DbClient from "~/infrastructure/internal/database";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Role } from "@prisma/client";
 import { CreateRoleData } from "../types/RoleTypes";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class RoleCreateProvider {
-  public async createRole(data: CreateRoleData, tx?: any): Promise<Role> {
+  public async createRole(data: CreateRoleData, dbClient: PrismaTransactionClient = DbClient): Promise<Role> {
     try {
-      const dbClient = tx ? tx : DbClient;
+      const { tenantId, name, rank, permissions } = data;
+
       const newRole = await dbClient?.role?.create({
         data: {
-          name: data.name,
-          tenantId: data.tenantId,
+          name,
+          rank,
+          permissions: {
+            connect: permissions.map((permissionId) => ({ id: permissionId })), // Ensure permissions are properly connected
+          },
+          tenantId,
         },
       });
 
       return newRole;
-    } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
     }
   }
 }

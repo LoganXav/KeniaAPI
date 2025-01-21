@@ -1,8 +1,8 @@
-import { z } from "zod";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { createRoleSchema } from "../validators/RoleCreateSchema";
-
-export type CreateRoleData = z.infer<typeof createRoleSchema>;
+export type CreateRoleData = {
+  name: string;
+  rank: number;
+  permissions: string[];
+};
 
 export interface RoleCriteria {
   id?: number;
