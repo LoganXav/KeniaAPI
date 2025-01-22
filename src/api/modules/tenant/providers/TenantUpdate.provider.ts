@@ -21,14 +21,20 @@ export default class TenantUpdateProvider {
     }
   }
 
-  public async updateOneByCriteria(criteria: TenantCriteria, updateData: UpdateTenantData, tx?: any): Promise<Tenant> {
-    const dbClient = tx ? tx : DbClient;
-    const updatedTenant = await dbClient?.tenant?.update({
-      where: criteria,
-      data: updateData,
-    });
+  public async updateOneByCriteria(args: any, dbClient: PrismaTransactionClient = DbClient): Promise<Tenant> {
+    try {
+      const { tenantId, onboardingStatus } = args;
+      const updatedTenant = await dbClient?.tenant?.update({
+        where: { id: tenantId },
+        data: {
+          ...(onboardingStatus && { onboardingStatus }),
+        },
+      });
 
-    return updatedTenant as Promise<Tenant>;
+      return updatedTenant;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
   }
 
   public async updateByCriteria(criteria: TenantCriteria, updateData: UpdateTenantData, tx?: any): Promise<Tenant[]> {

@@ -23,9 +23,19 @@ export type ConfirmUserPasswordResetType = z.infer<typeof confirmPasswordResetSc
 
 export type UpdateUserRecordType = {
   userId: number;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: Date;
+  phoneNumber?: string;
+  email?: string;
   isFirstTimeLogin?: boolean;
   hasVerified?: boolean;
   lastLoginDate?: Date;
+  residentialAddress?: string;
+  residentialCity?: string;
+  residentialState?: string;
+  residentialCountry?: string;
+  residentialZipCode?: string;
 };
 
 export type ReadUserRecordType = {
