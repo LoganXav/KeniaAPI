@@ -94,11 +94,11 @@ export default class OnboardingService extends BaseService<onboardingPersonalInf
         const user = await this.userUpdateProvider.updateOneByCriteria(args, tx);
 
         // TODO: Recieve TenantId from params
-        const updateTenantInput = { onboardingStatus, tenantId: 1 };
+        const updateTenantInput = { ...args, onboardingStatus, tenantId: 1 };
         const tenant = await this.tenantUpdateProvider.updateOneByCriteria(updateTenantInput, tx);
 
         const returnData = onboardingStatus == TenantOnboardingStatusType.COMPLETE ? tenant : user;
-        return { returnData };
+        return { ...returnData };
       });
       return result;
     } catch (error: any) {

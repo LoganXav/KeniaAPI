@@ -25,9 +25,6 @@ class RouteWhiteListMiddleware {
       TypeParser.cast<IRequest>(req).isWhiteList = true;
     }
 
-    // TODO: Refactor authorization / token validation middleware
-    TypeParser.cast<IRequest>(req).isWhiteList = true;
-
     return next();
   };
 }

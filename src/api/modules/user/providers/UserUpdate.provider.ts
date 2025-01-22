@@ -25,7 +25,7 @@ export default class UserUpdateProvider {
           ...(residentialStateId && { residentialStateId }),
           ...(residentialLgaId && { residentialLgaId }),
           ...(residentialCountryId && { residentialCountryId }),
-          ...(residentialZipCode && { residentialZipCode: residentialZipCode.toString() }),
+          ...(residentialZipCode && { residentialZipCode }),
         },
       });
 
