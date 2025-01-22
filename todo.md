@@ -2,7 +2,6 @@
 
 **_(Features)_**
 
-- Encrypt all data transfer from api to client
 - Staff Creation - In Progress
 - Student Admission
 - Course Upload and Delivery
@@ -11,7 +10,6 @@
 
 - Update documentation wuth relevant updates
 - Write unit tests for all auth services
-- Add api doc for password controllers
 
 ## Bug Fixes
 
@@ -30,3 +28,5 @@
 
 - Consider using a message queuing system for the email service.
 - Implement service trace db persistence.
+
+- Put permissions handler in the handler for controllers

@@ -6,6 +6,7 @@ export const STUDENT = "student";
 export const USER_RESOURCE = "User";
 export const STAFF_RESOURCE = "Staff";
 export const TENANT_RESOURCE = "Tenant";
+export const TEMPLATE_RESOURCE = "Template";
 
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account Created Successfully";
@@ -28,7 +29,8 @@ export const SUCCESS = "success";
 export const EMAIL_ACTIVATION_TOKEN_EMAIL_SUBJECT = "Kenia Email Activation";
 
 /** <---------------> Role Labels <---------------> */
-export const PRINCIPAL_ROLE_NAME = "principal";
+export const SCHOOL_OWNER_ROLE_NAME = "Proprietor";
+export const SCHOOL_OWNER_ROLE_RANK = 1;
 
 /** <---------------> Server Errors <---------------> */
 export const CRITICAL_ERROR_EXITING = "Application Encountered a Critical Error. Exiting";

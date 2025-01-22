@@ -23,11 +23,11 @@ model Tenant {
   contactPhone     String?
   establishedDate  DateTime?
   logoUrl          String?
-  city             Int?
-  state            Int?
-  lga              Int?
-  postalCode       Int?
-  ownershipType    Int?
+  stateId          Int?
+  lgaId            Int?
+  countryId        Int?
+  zipCode          Int?
+  postalCode       String?
   onboardingStatus TenantOnboardingStatusType @default(PERSONAL)
   users            User[]
   metadata         TenantMetadata?
@@ -52,28 +52,29 @@ model TenantMetadata {
 }
 
 model User {
-  id                 Int         @id @default(autoincrement())
-  firstName          String
-  lastName           String
-  dateOfBirth        DateTime?
-  phoneNumber        String
-  email              String      @unique
-  password           String
-  hasVerified        Boolean     @default(false)
-  isFirstTimeLogin   Boolean     @default(true)
-  lastLoginDate      DateTime    @default(now())
-  tokens             UserToken[]
-  userType           UserType    @default(STAFF)
-  tenantId           Int
-  tenant             Tenant      @relation(fields: [tenantId], references: [id])
-  student            Student?    @relation("StudentUser")
-  staff              Staff?      @relation("StaffUser")
-  createdAt          DateTime    @default(now())
-  residentialAddress String?
-  residentialCity    String?
-  residentialState   String?
-  residentialCountry String?
-  residentialZipCode String?
+  id                   Int         @id @default(autoincrement())
+  firstName            String
+  lastName             String
+  gender               String?
+  dateOfBirth          DateTime?
+  phoneNumber          String
+  email                String      @unique
+  password             String
+  hasVerified          Boolean     @default(false)
+  isFirstTimeLogin     Boolean     @default(true)
+  lastLoginDate        DateTime    @default(now())
+  tokens               UserToken[]
+  userType             UserType    @default(STAFF)
+  tenantId             Int
+  tenant               Tenant      @relation(fields: [tenantId], references: [id])
+  student              Student?    @relation("StudentUser")
+  staff                Staff?      @relation("StaffUser")
+  createdAt            DateTime    @default(now())
+  residentialAddress   String?
+  residentialLgaId     Int?
+  residentialStateId   Int?
+  residentialCountryId Int?
+  residentialZipCode   Int?
 }
 
 enum UserType {

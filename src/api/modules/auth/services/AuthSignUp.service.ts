@@ -20,7 +20,7 @@ import { CreateUserRecordType, SignUpUserType } from "~/api/modules/user/types/U
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
-import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SCHOOL_OWNER_ROLE_NAME, SCHOOL_OWNER_ROLE_RANK, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import RoleCreateProvider from "../../role/providers/RoleCreate.provider";
 import StaffCreateProvider from "../../staff/providers/StaffCreate.provider";
 @autoInjectable()
@@ -87,12 +87,10 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
         const user = await this.userCreateProvider.create(userCreateInput, tx);
 
-        // TODO: move constants to constants folder
-        const roleCreateInput = { name: "Proprietor", rank: 1, permissions: [], tenantId: tenant?.id };
+        const roleCreateInput = { name: SCHOOL_OWNER_ROLE_NAME, rank: SCHOOL_OWNER_ROLE_RANK, permissions: [], tenantId: tenant?.id };
         const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
 
-        // TODO: move constants to constants folder
-        const staffCreateInput = { jobTitle: "Proprietor", userId: user?.id, roleId: role?.id, tenantId: tenant?.id };
+        const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id };
         await this.staffCreateProvider.create(staffCreateInput, tx);
 
         const otpToken = generateStringOfLength(businessConfig.emailTokenLength);
