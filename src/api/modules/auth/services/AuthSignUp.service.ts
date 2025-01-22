@@ -23,7 +23,6 @@ import { PasswordEncryptionService } from "~/api/shared/services/encryption/Pass
 import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import RoleCreateProvider from "../../role/providers/RoleCreate.provider";
 import StaffCreateProvider from "../../staff/providers/StaffCreate.provider";
-import { permission } from "process";
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
   static serviceName = "AuthSignUpService";
@@ -85,16 +84,14 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const tenant = await this.tenantCreateProvider.create(null, tx);
 
-        const input = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
-
-        const user = await this.userCreateProvider.create(input, tx);
+        const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
+        const user = await this.userCreateProvider.create(userCreateInput, tx);
 
         // TODO: move constants to constants folder
         const roleCreateInput = { name: "Proprietor", rank: 1, permissions: [], tenantId: tenant?.id };
         const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
 
         // TODO: move constants to constants folder
-
         const staffCreateInput = { jobTitle: "Proprietor", userId: user?.id, roleId: role?.id, tenantId: tenant?.id };
         await this.staffCreateProvider.create(staffCreateInput, tx);
 

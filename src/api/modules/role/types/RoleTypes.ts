@@ -1,7 +1,10 @@
+import { Permission } from "@prisma/client";
+
 export type CreateRoleData = {
+  tenantId: number;
   name: string;
   rank: number;
-  permissions: string[];
+  permissions: Permission[];
 };
 
 export interface RoleCriteria {

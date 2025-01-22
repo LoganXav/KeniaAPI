@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { staffCreateSchema, staffCriteriaSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
 import { staffUpdateManySchema, staffUpdateSchema } from "../validators/StaffUpdateSchema";
+import { Permission } from "@prisma/client";
 
 export type StaffCreateDataType = z.infer<typeof staffCreateSchema>;
 export type StaffCreateRequestType = z.infer<typeof staffCreateRequestSchema>;
