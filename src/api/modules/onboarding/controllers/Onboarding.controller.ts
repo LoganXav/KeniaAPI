@@ -49,7 +49,7 @@ export default class OnboardingController extends BaseController {
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Onboarding Process",
+      description: "Onboarding Personal Information",
     });
     this.addRoute({
       method: HttpMethodEnum.POST,
@@ -61,7 +61,7 @@ export default class OnboardingController extends BaseController {
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Onboarding Process",
+      description: "Onboarding Residential Information",
     });
     this.addRoute({
       method: HttpMethodEnum.POST,
@@ -73,7 +73,7 @@ export default class OnboardingController extends BaseController {
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Onboarding Process",
+      description: "Onboarding School Information",
     });
   }
 }

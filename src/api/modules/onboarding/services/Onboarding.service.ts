@@ -6,23 +6,26 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import UserUpdateProvider from "~/api/modules/user/providers/UserUpdate.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { ERROR, NULL_OBJECT, SOMETHING_WENT_WRONG, SUCCESS, USER_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { AUTHORIZATION_REQUIRED, ERROR, NULL_OBJECT, SCHOOL_OWNER_ROLE_RANK, SOMETHING_WENT_WRONG, SUCCESS, TENANT_RESOURCE, USER_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import TenantUpdateProvider from "../../tenant/providers/TenantUpdate.provider";
-import { onboardingPersonalInformationDataType } from "../types/OnboardingTypes";
+import { onboardingPersonalInformationDataType, onboardingResidentialInformationDataType, onboardingSchoolInformationDataType } from "../types/OnboardingTypes";
 import { TenantOnboardingStatusType } from "@prisma/client";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import UserReadProvider from "../../user/providers/UserRead.provider";
 @autoInjectable()
-export default class OnboardingService extends BaseService<unknown> {
+export default class OnboardingService extends BaseService<onboardingPersonalInformationDataType | onboardingResidentialInformationDataType | onboardingSchoolInformationDataType> {
   static serviceName = "OnboardingService";
   loggingProvider: ILoggingDriver;
   userUpdateProvider: UserUpdateProvider;
+  userReadProvider: UserReadProvider;
   tenantUpdateProvider: TenantUpdateProvider;
-  constructor(userUpdateProvider: UserUpdateProvider, tenantUpdateProvider: TenantUpdateProvider) {
+  constructor(userUpdateProvider: UserUpdateProvider, userReadProvider: UserReadProvider, tenantUpdateProvider: TenantUpdateProvider) {
     super(OnboardingService.serviceName);
     this.userUpdateProvider = userUpdateProvider;
+    this.userReadProvider = userReadProvider;
     this.tenantUpdateProvider = tenantUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
@@ -30,6 +33,16 @@ export default class OnboardingService extends BaseService<unknown> {
   public async execute(trace: ServiceTrace, args: onboardingPersonalInformationDataType): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
+
+      const foundUser = await this.userReadProvider.getOneByCriteria({ id: args.userId });
+
+      if (foundUser === NULL_OBJECT) {
+        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
+      }
+
+      if (foundUser?.staff?.role?.rank !== SCHOOL_OWNER_ROLE_RANK) {
+        throw new BadRequestError(AUTHORIZATION_REQUIRED);
+      }
 
       const data = await this.updateTenantAndUserOnboardingTransaction(args, TenantOnboardingStatusType.RESIDENTIAL);
 
@@ -42,26 +55,14 @@ export default class OnboardingService extends BaseService<unknown> {
       return this.result;
     }
   }
-  public async residentialInformation(trace: ServiceTrace, args: { email: string }): Promise<IResult> {
+
+  public async residentialInformation(trace: ServiceTrace, args: onboardingResidentialInformationDataType): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
-      // TODO: Update User of role school ownwer record
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, "SIGN_IN_SUCCESSFUL", {});
-      trace.setSuccessful();
-      return this.result;
-    } catch (error: any) {
-      this.loggingProvider.error(error);
-      this.result.setError(ERROR, error.httpStatusCode, error.description);
-      return this.result;
-    }
-  }
-  public async schoolInformation(trace: ServiceTrace, args: { email: string }): Promise<IResult> {
-    try {
-      this.initializeServiceTrace(trace, args);
-      // TODO: Update Tenant record
+      const data = await this.updateTenantAndUserOnboardingTransaction(args, TenantOnboardingStatusType.SCHOOL);
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, "SIGN_IN_SUCCESSFUL", {});
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(USER_RESOURCE), data);
       trace.setSuccessful();
       return this.result;
     } catch (error: any) {
@@ -71,16 +72,33 @@ export default class OnboardingService extends BaseService<unknown> {
     }
   }
 
-  private async updateTenantAndUserOnboardingTransaction(args: onboardingPersonalInformationDataType, onboardingStatus: TenantOnboardingStatusType) {
+  public async schoolInformation(trace: ServiceTrace, args: onboardingSchoolInformationDataType): Promise<IResult> {
+    try {
+      this.initializeServiceTrace(trace, args);
+
+      const data = await this.updateTenantAndUserOnboardingTransaction(args, TenantOnboardingStatusType.COMPLETE);
+
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(TENANT_RESOURCE), data);
+      trace.setSuccessful();
+      return this.result;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      this.result.setError(ERROR, error.httpStatusCode, error.description);
+      return this.result;
+    }
+  }
+
+  private async updateTenantAndUserOnboardingTransaction(args: onboardingPersonalInformationDataType | onboardingResidentialInformationDataType | onboardingSchoolInformationDataType, onboardingStatus: TenantOnboardingStatusType) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const user = await this.userUpdateProvider.updateOneByCriteria(args, tx);
 
         // TODO: Recieve TenantId from params
-        const updateTenantInput = { onboardingStatus, tenantId: 7 };
+        const updateTenantInput = { onboardingStatus, tenantId: 1 };
         const tenant = await this.tenantUpdateProvider.updateOneByCriteria(updateTenantInput, tx);
 
-        return { user };
+        const returnData = onboardingStatus == TenantOnboardingStatusType.COMPLETE ? tenant : user;
+        return { returnData };
       });
       return result;
     } catch (error: any) {
