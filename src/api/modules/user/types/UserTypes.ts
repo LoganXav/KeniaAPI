@@ -15,7 +15,7 @@ export type CreateUserRecordType = SignUpUserType & {
 };
 
 export type SignInUserType = z.infer<typeof signInUserRecordSchema>;
-export type CreateUserTokenRecordType = Omit<UserToken, "id" | "isActive" | "expired">;
+export type CreateUserTokenRecordType = Omit<UserToken, "id" | "isActive" | "expired" | "tenantId">;
 export type RefreshUserTokenType = z.infer<typeof refreshOtpTokenSchema>;
 export type VerifyUserTokenType = z.infer<typeof verifyOtpTokenSchema>;
 export type RequestUserPasswordResetType = z.infer<typeof requestPasswordResetSchema>;
@@ -23,9 +23,19 @@ export type ConfirmUserPasswordResetType = z.infer<typeof confirmPasswordResetSc
 
 export type UpdateUserRecordType = {
   userId: number;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: Date;
+  phoneNumber?: string;
+  email?: string;
   isFirstTimeLogin?: boolean;
   hasVerified?: boolean;
   lastLoginDate?: Date;
+  residentialAddress?: string;
+  residentialCity?: string;
+  residentialState?: string;
+  residentialCountry?: string;
+  residentialZipCode?: string;
 };
 
 export type ReadUserRecordType = {

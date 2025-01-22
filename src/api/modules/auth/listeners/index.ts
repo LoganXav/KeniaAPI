@@ -10,7 +10,6 @@ export class UserListener {
     await EmailService.sendAccountActivationEmail(onSignUpEventListenerArgs);
   }
   public static async onUserSignIn(onSignInEventListenerArgs: SignInEventListenerDTO) {
-    // TODO - refactor to date time
     const lastLoginDate = DateTimeUtil.getCurrentDate();
     await userUpdateProvider.updateOneByCriteria({
       userId: onSignInEventListenerArgs.userId,

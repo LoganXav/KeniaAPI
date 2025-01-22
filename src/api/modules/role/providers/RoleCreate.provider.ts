@@ -13,7 +13,7 @@ export default class RoleCreateProvider {
           name,
           rank,
           permissions: {
-            connect: permissions.map((permissionId) => ({ id: permissionId })), // Ensure permissions are properly connected
+            connect: permissions.map((permission) => ({ id: permission.id })),
           },
           tenantId,
         },

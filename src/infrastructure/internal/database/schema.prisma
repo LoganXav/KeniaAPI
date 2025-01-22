@@ -14,32 +14,33 @@ datasource db {
 }
 
 model Tenant {
-  id              Int             @id @default(autoincrement())
-  name            String?
-  address         String?
-  type            String?
-  registrationNo  String?
-  contactEmail    String?
-  contactPhone    String?
-  establishedDate DateTime?
-  logoUrl         String?
-  city            Int?
-  state           Int?
-  lga             Int?
-  postalCode      Int?
-  ownershipType   Int?
-  users           User[]
-  metadata        TenantMetadata?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  Staff           Staff[]
-  Student         Student[]
-  UserToken       UserToken[]
-  Role            Role[]
-  Permission      Permission[]
-  Group           Group[]
-  Class           Class[]
-  Subject         Subject[]
+  id               Int                        @id @default(autoincrement())
+  name             String?
+  address          String?
+  type             String?
+  registrationNo   String?
+  contactEmail     String?
+  contactPhone     String?
+  establishedDate  DateTime?
+  logoUrl          String?
+  city             Int?
+  state            Int?
+  lga              Int?
+  postalCode       Int?
+  ownershipType    Int?
+  onboardingStatus TenantOnboardingStatusType @default(PERSONAL)
+  users            User[]
+  metadata         TenantMetadata?
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+  Staff            Staff[]
+  Student          Student[]
+  UserToken        UserToken[]
+  Role             Role[]
+  Permission       Permission[]
+  Group            Group[]
+  Class            Class[]
+  Subject          Subject[]
 }
 
 model TenantMetadata {
@@ -78,6 +79,13 @@ model User {
 enum UserType {
   STUDENT
   STAFF
+}
+
+enum TenantOnboardingStatusType {
+  PERSONAL
+  RESIDENTIAL
+  SCHOOL
+  COMPLETE
 }
 
 model Staff {
@@ -134,7 +142,7 @@ enum TokenType {
 
 model Role {
   id          Int          @id @default(autoincrement())
-  name        String       @unique
+  name        String
   rank        Int
   permissions Permission[] @relation("RolePermission")
   Staff       Staff[]

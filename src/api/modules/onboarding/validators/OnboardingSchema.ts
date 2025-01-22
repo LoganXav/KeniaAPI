@@ -1,6 +1,9 @@
 import { z } from "zod";
 
 export const onboardingPersonalSchema = z.object({
+  userId: z.number({
+    required_error: "Id is required",
+  }),
   firstName: z
     .string({
       required_error: "First name is required",
@@ -26,12 +29,21 @@ export const onboardingPersonalSchema = z.object({
     .max(15, "Phone number cannot exceed 15 digits"),
   dateOfBirth: z
     .string({
-      invalid_type_error: "Date of birth must be a string",
+      invalid_type_error: "Date of birth must be a valid Date object",
     })
     .optional()
-    .refine((val) => (val ? !isNaN(Date.parse(val)) : true), {
-      message: "Invalid date of birth format",
-    }),
+    .refine(
+      (val) => {
+        if (val) {
+          return !isNaN(Date.parse(val));
+        }
+        return true;
+      },
+      {
+        message: "Invalid date of birth format",
+      }
+    )
+    .transform((val) => (val ? new Date(val) : undefined)),
 });
 
 export const onboardingResidentialSchema = z.object({
