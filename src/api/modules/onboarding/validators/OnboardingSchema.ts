@@ -20,12 +20,6 @@ export const onboardingPersonalSchema = z.object({
   gender: z.string({
     required_error: "Gender is required",
   }),
-
-  email: z
-    .string({
-      required_error: "Email is required",
-    })
-    .email("Invalid email address"),
   phoneNumber: z
     .string({
       required_error: "Phone number is required",

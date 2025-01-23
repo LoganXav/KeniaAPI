@@ -1,6 +1,7 @@
-import DbClient from "~/infrastructure/internal/database";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Tenant } from "@prisma/client";
-import { TenantCriteria } from "../types/TenantTypes";
+import { TenantReadCriteria, TenantRecordWithRelations } from "../types/TenantTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class TenantReadProvider {
   public async getAllTenant(tx?: any): Promise<Tenant[]> {
@@ -10,7 +11,7 @@ export default class TenantReadProvider {
     return tenants;
   }
 
-  public async getByCriteria(criteria: TenantCriteria, tx?: any): Promise<Tenant[]> {
+  public async getByCriteria(criteria: TenantReadCriteria, tx?: any): Promise<Tenant[]> {
     const dbClient = tx ? tx : DbClient;
     const staffs = await dbClient?.staff?.findMany({
       where: criteria,
@@ -19,12 +20,27 @@ export default class TenantReadProvider {
     return staffs;
   }
 
-  public async getOneByCriteria(criteria: TenantCriteria, tx?: any): Promise<Tenant> {
-    const dbClient = tx ? tx : DbClient;
-    const tenant = await dbClient?.tenants?.findFirst({
-      where: criteria,
-    });
+  public async getOneByCriteria(criteria: TenantReadCriteria, dbClient: PrismaTransactionClient = DbClient): Promise<TenantRecordWithRelations | null> {
+    try {
+      const { id } = criteria;
+      const result = await dbClient?.tenant?.findFirst({
+        where: {
+          ...(id && { id }),
+        },
+        include: {
+          staffs: {
+            include: {
+              role: true,
+            },
+          },
+          students: true,
+          metadata: true,
+        },
+      });
 
-    return tenant;
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
   }
 }

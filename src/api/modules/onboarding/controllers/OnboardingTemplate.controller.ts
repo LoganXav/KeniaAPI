@@ -28,7 +28,7 @@ export default class OnboardingTemplateController extends BaseController {
     this.setRouter(router());
 
     this.addRoute({
-      method: HttpMethodEnum.GET,
+      method: HttpMethodEnum.POST,
       path: "/onboarding/template",
       handlers: [this.template],
       produces: [
