@@ -6,7 +6,8 @@ import { INextFunction, IRequest, IResponse } from "~/infrastructure/internal/ty
 export function validateData(schema: z.ZodObject<any, any>) {
   return async (req: IRequest, res: IResponse, next: INextFunction) => {
     try {
-      await schema.parseAsync(req.body);
+      const validatedData = await schema.parseAsync(req.body);
+      req.body = validatedData;
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -24,7 +25,8 @@ export function validateData(schema: z.ZodObject<any, any>) {
 export function validateParams(schema: z.ZodObject<any, any>) {
   return async (req: IRequest, res: IResponse, next: INextFunction) => {
     try {
-      await schema.parseAsync(req.query);
+      const validatedQueryParams = await schema.parseAsync(req.query);
+      req.query = validatedQueryParams;
       next();
     } catch (error) {
       if (error instanceof ZodError) {
