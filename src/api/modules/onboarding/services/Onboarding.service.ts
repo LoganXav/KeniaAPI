@@ -16,6 +16,7 @@ import { TenantOnboardingStatusType } from "@prisma/client";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import UserReadProvider from "../../user/providers/UserRead.provider";
 import { IRequest } from "~/infrastructure/internal/types";
+import { onboardingResidentialSchema } from "../validators/OnboardingSchema";
 @autoInjectable()
 export default class OnboardingService extends BaseService<IRequest> {
   static serviceName = "OnboardingService";
@@ -97,7 +98,6 @@ export default class OnboardingService extends BaseService<IRequest> {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const user = await this.userUpdateProvider.updateOneByCriteria(args, tx);
 
-        // TODO: Recieve TenantId from params
         const updateTenantInput = { ...args, onboardingStatus, tenantId };
         const tenant = await this.tenantUpdateProvider.updateOneByCriteria(updateTenantInput, tx);
 
