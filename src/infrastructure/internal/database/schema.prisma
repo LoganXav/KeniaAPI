@@ -33,14 +33,14 @@ model Tenant {
   metadata         TenantMetadata?
   createdAt        DateTime                   @default(now())
   updatedAt        DateTime                   @updatedAt
-  Staff            Staff[]
-  Student          Student[]
-  UserToken        UserToken[]
-  Role             Role[]
-  Permission       Permission[]
-  Group            Group[]
-  Class            Class[]
-  Subject          Subject[]
+  staffs           Staff[]
+  students         Student[]
+  userTokens       UserToken[]
+  roles            Role[]
+  permissions      Permission[]
+  groups           Group[]
+  classes          Class[]
+  subjects         Subject[]
 }
 
 model TenantMetadata {

@@ -20,12 +20,6 @@ export const onboardingPersonalSchema = z.object({
   gender: z.string({
     required_error: "Gender is required",
   }),
-
-  email: z
-    .string({
-      required_error: "Email is required",
-    })
-    .email("Invalid email address"),
   phoneNumber: z
     .string({
       required_error: "Phone number is required",
@@ -70,12 +64,9 @@ export const onboardingResidentialSchema = z.object({
   residentialCountryId: z.number({
     required_error: "Country is required",
   }),
-  residentialZipCode: z
-    .number({
-      required_error: "Zip code is required",
-    })
-    .min(5, "Zip code must be at least 5 characters")
-    .max(10, "Zip code cannot exceed 10 characters"),
+  residentialZipCode: z.number({
+    required_error: "Zip code is required",
+  }),
 });
 
 export const onboardingSchoolSchema = z.object({
@@ -106,12 +97,23 @@ export const onboardingSchoolSchema = z.object({
     .min(10, "Contact phone must be at least 10 digits")
     .max(15, "Contact phone cannot exceed 15 digits"),
   establishedDate: z
+
     .string({
-      required_error: "Established date is required",
+      invalid_type_error: "Established date must be a valid Date object",
     })
-    .refine((val) => !isNaN(Date.parse(val)), {
-      message: "Invalid date format for established date",
-    }),
+    .optional()
+    .refine(
+      (val) => {
+        if (val) {
+          return !isNaN(Date.parse(val));
+        }
+        return true;
+      },
+      {
+        message: "Invalid established date format",
+      }
+    )
+    .transform((val) => (val ? new Date(val) : undefined)),
   logoUrl: z
     .string({
       invalid_type_error: "Logo URL must be a string",
@@ -130,19 +132,28 @@ export const onboardingSchoolSchema = z.object({
   lgaId: z.number({
     required_error: "Local Government Area (LGA) is required",
   }),
-  zipCode: z
-    .number({
-      required_error: "Zip Code is required",
-    })
-    .min(1, "Zip Code must be at least 5 characters")
-    .max(50, "Zip Code cannot exceed 50 characters"),
+  zipCode: z.number({
+    required_error: "Zip Code is required",
+  }),
   countryId: z.number({
     required_error: "Country is required",
   }),
   postalCode: z
     .string({
-      required_error: "Postal code is required",
+      required_error: "Postal Code is required",
     })
     .min(5, "Postal code must be at least 5 characters")
     .max(10, "Postal code cannot exceed 10 characters"),
+});
+
+export const onboardingParamsSchema = z.object({
+  tenantId: z.string({
+    required_error: "Tenant Id is required",
+  }),
+});
+
+export const onboardingTemplateParamsSchema = z.object({
+  codeValue: z.string({
+    required_error: "Code Value is required",
+  }),
 });

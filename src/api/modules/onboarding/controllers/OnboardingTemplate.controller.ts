@@ -7,6 +7,8 @@ import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
 import OnboardingTemplateService from "../services/OnboardingTemplate.service";
+import { validateParams } from "~/api/shared/helpers/middleware/validateData";
+import { onboardingTemplateParamsSchema } from "../validators/OnboardingSchema";
 
 @autoInjectable()
 export default class OnboardingTemplateController extends BaseController {
@@ -28,9 +30,9 @@ export default class OnboardingTemplateController extends BaseController {
     this.setRouter(router());
 
     this.addRoute({
-      method: HttpMethodEnum.GET,
+      method: HttpMethodEnum.POST,
       path: "/onboarding/template",
-      handlers: [this.template],
+      handlers: [validateParams(onboardingTemplateParamsSchema), this.template],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

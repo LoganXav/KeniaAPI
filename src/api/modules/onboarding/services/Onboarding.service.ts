@@ -15,8 +15,9 @@ import { onboardingPersonalInformationDataType, onboardingResidentialInformation
 import { TenantOnboardingStatusType } from "@prisma/client";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import UserReadProvider from "../../user/providers/UserRead.provider";
+import { IRequest } from "~/infrastructure/internal/types";
 @autoInjectable()
-export default class OnboardingService extends BaseService<onboardingPersonalInformationDataType | onboardingResidentialInformationDataType | onboardingSchoolInformationDataType> {
+export default class OnboardingService extends BaseService<IRequest> {
   static serviceName = "OnboardingService";
   loggingProvider: ILoggingDriver;
   userUpdateProvider: UserUpdateProvider;
@@ -30,11 +31,12 @@ export default class OnboardingService extends BaseService<onboardingPersonalInf
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
-  public async execute(trace: ServiceTrace, args: onboardingPersonalInformationDataType): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
+      const { tenantId } = args.query;
 
-      const foundUser = await this.userReadProvider.getOneByCriteria({ id: args.userId });
+      const foundUser = await this.userReadProvider.getOneByCriteria({ id: args.body.userId });
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
@@ -44,7 +46,7 @@ export default class OnboardingService extends BaseService<onboardingPersonalInf
         throw new BadRequestError(AUTHORIZATION_REQUIRED);
       }
 
-      const data = await this.updateTenantAndUserOnboardingTransaction(args, TenantOnboardingStatusType.RESIDENTIAL);
+      const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.RESIDENTIAL);
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(USER_RESOURCE), data);
       trace.setSuccessful();
@@ -56,11 +58,12 @@ export default class OnboardingService extends BaseService<onboardingPersonalInf
     }
   }
 
-  public async residentialInformation(trace: ServiceTrace, args: onboardingResidentialInformationDataType): Promise<IResult> {
+  public async residentialInformation(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
+      const { tenantId } = args.query;
 
-      const data = await this.updateTenantAndUserOnboardingTransaction(args, TenantOnboardingStatusType.SCHOOL);
+      const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.SCHOOL);
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(USER_RESOURCE), data);
       trace.setSuccessful();
@@ -72,11 +75,12 @@ export default class OnboardingService extends BaseService<onboardingPersonalInf
     }
   }
 
-  public async schoolInformation(trace: ServiceTrace, args: onboardingSchoolInformationDataType): Promise<IResult> {
+  public async schoolInformation(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
+      const { tenantId } = args.query;
 
-      const data = await this.updateTenantAndUserOnboardingTransaction(args, TenantOnboardingStatusType.COMPLETE);
+      const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.COMPLETE);
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(TENANT_RESOURCE), data);
       trace.setSuccessful();
@@ -88,17 +92,17 @@ export default class OnboardingService extends BaseService<onboardingPersonalInf
     }
   }
 
-  private async updateTenantAndUserOnboardingTransaction(args: onboardingPersonalInformationDataType | onboardingResidentialInformationDataType | onboardingSchoolInformationDataType, onboardingStatus: TenantOnboardingStatusType) {
+  private async updateTenantAndUserOnboardingTransaction(tenantId: number, args: onboardingPersonalInformationDataType | onboardingResidentialInformationDataType | onboardingSchoolInformationDataType, onboardingStatus: TenantOnboardingStatusType) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const user = await this.userUpdateProvider.updateOneByCriteria(args, tx);
 
         // TODO: Recieve TenantId from params
-        const updateTenantInput = { onboardingStatus, tenantId: 1 };
+        const updateTenantInput = { ...args, onboardingStatus, tenantId };
         const tenant = await this.tenantUpdateProvider.updateOneByCriteria(updateTenantInput, tx);
 
         const returnData = onboardingStatus == TenantOnboardingStatusType.COMPLETE ? tenant : user;
-        return { returnData };
+        return { ...returnData };
       });
       return result;
     } catch (error: any) {

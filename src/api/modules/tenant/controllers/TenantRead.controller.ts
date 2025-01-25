@@ -6,22 +6,22 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import UserReadService from "../services/UserRead.service";
+import TenantReadService from "../services/TenantRead.service";
 import { validateParams } from "~/api/shared/helpers/middleware/validateData";
-import { UserReadSchema } from "../validators/UserReadSchema";
+import { TenantReadSchema } from "../validators/TenantReadSchema";
 
 @autoInjectable()
-export default class UserReadController extends BaseController {
+export default class TenantReadController extends BaseController {
   static controllerName: string;
-  userReadService: UserReadService;
-  constructor(userReadService: UserReadService) {
+  tenantReadService: TenantReadService;
+  constructor(tenantReadService: TenantReadService) {
     super();
-    this.controllerName = "UserReadController";
-    this.userReadService = userReadService;
+    this.controllerName = "TenantReadController";
+    this.tenantReadService = tenantReadService;
   }
 
   me: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.userReadService.execute(res.trace, req), {
+    return this.handleResultData(res, next, this.tenantReadService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -31,8 +31,8 @@ export default class UserReadController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/user/me",
-      handlers: [validateParams(UserReadSchema), this.me],
+      path: "/tenant",
+      handlers: [validateParams(TenantReadSchema), this.me],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
