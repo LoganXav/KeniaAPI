@@ -140,8 +140,20 @@ export const onboardingSchoolSchema = z.object({
   }),
   postalCode: z
     .string({
-      required_error: "Postal code is required",
+      required_error: "Postal Code is required",
     })
     .min(5, "Postal code must be at least 5 characters")
     .max(10, "Postal code cannot exceed 10 characters"),
+});
+
+export const onboardingParamsSchema = z.object({
+  tenantId: z.string({
+    required_error: "Tenant Id is required",
+  }),
+});
+
+export const onboardingTemplateParamsSchema = z.object({
+  codeValue: z.string({
+    required_error: "Code Value is required",
+  }),
 });
