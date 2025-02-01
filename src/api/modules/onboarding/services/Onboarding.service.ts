@@ -64,6 +64,16 @@ export default class OnboardingService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args.body);
       const { tenantId } = args.query;
 
+      const foundUser = await this.userReadProvider.getOneByCriteria({ id: args.body.userId });
+
+      if (foundUser === NULL_OBJECT) {
+        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
+      }
+
+      if (foundUser?.staff?.role?.rank !== SCHOOL_OWNER_ROLE_RANK) {
+        throw new BadRequestError(AUTHORIZATION_REQUIRED);
+      }
+
       const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.SCHOOL);
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(USER_RESOURCE), data);
@@ -80,6 +90,16 @@ export default class OnboardingService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
       const { tenantId } = args.query;
+
+      const foundUser = await this.userReadProvider.getOneByCriteria({ id: args.body.userId });
+
+      if (foundUser === NULL_OBJECT) {
+        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
+      }
+
+      if (foundUser?.staff?.role?.rank !== SCHOOL_OWNER_ROLE_RANK) {
+        throw new BadRequestError(AUTHORIZATION_REQUIRED);
+      }
 
       const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.COMPLETE);
 
