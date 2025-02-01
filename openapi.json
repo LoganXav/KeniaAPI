@@ -502,6 +502,45 @@
           "jobTitle": {
             "type": "string"
           },
+          "address": {
+            "type": "string"
+          },
+          "stateId": {
+            "type": "number"
+          },
+          "lgaId": {
+            "type": "number"
+          },
+          "countryId": {
+            "type": "number"
+          },
+          "zipCode": {
+            "type": "number"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "employmentType": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "nin": {
+            "type": "string"
+          },
+          "tin": {
+            "type": "string"
+          },
+          "highestLevelEdu": {
+            "type": "string"
+          },
+          "cvUrl": {
+            "type": "string"
+          },
+          "roleId": {
+            "type": "number"
+          },
           "tenantId": {
             "type": "number"
           }
@@ -509,9 +548,9 @@
         "required": [
           "firstName",
           "lastName",
-          "phoneNumber",
           "email",
           "jobTitle",
+          "roleId",
           "tenantId"
         ]
       }

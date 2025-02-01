@@ -10,9 +10,11 @@ export const signUpUserRecordSchema = z.object({
   password: z.string({
     required_error: "Argument password is missing",
   }),
-  phoneNumber: z.string({
-    message: "Invalid phone number format",
-  }),
+  phoneNumber: z
+    .string({
+      message: "Invalid phone number format",
+    })
+    .optional(),
   email: z
     .string({
       required_error: "Argument email is missing",

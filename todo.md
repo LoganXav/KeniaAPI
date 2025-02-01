@@ -30,3 +30,26 @@
 - Implement service trace db persistence.
 
 - Put permissions handler in the handler for controllers
+
+## Staff Onboarding Data
+
+### Background / Residential Information
+- stateId  
+- lgaId    
+- countryId
+- zipCode  
+- address
+
+### Employment Information
+- Job Title
+- Department
+- Employment Type (Full-Time, Part-Time, Contract, Intern, NYSC)
+- Start Date
+
+### Legal Documents
+- National ID/Passport Number (nin)
+- Tax Identification Number (TIN)
+
+### Education and Work Experience
+- Highest Level of Education
+- CV

@@ -109,7 +109,7 @@ export default class StaffCreateController extends BaseController {
               },
               phoneNumber: {
                 type: PropTypeEnum.STRING,
-                required: true,
+                required: false, // Made optional to align with schema
               },
               email: {
                 type: PropTypeEnum.STRING,
@@ -117,6 +117,58 @@ export default class StaffCreateController extends BaseController {
               },
               jobTitle: {
                 type: PropTypeEnum.STRING,
+                required: true,
+              },
+              address: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              stateId: {
+                type: PropTypeEnum.NUMBER,
+                required: false,
+              },
+              lgaId: {
+                type: PropTypeEnum.NUMBER,
+                required: false,
+              },
+              countryId: {
+                type: PropTypeEnum.NUMBER,
+                required: false,
+              },
+              zipCode: {
+                type: PropTypeEnum.NUMBER,
+                required: false,
+              },
+              postalCode: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              employmentType: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              startDate: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              nin: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              tin: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              highestLevelEdu: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              cvUrl: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              roleId: {
+                type: PropTypeEnum.NUMBER,
                 required: true,
               },
               tenantId: {

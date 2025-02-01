@@ -6,7 +6,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import DeleteStaffService from "../services/DeletStaff.service";
+import DeleteStaffService from "../services/StaffDelete.service";
 
 @autoInjectable()
 export default class StaffUpdateController extends BaseController {
