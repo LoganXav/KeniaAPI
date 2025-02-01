@@ -74,6 +74,7 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);
+      this.result.setData(ERROR, error.httpStatusCode, error.description);
       this.result.setError(ERROR, error.httpStatusCode, error.description);
       return this.result;
     }

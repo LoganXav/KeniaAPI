@@ -1,17 +1,19 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { StaffCreateRequestType } from "../types/StaffTypes";
-import { Staff, UserType } from "@prisma/client";
+import { StaffCreateType } from "../types/StaffTypes";
+import { Staff } from "@prisma/client";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StaffCreateProvider {
-  public async create(data: StaffCreateRequestType & { userId: number; password: string; userType: UserType }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
+  public async create(data: StaffCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
-      const { jobTitle, userId } = data;
+      const { jobTitle, userId, roleId, tenantId } = data;
 
       const staff = await dbClient?.staff.create({
         data: {
           jobTitle,
           userId,
+          roleId,
+          tenantId,
         },
       });
 

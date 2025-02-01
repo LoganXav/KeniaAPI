@@ -12,8 +12,26 @@ CREATE TABLE "Tenant" (
     "id" SERIAL NOT NULL,
     "name" TEXT,
     "address" TEXT,
+    "type" TEXT,
+    "registrationNo" TEXT,
+    "contactEmail" TEXT,
+    "contactPhone" TEXT,
+    "establishedDate" TIMESTAMP(3),
+    "logoUrl" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Tenant_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TenantMetadata" (
+    "id" SERIAL NOT NULL,
+    "tenantId" INTEGER NOT NULL,
+    "totalStudents" INTEGER,
+    "totalStaff" INTEGER,
+
+    CONSTRAINT "TenantMetadata_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -21,6 +39,7 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
+    "dateOfBirth" TIMESTAMP(3),
     "phoneNumber" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -29,6 +48,12 @@ CREATE TABLE "User" (
     "lastLoginDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userType" "UserType" NOT NULL DEFAULT 'STAFF',
     "tenantId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "residentialAddress" TEXT,
+    "residentialCity" TEXT,
+    "residentialState" TEXT,
+    "residentialCountry" TEXT,
+    "residentialZipCode" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -38,7 +63,7 @@ CREATE TABLE "Staff" (
     "id" SERIAL NOT NULL,
     "jobTitle" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
-    "roleId" INTEGER,
+    "roleId" INTEGER NOT NULL,
 
     CONSTRAINT "Staff_pkey" PRIMARY KEY ("id")
 );
@@ -48,7 +73,6 @@ CREATE TABLE "Student" (
     "id" SERIAL NOT NULL,
     "studentId" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
-    "dob" TIMESTAMP(3) NOT NULL,
     "address" TEXT NOT NULL,
     "enrollmentDate" TIMESTAMP(3) NOT NULL,
     "classId" TEXT NOT NULL,
@@ -73,9 +97,17 @@ CREATE TABLE "UserToken" (
 CREATE TABLE "Role" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "tenantId" INTEGER NOT NULL,
+    "rank" INTEGER NOT NULL,
 
     CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Permission" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Permission_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -86,15 +118,6 @@ CREATE TABLE "Group" (
     "tenantId" INTEGER NOT NULL,
 
     CONSTRAINT "Group_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Permission" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "tenantId" INTEGER NOT NULL,
-
-    CONSTRAINT "Permission_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -121,16 +144,19 @@ CREATE TABLE "Subject" (
 );
 
 -- CreateTable
-CREATE TABLE "_StaffGroup" (
+CREATE TABLE "_RolePermission" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
 );
 
 -- CreateTable
-CREATE TABLE "_RolePermission" (
+CREATE TABLE "_StaffGroup" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TenantMetadata_tenantId_key" ON "TenantMetadata"("tenantId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
@@ -148,10 +174,10 @@ CREATE UNIQUE INDEX "Student_userId_key" ON "Student"("userId");
 CREATE UNIQUE INDEX "Role_name_key" ON "Role"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Group_groupId_key" ON "Group"("groupId");
+CREATE UNIQUE INDEX "Permission_name_key" ON "Permission"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Permission_name_key" ON "Permission"("name");
+CREATE UNIQUE INDEX "Group_groupId_key" ON "Group"("groupId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Class_classId_key" ON "Class"("classId");
@@ -160,16 +186,19 @@ CREATE UNIQUE INDEX "Class_classId_key" ON "Class"("classId");
 CREATE UNIQUE INDEX "Subject_subjectId_key" ON "Subject"("subjectId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "_RolePermission_AB_unique" ON "_RolePermission"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_RolePermission_B_index" ON "_RolePermission"("B");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_StaffGroup_AB_unique" ON "_StaffGroup"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_StaffGroup_B_index" ON "_StaffGroup"("B");
 
--- CreateIndex
-CREATE UNIQUE INDEX "_RolePermission_AB_unique" ON "_RolePermission"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_RolePermission_B_index" ON "_RolePermission"("B");
+-- AddForeignKey
+ALTER TABLE "TenantMetadata" ADD CONSTRAINT "TenantMetadata_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -178,7 +207,7 @@ ALTER TABLE "User" ADD CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") 
 ALTER TABLE "Staff" ADD CONSTRAINT "Staff_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Staff" ADD CONSTRAINT "Staff_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Staff" ADD CONSTRAINT "Staff_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Student" ADD CONSTRAINT "Student_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -199,13 +228,13 @@ ALTER TABLE "Subject" ADD CONSTRAINT "Subject_classId_fkey" FOREIGN KEY ("classI
 ALTER TABLE "Subject" ADD CONSTRAINT "Subject_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Staff"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_StaffGroup" ADD CONSTRAINT "_StaffGroup_A_fkey" FOREIGN KEY ("A") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_StaffGroup" ADD CONSTRAINT "_StaffGroup_B_fkey" FOREIGN KEY ("B") REFERENCES "Staff"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "_RolePermission" ADD CONSTRAINT "_RolePermission_A_fkey" FOREIGN KEY ("A") REFERENCES "Permission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_RolePermission" ADD CONSTRAINT "_RolePermission_B_fkey" FOREIGN KEY ("B") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_StaffGroup" ADD CONSTRAINT "_StaffGroup_A_fkey" FOREIGN KEY ("A") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_StaffGroup" ADD CONSTRAINT "_StaffGroup_B_fkey" FOREIGN KEY ("B") REFERENCES "Staff"("id") ON DELETE CASCADE ON UPDATE CASCADE;

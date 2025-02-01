@@ -1,8 +1,11 @@
-import { z } from "zod";
+import { Permission } from "@prisma/client";
 
-import { createRoleSchema } from "../validators/RoleCreateSchema";
-
-export type CreateRoleData = z.infer<typeof createRoleSchema>;
+export type CreateRoleData = {
+  tenantId: number;
+  name: string;
+  rank: number;
+  permissions: Permission[];
+};
 
 export interface RoleCriteria {
   id?: number;
