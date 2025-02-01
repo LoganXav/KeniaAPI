@@ -57,7 +57,7 @@ model User {
   lastName             String
   gender               String?
   dateOfBirth          DateTime?
-  phoneNumber          String
+  phoneNumber          String?
   email                String      @unique
   password             String
   hasVerified          Boolean     @default(false)
@@ -92,6 +92,18 @@ enum TenantOnboardingStatusType {
 model Staff {
   id       Int       @id @default(autoincrement())
   jobTitle String
+  address          String?
+  stateId          Int?
+  lgaId            Int?
+  countryId        Int?
+  zipCode          Int?
+  postalCode       String?
+  employmentType   String? @default("FULLTIME")
+  startDate        DateTime?
+  nin              String?
+  tin              String?
+  highestLevelEdu  String?
+  cvUrl           String?
   userId   Int       @unique
   user     User      @relation(fields: [userId], references: [id], name: "StaffUser")
   roleId   Int
@@ -101,6 +113,8 @@ model Staff {
   subjects Subject[] @relation("SubjectTeacher")
   tenantId Int
   tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @default(now())
 }
 
 model Student {

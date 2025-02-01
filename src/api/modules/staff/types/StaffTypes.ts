@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { staffCreateSchema, staffCriteriaSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
+import { staffCriteriaSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
 import { staffUpdateManySchema, staffUpdateSchema } from "../validators/StaffUpdateSchema";
 import { Permission } from "@prisma/client";
 
-export type StaffCreateDataType = z.infer<typeof staffCreateSchema>;
 export type StaffCreateRequestType = z.infer<typeof staffCreateRequestSchema>;
 export type StaffCriteriaVType = z.infer<typeof staffCriteriaSchema>;
 // export type StaffUpdateVType = z.infer<typeof staffUpdateDataSchema>;
@@ -43,17 +42,32 @@ export interface StaffCreateResponseType {
     phoneNumber: string;
     email: string;
     password: string;
-    hasverified: boolean;
+    hasVerified: boolean;
     isFirstTimeLogin: boolean;
     lastLoginDate: string;
-    usertype: string;
-    tenantId: string;
+    userType: string;
+    tenantId: number;
   };
   staff: {
     id: number;
     jobTitle: string;
+    address?: string;
+    stateId?: number;
+    lgaId?: number;
+    countryId?: number;
+    zipCode?: number;
+    postalCode?: string;
+    employmentType: string;
+    startDate?: string;
+    nin?: string;
+    tin?: string;
+    highestLevelEdu?: string;
+    cvUrl?: string;
     userId: number;
     roleId: number;
+    tenantId: number;
+    createdAt: string;
+    updatedAt: string;
   };
 }
 
@@ -66,6 +80,18 @@ export interface StaffUpdateResponseType {
 
 export interface StaffCreateType {
   jobTitle: string;
+  address?: string;
+  stateId?: number;
+  lgaId?: number;
+  countryId?: number;
+  zipCode?: number;
+  postalCode?: string;
+  employmentType: string;
+  startDate?: string;
+  nin?: string;
+  tin?: string;
+  highestLevelEdu?: string;
+  cvUrl?: string;
   userId: number;
   roleId: number;
   tenantId: number;

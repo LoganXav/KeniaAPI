@@ -153,7 +153,9 @@ export const onboardingParamsSchema = z.object({
 });
 
 export const onboardingTemplateParamsSchema = z.object({
-  codeValue: z.string({
-    required_error: "Code Value is required",
-  }),
+  codeValue: z
+    .string({
+      required_error: "Code Value is required",
+    })
+    .optional(),
 });

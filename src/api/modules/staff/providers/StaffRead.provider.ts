@@ -6,15 +6,14 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StaffReadProvider {
   public async getAllStaff(tx?: any): Promise<Staff[]> {
     const dbClient = tx ? tx : DbClient;
-    const _staffs = await dbClient?.staff?.findMany();
+    const staffs = await dbClient?.staff?.findMany();
 
-    const staffs = _staffs.map(({ password, ...otherStaffInto }) => otherStaffInto);
     return staffs;
   }
 
   public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
     const { id, ids, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
-    const _staffs = await dbClient?.staff?.findMany({
+    const staffs = await dbClient?.staff?.findMany({
       where: {
         ...(id && { id: id }),
         id: {
@@ -51,7 +50,6 @@ export default class StaffReadProvider {
       },
     });
 
-    const staffs = _staffs.map(({ password, ...otherStaffInfo }) => otherStaffInfo);
     return staffs;
   }
 
@@ -66,12 +64,7 @@ export default class StaffReadProvider {
         },
       });
 
-      if (result) {
-        const { password, ...staff } = result;
-        return staff;
-      }
-
-      return null;
+      return result;
     } catch (error: any) {
       throw new InternalServerError(error);
     }
