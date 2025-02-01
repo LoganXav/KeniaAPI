@@ -8,9 +8,23 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-const prisma = global.prisma || new PrismaClient();
+class PrismaProvider {
+  private static instance: PrismaClient;
 
-if (!process.env?.NODE_ENV || BooleanUtil.areEqual(process.env.NODE_ENV, DEV)) global.prisma = prisma;
+  private constructor() {}
+
+  static getInstance(): PrismaClient {
+    if (!this.instance) {
+      this.instance = global.prisma ?? new PrismaClient();
+      if (!process.env?.NODE_ENV || BooleanUtil.areEqual(process.env.NODE_ENV, DEV)) {
+        global.prisma = this.instance;
+      }
+    }
+    return this.instance;
+  }
+}
+
+const prisma = PrismaProvider.getInstance();
 
 export default prisma;
 
