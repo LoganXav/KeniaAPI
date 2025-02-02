@@ -41,7 +41,6 @@ coverage
 notes.md
 
 # db migrations
-# **/database/migrations/
-
+# /src/infrastructure/internal/database/migrations/
 
 design.md
