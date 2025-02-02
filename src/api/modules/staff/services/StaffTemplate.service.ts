@@ -12,7 +12,7 @@ import NigerianStatesConstant from "~/api/shared/helpers/constants/NigerianState
 import CountryConstants from "~/api/shared/helpers/constants/Country.constants";
 import { GetLgasByCodeValue } from "~/api/shared/helpers/constants/GetLocalGovernmentsByCode";
 import { StaffEmploymentType } from "@prisma/client";
-import EducationLevelOptionsConstants from "~/api/shared/helpers/constants/EducationLevelOptions.constants";
+import EducationLevelOptionsConstant from "~/api/shared/helpers/constants/EducationLevelOptions.constant";
 
 @autoInjectable()
 export default class StaffTemplateService extends BaseService<IRequest> {
@@ -33,7 +33,7 @@ export default class StaffTemplateService extends BaseService<IRequest> {
         countryIdOptions: CountryConstants,
         stateIdOptions: NigerianStatesConstant,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
-        EducationLevelOptions: EducationLevelOptionsConstants,
+        EducationLevelOptions: EducationLevelOptionsConstant,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);
