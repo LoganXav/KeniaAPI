@@ -19,6 +19,26 @@ export const staffCreateRequestSchema = z.object({
 
   phoneNumber: z.string({ required_error: "Phone number is required", invalid_type_error: "Phone number must be a string" }),
 
+  gender: z.string({ required_error: "Gender is required", invalid_type_error: "Gender must be a string" }),
+
+  dateOfBirth: z
+    .string({
+      invalid_type_error: "Date of birth must be a valid Date object",
+    })
+    .optional()
+    .refine(
+      (val) => {
+        if (val) {
+          return !isNaN(Date.parse(val));
+        }
+        return true;
+      },
+      {
+        message: "Invalid date of birth format",
+      }
+    )
+    .transform((val) => (val ? new Date(val) : undefined)),
+
   jobTitle: z.string({ required_error: "Job title is required", invalid_type_error: "Job title must be a string" }).min(1, "Job title is required").max(100, "Job title must be less than 100 characters"),
 
   roleId: z.number({ required_error: "Role ID is required", invalid_type_error: "Role ID must be a number" }).positive("Role ID must be a positive number"),
