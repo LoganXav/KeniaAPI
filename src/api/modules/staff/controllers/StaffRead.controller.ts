@@ -20,45 +20,45 @@ export default class StaffUpdateController extends BaseController {
     this.staffReadService = staffReadService;
   }
 
-  staffRead: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.staffReadService.staffRead(res.trace, req.query), {
-      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
-    });
-  };
+  // staffRead: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+  //   return this.handleResultData(res, next, this.staffReadService.staffRead(res.trace, req.query), {
+  //     [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+  //   });
+  // };
 
-  staffReadOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.staffReadService.execute(res.trace, req.params), {
-      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
-    });
-  };
+  // staffReadOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+  //   return this.handleResultData(res, next, this.staffReadService.execute(res.trace, req.params), {
+  //     [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+  //   });
+  // };
 
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router());
 
-    this.addRoute({
-      method: HttpMethodEnum.GET,
-      path: "/staff/list",
-      handlers: [validateParams(staffCriteriaSchema), this.staffRead],
-      produces: [
-        {
-          applicationStatus: ApplicationStatusEnum.SUCCESS,
-          httpStatus: HttpStatusCodeEnum.SUCCESS,
-        },
-      ],
-      description: "Get Staff List",
-    });
+    // this.addRoute({
+    //   method: HttpMethodEnum.POST,
+    //   path: "/staff/list",
+    //   handlers: [validateParams(staffCriteriaSchema), this.staffRead],
+    //   produces: [
+    //     {
+    //       applicationStatus: ApplicationStatusEnum.SUCCESS,
+    //       httpStatus: HttpStatusCodeEnum.SUCCESS,
+    //     },
+    //   ],
+    //   description: "Get Staff List",
+    // });
 
-    this.addRoute({
-      method: HttpMethodEnum.GET,
-      path: "/staff/:id",
-      handlers: [this.staffReadOne],
-      produces: [
-        {
-          applicationStatus: ApplicationStatusEnum.SUCCESS,
-          httpStatus: HttpStatusCodeEnum.SUCCESS,
-        },
-      ],
-      description: "Get Single Staff",
-    });
+    // this.addRoute({
+    //   method: HttpMethodEnum.POST,
+    //   path: "/staff/:id",
+    //   handlers: [this.staffReadOne],
+    //   produces: [
+    //     {
+    //       applicationStatus: ApplicationStatusEnum.SUCCESS,
+    //       httpStatus: HttpStatusCodeEnum.SUCCESS,
+    //     },
+    //   ],
+    //   description: "Get Single Staff",
+    // });
   }
 }

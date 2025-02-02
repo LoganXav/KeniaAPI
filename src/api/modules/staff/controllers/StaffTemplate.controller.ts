@@ -39,7 +39,7 @@ export default class StaffTemplateController extends BaseController {
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Staff Onboarding Template",
+      description: "Staff Creation Template",
     });
   }
 }

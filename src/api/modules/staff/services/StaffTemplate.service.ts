@@ -33,7 +33,7 @@ export default class StaffTemplateService extends BaseService<IRequest> {
         countryIdOptions: CountryConstants,
         stateIdOptions: NigerianStatesConstant,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
-        EducationLevelOptions: EducationLevelOptionsConstant,
+        educationLevelOptions: EducationLevelOptionsConstant,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);
