@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "mysql"
+  provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -43,6 +43,13 @@ model Tenant {
   subjects         Subject[]
 }
 
+enum TenantOnboardingStatusType {
+  PERSONAL
+  RESIDENTIAL
+  SCHOOL
+  COMPLETE
+}
+
 model TenantMetadata {
   id            Int    @id @default(autoincrement())
   tenantId      Int    @unique
@@ -57,7 +64,7 @@ model User {
   lastName             String
   gender               String?
   dateOfBirth          DateTime?
-  phoneNumber          String?
+  phoneNumber          String
   email                String      @unique
   password             String
   hasVerified          Boolean     @default(false)
@@ -82,39 +89,31 @@ enum UserType {
   STAFF
 }
 
-enum TenantOnboardingStatusType {
-  PERSONAL
-  RESIDENTIAL
-  SCHOOL
-  COMPLETE
+model Staff {
+  id              Int                 @id @default(autoincrement())
+  jobTitle        String
+  userId          Int                 @unique
+  user            User                @relation(fields: [userId], references: [id], name: "StaffUser")
+  roleId          Int
+  role            Role?               @relation(fields: [roleId], references: [id])
+  group           Group[]             @relation("StaffGroup")
+  classes         Class[]             @relation("ClassTeacher")
+  subjects        Subject[]           @relation("SubjectTeacher")
+  tenantId        Int
+  nin             String?
+  tin             String?
+  cvUrl           String?
+  highestLevelEdu String?
+  employmentType  StaffEmploymentType @default(FULL_TIME)
+  startDate       DateTime            @default(now())
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
 }
 
-model Staff {
-  id       Int       @id @default(autoincrement())
-  jobTitle String
-  address          String?
-  stateId          Int?
-  lgaId            Int?
-  countryId        Int?
-  zipCode          Int?
-  postalCode       String?
-  employmentType   String? @default("FULLTIME")
-  startDate        DateTime?
-  nin              String?
-  tin              String?
-  highestLevelEdu  String?
-  cvUrl           String?
-  userId   Int       @unique
-  user     User      @relation(fields: [userId], references: [id], name: "StaffUser")
-  roleId   Int
-  role     Role?     @relation(fields: [roleId], references: [id])
-  group    Group[]   @relation("StaffGroup")
-  classes  Class[]   @relation("ClassTeacher")
-  subjects Subject[] @relation("SubjectTeacher")
-  tenantId Int
-  tenant   Tenant    @relation(fields: [tenantId], references: [id])
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @default(now())
+enum StaffEmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
 }
 
 model Student {

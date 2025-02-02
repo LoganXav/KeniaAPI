@@ -6,22 +6,22 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import OnboardingTemplateService from "../services/StaffCreateTemplate.service";
 import { validateParams } from "~/api/shared/helpers/middleware/validateData";
 import { staffTemplateParamsSchema } from "../validators/StaffTemplateSchema";
+import StaffTemplateService from "../services/StaffTemplate.service";
 
 @autoInjectable()
-export default class OnboardingTemplateController extends BaseController {
+export default class StaffTemplateController extends BaseController {
   static controllerName: string;
-  onboardingTemplateService: OnboardingTemplateService;
-  constructor(onboardingTemplateService: OnboardingTemplateService) {
+  staffTemplateService: StaffTemplateService;
+  constructor(staffTemplateService: StaffTemplateService) {
     super();
-    this.controllerName = "StaffOnboardingTemplateController";
-    this.onboardingTemplateService = onboardingTemplateService;
+    this.controllerName = "StaffTemplateController";
+    this.staffTemplateService = staffTemplateService;
   }
 
   template: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.onboardingTemplateService.execute(res.trace, req), {
+    return this.handleResultData(res, next, this.staffTemplateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };

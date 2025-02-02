@@ -10,15 +10,16 @@ import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages
 import { IRequest } from "~/infrastructure/internal/types";
 import NigerianStatesConstant from "~/api/shared/helpers/constants/NigerianStates.constant";
 import CountryConstants from "~/api/shared/helpers/constants/Country.constants";
-import EmploymentTypeConstants from "~/api/shared/helpers/constants/EmploymentTypes";
 import { GetLgasByCodeValue } from "~/api/shared/helpers/constants/GetLocalGovernmentsByCode";
+import { StaffEmploymentType } from "@prisma/client";
+import EducationLevelOptionsConstants from "~/api/shared/helpers/constants/EducationLevelOptions.constants";
 
 @autoInjectable()
-export default class OnboardingTemplateService extends BaseService<IRequest> {
-  static serviceName = "OnboardingTemplateService";
+export default class StaffTemplateService extends BaseService<IRequest> {
+  static serviceName = "StaffTemplateService";
   loggingProvider: ILoggingDriver;
   constructor() {
-    super(OnboardingTemplateService.serviceName);
+    super(StaffTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -28,10 +29,11 @@ export default class OnboardingTemplateService extends BaseService<IRequest> {
       const { codeValue } = args.query;
 
       const data = {
-        employmentType: EmploymentTypeConstants,
+        employmentTypeOptions: Object.values(StaffEmploymentType),
         countryIdOptions: CountryConstants,
         stateIdOptions: NigerianStatesConstant,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
+        EducationLevelOptions: EducationLevelOptionsConstants,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);
