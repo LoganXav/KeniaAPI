@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { autoInjectable } from "tsyringe";
 import Event from "~/api/shared/helpers/events";
-import { TokenType, UserType } from "@prisma/client";
+import { TokenType, UserType, StaffEmploymentType } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
 import { IResult } from "~/api/shared/helpers/results/IResult";
@@ -90,7 +90,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         const roleCreateInput = { name: SCHOOL_OWNER_ROLE_NAME, rank: SCHOOL_OWNER_ROLE_RANK, permissions: [], tenantId: tenant?.id };
         const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
 
-        const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id };
+        const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULL_TIME };
         await this.staffCreateProvider.create(staffCreateInput, tx);
 
         const otpToken = generateStringOfLength(businessConfig.emailTokenLength);

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { staffCriteriaSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
 import { staffUpdateManySchema, staffUpdateSchema } from "../validators/StaffUpdateSchema";
-import { Permission } from "@prisma/client";
+import { Permission, StaffEmploymentType } from "@prisma/client";
 
 export type StaffCreateRequestType = z.infer<typeof staffCreateRequestSchema>;
 export type StaffCriteriaVType = z.infer<typeof staffCriteriaSchema>;
@@ -80,13 +80,7 @@ export interface StaffUpdateResponseType {
 
 export interface StaffCreateType {
   jobTitle: string;
-  address?: string;
-  stateId?: number;
-  lgaId?: number;
-  countryId?: number;
-  zipCode?: number;
-  postalCode?: string;
-  employmentType: string;
+  employmentType?: StaffEmploymentType;
   startDate?: string;
   nin?: string;
   tin?: string;

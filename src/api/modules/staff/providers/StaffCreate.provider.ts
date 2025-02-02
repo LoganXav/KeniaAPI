@@ -6,22 +6,16 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StaffCreateProvider {
   public async create(data: StaffCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
-      const { jobTitle, address, stateId, lgaId, countryId, zipCode, postalCode, employmentType, startDate, nin, tin, highestLevelEdu, cvUrl, userId, roleId, tenantId } = data;
+      const { jobTitle, employmentType, startDate, nin, tin, highestLevelEdu, cvUrl, userId, roleId, tenantId } = data;
 
       const staff = await dbClient?.staff.create({
         data: {
           jobTitle,
-          address,
-          stateId,
-          lgaId,
-          countryId,
-          zipCode,
-          postalCode,
           employmentType,
-          startDate: startDate ? new Date(startDate) : null,
+          startDate,
           nin,
-          tin,
           highestLevelEdu,
+          tin,
           cvUrl,
           userId,
           roleId,
