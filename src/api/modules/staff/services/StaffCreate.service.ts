@@ -46,8 +46,6 @@ export default class StaffCreateService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
 
-      console.log(args.body, "nsdkcbsdk");
-
       const foundUser = await this.userReadCache.getOneByCriteria({ tenantId: args.body.tenantId, criteria: { email: args.body.email } });
       if (foundUser) {
         throw new BadRequestError(RESOURCE_RECORD_ALREADY_EXISTS(STAFF_RESOURCE));
