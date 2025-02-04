@@ -82,7 +82,7 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
           password: PasswordEncryptionService.hashPassword(password),
         };
         const newUser = await this.userUpdateProvider.updateOneByCriteria(updateUserRecordPayload, tx);
-        await this.userReadCache.update(newUser?.tenantId, newUser);
+        await this.userReadCache.invalidate(newUser?.tenantId);
         await this.deactivateUserToken(dbResetToken.id, tx);
 
         return;

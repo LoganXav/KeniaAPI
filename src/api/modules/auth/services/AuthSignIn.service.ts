@@ -66,7 +66,7 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
 
         const newUser = await this.userUpdateProvider.updateOneByCriteria(updateUserRecordArgs);
 
-        await this.userReadCache.update(newUser?.tenantId, newUser);
+        await this.userReadCache.invalidate(newUser?.tenantId);
       }
 
       const accessToken = await JwtService.getJwt(foundUser);

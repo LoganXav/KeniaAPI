@@ -5,6 +5,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class UserUpdateProvider {
   public async updateOneByCriteria(args: UpdateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations> {
     const { userId, firstName, gender, lastName, dateOfBirth, phoneNumber, hasVerified, isFirstTimeLogin, lastLoginDate, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode } = args;
+
     try {
       const result = await dbClient?.user?.update({
         where: {

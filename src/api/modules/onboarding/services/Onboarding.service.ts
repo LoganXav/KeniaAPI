@@ -16,17 +16,20 @@ import { TenantOnboardingStatusType } from "@prisma/client";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { IRequest } from "~/infrastructure/internal/types";
 import UserReadCache from "../../user/cache/UserRead.cache";
+import StaffReadCache from "../../staff/cache/StaffRead.cache";
 @autoInjectable()
 export default class OnboardingService extends BaseService<IRequest> {
   static serviceName = "OnboardingService";
   loggingProvider: ILoggingDriver;
   userUpdateProvider: UserUpdateProvider;
   userReadCache: UserReadCache;
+  staffReadCache: StaffReadCache;
   tenantUpdateProvider: TenantUpdateProvider;
-  constructor(userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, tenantUpdateProvider: TenantUpdateProvider) {
+  constructor(userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, tenantUpdateProvider: TenantUpdateProvider, staffReadCache: StaffReadCache) {
     super(OnboardingService.serviceName);
     this.userUpdateProvider = userUpdateProvider;
     this.userReadCache = userReadCache;
+    this.staffReadCache = staffReadCache;
     this.tenantUpdateProvider = tenantUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
@@ -116,7 +119,8 @@ export default class OnboardingService extends BaseService<IRequest> {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const user = await this.userUpdateProvider.updateOneByCriteria(args, tx);
-        await this.userReadCache.update(tenantId, user);
+        await this.userReadCache.invalidate(tenantId);
+        await this.staffReadCache.invalidate(tenantId);
 
         const updateTenantInput = { ...args, onboardingStatus, tenantId };
         const tenant = await this.tenantUpdateProvider.updateOneByCriteria(updateTenantInput, tx);

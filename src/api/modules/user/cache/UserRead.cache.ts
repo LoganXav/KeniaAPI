@@ -71,43 +71,9 @@ export default class UserReadCache {
 
   public async invalidate(tenantId: number): Promise<void> {
     try {
-      // Delete global user cache
-      await this.redisClient.del(`${tenantId}:user:all`);
-      console.log("All User Cache CLEARED!");
-
       // Find all keys matching criteria-based caches and delete them
       const keys = await this.redisClient.keys(`${tenantId}:user:*`);
 
-      if (ArrayUtil.any(keys)) {
-        await this.redisClient.del(keys);
-        console.log("Criteria User Cache CLEARED!");
-      }
-    } catch (error: any) {
-      throw new InternalServerError(error);
-    }
-  }
-
-  public async update(tenantId: number, updatedUser: UserWithRelations): Promise<void> {
-    try {
-      const cacheKey = `${tenantId}:user:all`;
-      const cachedUsers = await this.redisClient.get(cacheKey);
-
-      if (cachedUsers) {
-        console.log("All User Cache HIT!");
-        const usersList = JSON.parse(cachedUsers);
-        const index = usersList.findIndex((user: UserWithRelations) => user.id === updatedUser.id);
-
-        if (index !== -1) {
-          usersList[index] = updatedUser;
-          await this.redisClient.set(cacheKey, JSON.stringify(usersList), {
-            EX: this.CACHE_EXPIRY,
-          });
-          console.log("All User Cache UPDATED!");
-        }
-      }
-
-      // Invalidate all criteria-based caches
-      const keys = await this.redisClient.keys(`${tenantId}:user:*`);
       if (ArrayUtil.any(keys)) {
         await this.redisClient.del(keys);
         console.log("Criteria User Cache CLEARED!");

@@ -123,7 +123,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
       hasVerified: true,
     };
     const newUser = await this.userUpdateProvider.updateOneByCriteria(verifyUserAccountArgs, tx);
-    await this.userReadCache.update(newUser?.tenantId, newUser);
+    await this.userReadCache.invalidate(newUser?.tenantId);
   }
 
   private checkTokenExpired(tokenExpiryDate: Date) {
