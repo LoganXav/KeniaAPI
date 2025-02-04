@@ -4,27 +4,13 @@ import { StaffCriteriaType } from "../types/StaffTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StaffReadProvider {
-  public async getAllStaff(dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
-    try {
-      const staffs = await dbClient.staff.findMany({
-        include: {
-          user: true,
-          role: true,
-        },
-      });
-
-      return staffs;
-    } catch (error: any) {
-      throw new InternalServerError(error);
-    }
-  }
-
   public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
     try {
-      const { id, ids, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
+      const { id, ids, jobTitle, userId, roleId, groupId, classId, subjectId, tenantId } = criteria;
 
       const staffs = await dbClient.staff.findMany({
         where: {
+          ...(tenantId && { tenantId }),
           ...(id && { id }),
           ...(ids && { id: { in: ids } }),
           ...(jobTitle && { jobTitle: { contains: jobTitle } }),

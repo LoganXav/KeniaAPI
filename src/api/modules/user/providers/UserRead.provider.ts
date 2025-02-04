@@ -3,7 +3,7 @@ import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/dat
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class UserReadProvider {
-  public async getAllUser(dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations[]> {
+  public async getAll(dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations[]> {
     try {
       const users = await dbClient.user.findMany({
         include: {
@@ -24,9 +24,10 @@ export default class UserReadProvider {
 
   public async getOneByCriteria(criteria: ReadUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations | null> {
     try {
-      const { id, email } = criteria;
+      const { id, email, tenantId } = criteria;
       const result = await dbClient?.user?.findFirst({
         where: {
+          ...(tenantId && { tenantId }),
           ...(id && { id }),
           ...(email && { email }),
         },

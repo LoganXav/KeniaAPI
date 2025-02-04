@@ -27,7 +27,9 @@ export default class UserReadService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args?.body);
       const { userId, tenantId } = args.body;
 
-      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria: { id: Number(userId) } });
+      const criteria = { userId: Number(userId), tenantId: Number(tenantId) };
+
+      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria });
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));

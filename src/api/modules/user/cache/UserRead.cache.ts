@@ -28,7 +28,7 @@ export default class UserReadCache {
         return JSON.parse(cachedUsers);
       }
 
-      const users = await this.userReadProvider.getAllUser();
+      const users = await this.userReadProvider.getAll();
       console.log("All User Cache MISS!");
 
       if (ArrayUtil.any(users)) {
@@ -77,6 +77,7 @@ export default class UserReadCache {
 
       // Find all keys matching criteria-based caches and delete them
       const keys = await this.redisClient.keys(`${tenantId}:user:*`);
+
       if (ArrayUtil.any(keys)) {
         await this.redisClient.del(keys);
         console.log("Criteria User Cache CLEARED!");
