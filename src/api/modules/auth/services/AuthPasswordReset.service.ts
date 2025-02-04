@@ -16,6 +16,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { ERROR, ERROR_EXPIRED_TOKEN, ERROR_INVALID_TOKEN, NULL_OBJECT, PASSWORD_RESET_SUCCESSFULLY, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import UserReadCache from "../../user/cache/UserRead.cache";
 
 @autoInjectable()
 export default class AuthPasswordResetService extends BaseService<IRequest> {
@@ -24,11 +25,13 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
   loggingProvider: ILoggingDriver;
   userReadProvider: UserReadProvider;
   userUpdateProvider: UserUpdateProvider;
-  constructor(tokenProvider: TokenProvider, userReadProvider: UserReadProvider, userUpdateProvider: UserUpdateProvider) {
+  userReadCache: UserReadCache;
+  constructor(tokenProvider: TokenProvider, userReadProvider: UserReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache) {
     super(AuthPasswordResetService.serviceName);
     this.tokenProvider = tokenProvider;
     this.userReadProvider = userReadProvider;
     this.userUpdateProvider = userUpdateProvider;
+    this.userReadCache = userReadCache;
     this.loggingProvider = LoggingProviderFactory.build();
   }
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -78,7 +81,8 @@ export default class AuthPasswordResetService extends BaseService<IRequest> {
           userId: dbResetToken.userId,
           password: PasswordEncryptionService.hashPassword(password),
         };
-        await this.userUpdateProvider.updateOneByCriteria(updateUserRecordPayload, tx);
+        const newUser = await this.userUpdateProvider.updateOneByCriteria(updateUserRecordPayload, tx);
+        await this.userReadCache.invalidate(newUser?.tenantId);
         await this.deactivateUserToken(dbResetToken.id, tx);
 
         return;

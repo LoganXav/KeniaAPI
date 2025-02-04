@@ -21,6 +21,10 @@ export default class StaffCreateProvider {
           roleId,
           tenantId,
         },
+        include: {
+          user: true,
+          role: true,
+        },
       });
 
       return staff;

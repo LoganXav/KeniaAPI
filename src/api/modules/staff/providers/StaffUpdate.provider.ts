@@ -36,6 +36,10 @@ export default class StaffUpdateProvider {
             },
           }),
         },
+        include: {
+          user: true,
+          role: true,
+        },
       });
       return updatedStaff;
     } catch (error: any) {

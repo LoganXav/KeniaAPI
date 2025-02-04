@@ -1,8 +1,11 @@
 import { z } from "zod";
 
 export const onboardingPersonalSchema = z.object({
+  tenantId: z.number({
+    required_error: "Tenant Id is required",
+  }),
   userId: z.number({
-    required_error: "Id is required",
+    required_error: "User Id is required",
   }),
   firstName: z
     .string({
@@ -46,8 +49,11 @@ export const onboardingPersonalSchema = z.object({
 });
 
 export const onboardingResidentialSchema = z.object({
+  tenantId: z.number({
+    required_error: "Tenant Id is required",
+  }),
   userId: z.number({
-    required_error: "User id is required",
+    required_error: "User Id is required",
   }),
   residentialAddress: z
     .string({
@@ -70,8 +76,11 @@ export const onboardingResidentialSchema = z.object({
 });
 
 export const onboardingSchoolSchema = z.object({
+  tenantId: z.number({
+    required_error: "Tenant Id is required",
+  }),
   userId: z.number({
-    required_error: "Id is required",
+    required_error: "User Id is required",
   }),
   name: z
     .string({
@@ -144,12 +153,6 @@ export const onboardingSchoolSchema = z.object({
     })
     .min(5, "Postal code must be at least 5 characters")
     .max(10, "Postal code cannot exceed 10 characters"),
-});
-
-export const onboardingParamsSchema = z.object({
-  tenantId: z.string({
-    required_error: "Tenant Id is required",
-  }),
 });
 
 export const onboardingTemplateParamsSchema = z.object({

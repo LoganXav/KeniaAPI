@@ -10,6 +10,7 @@ export type StaffUpdateRequestType = z.infer<typeof staffUpdateSchema>;
 export type StaffUpdateManyRequestType = z.infer<typeof staffUpdateManySchema>;
 
 export interface StaffCriteriaType {
+  tenantId?: number;
   id?: number;
   ids?: number[];
   userId?: number;

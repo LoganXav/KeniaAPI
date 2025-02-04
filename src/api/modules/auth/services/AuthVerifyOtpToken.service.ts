@@ -15,6 +15,7 @@ import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/dat
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { ACCOUNT_VERIFIED, ERROR, ERROR_INVALID_TOKEN, NULL_OBJECT, SOMETHING_WENT_WRONG, SUCCESS, TOKEN_EXPIRED, TOKEN_VERIFIED } from "~/api/shared/helpers/messages/SystemMessages";
+import UserReadCache from "../../user/cache/UserRead.cache";
 
 @autoInjectable()
 export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTokenType> {
@@ -23,12 +24,14 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
   userReadProvider: UserReadProvider;
   userUpdateProvider: UserUpdateProvider;
   loggingProvider: ILoggingDriver;
+  userReadCache: UserReadCache;
 
-  constructor(tokenProvider: TokenProvider, userReadProvider: UserReadProvider, userUpdateProvider: UserUpdateProvider) {
+  constructor(tokenProvider: TokenProvider, userReadProvider: UserReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache) {
     super(AuthVerifyOtpTokenService.serviceName);
     this.tokenProvider = tokenProvider;
     this.userReadProvider = userReadProvider;
     this.userUpdateProvider = userUpdateProvider;
+    this.userReadCache = userReadCache;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -119,7 +122,8 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
       userId,
       hasVerified: true,
     };
-    await this.userUpdateProvider.updateOneByCriteria(verifyUserAccountArgs, tx);
+    const newUser = await this.userUpdateProvider.updateOneByCriteria(verifyUserAccountArgs, tx);
+    await this.userReadCache.invalidate(newUser?.tenantId);
   }
 
   private checkTokenExpired(tokenExpiryDate: Date) {

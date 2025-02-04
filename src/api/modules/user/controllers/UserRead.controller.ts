@@ -7,8 +7,6 @@ import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
 import UserReadService from "../services/UserRead.service";
-import { validateParams } from "~/api/shared/helpers/middleware/validateData";
-import { UserReadSchema } from "../validators/UserReadSchema";
 
 @autoInjectable()
 export default class UserReadController extends BaseController {
@@ -32,7 +30,7 @@ export default class UserReadController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/user/me",
-      handlers: [validateParams(UserReadSchema), this.me],
+      handlers: [this.me],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

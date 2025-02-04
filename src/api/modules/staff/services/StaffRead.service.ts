@@ -11,19 +11,23 @@ import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequest
 import StaffReadProvider from "../providers/StaffRead.provider";
 import { StaffCriteriaType } from "../types/StaffTypes";
 import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import UserReadProvider from "../../user/providers/UserRead.provider";
+import StaffReadCache from "../cache/StaffRead.cache";
+import { IRequest } from "~/infrastructure/internal/types";
+import UserReadCache from "../../user/cache/UserRead.cache";
 
 @autoInjectable()
 export default class StaffReadService extends BaseService<any> {
   static serviceName = "StaffReadService";
   staffReadProvider: StaffReadProvider;
-  userReadProvider: UserReadProvider;
+  userReadCache: UserReadCache;
   loggingProvider: ILoggingDriver;
+  staffReadCache: StaffReadCache;
 
-  constructor(staffReadProvider: StaffReadProvider, userReadProvider: UserReadProvider) {
+  constructor(staffReadProvider: StaffReadProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache) {
     super(StaffReadService.serviceName);
     this.staffReadProvider = staffReadProvider;
-    this.userReadProvider = userReadProvider;
+    this.userReadCache = userReadCache;
+    this.staffReadCache = staffReadCache;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -36,7 +40,7 @@ export default class StaffReadService extends BaseService<any> {
       if (!staff) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
       }
-      const user = await this.userReadProvider.getOneByCriteria({ id: staff.userId });
+      const user = await this.userReadCache.getOneByCriteria({ tenantId: Number(args.tenantId), criteria: { tenantId: Number(args.tenantId), id: staff.userId } });
 
       const fetchedStaffData = { ...staff, ...user };
 
@@ -52,32 +56,17 @@ export default class StaffReadService extends BaseService<any> {
     }
   }
 
-  public async staffRead(trace: ServiceTrace, args: StaffCriteriaType): Promise<IResult> {
+  public async staffRead(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.query);
 
-      let staffs;
+      const { tenantId } = args.body;
+      const criteria = { ...args.query, tenantId };
 
-      if (Object.keys(args).length === 0) {
-        staffs = await this.staffReadProvider.getAllStaff();
-      } else {
-        staffs = await this.staffReadProvider.getByCriteria(args);
-      }
-      const fetchedStaffData = [];
-
-      for (const staff of staffs) {
-        const _user = await this.userReadProvider.getOneByCriteria({ id: staff.userId });
-        if (_user) {
-          const { password, ...user } = _user;
-          const mergedData = { ...staff, user };
-          fetchedStaffData.push(mergedData);
-        }
-      }
+      const staffs = await this.staffReadCache.getByCriteria({ tenantId, criteria });
 
       trace.setSuccessful();
-
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STAFF_RESOURCE), fetchedStaffData);
-
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STAFF_RESOURCE), staffs);
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);

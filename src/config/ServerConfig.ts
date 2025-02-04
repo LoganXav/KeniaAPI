@@ -31,6 +31,9 @@ export default {
       Context: serviceContext,
     },
   },
+  Cache: {
+    Url: DefaultValue.evaluateAndGet(process.env.CACHE_URL, "redis://localhost:6379"),
+  },
   Params: {
     DefaultHealthRemoteService: DefaultValue.evaluateAndGet(process.env.REMOTE_HEALTH_SERVICE, "https://google.com"),
 
@@ -52,6 +55,7 @@ export default {
       },
     },
   },
+
   ApiDocsInfo: {
     title: "Kenia API",
     version: "1.0.0",

@@ -3,9 +3,13 @@ import ServerConfig from "~/config/ServerConfig";
 class AppSettings {
   ServiceName: string;
   ServiceContext: string;
+
   ServerRoot: string;
   ServerPort: number;
   ServerHost: string;
+
+  CacheUrl: string;
+
   DefaultHealthRemoteService: string;
   JWTEncryptionKey: string;
   JWTExpirationTime: string;
@@ -14,6 +18,9 @@ class AppSettings {
     this.ServerPort = serverConfig.Server.Port;
     this.ServerHost = serverConfig.Server.Host;
     this.ServerRoot = serverConfig.Server.Root;
+
+    this.CacheUrl = serverConfig.Cache.Url;
+
     this.ServiceName = serverConfig.Server.ServiceName;
     this.ServiceContext = serverConfig.Server.ServiceContext.Context;
     this.DefaultHealthRemoteService = serverConfig.Params.DefaultHealthRemoteService.Context;
@@ -23,6 +30,10 @@ class AppSettings {
 
   getServerUrl(): string {
     return `http://${this.ServerHost}:${this.ServerPort}${this.ServerRoot}`;
+  }
+
+  getCacheUrl(): string {
+    return this.CacheUrl;
   }
 }
 

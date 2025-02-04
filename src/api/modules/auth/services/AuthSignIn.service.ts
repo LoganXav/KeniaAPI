@@ -15,6 +15,7 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { ERROR, INVALID_CREDENTIALS, NULL_OBJECT, SIGN_IN_SUCCESSFUL, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
+import UserReadCache from "../../user/cache/UserRead.cache";
 
 @autoInjectable()
 export default class AuthSignInService extends BaseService<SignInUserType> {
@@ -22,12 +23,14 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
   staffReadProvider: StaffReadProvider;
   userReadProvider: UserReadProvider;
   userUpdateProvider: UserUpdateProvider;
+  userReadCache: UserReadCache;
   loggingProvider: ILoggingDriver;
-  constructor(userReadProvider: UserReadProvider, staffReadProvider: StaffReadProvider, userUpdateProvider: UserUpdateProvider) {
+  constructor(userReadProvider: UserReadProvider, staffReadProvider: StaffReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache) {
     super(AuthSignInService.serviceName);
     this.userReadProvider = userReadProvider;
     this.staffReadProvider = staffReadProvider;
     this.userUpdateProvider = userUpdateProvider;
+    this.userReadCache = userReadCache;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -61,7 +64,9 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
           isFirstTimeLogin: false,
         };
 
-        await this.userUpdateProvider.updateOneByCriteria(updateUserRecordArgs);
+        const newUser = await this.userUpdateProvider.updateOneByCriteria(updateUserRecordArgs);
+
+        await this.userReadCache.invalidate(newUser?.tenantId);
       }
 
       const accessToken = await JwtService.getJwt(foundUser);

@@ -24,8 +24,8 @@ export interface IRequest {
   isProtected: boolean;
   session: ISession;
   body: any;
-  params: Record<string, string>;
-  query: Record<string, string>;
+  params: any;
+  query: any;
   locale: LocaleTypeEnum;
   ipAddress: string;
   userAgent: string;

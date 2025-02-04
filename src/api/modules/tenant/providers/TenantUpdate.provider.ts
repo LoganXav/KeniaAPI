@@ -1,6 +1,5 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Tenant, TenantMetadata } from "@prisma/client";
-import { TenantCriteria, UpdateTenantData } from "../types/TenantTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class TenantUpdateProvider {
@@ -48,15 +47,5 @@ export default class TenantUpdateProvider {
     } catch (error: any) {
       throw new InternalServerError(error.message);
     }
-  }
-
-  public async updateByCriteria(criteria: TenantCriteria, updateData: UpdateTenantData, tx?: any): Promise<Tenant[]> {
-    const dbClient = tx ? tx : DbClient;
-    const updatedTenants = await dbClient?.tenant?.updateMany({
-      where: criteria,
-      data: updateData,
-    });
-
-    return updatedTenants as Promise<Tenant[]>;
   }
 }

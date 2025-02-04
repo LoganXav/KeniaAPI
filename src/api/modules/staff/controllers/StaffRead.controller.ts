@@ -9,6 +9,7 @@ import { autoInjectable } from "tsyringe";
 import StaffReadService from "../services/StaffRead.service";
 import { staffCriteriaSchema } from "../validators/StaffCreateSchema";
 import { validateParams } from "~/api/shared/helpers/middleware/validateData";
+import { staffReadParamsSchema } from "../validators/StaffReadSchema";
 
 @autoInjectable()
 export default class StaffUpdateController extends BaseController {
@@ -20,33 +21,33 @@ export default class StaffUpdateController extends BaseController {
     this.staffReadService = staffReadService;
   }
 
-  // staffRead: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-  //   return this.handleResultData(res, next, this.staffReadService.staffRead(res.trace, req.query), {
-  //     [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
-  //   });
-  // };
+  staffReadOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.staffReadService.execute(res.trace, req.params), {
+      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+    });
+  };
 
-  // staffReadOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-  //   return this.handleResultData(res, next, this.staffReadService.execute(res.trace, req.params), {
-  //     [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
-  //   });
-  // };
+  staffRead: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.staffReadService.staffRead(res.trace, req), {
+      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+    });
+  };
 
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router());
 
-    // this.addRoute({
-    //   method: HttpMethodEnum.POST,
-    //   path: "/staff/list",
-    //   handlers: [validateParams(staffCriteriaSchema), this.staffRead],
-    //   produces: [
-    //     {
-    //       applicationStatus: ApplicationStatusEnum.SUCCESS,
-    //       httpStatus: HttpStatusCodeEnum.SUCCESS,
-    //     },
-    //   ],
-    //   description: "Get Staff List",
-    // });
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/staff/list",
+      handlers: [this.staffRead],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.SUCCESS,
+          httpStatus: HttpStatusCodeEnum.SUCCESS,
+        },
+      ],
+      description: "Get Staff List",
+    });
 
     // this.addRoute({
     //   method: HttpMethodEnum.POST,

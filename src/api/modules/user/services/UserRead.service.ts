@@ -8,26 +8,28 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { ERROR, NULL_OBJECT, SUCCESS, USER_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { IRequest } from "~/infrastructure/internal/types";
-import UserReadProvider from "../providers/UserRead.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import UserReadCache from "../cache/UserRead.cache";
 
 @autoInjectable()
 export default class UserReadService extends BaseService<IRequest> {
   static serviceName = "UserReadService";
   loggingProvider: ILoggingDriver;
-  userReadProvider: UserReadProvider;
-  constructor(userReadProvider: UserReadProvider) {
+  userReadCache: UserReadCache;
+  constructor(userReadCache: UserReadCache) {
     super(UserReadService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
-    this.userReadProvider = userReadProvider;
+    this.userReadCache = userReadCache;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args?.body);
-      const { userId } = args.query;
+      const { userId, tenantId } = args.body;
 
-      const foundUser = await this.userReadProvider.getOneByCriteria({ id: Number(userId) });
+      const criteria = { userId: Number(userId), tenantId: Number(tenantId) };
+
+      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria });
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));

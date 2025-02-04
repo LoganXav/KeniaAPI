@@ -7,8 +7,6 @@ import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
 import TenantReadService from "../services/TenantRead.service";
-import { validateParams } from "~/api/shared/helpers/middleware/validateData";
-import { TenantReadSchema } from "../validators/TenantReadSchema";
 
 @autoInjectable()
 export default class TenantReadController extends BaseController {
@@ -32,7 +30,7 @@ export default class TenantReadController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/tenant",
-      handlers: [validateParams(TenantReadSchema), this.me],
+      handlers: [this.me],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
