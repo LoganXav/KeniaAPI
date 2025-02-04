@@ -1,5 +1,4 @@
 import { autoInjectable } from "tsyringe";
-import { Staff } from "@prisma/client";
 import RedisClient from "~/infrastructure/internal/caching";
 import { RedisClientType } from "redis";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -93,6 +92,7 @@ export default class UserReadCache {
       const cachedUsers = await this.redisClient.get(cacheKey);
 
       if (cachedUsers) {
+        console.log("All User Cache HIT!");
         const usersList = JSON.parse(cachedUsers);
         const index = usersList.findIndex((user: UserWithRelations) => user.id === updatedUser.id);
 
@@ -101,6 +101,7 @@ export default class UserReadCache {
           await this.redisClient.set(cacheKey, JSON.stringify(usersList), {
             EX: this.CACHE_EXPIRY,
           });
+          console.log("All User Cache UPDATED!");
         }
       }
 
@@ -108,6 +109,7 @@ export default class UserReadCache {
       const keys = await this.redisClient.keys(`${tenantId}:user:*`);
       if (ArrayUtil.any(keys)) {
         await this.redisClient.del(keys);
+        console.log("Criteria User Cache CLEARED!");
       }
     } catch (error: any) {
       throw new InternalServerError(error);

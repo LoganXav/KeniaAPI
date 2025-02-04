@@ -1,10 +1,9 @@
-import { User } from "@prisma/client";
-import { UpdateUserRecordType } from "~/api/modules/user/types/UserTypes";
+import { UpdateUserRecordType, UserWithRelations } from "~/api/modules/user/types/UserTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class UserUpdateProvider {
-  public async updateOneByCriteria(args: UpdateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<Omit<User, "password">> {
+  public async updateOneByCriteria(args: UpdateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations> {
     const { userId, firstName, gender, lastName, dateOfBirth, phoneNumber, hasVerified, isFirstTimeLogin, lastLoginDate, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode } = args;
     try {
       const result = await dbClient?.user?.update({

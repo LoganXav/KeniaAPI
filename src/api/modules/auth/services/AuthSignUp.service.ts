@@ -23,21 +23,36 @@ import { PasswordEncryptionService } from "~/api/shared/services/encryption/Pass
 import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SCHOOL_OWNER_ROLE_NAME, SCHOOL_OWNER_ROLE_RANK, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import RoleCreateProvider from "../../role/providers/RoleCreate.provider";
 import StaffCreateProvider from "../../staff/providers/StaffCreate.provider";
+import UserReadCache from "../../user/cache/UserRead.cache";
+import StaffReadCache from "../../staff/cache/StaffRead.cache";
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
   static serviceName = "AuthSignUpService";
   tokenProvider: TokenProvider;
   loggingProvider: ILoggingDriver;
   userReadProvider: UserReadProvider;
+  userReadCache: UserReadCache;
+  staffReadCache: StaffReadCache;
   userCreateProvider: UserCreateProvider;
   tenantCreateProvider: TenantCreateProvider;
   roleCreateProvider: RoleCreateProvider;
   staffCreateProvider: StaffCreateProvider;
 
-  constructor(tokenProvider: TokenProvider, userReadProvider: UserReadProvider, tenantCreateProvider: TenantCreateProvider, userCreateProvider: UserCreateProvider, roleCreateProvider: RoleCreateProvider, staffCreateProvider: StaffCreateProvider) {
+  constructor(
+    tokenProvider: TokenProvider,
+    userReadProvider: UserReadProvider,
+    tenantCreateProvider: TenantCreateProvider,
+    userCreateProvider: UserCreateProvider,
+    roleCreateProvider: RoleCreateProvider,
+    staffCreateProvider: StaffCreateProvider,
+    userReadCache: UserReadCache,
+    staffReadCache: StaffReadCache
+  ) {
     super(AuthSignUpService.serviceName);
     this.tokenProvider = tokenProvider;
     this.userReadProvider = userReadProvider;
+    this.userReadCache = userReadCache;
+    this.staffReadCache = staffReadCache;
     this.userCreateProvider = userCreateProvider;
     this.tenantCreateProvider = tenantCreateProvider;
     this.roleCreateProvider = roleCreateProvider;
@@ -86,12 +101,14 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
 
         const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
         const user = await this.userCreateProvider.create(userCreateInput, tx);
+        await this.userReadCache.invalidate(user?.tenantId);
 
         const roleCreateInput = { name: SCHOOL_OWNER_ROLE_NAME, rank: SCHOOL_OWNER_ROLE_RANK, permissions: [], tenantId: tenant?.id };
         const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
 
         const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULL_TIME };
         await this.staffCreateProvider.create(staffCreateInput, tx);
+        await this.staffReadCache.invalidate(user?.tenantId);
 
         const otpToken = generateStringOfLength(businessConfig.emailTokenLength);
         const expiresAt = DateTime.now().plus({ minutes: businessConfig.emailTokenExpiresInMinutes }).toJSDate();
