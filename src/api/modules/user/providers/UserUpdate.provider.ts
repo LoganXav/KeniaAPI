@@ -26,11 +26,17 @@ export default class UserUpdateProvider {
           ...(residentialCountryId && { residentialCountryId }),
           ...(residentialZipCode && { residentialZipCode }),
         },
+        include: {
+          staff: {
+            include: {
+              role: true,
+            },
+          },
+          student: true,
+        },
       });
 
-      const { password, ...res } = result;
-
-      return res;
+      return result;
     } catch (error: any) {
       throw new InternalServerError(error.message);
     }

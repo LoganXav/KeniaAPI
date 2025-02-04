@@ -18,35 +18,44 @@ import UserCreateProvider from "../../user/providers/UserCreate.provider";
 import { UserType } from "@prisma/client";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { IRequest } from "~/infrastructure/internal/types";
+import StaffReadCache from "../cache/StaffRead.cache";
+import UserReadCache from "../../user/cache/UserRead.cache";
 
 @autoInjectable()
-export default class StaffCreateService extends BaseService<StaffCreateRequestType> {
+export default class StaffCreateService extends BaseService<IRequest> {
   static serviceName = "StaffCreateService";
   staffCreateProvider: StaffCreateProvider;
   userReadProvider: UserReadProvider;
   userCreateProvider: UserCreateProvider;
   loggingProvider: ILoggingDriver;
+  staffReadCache: StaffReadCache;
+  userReadCache: UserReadCache;
 
-  constructor(staffCreateProvider: StaffCreateProvider, userReadProvider: UserReadProvider, userCreateProvider: UserCreateProvider) {
+  constructor(staffCreateProvider: StaffCreateProvider, userReadProvider: UserReadProvider, userCreateProvider: UserCreateProvider, staffReadCache: StaffReadCache, userReadCache: UserReadCache) {
     super(StaffCreateService.serviceName);
     this.staffCreateProvider = staffCreateProvider;
     this.userReadProvider = userReadProvider;
     this.userCreateProvider = userCreateProvider;
+    this.staffReadCache = staffReadCache;
+    this.userReadCache = userReadCache;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
-  public async execute(trace: ServiceTrace, args: StaffCreateRequestType): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args, ["createStaffUser"]);
+      this.initializeServiceTrace(trace, args.body);
 
-      const foundUser = await this.userReadProvider.getOneByCriteria({ email: args.email });
+      console.log(args.body, "nsdkcbsdk");
+
+      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId: args.body.tenantId, criteria: { email: args.body.email } });
       if (foundUser) {
         throw new BadRequestError(RESOURCE_RECORD_ALREADY_EXISTS(STAFF_RESOURCE));
       }
 
       const hashedPassword = PasswordEncryptionService.hashPassword(ServerConfig.Params.Security.DefaultPassword.Staff);
 
-      const userCreateArgs = { ...args, password: hashedPassword, userType: UserType.STAFF };
+      const userCreateArgs = { ...args.body, password: hashedPassword, userType: UserType.STAFF };
 
       const createdStaffUser = await this.createUserAndStaffTransaction(userCreateArgs);
 
@@ -66,10 +75,12 @@ export default class StaffCreateService extends BaseService<StaffCreateRequestTy
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const user = await this.userCreateProvider.create(args, tx);
+        await this.userReadCache.invalidate(args.tenantId);
 
         const userArgs = { ...args, userId: user.id };
 
         const staff = await this.staffCreateProvider.create(userArgs, tx);
+        await this.staffReadCache.invalidate(args.tenantId);
 
         return staff;
       });

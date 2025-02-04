@@ -4,53 +4,46 @@ import { StaffCriteriaType } from "../types/StaffTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StaffReadProvider {
-  public async getAllStaff(tx?: any): Promise<Staff[]> {
-    const dbClient = tx ? tx : DbClient;
-    const staffs = await dbClient?.staff?.findMany();
+  public async getAllStaff(dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
+    try {
+      const staffs = await dbClient.staff.findMany({
+        include: {
+          user: true,
+          role: true,
+        },
+      });
 
-    return staffs;
+      return staffs;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
   }
 
   public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
-    const { id, ids, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
-    const staffs = await dbClient?.staff?.findMany({
-      where: {
-        ...(id && { id: id }),
-        id: {
-          in: ids,
-        },
-        ...(jobTitle && {
-          jobTitle: {
-            contains: jobTitle,
-          },
-        }),
-        ...(userId && { userId }),
-        ...(roleId && { roleId }),
-        ...(groupId && {
-          group: {
-            some: {
-              id: groupId,
-            },
-          },
-        }),
-        ...(classId && {
-          class: {
-            some: {
-              id: classId,
-            },
-          },
-        }),
-        ...(subjectId && {
-          subject: {
-            some: {
-              id: subjectId,
-            },
-          },
-        }),
-      },
-    });
+    try {
+      const { id, ids, jobTitle, userId, roleId, groupId, classId, subjectId } = criteria;
 
-    return staffs;
+      const staffs = await dbClient.staff.findMany({
+        where: {
+          ...(id && { id }),
+          ...(ids && { id: { in: ids } }),
+          ...(jobTitle && { jobTitle: { contains: jobTitle } }),
+          ...(userId && { userId }),
+          ...(roleId && { roleId }),
+          ...(groupId && { group: { some: { id: groupId } } }),
+          ...(classId && { classes: { some: { id: classId } } }),
+          ...(subjectId && { subjects: { some: { id: subjectId } } }),
+        },
+        include: {
+          user: true,
+          role: true,
+        },
+      });
+
+      return staffs;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
   }
 
   public async getOneByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff | null> {
@@ -61,6 +54,10 @@ export default class StaffReadProvider {
       const result = await dbClient?.staff?.findFirst({
         where: {
           ...(numericId && { id: numericId }),
+        },
+        include: {
+          user: true,
+          role: true,
         },
       });
 

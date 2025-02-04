@@ -23,7 +23,7 @@ export default class StaffCreateController extends BaseController {
   }
 
   create: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.staffCreateService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.staffCreateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -99,6 +99,10 @@ export default class StaffCreateController extends BaseController {
             name: "StaffCreateRequest",
             type: PropTypeEnum.OBJECT,
             props: {
+              tenantId: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
               firstName: {
                 type: PropTypeEnum.STRING,
                 required: true,
@@ -109,9 +113,13 @@ export default class StaffCreateController extends BaseController {
               },
               phoneNumber: {
                 type: PropTypeEnum.STRING,
-                required: false, // Made optional to align with schema
+                required: false,
               },
               email: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
+              gender: {
                 type: PropTypeEnum.STRING,
                 required: true,
               },
@@ -119,38 +127,34 @@ export default class StaffCreateController extends BaseController {
                 type: PropTypeEnum.STRING,
                 required: true,
               },
-              address: {
+              residentialAddress: {
                 type: PropTypeEnum.STRING,
                 required: false,
               },
-              stateId: {
+              residentialStateId: {
                 type: PropTypeEnum.NUMBER,
                 required: false,
               },
-              lgaId: {
+              residentialLgaId: {
                 type: PropTypeEnum.NUMBER,
                 required: false,
               },
-              countryId: {
+              residentialCountryId: {
                 type: PropTypeEnum.NUMBER,
                 required: false,
               },
-              zipCode: {
+              residentialZipCode: {
                 type: PropTypeEnum.NUMBER,
-                required: false,
-              },
-              postalCode: {
-                type: PropTypeEnum.STRING,
                 required: false,
               },
               employmentType: {
                 type: PropTypeEnum.STRING,
                 required: false,
               },
-              startDate: {
-                type: PropTypeEnum.STRING,
-                required: false,
-              },
+              // startDate: {
+              //   type: PropTypeEnum.STRING,
+              //   required: false,
+              // },
               nin: {
                 type: PropTypeEnum.STRING,
                 required: false,
@@ -168,10 +172,6 @@ export default class StaffCreateController extends BaseController {
                 required: false,
               },
               roleId: {
-                type: PropTypeEnum.NUMBER,
-                required: true,
-              },
-              tenantId: {
                 type: PropTypeEnum.NUMBER,
                 required: true,
               },

@@ -14,20 +14,19 @@ import TenantUpdateProvider from "../../tenant/providers/TenantUpdate.provider";
 import { onboardingPersonalInformationDataType, onboardingResidentialInformationDataType, onboardingSchoolInformationDataType } from "../types/OnboardingTypes";
 import { TenantOnboardingStatusType } from "@prisma/client";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import UserReadProvider from "../../user/providers/UserRead.provider";
 import { IRequest } from "~/infrastructure/internal/types";
-import { onboardingResidentialSchema } from "../validators/OnboardingSchema";
+import UserReadCache from "../../user/cache/UserRead.cache";
 @autoInjectable()
 export default class OnboardingService extends BaseService<IRequest> {
   static serviceName = "OnboardingService";
   loggingProvider: ILoggingDriver;
   userUpdateProvider: UserUpdateProvider;
-  userReadProvider: UserReadProvider;
+  userReadCache: UserReadCache;
   tenantUpdateProvider: TenantUpdateProvider;
-  constructor(userUpdateProvider: UserUpdateProvider, userReadProvider: UserReadProvider, tenantUpdateProvider: TenantUpdateProvider) {
+  constructor(userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, tenantUpdateProvider: TenantUpdateProvider) {
     super(OnboardingService.serviceName);
     this.userUpdateProvider = userUpdateProvider;
-    this.userReadProvider = userReadProvider;
+    this.userReadCache = userReadCache;
     this.tenantUpdateProvider = tenantUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
@@ -35,9 +34,9 @@ export default class OnboardingService extends BaseService<IRequest> {
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args.body);
-      const { tenantId } = args.query;
+      const { tenantId } = args.body;
 
-      const foundUser = await this.userReadProvider.getOneByCriteria({ id: args.body.userId });
+      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria: { id: args.body.userId } });
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
@@ -62,9 +61,9 @@ export default class OnboardingService extends BaseService<IRequest> {
   public async residentialInformation(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args.body);
-      const { tenantId } = args.query;
+      const { tenantId } = args.body;
 
-      const foundUser = await this.userReadProvider.getOneByCriteria({ id: args.body.userId });
+      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria: { id: args.body.userId } });
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
@@ -89,9 +88,9 @@ export default class OnboardingService extends BaseService<IRequest> {
   public async schoolInformation(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args.body);
-      const { tenantId } = args.query;
+      const { tenantId } = args.body;
 
-      const foundUser = await this.userReadProvider.getOneByCriteria({ id: args.body.userId });
+      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria: { id: args.body.userId } });
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
@@ -117,6 +116,7 @@ export default class OnboardingService extends BaseService<IRequest> {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const user = await this.userUpdateProvider.updateOneByCriteria(args, tx);
+        await this.userReadCache.update(tenantId, user);
 
         const updateTenantInput = { ...args, onboardingStatus, tenantId };
         const tenant = await this.tenantUpdateProvider.updateOneByCriteria(updateTenantInput, tx);

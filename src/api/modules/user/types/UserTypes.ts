@@ -12,6 +12,7 @@ export type SignUpUserType = z.infer<typeof signUpUserRecordSchema>;
 export type CreateUserRecordType = SignUpUserType & {
   tenantId: number;
   userType: UserType;
+  gender: string;
   residentialAddress?: string;
   residentialStateId?: number;
   residentialLgaId?: number;

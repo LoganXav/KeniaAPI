@@ -20,17 +20,17 @@ export default class StaffUpdateController extends BaseController {
     this.staffUpdateService = staffUpdateService;
   }
 
-  updateMany: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.staffUpdateService.updateMany(res.trace, req.body), {
-      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
-    });
-  };
+  // updateMany: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+  //   return this.handleResultData(res, next, this.staffUpdateService.updateMany(res.trace, req.body), {
+  //     [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+  //   });
+  // };
 
-  updateOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.staffUpdateService.execute(res.trace, { ...req.body, ...req.params }), {
-      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
-    });
-  };
+  // updateOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+  //   return this.handleResultData(res, next, this.staffUpdateService.execute(res.trace, { ...req.body, ...req.params }), {
+  //     [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+  //   });
+  // };
 
   // removeListFromStaff: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
   //   return this.handleResultData(res, next, this.staffUpdateService.removeListFromStaff(res.trace, req.body), {
@@ -41,31 +41,31 @@ export default class StaffUpdateController extends BaseController {
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router());
 
-    this.addRoute({
-      method: HttpMethodEnum.POST,
-      path: "/staff/:id",
-      handlers: [validateData(staffUpdateSchema), this.updateOne],
-      produces: [
-        {
-          applicationStatus: ApplicationStatusEnum.SUCCESS,
-          httpStatus: HttpStatusCodeEnum.SUCCESS,
-        },
-      ],
-      description: "Update Staff Information",
-    });
+    // this.addRoute({
+    //   method: HttpMethodEnum.POST,
+    //   path: "/staff/:id",
+    //   handlers: [validateData(staffUpdateSchema), this.updateOne],
+    //   produces: [
+    //     {
+    //       applicationStatus: ApplicationStatusEnum.SUCCESS,
+    //       httpStatus: HttpStatusCodeEnum.SUCCESS,
+    //     },
+    //   ],
+    //   description: "Update Staff Information",
+    // });
 
-    this.addRoute({
-      method: HttpMethodEnum.POST,
-      path: "/staff",
-      handlers: [validateData(staffUpdateManySchema), this.updateMany],
-      produces: [
-        {
-          applicationStatus: ApplicationStatusEnum.SUCCESS,
-          httpStatus: HttpStatusCodeEnum.SUCCESS,
-        },
-      ],
-      description: "Update Staffs Information",
-    });
+    // this.addRoute({
+    //   method: HttpMethodEnum.POST,
+    //   path: "/staff",
+    //   handlers: [validateData(staffUpdateManySchema), this.updateMany],
+    //   produces: [
+    //     {
+    //       applicationStatus: ApplicationStatusEnum.SUCCESS,
+    //       httpStatus: HttpStatusCodeEnum.SUCCESS,
+    //     },
+    //   ],
+    //   description: "Update Staffs Information",
+    // });
 
     // this.addRoute({
     //   method: HttpMethodEnum.POST,

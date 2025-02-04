@@ -487,6 +487,9 @@
       "StaffCreateRequest": {
         "type": "object",
         "properties": {
+          "tenantId": {
+            "type": "string"
+          },
           "firstName": {
             "type": "string"
           },
@@ -499,31 +502,28 @@
           "email": {
             "type": "string"
           },
+          "gender": {
+            "type": "string"
+          },
           "jobTitle": {
             "type": "string"
           },
-          "address": {
+          "residentialAddress": {
             "type": "string"
           },
-          "stateId": {
+          "residentialStateId": {
             "type": "number"
           },
-          "lgaId": {
+          "residentialLgaId": {
             "type": "number"
           },
-          "countryId": {
+          "residentialCountryId": {
             "type": "number"
           },
-          "zipCode": {
+          "residentialZipCode": {
             "type": "number"
-          },
-          "postalCode": {
-            "type": "string"
           },
           "employmentType": {
-            "type": "string"
-          },
-          "startDate": {
             "type": "string"
           },
           "nin": {
@@ -540,18 +540,16 @@
           },
           "roleId": {
             "type": "number"
-          },
-          "tenantId": {
-            "type": "number"
           }
         },
         "required": [
+          "tenantId",
           "firstName",
           "lastName",
           "email",
+          "gender",
           "jobTitle",
-          "roleId",
-          "tenantId"
+          "roleId"
         ]
       }
     },

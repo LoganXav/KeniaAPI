@@ -25,7 +25,7 @@ export default class TenantReadService extends BaseService<IRequest> {
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args?.body);
-      const { tenantId } = args.query;
+      const { tenantId } = args.body;
 
       const foundTenant = await this.tenantReadProvider.getOneByCriteria({ id: Number(tenantId) });
 
