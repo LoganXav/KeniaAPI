@@ -6,7 +6,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StaffReadProvider {
   public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
     try {
-      const { id, ids, jobTitle, userId, roleId, groupId, classId, subjectId, tenantId } = criteria;
+      const { id, ids, jobTitle, userId, roleId, tenantId } = criteria;
 
       const staffs = await dbClient.staff.findMany({
         where: {
@@ -16,9 +16,6 @@ export default class StaffReadProvider {
           ...(jobTitle && { jobTitle: { contains: jobTitle } }),
           ...(userId && { userId }),
           ...(roleId && { roleId }),
-          ...(groupId && { group: { some: { id: groupId } } }),
-          ...(classId && { classes: { some: { id: classId } } }),
-          ...(subjectId && { subjects: { some: { id: subjectId } } }),
         },
         include: {
           user: true,

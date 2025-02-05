@@ -12,6 +12,8 @@ import StaffUpdateProvider from "../providers/StaffUpdate.provider";
 import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/StaffTypes";
 import StaffReadProvider from "../providers/StaffRead.provider";
 import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import UserReadCache from "../../user/cache/UserRead.cache";
+import StaffReadCache from "../cache/StaffRead.cache";
 
 @autoInjectable()
 export default class StaffUpdateService extends BaseService<any> {
@@ -19,25 +21,31 @@ export default class StaffUpdateService extends BaseService<any> {
   staffUpdateProvider: StaffUpdateProvider;
   staffReadProvider: StaffReadProvider;
   loggingProvider: ILoggingDriver;
+  userReadCache: UserReadCache;
+  staffReadCache: StaffReadCache;
 
-  constructor(staffUpdateProvider: StaffUpdateProvider, staffReadProvider: StaffReadProvider) {
+  constructor(staffUpdateProvider: StaffUpdateProvider, staffReadProvider: StaffReadProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache) {
     super(StaffUpdateService.serviceName);
     this.staffReadProvider = staffReadProvider;
     this.staffUpdateProvider = staffUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
+    this.userReadCache = userReadCache;
+    this.staffReadCache = staffReadCache;
   }
 
-  public async execute(trace: ServiceTrace, args: StaffUpdateRequestType & { id: string }): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: StaffUpdateRequestType & { id: string; tenantId: number }): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
 
-      const foundStaff = await this.staffReadProvider.getOneByCriteria({ id: Number(args.id) });
+      const foundStaff = await this.userReadCache.getOneByCriteria({ tenantId: Number(args.tenantId), id: Number(args.id) });
 
       if (!foundStaff) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
       }
 
       const staff = await this.staffUpdateProvider.updateOne(args);
+
+      await this.userReadCache.invalidate(args.tenantId);
 
       trace.setSuccessful();
 
@@ -55,13 +63,14 @@ export default class StaffUpdateService extends BaseService<any> {
     try {
       this.initializeServiceTrace(trace, args);
 
-      const foundStaffs = await this.staffReadProvider.getByCriteria({ ids: args.ids });
+      const foundStaffs = await this.staffReadProvider.getByCriteria({ ids: args.ids, tenantId: args.tenantId });
 
       if (!foundStaffs.length) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
       }
 
       const staffs = await this.staffUpdateProvider.updateMany(args);
+      await this.staffReadCache.invalidate(args.tenantId);
 
       trace.setSuccessful();
 

@@ -21,9 +21,11 @@ class RouteWhiteListMiddleware {
 
     const existsUnauthorizedPath = ROUTE_WHITE_LIST.some((path) => BooleanUtil.areEqual(path, req.path));
 
-    if (existsUnauthorizedPath || isDynamicPath) {
-      TypeParser.cast<IRequest>(req).isWhiteList = true;
-    }
+    // if (existsUnauthorizedPath || isDynamicPath) {
+    //   TypeParser.cast<IRequest>(req).isWhiteList = true;
+    // }
+
+    TypeParser.cast<IRequest>(req).isWhiteList = true;
 
     return next();
   };

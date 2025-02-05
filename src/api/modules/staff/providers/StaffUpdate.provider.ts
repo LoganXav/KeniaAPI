@@ -4,42 +4,25 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/StaffTypes";
 
 export default class StaffUpdateProvider {
-  public async updateOne(criteria: StaffUpdateRequestType & { id: string }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
+  public async updateOne(criteria: StaffUpdateRequestType & { id: string; tenantId: number }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
-      const { jobTitle, roleId, groupIds, classIds, subjectIds, id } = criteria;
+      const { jobTitle, roleId, id, tenantId } = criteria;
 
       const numericId = Number(id);
 
       const updatedStaff = await dbClient?.staff?.update({
         where: {
           id: numericId,
+          tenantId,
         },
         data: {
           ...(jobTitle && { jobTitle }),
           ...(roleId && { roleId }),
-          ...(groupIds && {
-            group: {
-              set: [],
-              connect: groupIds.map((groupId: number) => ({ id: groupId })),
-            },
-          }),
-          ...(classIds && {
-            classes: {
-              set: [],
-              connect: classIds.map((classId: number) => ({ id: classId })),
-            },
-          }),
-          ...(subjectIds && {
-            subjects: {
-              set: [],
-              connect: subjectIds.map((subjectId: number) => ({ id: subjectId })),
-            },
-          }),
         },
-        include: {
-          user: true,
-          role: true,
-        },
+        // include: {
+        //   user: true,
+        //   role: true,
+        // },
       });
       return updatedStaff;
     } catch (error: any) {
@@ -49,7 +32,7 @@ export default class StaffUpdateProvider {
 
   public async updateMany(criteria: StaffUpdateManyRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Prisma.BatchPayload> {
     try {
-      const { roleId, jobTitle, groupIds, classIds, subjectIds, ids } = criteria;
+      const { roleId, jobTitle, ids } = criteria;
 
       const updatedStaffs = await dbClient?.staff?.updateMany({
         where: {
@@ -60,21 +43,6 @@ export default class StaffUpdateProvider {
         data: {
           ...(roleId && { roleId }),
           ...(jobTitle && { jobTitle }),
-          ...(groupIds && {
-            group: {
-              connect: groupIds.map((groupId) => ({ id: groupId })),
-            },
-          }),
-          ...(classIds && {
-            classes: {
-              connect: classIds.map((classId) => ({ id: classId })),
-            },
-          }),
-          ...(subjectIds && {
-            subjects: {
-              connect: subjectIds.map((subjectId) => ({ id: subjectId })),
-            },
-          }),
         },
       });
 

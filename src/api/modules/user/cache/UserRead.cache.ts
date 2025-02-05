@@ -43,8 +43,9 @@ export default class UserReadCache {
     }
   }
 
-  public async getOneByCriteria({ tenantId, criteria }: { tenantId: number; criteria: ReadUserRecordType }): Promise<UserWithRelations | null> {
+  public async getOneByCriteria(criteria: ReadUserRecordType): Promise<UserWithRelations | null> {
     try {
+      const { tenantId } = criteria;
       const cacheKey = `${tenantId}:user:${JSON.stringify(criteria)}`;
 
       const cachedUser = await this.redisClient.get(cacheKey);

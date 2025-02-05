@@ -24,12 +24,19 @@ export default class UserReadProvider {
 
   public async getOneByCriteria(criteria: ReadUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations | null> {
     try {
-      const { id, email, tenantId } = criteria;
+      const { id, email, tenantId, jobTitle, roleId } = criteria;
       const result = await dbClient?.user?.findFirst({
         where: {
           ...(tenantId && { tenantId }),
-          ...(id && { id }),
           ...(email && { email }),
+          ...(jobTitle || roleId
+            ? {
+                staff: {
+                  ...(jobTitle && { jobTitle }),
+                  ...(roleId && { roleId }),
+                },
+              }
+            : {}),
         },
         include: {
           staff: {

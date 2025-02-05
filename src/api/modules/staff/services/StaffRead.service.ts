@@ -16,7 +16,7 @@ import { IRequest } from "~/infrastructure/internal/types";
 import UserReadCache from "../../user/cache/UserRead.cache";
 
 @autoInjectable()
-export default class StaffReadService extends BaseService<any> {
+export default class StaffReadService extends BaseService<IRequest> {
   static serviceName = "StaffReadService";
   staffReadProvider: StaffReadProvider;
   userReadCache: UserReadCache;
@@ -31,22 +31,19 @@ export default class StaffReadService extends BaseService<any> {
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
-  public async execute(trace: ServiceTrace, args: StaffCriteriaType): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
 
-      const staff = await this.staffReadProvider.getOneByCriteria(args);
+      const staffUser = await this.userReadCache.getOneByCriteria({ ...args.body, ...args.params });
 
-      if (!staff) {
+      if (!staffUser) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
       }
-      const user = await this.userReadCache.getOneByCriteria({ tenantId: Number(args.tenantId), criteria: { tenantId: Number(args.tenantId), id: staff.userId } });
-
-      const fetchedStaffData = { ...staff, ...user };
 
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STAFF_RESOURCE), fetchedStaffData);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STAFF_RESOURCE), staffUser);
 
       return this.result;
     } catch (error: any) {

@@ -1,15 +1,14 @@
-// import { staffCriteriaSchema } from "./StaffCreateSchema";
 import * as z from "zod";
 
 export const staffUpdateSchema = z.object({
+  tenantId: z.number({ required_error: "Tenant Id is required" }),
+  id: z.number({ required_error: "Id required" }),
   jobTitle: z.string().optional(),
   roleId: z.number().optional(),
-  groupIds: z.array(z.number()).optional(),
-  classIds: z.array(z.number()).optional(),
-  subjectIds: z.array(z.number()).optional(),
 });
 
 export const staffUpdateManySchema = z.object({
+  tenantId: z.number({ required_error: "Tenant Id is required" }),
   ids: z.array(
     z.number({
       required_error: "Argument ids is missing",
@@ -17,13 +16,4 @@ export const staffUpdateManySchema = z.object({
   ),
   jobTitle: z.string().optional(),
   roleId: z.number().optional(),
-  groupIds: z.array(z.number()).optional(),
-  classIds: z.array(z.number()).optional(),
-  subjectIds: z.array(z.number()).optional(),
 });
-
-// export const staffUpdateSchema = z.object({
-//   data: staffUpdateDataSchema.refine((data) => Object.keys(data).length > 0, {
-//     message: "At least one data field is required",
-//   }),
-// });

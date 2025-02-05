@@ -56,4 +56,30 @@ export default class StaffReadCache {
       throw new InternalServerError(error);
     }
   }
+
+  public async getOneByCriteria(criteria: StaffCriteriaType): Promise<Staff | null> {
+    try {
+      const { tenantId } = criteria;
+      const cacheKey = `${tenantId}:staff:${JSON.stringify(criteria)}`;
+      const cachedStaff = await this.redisClient.get(cacheKey);
+
+      if (cachedStaff) {
+        console.log("Criteria Single Staff Cache HIT!");
+        return JSON.parse(cachedStaff);
+      }
+
+      const staff = await this.staffReadProvider.getOneByCriteria(criteria);
+      console.log("Criteria Single Staff Cache MISS!");
+
+      if (staff) {
+        await this.redisClient.set(cacheKey, JSON.stringify(staff), {
+          EX: this.CACHE_EXPIRY,
+        });
+      }
+
+      return staff;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
+  }
 }
