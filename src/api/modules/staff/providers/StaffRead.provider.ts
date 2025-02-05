@@ -6,12 +6,11 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StaffReadProvider {
   public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
     try {
-      const { id, ids, jobTitle, userId, roleId, tenantId } = criteria;
+      const { ids, jobTitle, userId, roleId, tenantId } = criteria;
 
       const staffs = await dbClient.staff.findMany({
         where: {
           ...(tenantId && { tenantId }),
-          ...(id && { id }),
           ...(ids && { id: { in: ids } }),
           ...(jobTitle && { jobTitle: { contains: jobTitle } }),
           ...(userId && { userId }),
@@ -23,6 +22,12 @@ export default class StaffReadProvider {
         },
       });
 
+      staffs.forEach((staff) => {
+        if (staff?.user) {
+          delete (staff.user as any).password;
+        }
+      });
+
       return staffs;
     } catch (error: any) {
       throw new InternalServerError(error);
@@ -31,11 +36,12 @@ export default class StaffReadProvider {
 
   public async getOneByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff | null> {
     try {
-      const { id } = criteria;
+      const { id, tenantId } = criteria;
       const numericId = id ? Number(id) : undefined;
 
-      const result = await dbClient?.staff?.findFirst({
+      const staff = await dbClient?.staff?.findFirst({
         where: {
+          ...(tenantId && { id: tenantId }),
           ...(numericId && { id: numericId }),
         },
         include: {
@@ -44,7 +50,11 @@ export default class StaffReadProvider {
         },
       });
 
-      return result;
+      if (staff?.user) {
+        delete (staff.user as any).password;
+      }
+
+      return staff;
     } catch (error: any) {
       throw new InternalServerError(error);
     }

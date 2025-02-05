@@ -19,9 +19,9 @@ export default class StaffReadCache {
     this.staffReadProvider = staffReadProvider;
   }
 
-  public async getByCriteria({ tenantId, criteria }: { tenantId: number; criteria: StaffCriteriaType }): Promise<Staff[] | null> {
+  public async getByCriteria(criteria: StaffCriteriaType): Promise<Staff[] | null> {
     try {
-      const cacheKey = `${tenantId}:staff:${JSON.stringify(criteria)}`;
+      const cacheKey = `${criteria.tenantId}:staff:${JSON.stringify(criteria)}`;
       const cachedStaffs = await this.redisClient.get(cacheKey);
 
       if (cachedStaffs) {
