@@ -8,7 +8,7 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { autoInjectable } from "tsyringe";
 import StaffReadService from "../services/StaffRead.service";
 import { staffCriteriaSchema } from "../validators/StaffCreateSchema";
-import { validateParams } from "~/api/shared/helpers/middleware/validateData";
+import { validateData, validateParams } from "~/api/shared/helpers/middleware/validateData";
 import { staffReadParamsSchema } from "../validators/StaffReadSchema";
 
 @autoInjectable()
@@ -22,7 +22,7 @@ export default class StaffUpdateController extends BaseController {
   }
 
   staffReadOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.staffReadService.execute(res.trace, req.params), {
+    return this.handleResultData(res, next, this.staffReadService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -39,7 +39,7 @@ export default class StaffUpdateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/list",
-      handlers: [this.staffRead],
+      handlers: [validateData(staffReadParamsSchema), this.staffRead],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
@@ -49,17 +49,17 @@ export default class StaffUpdateController extends BaseController {
       description: "Get Staff List",
     });
 
-    // this.addRoute({
-    //   method: HttpMethodEnum.POST,
-    //   path: "/staff/:id",
-    //   handlers: [this.staffReadOne],
-    //   produces: [
-    //     {
-    //       applicationStatus: ApplicationStatusEnum.SUCCESS,
-    //       httpStatus: HttpStatusCodeEnum.SUCCESS,
-    //     },
-    //   ],
-    //   description: "Get Single Staff",
-    // });
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/staff",
+      handlers: [validateData(staffReadParamsSchema), this.staffReadOne],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.SUCCESS,
+          httpStatus: HttpStatusCodeEnum.SUCCESS,
+        },
+      ],
+      description: "Get Single Staff",
+    });
   }
 }

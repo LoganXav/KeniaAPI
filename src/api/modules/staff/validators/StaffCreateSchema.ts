@@ -64,7 +64,4 @@ export const staffCriteriaSchema = z.object({
   userId: z.string().optional(),
   roleId: z.string().optional(),
   jobTitle: z.string().optional(),
-  groupId: z.string().optional(),
-  classId: z.string().optional(),
-  subjectId: z.string().optional(),
 });
