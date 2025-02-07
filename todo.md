@@ -31,25 +31,9 @@
 
 - Put permissions handler in the handler for controllers
 
-## Staff Onboarding Data
+## Docker Implementation for Redis
 
-### Background / Residential Information
-- stateId  
-- lgaId    
-- countryId
-- zipCode  
-- address
+- Setup Docker for the project including redis. However for now if using docker to run redis locally. To run: `docker run --name redis -d -p 6379:6379 redis`. To connect: `docker exec -it redis redis-cli`
 
-### Employment Information
-- Job Title
-- Department
-- Employment Type (Full-Time, Part-Time, Contract, Intern, NYSC)
-- Start Date
 
-### Legal Documents
-- National ID/Passport Number (nin)
-- Tax Identification Number (TIN)
 
-### Education and Work Experience
-- Highest Level of Education
-- CV

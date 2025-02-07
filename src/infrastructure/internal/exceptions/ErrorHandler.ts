@@ -26,17 +26,16 @@ class ErrorHandler {
       message: error.message,
     });
   }
-  private handleCriticalError(error: Error | ApplicationError, response?: Response): void {
-    if (response) {
+  private handleCriticalError(error: Error | ApplicationError, response: Response): void {
+    try {
       response.status(HttpStatusCodeEnum.INTERNAL_SERVER_ERROR).json({
         statusCode: HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
         status: ERROR,
-        message: error.message,
+        message: CRITICAL_ERROR_EXITING,
       });
+    } catch (error) {
+      console.log("Critical: Error in Error handling", error);
     }
-    console.log(error);
-    console.log(CRITICAL_ERROR_EXITING);
-    process.exit(1);
   }
 }
 export const errorHandler = new ErrorHandler();
