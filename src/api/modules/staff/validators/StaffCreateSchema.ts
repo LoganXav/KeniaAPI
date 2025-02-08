@@ -20,23 +20,26 @@ export const staffCreateRequestSchema = z.object({
   gender: z.string({ required_error: "Gender is required", invalid_type_error: "Gender must be a string" }),
   nin: z.string({ required_error: "Nin is required", invalid_type_error: "Nin must be a string" }),
 
-  // dateOfBirth: z
-  //   .string({
-  //     invalid_type_error: "Date of birth must be a valid Date object",
-  //   })
-  //   .optional()
-  //   .refine(
-  //     (val) => {
-  //       if (val) {
-  //         return !isNaN(Date.parse(val));
-  //       }
-  //       return true;
-  //     },
-  //     {
-  //       message: "Invalid date of birth format",
-  //     }
-  //   )
-  //   .transform((val) => (val ? new Date(val) : undefined)),
+  dateOfBirth: z
+    .string({
+      invalid_type_error: "Date of birth must be a valid Date object",
+    })
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const date = new Date(val);
+        return !isNaN(date.getTime());
+      },
+      {
+        message: "Invalid date of birth format",
+      }
+    )
+    .transform((val) => {
+      if (!val) return null;
+      const date = new Date(val);
+      return date;
+    }),
 
   jobTitle: z.string({ required_error: "Job title is required", invalid_type_error: "Job title must be a string" }).min(1, "Job title is required").max(100, "Job title must be less than 100 characters"),
   roleId: z.number({ required_error: "Role ID is required", invalid_type_error: "Role ID must be a number" }).positive("Role ID must be a positive number"),
@@ -48,7 +51,28 @@ export const staffCreateRequestSchema = z.object({
   residentialZipCode: z.number({ invalid_type_error: "Zip Code must be a number" }).optional(),
 
   employmentType: z.nativeEnum(StaffEmploymentType, { invalid_type_error: "Invalid employment type" }).optional(),
-  // startDate: z.string({ invalid_type_error: "Start date must be a valid datetime string" }).datetime("Invalid date format").optional(),
+
+  startDate: z
+    .string({
+      invalid_type_error: "Start date must be a valid Date object",
+    })
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const date = new Date(val);
+        return !isNaN(date.getTime());
+      },
+      {
+        message: "Invalid start date format",
+      }
+    )
+    .transform((val) => {
+      if (!val) return null;
+      const date = new Date(val);
+      return date;
+    }),
+
   // nin: z
   //   .string({ required_error: "NIN is required", invalid_type_error: "NIN must be a string" })
   //   .length(11, "NIN must be exactly 11 digits long")

@@ -27,6 +27,10 @@ export default class StaffCreateProvider {
         },
       });
 
+      if (staff?.user) {
+        delete (staff.user as any).password;
+      }
+
       return staff;
     } catch (error: any) {
       throw new InternalServerError(error.message);

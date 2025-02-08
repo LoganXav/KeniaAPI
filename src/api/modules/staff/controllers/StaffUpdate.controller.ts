@@ -43,7 +43,7 @@ export default class StaffUpdateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/staff/update",
+      path: "/staff/update/:id",
       handlers: [validateData(staffUpdateSchema), this.updateOne],
       produces: [
         {
