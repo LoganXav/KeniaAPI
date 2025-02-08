@@ -33,9 +33,9 @@ export default class StaffReadService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.params);
 
-      const staffUser = await this.userReadCache.getOneByCriteria({ ...args.body, ...args.params });
+      const staffUser = await this.staffReadCache.getOneByCriteria({ ...args.body, ...args.params });
 
       if (!staffUser) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
@@ -57,10 +57,9 @@ export default class StaffReadService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.query);
 
-      const { tenantId } = args.body;
-      const criteria = { ...args.query, tenantId };
+      const criteria = { ...args.query, tenantId: args.body.tenantId };
 
-      const staffs = await this.staffReadCache.getByCriteria({ tenantId, criteria });
+      const staffs = await this.staffReadCache.getByCriteria(criteria);
 
       trace.setSuccessful();
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STAFF_RESOURCE), staffs);

@@ -19,10 +19,10 @@ export default class StaffUpdateProvider {
           ...(jobTitle && { jobTitle }),
           ...(roleId && { roleId }),
         },
-        // include: {
-        //   user: true,
-        //   role: true,
-        // },
+        include: {
+          user: true,
+          role: true,
+        },
       });
       return updatedStaff;
     } catch (error: any) {

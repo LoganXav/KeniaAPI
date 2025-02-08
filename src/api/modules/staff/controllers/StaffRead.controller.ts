@@ -39,7 +39,7 @@ export default class StaffUpdateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/list",
-      handlers: [validateData(staffReadParamsSchema), this.staffRead],
+      handlers: [validateParams(staffReadParamsSchema), this.staffRead],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
@@ -51,8 +51,8 @@ export default class StaffUpdateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/staff",
-      handlers: [validateData(staffReadParamsSchema), this.staffReadOne],
+      path: "/staff/:id",
+      handlers: [this.staffReadOne],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
