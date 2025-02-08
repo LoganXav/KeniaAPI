@@ -1,6 +1,6 @@
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { STAFF_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import { SOMETHING_WENT_WRONG, STAFF_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import { autoInjectable } from "tsyringe";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
@@ -14,20 +14,24 @@ import StaffReadProvider from "../providers/StaffRead.provider";
 import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import UserReadCache from "../../user/cache/UserRead.cache";
 import StaffReadCache from "../cache/StaffRead.cache";
-
+import UserUpdateProvider from "../../user/providers/UserUpdate.provider";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 @autoInjectable()
 export default class StaffUpdateService extends BaseService<any> {
   static serviceName = "StaffUpdateService";
   staffUpdateProvider: StaffUpdateProvider;
   staffReadProvider: StaffReadProvider;
+  userUpdateProvider: UserUpdateProvider;
   loggingProvider: ILoggingDriver;
   userReadCache: UserReadCache;
   staffReadCache: StaffReadCache;
 
-  constructor(staffUpdateProvider: StaffUpdateProvider, staffReadProvider: StaffReadProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache) {
+  constructor(staffUpdateProvider: StaffUpdateProvider, staffReadProvider: StaffReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache) {
     super(StaffUpdateService.serviceName);
     this.staffReadProvider = staffReadProvider;
     this.staffUpdateProvider = staffUpdateProvider;
+    this.userUpdateProvider = userUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
     this.userReadCache = userReadCache;
     this.staffReadCache = staffReadCache;
@@ -43,13 +47,11 @@ export default class StaffUpdateService extends BaseService<any> {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
       }
 
-      const staff = await this.staffUpdateProvider.updateOne(args);
-
-      await this.userReadCache.invalidate(args.tenantId);
+      const result = await this.updateStaffTransaction(args);
 
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(STAFF_RESOURCE), staff);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(STAFF_RESOURCE), result);
 
       return this.result;
     } catch (error: any) {
@@ -84,22 +86,21 @@ export default class StaffUpdateService extends BaseService<any> {
     }
   }
 
-  // public async removeListFromStaff(trace: ServiceTrace, args: GetAndUpdateStaff): Promise<IResult> {
-  //   try {
-  //     this.initializeServiceTrace(trace, args, ["removeListFromStaff"]);
-  //     const staff = await this.staffUpdateProvider.removeListFromStaff(args.criteria, args.data);
+  private async updateStaffTransaction(args: StaffUpdateRequestType & { id: string; tenantId: number }) {
+    try {
+      const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
+        const user = await this.userUpdateProvider.updateOneByCriteria({ ...args, userId: Number(args.id) }, tx);
+        const staff = await this.staffUpdateProvider.updateOne(args, tx);
 
-  //     if (staff) {
-  //       trace.setSuccessful();
-  //       this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, `Updated Staffs Information`, staff);
-  //       return this.result;
-  //     } else {
-  //       throw new BadRequestError(`Staff ${NOT_FOUND}`, HttpStatusCodeEnum.NOT_FOUND);
-  //     }
-  //   } catch (error: any) {
-  //     this.loggingProvider.error(error);
-  //     this.result.setError(ERROR, error.httpStatusCode, error.description);
-  //     return this.result;
-  //   }
-  // }
+        await this.userReadCache.invalidate(args.tenantId);
+        await this.staffReadCache.invalidate(args.tenantId);
+
+        return { ...staff };
+      });
+      return result;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new InternalServerError(SOMETHING_WENT_WRONG);
+    }
+  }
 }

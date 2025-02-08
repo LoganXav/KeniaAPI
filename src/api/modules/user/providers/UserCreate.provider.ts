@@ -5,7 +5,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 
 export default class UserCreateProvider {
   public async create(args: CreateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<User> {
-    const { tenantId, firstName, gender, lastName, password, phoneNumber, email, userType, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode } = args;
+    const { tenantId, firstName, gender, dateOfBirth, lastName, password, phoneNumber, email, userType, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode } = args;
 
     try {
       const newUser = await dbClient?.user?.create({
@@ -15,6 +15,7 @@ export default class UserCreateProvider {
           firstName,
           lastName,
           gender,
+          dateOfBirth,
           password,
           phoneNumber,
           userType,

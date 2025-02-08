@@ -29,6 +29,7 @@ export const onboardingPersonalSchema = z.object({
     })
     .min(10, "Phone number must be at least 10 digits")
     .max(15, "Phone number cannot exceed 15 digits"),
+
   dateOfBirth: z
     .string({
       invalid_type_error: "Date of birth must be a valid Date object",
@@ -36,16 +37,19 @@ export const onboardingPersonalSchema = z.object({
     .optional()
     .refine(
       (val) => {
-        if (val) {
-          return !isNaN(Date.parse(val));
-        }
-        return true;
+        if (!val) return true;
+        const date = new Date(val);
+        return !isNaN(date.getTime());
       },
       {
         message: "Invalid date of birth format",
       }
     )
-    .transform((val) => (val ? new Date(val) : undefined)),
+    .transform((val) => {
+      if (!val) return null;
+      const date = new Date(val);
+      return date;
+    }),
 });
 
 export const onboardingResidentialSchema = z.object({
@@ -105,24 +109,28 @@ export const onboardingSchoolSchema = z.object({
     })
     .min(10, "Contact phone must be at least 10 digits")
     .max(15, "Contact phone cannot exceed 15 digits"),
-  establishedDate: z
 
+  establishedDate: z
     .string({
       invalid_type_error: "Established date must be a valid Date object",
     })
     .optional()
     .refine(
       (val) => {
-        if (val) {
-          return !isNaN(Date.parse(val));
-        }
-        return true;
+        if (!val) return true;
+        const date = new Date(val);
+        return !isNaN(date.getTime());
       },
       {
         message: "Invalid established date format",
       }
     )
-    .transform((val) => (val ? new Date(val) : undefined)),
+    .transform((val) => {
+      if (!val) return null;
+      const date = new Date(val);
+      return date;
+    }),
+
   logoUrl: z
     .string({
       invalid_type_error: "Logo URL must be a string",

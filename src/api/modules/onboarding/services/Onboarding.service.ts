@@ -39,7 +39,9 @@ export default class OnboardingService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args.body);
       const { tenantId } = args.body;
 
-      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria: { id: args.body.userId } });
+      const criteria = { tenantId, id: args.body.userId };
+
+      const foundUser = await this.userReadCache.getOneByCriteria(criteria);
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
@@ -66,7 +68,9 @@ export default class OnboardingService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args.body);
       const { tenantId } = args.body;
 
-      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria: { id: args.body.userId } });
+      const criteria = { tenantId, id: args.body.userId };
+
+      const foundUser = await this.userReadCache.getOneByCriteria(criteria);
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
@@ -93,7 +97,9 @@ export default class OnboardingService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args.body);
       const { tenantId } = args.body;
 
-      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria: { id: args.body.userId } });
+      const criteria = { tenantId, id: args.body.userId };
+
+      const foundUser = await this.userReadCache.getOneByCriteria(criteria);
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
