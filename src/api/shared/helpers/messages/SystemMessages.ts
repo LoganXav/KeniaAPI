@@ -65,4 +65,5 @@ export const CREATE_ERROR = "Unable to Create";
 export const READ_ERROR = "Unable to Read";
 export const UPDATE_ERROR = "Unable to Update";
 export const DELETE_ERROR = "Unable to Delete";
+export const ALREADY_EXISTS = "Already Exists";
 export const NOT_FOUND = "Not Found";
