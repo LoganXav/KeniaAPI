@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider  = "mysql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -122,10 +122,16 @@ model Student {
   userId         Int      @unique
   user           User     @relation(fields: [userId], references: [id], name: "StudentUser")
   enrollmentDate DateTime
-  classId        String
+  classId        String   @default("")
   class          Class    @relation(fields: [classId], references: [classId])
   tenantId       Int
   tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  guardianName   String?
+  guardianPhone  String?
+  guardianEmail  String?
+  admissionNo    String?  @unique
+  currentGrade   Float?
+  isActive       Boolean  @default(true)
 }
 
 // ------------------------- AUTHENTICATION TABLES START ------------------------- //  

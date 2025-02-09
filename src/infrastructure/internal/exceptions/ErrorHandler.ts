@@ -26,9 +26,9 @@ class ErrorHandler {
       message: error.message,
     });
   }
-  private handleCriticalError(error: Error | ApplicationError, response: Response): void {
+  private handleCriticalError(error: Error | ApplicationError, response?: Response): void {
     try {
-      response.status(HttpStatusCodeEnum.INTERNAL_SERVER_ERROR).json({
+      response?.status(HttpStatusCodeEnum.INTERNAL_SERVER_ERROR).json({
         statusCode: HttpStatusCodeEnum.INTERNAL_SERVER_ERROR,
         status: ERROR,
         message: CRITICAL_ERROR_EXITING,
