@@ -10,7 +10,7 @@ import { confirmPasswordResetSchema } from "~/api/modules/auth/validators/Confir
 export type SignUpUserType = z.infer<typeof signUpUserRecordSchema>;
 
 export type CreateUserRecordType = SignUpUserType & {
-  tenantId?: number;
+  tenantId: number;
   userType?: UserType;
   gender?: string;
   dateOfBirth?: Date | null;

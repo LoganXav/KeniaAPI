@@ -19,11 +19,11 @@ export default class UserCreateProvider {
           password,
           phoneNumber,
           userType,
-          residentialAddress,
-          residentialStateId,
-          residentialLgaId,
-          residentialCountryId,
-          residentialZipCode,
+          ...(residentialAddress && { residentialAddress }),
+          ...(residentialStateId && { residentialStateId }),
+          ...(residentialLgaId && { residentialLgaId }),
+          ...(residentialCountryId && { residentialCountryId }),
+          ...(residentialZipCode && { residentialZipCode }),
         },
         include: {
           staff: {
