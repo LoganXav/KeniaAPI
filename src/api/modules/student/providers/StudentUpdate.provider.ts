@@ -6,7 +6,7 @@ import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types
 export default class StudentUpdateProvider {
   public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { classId, guardianName, guardianPhone, guardianEmail, admissionNo, id, tenantId } = criteria;
+      const { classId, admissionNo, currentGrade, languages, religion, bloodGroup, previousSchool, isActive, id, tenantId } = criteria;
 
       const numericId = Number(id);
 
@@ -16,19 +16,27 @@ export default class StudentUpdateProvider {
           tenantId,
         },
         data: {
-          ...(classId && { classId }),
-          ...(guardianName && { guardianName }),
-          ...(guardianPhone && { guardianPhone }),
-          ...(guardianEmail && { guardianEmail }),
+          ...(classId && { classId: Number(classId) }),
           ...(admissionNo && { admissionNo }),
+          ...(currentGrade && { currentGrade }),
+          ...(languages && { languages }),
+          ...(religion && { religion }),
+          ...(bloodGroup && { bloodGroup }),
+          ...(previousSchool && { previousSchool }),
+          ...(typeof isActive !== "undefined" && { isActive }),
         },
         include: {
           user: true,
           class: true,
+          guardians: true,
+          documents: true,
+          dormitory: true,
+          medicalHistory: true,
+          studentGroups: true,
         },
       });
 
-      if (updatedStudent?.user) {
+      if (updatedStudent.user) {
         delete (updatedStudent.user as any).password;
       }
 
@@ -40,7 +48,7 @@ export default class StudentUpdateProvider {
 
   public async updateMany(criteria: StudentUpdateManyRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Prisma.BatchPayload> {
     try {
-      const { ids, classId, tenantId } = criteria;
+      const { ids, classId, tenantId, isActive } = criteria;
 
       const updatedStudents = await dbClient?.student?.updateMany({
         where: {
@@ -50,7 +58,8 @@ export default class StudentUpdateProvider {
           tenantId,
         },
         data: {
-          ...(classId && { classId }),
+          ...(classId && { classId: Number(classId) }),
+          ...(typeof isActive !== "undefined" && { isActive }),
         },
       });
 

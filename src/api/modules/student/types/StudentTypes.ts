@@ -10,29 +10,37 @@ export type StudentUpdateManyRequestType = z.infer<typeof studentUpdateManySchem
 export interface StudentCreateType {
   userId: number;
   tenantId: number;
-  classId: string;
-  guardianName?: string;
-  guardianPhone?: string;
-  guardianEmail?: string;
+  classId?: number;
+  studentId?: string;
+  enrollmentDate: Date;
   admissionNo?: string;
-  enrollmentDate?: Date;
+  currentGrade?: number;
+  languages?: string;
+  religion?: string;
+  bloodGroup?: string;
+  previousSchool?: string;
+  isActive?: boolean;
 }
 
 export interface StudentCriteria {
   id?: number;
-  dob?: string;
-  address?: string;
-  enrollmentDate?: string;
+  studentId?: string;
+  admissionNo?: string;
   classId?: number;
+  userId?: number;
   tenantId?: number;
+  isActive?: boolean;
 }
 
 export interface UpdateStudentData {
-  dob?: string;
-  address?: string;
-  enrollmentDate?: string;
   classId?: number;
-  tenantId?: number;
+  admissionNo?: string;
+  currentGrade?: number;
+  languages?: string;
+  religion?: string;
+  bloodGroup?: string;
+  previousSchool?: string;
+  isActive?: boolean;
 }
 
 export interface GetAndUpdateStaff {

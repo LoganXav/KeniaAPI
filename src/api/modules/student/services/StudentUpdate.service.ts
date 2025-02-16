@@ -42,7 +42,10 @@ export default class StudentUpdateService extends BaseService<any> {
     try {
       this.initializeServiceTrace(trace, args);
 
-      const foundStudent = await this.userReadCache.getOneByCriteria({ tenantId: Number(args.tenantId), id: Number(args.id) });
+      const foundStudent = await this.userReadCache.getOneByCriteria({
+        tenantId: Number(args.tenantId),
+        id: Number(args.id),
+      });
 
       if (!foundStudent) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(NOT_FOUND), HttpStatusCodeEnum.NOT_FOUND);
@@ -66,7 +69,10 @@ export default class StudentUpdateService extends BaseService<any> {
     try {
       this.initializeServiceTrace(trace, args);
 
-      const foundStudents = await this.studentReadProvider.getByCriteria({ ids: args.ids, tenantId: args.tenantId });
+      const foundStudents = await this.studentReadProvider.getByCriteria({
+        ids: args.ids,
+        tenantId: args.tenantId,
+      });
 
       if (!foundStudents.length) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(NOT_FOUND), HttpStatusCodeEnum.NOT_FOUND);
@@ -77,7 +83,7 @@ export default class StudentUpdateService extends BaseService<any> {
 
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, `Updated Students Information`, students);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(UPDATED), students);
 
       return this.result;
     } catch (error: any) {
@@ -90,13 +96,42 @@ export default class StudentUpdateService extends BaseService<any> {
   private async updateStudentTransaction(args: StudentUpdateRequestType & { id: string; tenantId: number }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        const user = await this.userUpdateProvider.updateOneByCriteria({ ...args, userId: Number(args.id) }, tx);
-        const student = await this.studentUpdateProvider.updateOne(args, tx);
+        // Update user-related fields
+        const userUpdateData = {
+          firstName: args.firstName,
+          lastName: args.lastName,
+          email: args.email,
+          phoneNumber: args.phoneNumber,
+          gender: args.gender,
+          dateOfBirth: args.dateOfBirth,
+          residentialAddress: args.residentialAddress,
+          residentialStateId: args.residentialStateId,
+          residentialLgaId: args.residentialLgaId,
+          residentialCountryId: args.residentialCountryId,
+          residentialZipCode: args.residentialZipCode,
+        };
+
+        await this.userUpdateProvider.updateOneByCriteria(
+          {
+            ...userUpdateData,
+            userId: Number(args.id),
+          },
+          tx
+        );
+
+        // Update student-specific fields
+        const student = await this.studentUpdateProvider.updateOne(
+          {
+            ...args,
+            id: Number(args.id),
+          },
+          tx
+        );
 
         await this.userReadCache.invalidate(args.tenantId);
         await this.studentReadCache.invalidate(args.tenantId);
 
-        return { ...student };
+        return student;
       });
       return result;
     } catch (error: any) {

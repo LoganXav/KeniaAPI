@@ -3,11 +3,14 @@ import * as z from "zod";
 export const studentUpdateSchema = z.object({
   id: z.number({ required_error: "Student ID is required" }),
   tenantId: z.number({ required_error: "Tenant Id is required" }),
-  classId: z.string().optional(),
-  guardianName: z.string().optional(),
-  guardianPhone: z.string().optional(),
-  guardianEmail: z.string().email("Invalid guardian email").optional(),
+  classId: z.number().int("Class ID must be an integer").optional(),
   admissionNo: z.string().optional(),
+  currentGrade: z.number().optional(),
+  languages: z.string().optional(),
+  religion: z.string().optional(),
+  bloodGroup: z.string().optional(),
+  previousSchool: z.string().optional(),
+  isActive: z.boolean().optional(),
 
   // User related fields
   firstName: z.string().optional(),
@@ -33,6 +36,9 @@ export const studentUpdateSchema = z.object({
       const date = new Date(val);
       return date;
     }),
+  guardianName: z.string().optional(),
+  guardianPhone: z.string().optional(),
+  guardianEmail: z.string().email("Invalid guardian email").optional(),
   residentialAddress: z.string().optional(),
   residentialStateId: z.number().optional(),
   residentialLgaId: z.number().optional(),
@@ -47,5 +53,6 @@ export const studentUpdateManySchema = z.object({
       required_error: "Argument ids is missing",
     })
   ),
-  classId: z.string().optional(),
+  classId: z.number().int("Class ID must be an integer").optional(),
+  isActive: z.boolean().optional(),
 });

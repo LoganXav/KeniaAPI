@@ -53,9 +53,9 @@ export default class StudentCreateService extends BaseService<IRequest> {
         throw new BadRequestError(RESOURCE_RECORD_ALREADY_EXISTS(ALREADY_EXISTS));
       }
 
-      const hashedPassword = PasswordEncryptionService.hashPassword(ServerConfig.Params.Security.DefaultPassword.Student);
+      const defaultHashedPassword = PasswordEncryptionService.hashPassword(ServerConfig.Params.Security.DefaultPassword.Student);
 
-      const userCreateArgs = { ...args.body, password: hashedPassword, userType: UserType.STUDENT };
+      const userCreateArgs = { ...args.body, password: defaultHashedPassword, userType: UserType.STUDENT };
 
       const createdStudentUser = await this.createUserAndStudentTransaction(userCreateArgs);
 
@@ -77,7 +77,19 @@ export default class StudentCreateService extends BaseService<IRequest> {
         const user = await this.userCreateProvider.create(args, tx);
         await this.userReadCache.invalidate(args.tenantId);
 
-        const studentArgs = { ...args, userId: user.id };
+        const studentArgs = {
+          userId: user.id,
+          tenantId: args.tenantId,
+          classId: args.classId,
+          admissionNo: args.admissionNo,
+          currentGrade: args.currentGrade,
+          languages: args.languages,
+          religion: args.religion,
+          bloodGroup: args.bloodGroup,
+          previousSchool: args.previousSchool,
+          enrollmentDate: args.enrollmentDate || new Date(),
+          isActive: args.isActive ?? true,
+        };
 
         const student = await this.studentCreateProvider.create(studentArgs, tx);
         await this.studentReadCache.invalidate(args.tenantId);
