@@ -42,7 +42,7 @@
     classes          Class[]
     subjects         Subject[]
     studentGroups    StudentGroup[]
-    parents          Parent[]
+    guardians        Guardian[]
     dormitories     Dormitory[]
     medicalHistories MedicalHistory[]
     documents        Document[]
@@ -134,7 +134,7 @@
     religion       String?
     bloodGroup     String?
     previousSchool String?
-    parents         Parent[]
+    guardians      Guardian[]
     documents      Document[]
     dormitory      Dormitory[]
     medicalHistory MedicalHistory[]
@@ -156,7 +156,7 @@
     tenant   Tenant  @relation(fields: [tenantId], references: [id])
   }
 
-  model Parent {
+  model Guardian {
     id Int @id @default(autoincrement())
     name String
     phone String
@@ -186,15 +186,15 @@
   }
 
   model Document {
-    id Int @id @default(autoincrement())
-    name String
-    typeId Int?
-    type DocumentType? @relation(fields: [typeId], references: [id])
-    url String
+    id        Int      @id @default(autoincrement())
+    name      String
+    url       String
     studentId Int?
-    student Student? @relation(fields: [studentId], references: [id])
-    tenantId Int
-    tenant Tenant @relation(fields: [tenantId], references: [id])
+    student   Student? @relation(fields: [studentId], references: [id])
+    documentTypeId Int
+    documentType DocumentType @relation(fields: [documentTypeId], references: [id])
+    tenantId  Int
+    tenant    Tenant   @relation(fields: [tenantId], references: [id])
   }
 
   model DocumentType {
@@ -207,7 +207,6 @@
 
   model Subject {
     id        Int    @id @default(autoincrement())
-    subjectId String @unique @default(uuid())
     name      String
     classId   Int?
     class     Class?  @relation("ClassSubjects", fields: [classId], references: [id])
@@ -253,6 +252,7 @@
     SSS1
     SSS2
     SSS3
+    OTHER
   }
 
   // ------------------------- AUTHENTICATION TABLES START ------------------------- //  
