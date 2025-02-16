@@ -1,20 +1,31 @@
-import { Class } from "@prisma/client";
-import { CreateClassData } from "../types/ClassTypes";
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { ClassCreateRequestType } from "../types/ClassTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import DbClient from "~/infrastructure/internal/database";
 
 export default class ClassCreateProvider {
-  public async createClass(data: CreateClassData, dbClient: PrismaTransactionClient = DbClient): Promise<Class> {
+  public async create(args: ClassCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const newClass = await dbClient?.class?.create({
+      const { name, type, classTeacherId, tenantId } = args;
+
+      const classRecord = await dbClient.class.create({
         data: {
-          name: data.name,
-          tenantId: data.tenantId,
+          name,
+          type,
+          classTeacherId,
+          tenantId,
+        },
+        include: {
+          classTeacher: true,
+          students: true,
+          subjects: true,
+          divisions: true,
         },
       });
-      return newClass;
+
+      return classRecord;
     } catch (error: any) {
-      throw new InternalServerError(error.message);
+      throw new InternalServerError(error);
     }
   }
 }
