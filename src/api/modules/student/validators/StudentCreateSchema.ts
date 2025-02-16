@@ -1,19 +1,52 @@
 import { z } from "zod";
 
-const today = new Date();
+export const studentCreateSchema = z.object({
+  userId: z.number().int("User ID must be an integer"),
+  classId: z.number().int("Class ID must be an integer").optional(),
+  admissionNo: z.string().optional(),
+  currentGrade: z.number().optional(),
+  languages: z.string().optional(),
+  religion: z.string().optional(),
+  bloodGroup: z.string().optional(),
+  previousSchool: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
 
-export const createStudentSchema = z.object({
-  dob: z.string().refine(
-    (val) => {
-      const date = new Date(val);
-      return !isNaN(date.getTime()) && date <= today;
-    },
-    {
-      message: "Invalid date format | date is in the future",
-    }
-  ),
-  address: z.string().min(1, "Address is required"),
-  enrollmentDate: z.string().date("Enter a valid Date"),
-  classId: z.number().int("Invalid classId"),
+export const studentCreateRequestSchema = z.object({
+  tenantId: z.number({ required_error: "Tenant ID is required" }).positive(),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phoneNumber: z.string(),
+  gender: z.string(),
+  dateOfBirth: z.date().optional(),
+  residentialAddress: z.string().optional(),
+  residentialLgaId: z.number().optional(),
+  residentialStateId: z.number().optional(),
+  residentialCountryId: z.number().optional(),
+  residentialZipCode: z.number().optional(),
+
+  classId: z.number().int("Class ID must be an integer").optional(),
+  admissionNo: z.string().optional(),
+  currentGrade: z.number().optional(),
+  languages: z.string().optional(),
+  religion: z.string().optional(),
+  bloodGroup: z.string().optional(),
+  previousSchool: z.string().optional(),
+  enrollmentDate: z
+    .date()
+    .optional()
+    .default(() => new Date()),
+  isActive: z.boolean().optional().default(true),
+});
+
+export const studentCriteriaSchema = z.object({
   tenantId: z.number().int("Invalid tenantId"),
+  id: z.number().optional(),
+  ids: z.array(z.number()).optional(),
+  userId: z.number().int("User ID must be an integer").optional(),
+  classId: z.number().int("Class ID must be an integer").optional(),
+  admissionNo: z.string().optional(),
+  studentId: z.string().optional(),
+  isActive: z.boolean().optional(),
 });

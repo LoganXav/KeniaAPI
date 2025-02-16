@@ -1,23 +1,24 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Class } from "@prisma/client";
-import { ClassCriteria, UpdateClassData } from "../types/ClassTypes";
+import { ClassUpdateRequestType } from "../types/ClassTypes";
 
 export default class ClassUpdateProvider {
-  public async updateOne(criteria: ClassCriteria, updateData: UpdateClassData, dbClient: PrismaTransactionClient = DbClient): Promise<Class> {
+  public async updateOne(args: ClassUpdateRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Class> {
     const updatedClass = await dbClient?.class?.update({
-      where: criteria,
-      data: updateData,
+      where: { id: args.id },
+      data: {
+        ...(args.name && { name: args.name }),
+        ...(args.type && { type: args.type }),
+        ...(args.classTeacherId && { classTeacherId: args.classTeacherId }),
+      },
+      include: {
+        classTeacher: true,
+        students: true,
+        subjects: true,
+        divisions: true,
+      },
     });
 
-    return updatedClass as Promise<Class>;
-  }
-
-  public async updateMany(criteria: ClassCriteria, updateData: UpdateClassData, dbClient: PrismaTransactionClient = DbClient): Promise<Class[]> {
-    const updatedClasss = await dbClient?.class?.updateMany({
-      where: criteria,
-      data: updateData,
-    });
-
-    return updatedClasss as Promise<Class[]>;
+    return updatedClass;
   }
 }

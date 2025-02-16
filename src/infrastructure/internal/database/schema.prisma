@@ -1,219 +1,312 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+  // This is your Prisma schema file,
+  // learn more about it in the docs: https://pris.ly/d/prisma-schema
+  // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+  // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
-}
+  generator client {
+    provider = "prisma-client-js"
+  }
 
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
+  datasource db {
+    provider  = "mysql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+  }
 
-model Tenant {
-  id               Int                        @id @default(autoincrement())
-  name             String?
-  address          String?
-  type             String?
-  registrationNo   String?
-  contactEmail     String?
-  contactPhone     String?
-  establishedDate  DateTime?
-  logoUrl          String?
-  stateId          Int?
-  lgaId            Int?
-  countryId        Int?
-  zipCode          Int?
-  postalCode       String?
-  onboardingStatus TenantOnboardingStatusType @default(PERSONAL)
-  users            User[]
-  metadata         TenantMetadata?
-  createdAt        DateTime                   @default(now())
-  updatedAt        DateTime                   @updatedAt
-  staffs           Staff[]
-  students         Student[]
-  userTokens       UserToken[]
-  roles            Role[]
-  permissions      Permission[]
-  groups           Group[]
-  classes          Class[]
-  subjects         Subject[]
-}
+  model Tenant {
+    id               Int                        @id @default(autoincrement())
+    name             String?
+    address          String?
+    type             String?
+    registrationNo   String?
+    contactEmail     String?
+    contactPhone     String?
+    establishedDate  DateTime?
+    logoUrl          String?
+    stateId          Int?
+    lgaId            Int?
+    countryId        Int?
+    zipCode          Int?
+    postalCode       String?
+    onboardingStatus TenantOnboardingStatusType @default(PERSONAL)
+    users            User[]
+    metadata         TenantMetadata?
+    createdAt        DateTime                   @default(now())
+    updatedAt        DateTime                   @updatedAt
+    staffs           Staff[]
+    students         Student[]
+    userTokens       UserToken[]
+    roles            Role[]
+    permissions      Permission[]
+    groups           Group[]
+    classes          Class[]
+    subjects         Subject[]
+    studentGroups    StudentGroup[]
+    guardians        Guardian[]
+    dormitories     Dormitory[]
+    medicalHistories MedicalHistory[]
+    documents        Document[]
+    documentTypes    DocumentType[]
+    classDivisions  ClassDivision[]
+  }
 
-enum TenantOnboardingStatusType {
-  PERSONAL
-  RESIDENTIAL
-  SCHOOL
-  COMPLETE
-}
+  enum TenantOnboardingStatusType {
+    PERSONAL
+    RESIDENTIAL
+    SCHOOL
+    COMPLETE
+  }
 
-model TenantMetadata {
-  id            Int    @id @default(autoincrement())
-  tenantId      Int    @unique
-  totalStudents Int?
-  totalStaff    Int?
-  tenant        Tenant @relation(fields: [tenantId], references: [id])
-}
+  model TenantMetadata {
+    id            Int    @id @default(autoincrement())
+    tenantId      Int    @unique
+    totalStudents Int?
+    totalStaff    Int?
+    tenant        Tenant @relation(fields: [tenantId], references: [id])
+  }
 
-model User {
-  id                   Int         @id @default(autoincrement())
-  firstName            String
-  lastName             String
-  gender               String?
-  dateOfBirth          DateTime?
-  phoneNumber          String
-  email                String      @unique
-  password             String
-  hasVerified          Boolean     @default(false)
-  isFirstTimeLogin     Boolean     @default(true)
-  lastLoginDate        DateTime    @default(now())
-  tokens               UserToken[]
-  userType             UserType    @default(STAFF)
-  tenantId             Int
-  tenant               Tenant      @relation(fields: [tenantId], references: [id])
-  student              Student?    @relation("StudentUser")
-  staff                Staff?      @relation("StaffUser")
-  createdAt            DateTime    @default(now())
-  residentialAddress   String?
-  residentialLgaId     Int?
-  residentialStateId   Int?
-  residentialCountryId Int?
-  residentialZipCode   Int?
-}
+  model User {
+    id                   Int         @id @default(autoincrement())
+    firstName            String
+    lastName             String
+    gender               String?
+    dateOfBirth          DateTime?
+    phoneNumber          String
+    email                String      @unique
+    password             String
+    hasVerified          Boolean     @default(false)
+    isFirstTimeLogin     Boolean     @default(true)
+    lastLoginDate        DateTime    @default(now())
+    tokens               UserToken[]
+    userType             UserType    @default(STAFF)
+    tenantId             Int
+    tenant               Tenant      @relation(fields: [tenantId], references: [id])
+    student              Student?    @relation("StudentUser")
+    staff                Staff?      @relation("StaffUser")
+    createdAt            DateTime    @default(now())
+    residentialAddress   String?
+    residentialLgaId     Int?
+    residentialStateId   Int?
+    residentialCountryId Int?
+    residentialZipCode   Int?
+  }
 
-enum UserType {
-  STUDENT
-  STAFF
-}
+  enum UserType {
+    STUDENT
+    STAFF
+  }
 
-model Staff {
-  id              Int                 @id @default(autoincrement())
-  jobTitle        String
-  userId          Int                 @unique
-  user            User                @relation(fields: [userId], references: [id], name: "StaffUser")
-  roleId          Int
-  role            Role?               @relation(fields: [roleId], references: [id])
-  group           Group[]             @relation("StaffGroup")
-  classes         Class[]             @relation("ClassTeacher")
-  subjects        Subject[]           @relation("SubjectTeacher")
-  tenantId        Int
-  nin             String?
-  tin             String?
-  cvUrl           String?
-  highestLevelEdu String?
-  employmentType  StaffEmploymentType @default(FULL_TIME)
-  startDate       DateTime            @default(now())
-  tenant          Tenant              @relation(fields: [tenantId], references: [id])
-}
+  model Staff {
+    id              Int                 @id @default(autoincrement())
+    jobTitle        String
+    userId          Int                 @unique
+    user            User                @relation(fields: [userId], references: [id], name: "StaffUser")
+    roleId          Int
+    role            Role?               @relation(fields: [roleId], references: [id])
+    group           Group[]             @relation("StaffGroup")
+    classes         Class[]             @relation("ClassTeacher")
+    // subjects        Subject[]           @relation("SubjectTeacher")
+    subjectTeacher   SubjectTeacher[]
+    tenantId        Int
+    nin             String?
+    tin             String?
+    cvUrl           String?
+    highestLevelEdu String?
+    employmentType  StaffEmploymentType @default(FULL_TIME)
+    startDate       DateTime            @default(now())
+    tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  }
 
-enum StaffEmploymentType {
-  FULL_TIME
-  PART_TIME
-  CONTRACT
-  INTERNSHIP
-}
+  enum StaffEmploymentType {
+    FULL_TIME
+    PART_TIME
+    CONTRACT
+    INTERNSHIP
+  }
 
-model Student {
-  id             Int      @id @default(autoincrement())
-  studentId      String   @unique @default(uuid())
-  userId         Int      @unique
-  user           User     @relation(fields: [userId], references: [id], name: "StudentUser")
-  enrollmentDate DateTime
-  classId        String
-  class          Class    @relation(fields: [classId], references: [classId])
-  tenantId       Int
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-}
+  model Student {
+    id             Int      @id @default(autoincrement())
+    studentId      String   @unique @default(uuid())
+    enrollmentDate DateTime
+    admissionNo    String?  @unique
+    currentGrade   Float?
+    languages      String?
+    religion       String?
+    bloodGroup     String?
+    previousSchool String?
+    guardians      Guardian[]
+    documents      Document[]
+    dormitory      Dormitory[]
+    medicalHistory MedicalHistory[]
+    studentGroups  StudentGroup[] @relation("StudentGroupRelation")
+    classId        Int?
+    class          Class?    @relation(fields: [classId], references: [id])
+    userId         Int      @unique
+    user           User     @relation(fields: [userId], references: [id], name: "StudentUser")
+    tenantId       Int
+    tenant         Tenant   @relation(fields: [tenantId], references: [id])
+    isActive       Boolean  @default(true)
+  }
 
-// ------------------------- AUTHENTICATION TABLES START ------------------------- //  
+  model StudentGroup {
+    id       Int     @id @unique @default(autoincrement())
+    name     String
+    students Student[] @relation("StudentGroupRelation")
+    tenantId Int
+    tenant   Tenant  @relation(fields: [tenantId], references: [id])
+  }
 
-model UserToken {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id])
-  tokenType TokenType
-  token     String
-  expiresAt DateTime
-  expired   Boolean   @default(false)
-  isActive  Boolean   @default(true)
-  Tenant    Tenant?   @relation(fields: [tenantId], references: [id])
-  tenantId  Int?
-}
+  model Guardian {
+    id Int @id @default(autoincrement())
+    name String
+    phone String
+    email String
+    address String
+    students Student[]
+    tenantId Int
+    tenant Tenant @relation(fields: [tenantId], references: [id])
+  }
 
-enum TokenType {
-  EMAIL
-  ACCESS
-  REFRESH
-  PASSWORD_RESET
-}
+  model Dormitory {
+    id Int @id @default(autoincrement())
+    name String
+    students Student[]
+    tenantId Int
+    tenant Tenant @relation(fields: [tenantId], references: [id])
+  }
 
-// ------------------------- AUTHENTICATION TABLES END ------------------------- //  
+  model MedicalHistory {
+    id Int @id @default(autoincrement())
+    name String
+    description String?
+    studentId Int
+    student Student @relation(fields: [studentId], references: [id])
+    tenantId Int
+    tenant Tenant @relation(fields: [tenantId], references: [id])
+  }
 
-// ------------------------- ROLES AND PERMISSIONS TABLES ------------------------- //
+  model Document {
+    id        Int      @id @default(autoincrement())
+    name      String
+    url       String
+    studentId Int?
+    student   Student? @relation(fields: [studentId], references: [id])
+    documentTypeId Int
+    documentType DocumentType @relation(fields: [documentTypeId], references: [id])
+    tenantId  Int
+    tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  }
 
-model Role {
-  id          Int          @id @default(autoincrement())
-  name        String
-  rank        Int
-  permissions Permission[] @relation("RolePermission")
-  Staff       Staff[]
-  tenantId    Int
-  tenant      Tenant       @relation(fields: [tenantId], references: [id])
-}
+  model DocumentType {
+    id Int @id @default(autoincrement())
+    name String
+    document Document[]
+    tenantId Int
+    tenant Tenant @relation(fields: [tenantId], references: [id])
+  }
 
-model Permission {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  roles    Role[] @relation("RolePermission")
-  tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-}
+  model Subject {
+    id        Int    @id @default(autoincrement())
+    name      String
+    classId   Int?
+    class     Class?  @relation("ClassSubjects", fields: [classId], references: [id])
+    subjectTeacher SubjectTeacher[]
+    tenantId  Int
+    tenant    Tenant @relation(fields: [tenantId], references: [id])
+  }
 
-// ------------------------- ROLES AND PERMISSIONS TABLES END ------------------------- //
+  model SubjectTeacher {
+    id        Int     @id @default(autoincrement())
+    subjectId Int
+    subject   Subject @relation(fields: [subjectId], references: [id])
+    staffId   Int
+    staff     Staff   @relation(fields: [staffId], references: [id])
+  }
 
-// ------------------------- UNDECIDED ------------------------- //  
+  model Class {
+    id             Int       @id @default(autoincrement())
+    name           String
+    type           ClassList?
+    classTeacherId Int?
+    classTeacher   Staff?    @relation("ClassTeacher", fields: [classTeacherId], references: [id])
+    students       Student[]
+    subjects       Subject[] @relation("ClassSubjects")
+    divisions      ClassDivision[]
+    tenantId       Int
+    tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  }
 
-model Group {
-  id       Int     @id @default(autoincrement())
-  groupId  String  @unique @default(uuid())
-  name     String
-  staff    Staff[] @relation("StaffGroup")
-  tenantId Int
-  tenant   Tenant  @relation(fields: [tenantId], references: [id])
-}
+  model ClassDivision {
+    id Int @id @default(autoincrement())
+    name String
+    classId Int
+    class Class @relation(fields: [classId], references: [id])
+    tenantId Int
+    tenant Tenant @relation(fields: [tenantId], references: [id])
+  }
 
-model Class {
-  id             Int       @id @default(autoincrement())
-  classId        String    @unique @default(uuid())
-  name           ClassList
-  classTeacherId Int?
-  classTeacher   Staff?    @relation("ClassTeacher", fields: [classTeacherId], references: [id])
-  students       Student[]
-  subjects       Subject[] @relation("ClassSubjects")
-  tenantId       Int
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
-}
+  enum ClassList {
+    JSS1
+    JSS2
+    JSS3
+    SSS1
+    SSS2
+    SSS3
+    OTHER
+  }
 
-model Subject {
-  id        Int    @id @default(autoincrement())
-  subjectId String @unique @default(uuid())
-  name      String
-  classId   String
-  teacherId Int
-  class     Class  @relation("ClassSubjects", fields: [classId], references: [classId])
-  teacher   Staff  @relation("SubjectTeacher", fields: [teacherId], references: [id])
-  tenantId  Int
-  tenant    Tenant @relation(fields: [tenantId], references: [id])
-}
+  // ------------------------- AUTHENTICATION TABLES START ------------------------- //  
 
-enum ClassList {
-  JSS1
-  JSS2
-  JSS3
-  SSS1
-  SSS2
-  SSS3
-}
+  model UserToken {
+    id        Int       @id @default(autoincrement())
+    userId    Int
+    user      User      @relation(fields: [userId], references: [id])
+    tokenType TokenType
+    token     String
+    expiresAt DateTime
+    expired   Boolean   @default(false)
+    isActive  Boolean   @default(true)
+    Tenant    Tenant?   @relation(fields: [tenantId], references: [id])
+    tenantId  Int?
+  }
+
+  enum TokenType {
+    EMAIL
+    ACCESS
+    REFRESH
+    PASSWORD_RESET
+  }
+
+  // ------------------------- AUTHENTICATION TABLES END ------------------------- //  
+
+  // ------------------------- ROLES AND PERMISSIONS TABLES ------------------------- //
+
+  model Role {
+    id          Int          @id @default(autoincrement())
+    name        String
+    rank        Int
+    permissions Permission[] @relation("RolePermission")
+    Staff       Staff[]
+    tenantId    Int
+    tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  }
+
+  model Permission {
+    id       Int    @id @default(autoincrement())
+    name     String @unique
+    roles    Role[] @relation("RolePermission")
+    tenantId Int
+    tenant   Tenant @relation(fields: [tenantId], references: [id])
+  }
+
+  // ------------------------- ROLES AND PERMISSIONS TABLES END ------------------------- //
+
+  // ------------------------- UNDECIDED ------------------------- //  
+
+  model Group {
+    id       Int     @id @default(autoincrement())
+    name     String
+    staff    Staff[] @relation("StaffGroup")
+    tenantId Int
+    tenant   Tenant  @relation(fields: [tenantId], references: [id])
+  }

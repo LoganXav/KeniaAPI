@@ -33,7 +33,11 @@
 
 ## Docker Implementation for Redis
 
-- Setup Docker for the project including redis. However for now if using docker to run redis locally. To run: `docker run --name redis -d -p 6379:6379 redis`. To connect: `docker exec -it redis redis-cli`
+- Setup Docker for the project including redis. However for now if using docker to run redis locally. To run: `docker run --name redis -d -p 6379:6379 redis`. To connect: ``
 
 
 
+
+
+
+docker exec -it redis redis-cli

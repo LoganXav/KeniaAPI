@@ -1,6 +1,9 @@
 import { z } from "zod";
+import { ClassList } from "@prisma/client";
 
-export const createClassSchema = z.object({
+export const classCreateSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  tenantId: z.number().int("Tenant ID must be an integer"),
+  type: z.nativeEnum(ClassList).optional(),
+  classTeacherId: z.number().optional(),
+  tenantId: z.number().optional(),
 });

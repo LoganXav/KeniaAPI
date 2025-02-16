@@ -1,26 +1,46 @@
-import DbClient from "~/infrastructure/internal/database";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { StudentCreateType } from "../types/StudentTypes";
 import { Student } from "@prisma/client";
-import { CreateStudentData } from "../types/StudentTypes";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StudentCreateProvider {
-  public async createStudent(data: CreateStudentData, tx?: any): Promise<Student> {
+  public async create(data: StudentCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const dbClient = tx ? tx : DbClient;
-      const newStudent = await dbClient?.student?.create({
+      const { userId, classId, tenantId, studentId, enrollmentDate, admissionNo, currentGrade, languages, religion, bloodGroup, previousSchool, isActive } = data;
+
+      const student = await dbClient?.student.create({
         data: {
-          dob: data.dob,
-          address: data.address,
-          enrollmentDate: data.enrollmentDate,
-          classId: data.tenantId,
-          tenantId: data.tenantId,
+          userId,
+          classId,
+          tenantId,
+          studentId,
+          enrollmentDate,
+          admissionNo,
+          currentGrade,
+          languages,
+          religion,
+          bloodGroup,
+          previousSchool,
+          isActive,
+        },
+        include: {
+          user: true,
+          class: true,
+          guardians: true,
+          documents: true,
+          dormitory: true,
+          medicalHistory: true,
+          studentGroups: true,
         },
       });
 
-      return newStudent;
-    } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
+      if (student.user) {
+        delete (student.user as any).password;
+      }
+
+      return student;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
     }
   }
 }

@@ -7,7 +7,15 @@ export const USER_RESOURCE = "User";
 export const STAFF_RESOURCE = "Staff";
 export const TENANT_RESOURCE = "Tenant";
 export const TEMPLATE_RESOURCE = "Template";
-
+export const CLASS_RESOURCE = "Class";
+export const CLASS_DIVISION_RESOURCE = "Class Division";
+export const SUBJECT_RESOURCE = "Subject";
+export const DOCUMENT_RESOURCE = "Document";
+export const DOCUMENT_TYPE_RESOURCE = "Document Type";
+export const DORMITORY_RESOURCE = "Dormitory";
+export const STUDENT_GROUP_RESOURCE = "Student Group";
+export const GUARDIAN_RESOURCE = "Guardian";
+export const MEDICAL_HISTORY_RESOURCE = "Medical History";
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account Created Successfully";
 export const TOKEN_VERIFIED = "Token Verification Success";
@@ -65,4 +73,5 @@ export const CREATE_ERROR = "Unable to Create";
 export const READ_ERROR = "Unable to Read";
 export const UPDATE_ERROR = "Unable to Update";
 export const DELETE_ERROR = "Unable to Delete";
+export const ALREADY_EXISTS = "Already Exists";
 export const NOT_FOUND = "Not Found";
