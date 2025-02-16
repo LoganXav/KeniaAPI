@@ -30,7 +30,7 @@ export default class ClassDivisionDeleteController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/class-divisions/delete",
+      path: "/classdivision/delete",
       handlers: [this.delete],
       produces: [
         {

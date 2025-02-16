@@ -38,7 +38,7 @@ export default class ClassDivisionReadController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/class-divisions/list",
+      path: "/classdivision/list",
       handlers: [validateData(classDivisionReadSchema), this.read],
       produces: [
         {
@@ -51,7 +51,7 @@ export default class ClassDivisionReadController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/class-divisions/single",
+      path: "/classdivision/single",
       handlers: [validateData(classDivisionReadSchema), this.readOne],
       produces: [
         {

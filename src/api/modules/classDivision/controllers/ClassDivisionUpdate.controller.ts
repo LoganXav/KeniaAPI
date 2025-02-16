@@ -8,7 +8,7 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { autoInjectable } from "tsyringe";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { classDivisionUpdateSchema } from "../validators/ClassDivisionUpdateSchema";
-import ClassDivisionUpdateService from "../services/ClassDivision.service";
+import ClassDivisionUpdateService from "../services/ClassDivisionUpdate.service";
 
 @autoInjectable()
 export default class ClassDivisionUpdateController extends BaseController {
@@ -32,7 +32,7 @@ export default class ClassDivisionUpdateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/class-divisions/update",
+      path: "/classdivision/update",
       handlers: [validateData(classDivisionUpdateSchema), this.update],
       produces: [
         {

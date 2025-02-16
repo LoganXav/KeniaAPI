@@ -32,7 +32,7 @@ export default class ClassDivisionCreateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/class-divisions/create",
+      path: "/classdivision/create",
       handlers: [validateData(classDivisionCreateSchema), this.create],
       produces: [
         {
