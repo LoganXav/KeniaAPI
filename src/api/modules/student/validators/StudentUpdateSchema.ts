@@ -12,6 +12,7 @@ export const studentUpdateSchema = z.object({
   previousSchool: z.string().optional(),
   dormitoryId: z.number().int("Dormitory ID must be an integer").optional(),
   isActive: z.boolean().optional(),
+  studentGroupIds: z.array(z.number().int("Student Group ID must be an integer")).optional(),
 
   // User related fields
   firstName: z.string().optional(),
@@ -53,4 +54,5 @@ export const studentUpdateManySchema = z.object({
   ),
   classId: z.number().int("Class ID must be an integer").optional(),
   isActive: z.boolean().optional(),
+  dormitoryId: z.number().int("Dormitory ID must be an integer").optional(),
 });

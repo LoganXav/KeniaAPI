@@ -14,6 +14,7 @@ export interface StudentCreateType {
   enrollmentDate: Date;
   admissionNo?: string;
   currentGrade?: number;
+  studentGroupIds?: number[];
   languages?: string;
   religion?: string;
   bloodGroup?: string;

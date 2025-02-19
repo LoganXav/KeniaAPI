@@ -27,6 +27,7 @@ export const studentCreateRequestSchema = z.object({
 
   classId: z.number().int("Class ID must be an integer").optional(),
   dormitoryId: z.number().int("Dormitory ID must be an integer").optional(),
+  studentGroupIds: z.array(z.number().int("Student Group ID must be an integer")).optional(),
   admissionNo: z.string().optional(),
   currentGrade: z.number().optional(),
   languages: z.string().optional(),
