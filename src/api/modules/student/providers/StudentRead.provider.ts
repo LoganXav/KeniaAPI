@@ -4,8 +4,7 @@ import { StudentCriteriaType } from "../types/StudentTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StudentReadProvider {
-  public async getAllStudent(tx?: any): Promise<Student[]> {
-    const dbClient = tx ? tx : DbClient;
+  public async getAllStudent(dbClient: PrismaTransactionClient = DbClient): Promise<Student[]> {
     const students = await dbClient?.student?.findMany({
       include: {
         user: true,
@@ -23,17 +22,14 @@ export default class StudentReadProvider {
 
   public async getByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Student[]> {
     try {
-      const { ids, userId, classId, admissionNo, tenantId, isActive, dormitoryId } = criteria;
+      const { ids, classId, tenantId, dormitoryId } = criteria;
 
       const students = await dbClient.student.findMany({
         where: {
           ...(tenantId && { tenantId }),
           ...(ids && { id: { in: ids } }),
-          ...(userId && { userId: Number(userId) }),
-          ...(classId && { classId: Number(classId) }),
-          ...(admissionNo && { admissionNo }),
           ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
-          ...(typeof isActive !== "undefined" && { isActive }),
+          ...(classId && { classId: Number(classId) }),
         },
         include: {
           user: true,
@@ -60,13 +56,13 @@ export default class StudentReadProvider {
 
   public async getOneByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Student | null> {
     try {
-      const { id, tenantId, admissionNo } = criteria;
+      const { id, tenantId } = criteria;
+      const numericId = id ? Number(id) : undefined;
 
       const student = await dbClient?.student?.findFirst({
         where: {
           ...(tenantId && { tenantId }),
-          ...(id && { id }),
-          ...(admissionNo && { admissionNo }),
+          ...(numericId && { id: numericId }),
         },
         include: {
           user: true,

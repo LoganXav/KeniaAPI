@@ -8,7 +8,7 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { autoInjectable } from "tsyringe";
 import StaffReadService from "../services/StaffRead.service";
 import { staffCriteriaSchema } from "../validators/StaffCreateSchema";
-import { validateData, validateParams } from "~/api/shared/helpers/middleware/validateData";
+import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { staffReadParamsSchema } from "../validators/StaffReadSchema";
 
 @autoInjectable()
@@ -39,7 +39,7 @@ export default class StaffUpdateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/list",
-      handlers: [validateParams(staffReadParamsSchema), this.staffRead],
+      handlers: [validateData(staffReadParamsSchema), this.staffRead],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

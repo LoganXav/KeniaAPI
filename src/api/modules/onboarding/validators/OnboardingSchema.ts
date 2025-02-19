@@ -135,7 +135,7 @@ export const onboardingSchoolSchema = z.object({
     .string({
       invalid_type_error: "Logo URL must be a string",
     })
-    .url("Invalid URL for school logo")
+    // .url("Invalid URL for school logo")
     .optional(),
   address: z
     .string({

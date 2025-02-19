@@ -5,6 +5,7 @@ export const STUDENT = "student";
 /** <---------------> Resource Labels <---------------> */
 export const USER_RESOURCE = "User";
 export const STAFF_RESOURCE = "Staff";
+export const STUDENT_RESOURCE = "Student";
 export const TENANT_RESOURCE = "Tenant";
 export const TEMPLATE_RESOURCE = "Template";
 export const CLASS_RESOURCE = "Class";

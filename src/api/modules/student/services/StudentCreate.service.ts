@@ -1,6 +1,6 @@
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { SUCCESS, SOMETHING_WENT_WRONG, ALREADY_EXISTS, CREATED } from "~/api/shared/helpers/messages/SystemMessages";
+import { SUCCESS, SOMETHING_WENT_WRONG, ALREADY_EXISTS, CREATED, STUDENT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { autoInjectable } from "tsyringe";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
@@ -61,7 +61,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
 
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(CREATED), createdStudentUser);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(STUDENT_RESOURCE), createdStudentUser);
 
       return this.result;
     } catch (error: any) {
