@@ -4,7 +4,6 @@ export const studentCreateSchema = z.object({
   userId: z.number().int("User ID must be an integer"),
   classId: z.number().int("Class ID must be an integer").optional(),
   admissionNo: z.string().optional(),
-  currentGrade: z.number().optional(),
   languages: z.string().optional(),
   religion: z.string().optional(),
   bloodGroup: z.string().optional(),
@@ -27,6 +26,7 @@ export const studentCreateRequestSchema = z.object({
   residentialZipCode: z.number().optional(),
 
   classId: z.number().int("Class ID must be an integer").optional(),
+  dormitoryId: z.number().int("Dormitory ID must be an integer").optional(),
   admissionNo: z.string().optional(),
   currentGrade: z.number().optional(),
   languages: z.string().optional(),
@@ -47,6 +47,6 @@ export const studentCriteriaSchema = z.object({
   userId: z.number().int("User ID must be an integer").optional(),
   classId: z.number().int("Class ID must be an integer").optional(),
   admissionNo: z.string().optional(),
-  studentId: z.string().optional(),
+  dormitoryId: z.number().int("Dormitory ID must be an integer").optional(),
   isActive: z.boolean().optional(),
 });

@@ -77,7 +77,11 @@ export default class StaffCreateService extends BaseService<IRequest> {
         const user = await this.userCreateProvider.create(args, tx);
         await this.userReadCache.invalidate(args.tenantId);
 
-        const userArgs = { ...args, userId: user.id };
+        const userArgs = {
+          ...args,
+          userId: user.id,
+          startDate: args.startDate ? args.startDate.toISOString() : undefined,
+        };
 
         const staff = await this.staffCreateProvider.create(userArgs, tx);
         await this.staffReadCache.invalidate(args.tenantId);

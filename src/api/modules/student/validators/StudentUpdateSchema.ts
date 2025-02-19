@@ -10,6 +10,7 @@ export const studentUpdateSchema = z.object({
   religion: z.string().optional(),
   bloodGroup: z.string().optional(),
   previousSchool: z.string().optional(),
+  dormitoryId: z.number().int("Dormitory ID must be an integer").optional(),
   isActive: z.boolean().optional(),
 
   // User related fields
@@ -36,9 +37,6 @@ export const studentUpdateSchema = z.object({
       const date = new Date(val);
       return date;
     }),
-  guardianName: z.string().optional(),
-  guardianPhone: z.string().optional(),
-  guardianEmail: z.string().email("Invalid guardian email").optional(),
   residentialAddress: z.string().optional(),
   residentialStateId: z.number().optional(),
   residentialLgaId: z.number().optional(),

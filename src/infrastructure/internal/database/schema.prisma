@@ -105,8 +105,7 @@
     role            Role?               @relation(fields: [roleId], references: [id])
     group           Group[]             @relation("StaffGroup")
     classes         Class[]             @relation("ClassTeacher")
-    // subjects        Subject[]           @relation("SubjectTeacher")
-    subjectTeacher   SubjectTeacher[]
+    subjects        Subject[]           @relation("SubjectTeacher")
     tenantId        Int
     nin             String?
     tin             String?
@@ -129,14 +128,14 @@
     studentId      String   @unique @default(uuid())
     enrollmentDate DateTime
     admissionNo    String?  @unique
-    currentGrade   Float?
     languages      String?
     religion       String?
     bloodGroup     String?
     previousSchool String?
-    guardians      Guardian[]
+    guardians      Guardian[] @relation("StudentGuardian")
     documents      Document[]
-    dormitory      Dormitory[]
+    dormitoryId    Int?
+    dormitory      Dormitory? @relation(fields: [dormitoryId], references: [id])
     medicalHistory MedicalHistory[]
     studentGroups  StudentGroup[] @relation("StudentGroupRelation")
     classId        Int?
@@ -162,7 +161,7 @@
     phone String
     email String
     address String
-    students Student[]
+    students Student[] @relation("StudentGuardian")
     tenantId Int
     tenant Tenant @relation(fields: [tenantId], references: [id])
   }
@@ -210,18 +209,18 @@
     name      String
     classId   Int?
     class     Class?  @relation("ClassSubjects", fields: [classId], references: [id])
-    subjectTeacher SubjectTeacher[]
+    staffs    Staff[] @relation("SubjectTeacher")
     tenantId  Int
     tenant    Tenant @relation(fields: [tenantId], references: [id])
   }
 
-  model SubjectTeacher {
-    id        Int     @id @default(autoincrement())
-    subjectId Int
-    subject   Subject @relation(fields: [subjectId], references: [id])
-    staffId   Int
-    staff     Staff   @relation(fields: [staffId], references: [id])
-  }
+  // model SubjectTeacher {
+  //   id        Int     @id @default(autoincrement())
+  //   subjectId Int
+  //   subject   Subject @relation(fields: [subjectId], references: [id])
+  //   staffId   Int
+  //   staff     Staff   @relation(fields: [staffId], references: [id])
+  // }
 
   model Class {
     id             Int       @id @default(autoincrement())
