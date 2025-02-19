@@ -25,12 +25,13 @@ export default class StudentReadCache {
       const cachedStudents = await this.redisClient.get(cacheKey);
 
       if (cachedStudents) {
-        console.log("Criteria Student Cache HIT!");
+        // console.log("Criteria Student Cache HIT!");
         return JSON.parse(cachedStudents);
       }
 
       const students = await this.studentReadProvider.getByCriteria(criteria);
-      console.log("Criteria Student Cache MISS!");
+
+      // console.log("Criteria Student Cache MISS!");
 
       if (ArrayUtil.any(students)) {
         await this.redisClient.set(cacheKey, JSON.stringify(students), {

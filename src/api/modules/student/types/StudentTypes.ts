@@ -13,13 +13,9 @@ export interface StudentCreateType {
   classId?: number;
   enrollmentDate: Date;
   admissionNo?: string;
-  currentGrade?: number;
   studentGroupIds?: number[];
-  languages?: string;
   religion?: string;
   bloodGroup?: string;
-  previousSchool?: string;
-  isActive?: boolean;
   dormitoryId?: number;
 }
 
@@ -29,19 +25,14 @@ export interface StudentCriteria {
   classId?: number;
   userId?: number;
   tenantId?: number;
-  isActive?: boolean;
   dormitoryId?: number;
 }
 
 export interface UpdateStudentData {
   classId?: number;
   admissionNo?: string;
-  currentGrade?: number;
-  languages?: string;
   religion?: string;
   bloodGroup?: string;
-  previousSchool?: string;
-  isActive?: boolean;
   dormitoryId?: number;
 }
 

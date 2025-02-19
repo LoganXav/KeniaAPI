@@ -32,7 +32,7 @@ export default class StudentReadService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args.params);
+      this.initializeServiceTrace(trace, args.body);
 
       const studentUser = await this.studentReadCache.getOneByCriteria(args.body);
 
@@ -54,7 +54,7 @@ export default class StudentReadService extends BaseService<IRequest> {
 
   public async studentRead(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args.params);
+      this.initializeServiceTrace(trace, args.body);
 
       const students = await this.studentReadCache.getByCriteria(args.body);
 
