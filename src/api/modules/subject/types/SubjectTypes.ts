@@ -4,6 +4,7 @@ export type SubjectCreateRequestType = {
   name: string;
   classId?: number;
   tenantId: number;
+  staffIds?: number[];
 };
 
 export type SubjectReadRequestType = {
@@ -11,6 +12,7 @@ export type SubjectReadRequestType = {
   name?: string;
   classId?: number;
   tenantId: number;
+  staffIds?: number[];
 };
 
 export type SubjectReadOneRequestType = {
@@ -18,6 +20,7 @@ export type SubjectReadOneRequestType = {
   name?: string;
   classId?: number;
   tenantId?: number;
+  staffIds?: number[];
 };
 
 export type SubjectUpdateRequestType = {
@@ -25,6 +28,7 @@ export type SubjectUpdateRequestType = {
   name?: string;
   classId?: number;
   tenantId?: number;
+  staffIds?: number[];
 };
 
 export type SubjectCriteriaType = {
@@ -33,6 +37,7 @@ export type SubjectCriteriaType = {
   name?: string;
   classId?: number;
   tenantId?: number;
+  staffIds?: number[];
 };
 
 export type SubjectResponseType = {
@@ -42,6 +47,7 @@ export type SubjectResponseType = {
   classId?: number;
   tenantId: number;
   class?: Class;
+  staffs?: Staff[];
 };
 
 export type SubjectDeleteRequestType = {

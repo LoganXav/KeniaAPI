@@ -5,7 +5,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class SubjectReadProvider {
   public async getByCriteria(criteria: SubjectCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, ids, name, classId, tenantId } = criteria;
+      const { id, ids, name, classId, tenantId, staffIds } = criteria;
 
       const subjects = await dbClient.subject.findMany({
         where: {
@@ -14,6 +14,7 @@ export default class SubjectReadProvider {
           ...(name && { name: { contains: name } }),
           ...(classId && { classId }),
           ...(tenantId && { tenantId }),
+          ...(staffIds && { staffs: { some: { id: { in: staffIds } } } }),
         },
         include: {
           class: true,
@@ -28,7 +29,7 @@ export default class SubjectReadProvider {
 
   public async getOneByCriteria(criteria: SubjectCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, name, classId, tenantId } = criteria;
+      const { id, name, classId, tenantId, staffIds } = criteria;
 
       const subject = await dbClient.subject.findFirst({
         where: {
@@ -36,6 +37,7 @@ export default class SubjectReadProvider {
           ...(name && { name: { contains: name } }),
           ...(classId && { classId }),
           ...(tenantId && { tenantId }),
+          ...(staffIds && { staffs: { some: { id: { in: staffIds } } } }),
         },
         include: {
           class: true,
