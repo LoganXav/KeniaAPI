@@ -6,6 +6,7 @@ export type GuardianCreateRequestType = {
   email: string;
   address: string;
   tenantId: number;
+  studentIds?: number[];
 };
 
 export type GuardianReadRequestType = {
@@ -31,6 +32,7 @@ export type GuardianUpdateRequestType = {
   email?: string;
   address?: string;
   tenantId?: number;
+  studentIds?: number[];
 };
 
 export type GuardianCriteriaType = {
@@ -40,6 +42,7 @@ export type GuardianCriteriaType = {
   phone?: string;
   email?: string;
   tenantId?: number;
+  studentIds?: number[];
 };
 
 export type GuardianResponseType = {

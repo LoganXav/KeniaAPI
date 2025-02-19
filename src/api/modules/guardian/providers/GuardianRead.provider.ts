@@ -5,7 +5,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class GuardianReadProvider {
   public async getByCriteria(criteria: GuardianCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, ids, name, phone, email, tenantId } = criteria;
+      const { id, ids, name, phone, email, tenantId, studentIds } = criteria;
 
       const guardians = await dbClient.guardian.findMany({
         where: {
@@ -15,6 +15,7 @@ export default class GuardianReadProvider {
           ...(phone && { phone: { contains: phone } }),
           ...(email && { email: { contains: email } }),
           ...(tenantId && { tenantId }),
+          ...(studentIds && { students: { some: { id: { in: studentIds } } } }),
         },
         include: {
           students: true,
@@ -29,7 +30,7 @@ export default class GuardianReadProvider {
 
   public async getOneByCriteria(criteria: GuardianCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, name, phone, email, tenantId } = criteria;
+      const { id, name, phone, email, tenantId, studentIds } = criteria;
 
       const guardian = await dbClient.guardian.findFirst({
         where: {
@@ -38,6 +39,7 @@ export default class GuardianReadProvider {
           ...(phone && { phone: { contains: phone } }),
           ...(email && { email: { contains: email } }),
           ...(tenantId && { tenantId }),
+          ...(studentIds && { students: { some: { id: { in: studentIds } } } }),
         },
         include: {
           students: true,

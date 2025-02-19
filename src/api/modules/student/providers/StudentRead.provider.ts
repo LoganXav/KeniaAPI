@@ -23,7 +23,7 @@ export default class StudentReadProvider {
 
   public async getByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Student[]> {
     try {
-      const { ids, userId, classId, admissionNo, tenantId, studentId, isActive } = criteria;
+      const { ids, userId, classId, admissionNo, tenantId, isActive, dormitoryId } = criteria;
 
       const students = await dbClient.student.findMany({
         where: {
@@ -32,7 +32,7 @@ export default class StudentReadProvider {
           ...(userId && { userId: Number(userId) }),
           ...(classId && { classId: Number(classId) }),
           ...(admissionNo && { admissionNo }),
-          ...(studentId && { studentId }),
+          ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
           ...(typeof isActive !== "undefined" && { isActive }),
         },
         include: {
@@ -60,14 +60,12 @@ export default class StudentReadProvider {
 
   public async getOneByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Student | null> {
     try {
-      const { id, tenantId, studentId, admissionNo } = criteria;
-      const numericId = id ? Number(id) : undefined;
+      const { id, tenantId, admissionNo } = criteria;
 
       const student = await dbClient?.student?.findFirst({
         where: {
           ...(tenantId && { tenantId }),
-          ...(numericId && { id: numericId }),
-          ...(studentId && { studentId }),
+          ...(id && { id }),
           ...(admissionNo && { admissionNo }),
         },
         include: {

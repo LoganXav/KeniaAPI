@@ -5,7 +5,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class GuardianUpdateProvider {
   public async update(args: GuardianUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, name, phone, email, address, tenantId } = args;
+      const { id, name, phone, email, address, tenantId, studentIds } = args;
 
       const guardian = await dbClient.guardian.update({
         where: { id },
@@ -15,6 +15,11 @@ export default class GuardianUpdateProvider {
           ...(email && { email }),
           ...(address && { address }),
           ...(tenantId && { tenantId }),
+          ...(studentIds && {
+            students: {
+              connect: studentIds.map((id) => ({ id })),
+            },
+          }),
         },
         include: {
           students: true,

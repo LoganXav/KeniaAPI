@@ -82,6 +82,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
           tenantId: args.tenantId,
           classId: args.classId,
           admissionNo: args.admissionNo,
+          studentGroupIds: args.studentGroupIds,
           currentGrade: args.currentGrade,
           languages: args.languages,
           religion: args.religion,
@@ -89,6 +90,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
           previousSchool: args.previousSchool,
           enrollmentDate: args.enrollmentDate || new Date(),
           isActive: args.isActive ?? true,
+          dormitoryId: args.dormitoryId,
         };
 
         const student = await this.studentCreateProvider.create(studentArgs, tx);

@@ -11,25 +11,26 @@ export interface StudentCreateType {
   userId: number;
   tenantId: number;
   classId?: number;
-  studentId?: string;
   enrollmentDate: Date;
   admissionNo?: string;
   currentGrade?: number;
+  studentGroupIds?: number[];
   languages?: string;
   religion?: string;
   bloodGroup?: string;
   previousSchool?: string;
   isActive?: boolean;
+  dormitoryId?: number;
 }
 
 export interface StudentCriteria {
   id?: number;
-  studentId?: string;
   admissionNo?: string;
   classId?: number;
   userId?: number;
   tenantId?: number;
   isActive?: boolean;
+  dormitoryId?: number;
 }
 
 export interface UpdateStudentData {
@@ -41,6 +42,7 @@ export interface UpdateStudentData {
   bloodGroup?: string;
   previousSchool?: string;
   isActive?: boolean;
+  dormitoryId?: number;
 }
 
 export interface GetAndUpdateStaff {

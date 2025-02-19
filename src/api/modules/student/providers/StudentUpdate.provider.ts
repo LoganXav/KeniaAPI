@@ -6,7 +6,7 @@ import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types
 export default class StudentUpdateProvider {
   public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { classId, admissionNo, currentGrade, languages, religion, bloodGroup, previousSchool, isActive, id, tenantId } = criteria;
+      const { classId, admissionNo, currentGrade, languages, religion, bloodGroup, previousSchool, isActive, id, tenantId, dormitoryId, studentGroupIds } = criteria;
 
       const numericId = Number(id);
 
@@ -24,6 +24,12 @@ export default class StudentUpdateProvider {
           ...(bloodGroup && { bloodGroup }),
           ...(previousSchool && { previousSchool }),
           ...(typeof isActive !== "undefined" && { isActive }),
+          ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
+          ...(studentGroupIds && {
+            studentGroups: {
+              connect: studentGroupIds?.map((id) => ({ id })),
+            },
+          }),
         },
         include: {
           user: true,
@@ -48,7 +54,7 @@ export default class StudentUpdateProvider {
 
   public async updateMany(criteria: StudentUpdateManyRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Prisma.BatchPayload> {
     try {
-      const { ids, classId, tenantId, isActive } = criteria;
+      const { ids, classId, tenantId, isActive, dormitoryId } = criteria;
 
       const updatedStudents = await dbClient?.student?.updateMany({
         where: {
@@ -60,6 +66,7 @@ export default class StudentUpdateProvider {
         data: {
           ...(classId && { classId: Number(classId) }),
           ...(typeof isActive !== "undefined" && { isActive }),
+          ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
         },
       });
 
