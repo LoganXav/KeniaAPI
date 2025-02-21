@@ -8,8 +8,6 @@ import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.
 import { autoInjectable } from "tsyringe";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { staffCreateRequestSchema } from "../validators/StaffCreateSchema";
-import { PropTypeEnum, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
-import { StaffCreateRequestType, StaffCreateResponseType } from "../types/StaffTypes";
 import StaffCreateService from "../services/StaffCreate.service";
 
 @autoInjectable()

@@ -1,6 +1,6 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Class } from "@prisma/client";
 import { ClassCriteriaType } from "../types/ClassTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class ClassReadProvider {
@@ -20,14 +20,13 @@ export default class ClassReadProvider {
           ...(ids && { id: { in: ids } }),
           ...(name && { name: { contains: name } }),
           ...(type && { type }),
-          ...(classTeacherId && { classTeacherId }),
           ...(tenantId && { tenantId }),
         },
         include: {
-          classTeacher: true,
+          // classTeacher: true,
           // students: true,
           // subjects: true,
-          // divisions: true,
+          divisions: true,
         },
       });
 

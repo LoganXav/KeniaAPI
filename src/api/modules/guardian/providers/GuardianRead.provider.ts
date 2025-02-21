@@ -5,14 +5,15 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class GuardianReadProvider {
   public async getByCriteria(criteria: GuardianCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, ids, name, phone, email, tenantId, studentIds } = criteria;
+      const { id, ids, firstName, lastName, phoneNumber, email, tenantId, studentIds } = criteria;
 
       const guardians = await dbClient.guardian.findMany({
         where: {
           ...(id && { id }),
           ...(ids && { id: { in: ids } }),
-          ...(name && { name: { contains: name } }),
-          ...(phone && { phone: { contains: phone } }),
+          ...(firstName && { firstName: { contains: firstName } }),
+          ...(lastName && { lastName: { contains: lastName } }),
+          ...(phoneNumber && { phoneNumber: { contains: phoneNumber } }),
           ...(email && { email: { contains: email } }),
           ...(tenantId && { tenantId }),
           ...(studentIds && { students: { some: { id: { in: studentIds } } } }),
@@ -30,13 +31,14 @@ export default class GuardianReadProvider {
 
   public async getOneByCriteria(criteria: GuardianCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, name, phone, email, tenantId, studentIds } = criteria;
+      const { id, firstName, lastName, phoneNumber, email, tenantId, studentIds } = criteria;
 
       const guardian = await dbClient.guardian.findFirst({
         where: {
           ...(id && { id }),
-          ...(name && { name: { contains: name } }),
-          ...(phone && { phone: { contains: phone } }),
+          ...(firstName && { firstName: { contains: firstName } }),
+          ...(lastName && { lastName: { contains: lastName } }),
+          ...(phoneNumber && { phoneNumber: { contains: phoneNumber } }),
           ...(email && { email: { contains: email } }),
           ...(tenantId && { tenantId }),
           ...(studentIds && { students: { some: { id: { in: studentIds } } } }),

@@ -50,7 +50,7 @@ export default class StudentReadController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/student/info",
+      path: "/student/info/:id",
       handlers: [validateData(studentReadOneParamsSchema), this.studentReadOne],
       produces: [
         {

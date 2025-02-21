@@ -33,7 +33,7 @@ export default class StaffReadService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args.body);
+      this.initializeServiceTrace(trace, args.params);
 
       const staffUser = await this.staffReadCache.getOneByCriteria({ ...args.body, ...args.params });
 

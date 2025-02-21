@@ -6,7 +6,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { validateData, validateParams } from "~/api/shared/helpers/middleware/validateData";
 import { guardianReadSchema } from "../validators/GuardianReadSchema";
 import GuardianReadService from "../services/GuardianRead.service";
 
@@ -22,7 +22,7 @@ export default class GuardianReadController extends BaseController {
   }
 
   read: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.guardianReadService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.guardianReadService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -39,7 +39,7 @@ export default class GuardianReadController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/guardian/list",
-      handlers: [validateData(guardianReadSchema), this.read],
+      handlers: [validateParams(guardianReadSchema), this.read],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

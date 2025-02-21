@@ -12,15 +12,17 @@ import NigerianStatesConstant from "~/api/shared/helpers/constants/NigerianState
 import CountryConstants from "~/api/shared/helpers/constants/Country.constants";
 import { GetLgasByCodeValue } from "~/api/shared/helpers/constants/GetLocalGovernmentsByCode";
 import { ClassList } from "@prisma/client";
-
+import ClassReadCache from "../../class/cache/ClassRead.cache";
 @autoInjectable()
 export default class StudentTemplateService extends BaseService<IRequest> {
   static serviceName = "StudentTemplateService";
   loggingProvider: ILoggingDriver;
+  classReadCache: ClassReadCache;
 
-  constructor() {
+  constructor(classReadCache: ClassReadCache) {
     super(StudentTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
+    this.classReadCache = classReadCache;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -28,8 +30,10 @@ export default class StudentTemplateService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args?.body);
       const { codeValue } = args.query;
 
+      const classes = await this.classReadCache.getByCriteria({ tenantId: args.body.tenantId });
+
       const data = {
-        classOptions: Object.values(ClassList),
+        classOptions: classes,
         countryIdOptions: CountryConstants,
         stateIdOptions: NigerianStatesConstant,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),

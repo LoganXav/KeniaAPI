@@ -13,6 +13,8 @@ export type CreateUserRecordType = SignUpUserType & {
   tenantId: number;
   userType?: UserType;
   gender?: string;
+  bloodGroup?: string;
+  religion?: string;
   dateOfBirth?: Date | null;
   residentialAddress?: string;
   residentialStateId?: number;
@@ -34,6 +36,8 @@ export type UpdateUserRecordType = {
   lastName?: string;
   dateOfBirth?: Date | null;
   gender?: string;
+  bloodGroup?: string;
+  religion?: string;
   phoneNumber?: string;
   email?: string;
   isFirstTimeLogin?: boolean;

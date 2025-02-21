@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { Staff, Subject, ClassList, Student, ClassDivision } from "@prisma/client";
-
 import { classCreateSchema } from "../validators/ClassCreateSchema";
+import { Staff, Subject, ClassList, Student, ClassDivision } from "@prisma/client";
 
 export type CreateClassData = z.infer<typeof classCreateSchema>;
 
@@ -23,9 +22,7 @@ export interface GetAndUpdateClass {
 }
 
 export type ClassCreateRequestType = {
-  name: string;
   type?: ClassList;
-  classTeacherId?: number;
   tenantId: number;
 };
 

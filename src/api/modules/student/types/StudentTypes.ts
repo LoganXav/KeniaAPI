@@ -14,9 +14,8 @@ export interface StudentCreateType {
   enrollmentDate: Date;
   admissionNo?: string;
   studentGroupIds?: number[];
-  religion?: string;
-  bloodGroup?: string;
   dormitoryId?: number;
+  guardianIds?: number[];
 }
 
 export interface StudentCriteria {
@@ -26,6 +25,7 @@ export interface StudentCriteria {
   userId?: number;
   tenantId?: number;
   dormitoryId?: number;
+  guardianIds?: number[];
 }
 
 export interface UpdateStudentData {
@@ -34,6 +34,7 @@ export interface UpdateStudentData {
   religion?: string;
   bloodGroup?: string;
   dormitoryId?: number;
+  guardianIds?: number[];
 }
 
 export interface GetAndUpdateStaff {

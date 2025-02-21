@@ -1,18 +1,15 @@
-import { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { ClassCreateRequestType } from "../types/ClassTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-import DbClient from "~/infrastructure/internal/database";
 
 export default class ClassCreateProvider {
   public async create(args: ClassCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { name, type, classTeacherId, tenantId } = args;
+      const { type, tenantId } = args;
 
       const classRecord = await dbClient.class.create({
         data: {
-          name,
           type,
-          classTeacherId,
           tenantId,
         },
         include: {
@@ -24,6 +21,24 @@ export default class ClassCreateProvider {
       });
 
       return classRecord;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
+  }
+
+  public async createMany(args: ClassCreateRequestType[], dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const data = args.map(({ type, tenantId }) => ({
+        type,
+        tenantId,
+      }));
+
+      const classRecords = await dbClient.class.createMany({
+        data,
+        skipDuplicates: true,
+      });
+
+      return classRecords;
     } catch (error: any) {
       throw new InternalServerError(error);
     }

@@ -10,7 +10,6 @@ import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import StudentUpdateProvider from "../providers/StudentUpdate.provider";
 import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types/StudentTypes";
-import StudentReadProvider from "../providers/StudentRead.provider";
 import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import UserReadCache from "../../user/cache/UserRead.cache";
 import StudentReadCache from "../cache/StudentRead.cache";
@@ -22,15 +21,13 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StudentUpdateService extends BaseService<any> {
   static serviceName = "StudentUpdateService";
   studentUpdateProvider: StudentUpdateProvider;
-  studentReadProvider: StudentReadProvider;
   userUpdateProvider: UserUpdateProvider;
   loggingProvider: ILoggingDriver;
   userReadCache: UserReadCache;
   studentReadCache: StudentReadCache;
 
-  constructor(studentUpdateProvider: StudentUpdateProvider, studentReadProvider: StudentReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, studentReadCache: StudentReadCache) {
+  constructor(studentUpdateProvider: StudentUpdateProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, studentReadCache: StudentReadCache) {
     super(StudentUpdateService.serviceName);
-    this.studentReadProvider = studentReadProvider;
     this.studentUpdateProvider = studentUpdateProvider;
     this.userUpdateProvider = userUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
@@ -69,12 +66,12 @@ export default class StudentUpdateService extends BaseService<any> {
     try {
       this.initializeServiceTrace(trace, args);
 
-      const foundStudents = await this.studentReadProvider.getByCriteria({
+      const foundStudents = await this.studentReadCache.getByCriteria({
         ids: args.ids,
         tenantId: args.tenantId,
       });
 
-      if (!foundStudents.length) {
+      if (!foundStudents?.length) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(NOT_FOUND), HttpStatusCodeEnum.NOT_FOUND);
       }
 

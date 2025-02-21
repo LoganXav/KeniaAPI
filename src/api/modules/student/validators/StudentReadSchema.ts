@@ -8,6 +8,5 @@ export const studentReadSchema = z.object({
 });
 
 export const studentReadOneParamsSchema = z.object({
-  id: z.number().int("Student ID must be an integer"),
   tenantId: z.number().int("Tenant ID must be an integer"),
 });

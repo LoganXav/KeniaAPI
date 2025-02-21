@@ -1,13 +1,8 @@
 import { Student } from "@prisma/client";
+import { z } from "zod";
+import { guardianCreateSchema } from "../validators/GuardianCreateSchema";
 
-export type GuardianCreateRequestType = {
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-  tenantId: number;
-  studentIds?: number[];
-};
+export type GuardianCreateRequestType = z.infer<typeof guardianCreateSchema>;
 
 export type GuardianReadRequestType = {
   ids?: number[];
@@ -38,8 +33,9 @@ export type GuardianUpdateRequestType = {
 export type GuardianCriteriaType = {
   id?: number;
   ids?: number[];
-  name?: string;
-  phone?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   email?: string;
   tenantId?: number;
   studentIds?: number[];
