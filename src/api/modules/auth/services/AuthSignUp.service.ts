@@ -1,18 +1,24 @@
 import { DateTime } from "luxon";
 import { autoInjectable } from "tsyringe";
 import Event from "~/api/shared/helpers/events";
-import { TokenType, UserType, StaffEmploymentType } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
+import UserReadCache from "../../user/cache/UserRead.cache";
+import ClassReadCache from "../../class/cache/ClassRead.cache";
+import StaffReadCache from "../../staff/cache/StaffRead.cache";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { generateStringOfLength } from "~/utils/GenerateStringOfLength";
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum";
+import RoleCreateProvider from "../../role/providers/RoleCreate.provider";
+import StaffCreateProvider from "../../staff/providers/StaffCreate.provider";
+import ClassCreateProvider from "../../class/providers/ClassCreate.provider";
 import UserReadProvider from "~/api/modules/user/providers/UserRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import UserCreateProvider from "~/api/modules/user/providers/UserCreate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { TokenType, UserType, StaffEmploymentType, ClassList } from "@prisma/client";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import TenantCreateProvider from "~/api/modules/tenant/providers/TenantCreate.provider";
@@ -21,42 +27,45 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SCHOOL_OWNER_ROLE_NAME, SCHOOL_OWNER_ROLE_RANK, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
-import RoleCreateProvider from "../../role/providers/RoleCreate.provider";
-import StaffCreateProvider from "../../staff/providers/StaffCreate.provider";
-import UserReadCache from "../../user/cache/UserRead.cache";
-import StaffReadCache from "../../staff/cache/StaffRead.cache";
+
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
   static serviceName = "AuthSignUpService";
   tokenProvider: TokenProvider;
-  loggingProvider: ILoggingDriver;
-  userReadProvider: UserReadProvider;
   userReadCache: UserReadCache;
   staffReadCache: StaffReadCache;
-  userCreateProvider: UserCreateProvider;
-  tenantCreateProvider: TenantCreateProvider;
+  classReadCache: ClassReadCache;
+  loggingProvider: ILoggingDriver;
+  userReadProvider: UserReadProvider;
   roleCreateProvider: RoleCreateProvider;
+  userCreateProvider: UserCreateProvider;
   staffCreateProvider: StaffCreateProvider;
+  classCreateProvider: ClassCreateProvider;
+  tenantCreateProvider: TenantCreateProvider;
 
   constructor(
     tokenProvider: TokenProvider,
+    userReadCache: UserReadCache,
+    classReadCache: ClassReadCache,
+    staffReadCache: StaffReadCache,
     userReadProvider: UserReadProvider,
-    tenantCreateProvider: TenantCreateProvider,
     userCreateProvider: UserCreateProvider,
     roleCreateProvider: RoleCreateProvider,
     staffCreateProvider: StaffCreateProvider,
-    userReadCache: UserReadCache,
-    staffReadCache: StaffReadCache
+    classCreateProvider: ClassCreateProvider,
+    tenantCreateProvider: TenantCreateProvider
   ) {
     super(AuthSignUpService.serviceName);
     this.tokenProvider = tokenProvider;
-    this.userReadProvider = userReadProvider;
     this.userReadCache = userReadCache;
     this.staffReadCache = staffReadCache;
+    this.classReadCache = classReadCache;
+    this.userReadProvider = userReadProvider;
     this.userCreateProvider = userCreateProvider;
-    this.tenantCreateProvider = tenantCreateProvider;
     this.roleCreateProvider = roleCreateProvider;
     this.staffCreateProvider = staffCreateProvider;
+    this.classCreateProvider = classCreateProvider;
+    this.tenantCreateProvider = tenantCreateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -99,6 +108,8 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const tenant = await this.tenantCreateProvider.create(null, tx);
 
+        await this.seedClassesForTenant(tenant.id, tx);
+
         const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
         const user = await this.userCreateProvider.create(userCreateInput, tx);
         await this.userReadCache.invalidate(user?.tenantId);
@@ -130,5 +141,13 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       this.loggingProvider.error(error);
       throw new InternalServerError(SOMETHING_WENT_WRONG);
     }
+  }
+
+  // REFACTOR TO SEED ON SERVER START IN PROD
+  private async seedClassesForTenant(tenantId: number, tx: PrismaTransactionClient) {
+    const defaultClasses = Object.values(ClassList).map((type) => ({ type, tenantId }));
+
+    await this.classCreateProvider.createMany(defaultClasses, tx);
+    await this.classReadCache.invalidate(tenantId);
   }
 }

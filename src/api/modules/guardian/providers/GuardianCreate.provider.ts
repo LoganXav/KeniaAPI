@@ -5,14 +5,21 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class GuardianCreateProvider {
   public async create(args: GuardianCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { name, phone, email, address, tenantId, studentIds } = args;
+      const { firstName, lastName, phoneNumber, email, gender, dateOfBirth, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode, tenantId, studentIds } = args;
 
       const guardian = await dbClient.guardian.create({
         data: {
-          name,
-          phone,
+          firstName,
+          lastName,
+          phoneNumber,
           email,
-          address,
+          gender,
+          dateOfBirth,
+          residentialAddress,
+          residentialStateId,
+          residentialLgaId,
+          residentialCountryId,
+          residentialZipCode,
           tenantId,
           students: {
             connect: studentIds?.map((id) => ({ id })),

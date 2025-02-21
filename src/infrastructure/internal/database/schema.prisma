@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "mysql"
+  provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -152,14 +152,21 @@ model StudentGroup {
 }
 
 model Guardian {
-  id       Int       @id @default(autoincrement())
-  name     String
-  phone    String
-  email    String
-  address  String
-  students Student[] @relation("StudentGuardian")
-  tenantId Int
-  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  id                   Int       @id @default(autoincrement())
+  firstName            String
+  lastName             String
+  phoneNumber          String
+  email                String?   @unique
+  gender               String?
+  dateOfBirth          DateTime?
+  residentialAddress   String?
+  residentialStateId   Int?
+  residentialLgaId     Int?
+  residentialCountryId Int?
+  residentialZipCode   Int?
+  students             Student[] @relation("StudentGuardian")
+  tenantId             Int
+  tenant               Tenant    @relation(fields: [tenantId], references: [id])
 }
 
 model Dormitory {
@@ -220,7 +227,6 @@ model Subject {
 
 model Class {
   id             Int             @id @default(autoincrement())
-  // name           String
   type           ClassList?
   classTeacherId Int?
   classTeacher   Staff?          @relation("ClassTeacher", fields: [classTeacherId], references: [id])

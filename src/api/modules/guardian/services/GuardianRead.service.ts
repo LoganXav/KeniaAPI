@@ -9,9 +9,10 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { IRequest } from "~/infrastructure/internal/types";
 
 @autoInjectable()
-export default class GuardianReadService extends BaseService<GuardianReadRequestType> {
+export default class GuardianReadService extends BaseService<IRequest> {
   static serviceName = "GuardianReadService";
   private guardianReadProvider: GuardianReadProvider;
   loggingProvider: ILoggingDriver;
@@ -22,10 +23,11 @@ export default class GuardianReadService extends BaseService<GuardianReadRequest
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
-  public async execute(trace: ServiceTrace, args: GuardianReadRequestType): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
-      const guardians = await this.guardianReadProvider.getByCriteria(args);
+      this.initializeServiceTrace(trace, args.query);
+
+      const guardians = await this.guardianReadProvider.getByCriteria({ ...args.body, ...args.query });
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(GUARDIAN_RESOURCE), guardians);
