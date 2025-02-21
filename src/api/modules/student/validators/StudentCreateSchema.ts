@@ -9,6 +9,8 @@ export const studentCreateRequestSchema = z.object({
   email: z.string({ required_error: "Email is required", invalid_type_error: "Email must be a string" }).email("Invalid email address"),
   phoneNumber: z.string({ required_error: "Phone number is required", invalid_type_error: "Phone number must be a string" }),
   gender: z.string({ required_error: "Gender is required", invalid_type_error: "Gender must be a string" }),
+  religion: z.string({ invalid_type_error: "Religion must be a string" }).optional(),
+  bloodGroup: z.string({ invalid_type_error: "Blood group must be a string" }).optional(),
   dateOfBirth: z
     .string({
       required_error: "Date of birth is required",
@@ -77,16 +79,27 @@ export const studentCreateRequestSchema = z.object({
   classId: z.number({ invalid_type_error: "Class ID must be a number" }).int("Class ID must be an integer").optional(),
   dormitoryId: z.number({ invalid_type_error: "Dormitory ID must be a number" }).int("Dormitory ID must be an integer").optional(),
   studentGroupIds: z.array(z.number({ invalid_type_error: "Student Group ID must be a number" }).int("Student Group ID must be an integer")).optional(),
-  admissionNo: z.string({ invalid_type_error: "Admission number must be a string" }).optional(),
-  currentGrade: z.number({ invalid_type_error: "Current grade must be a number" }).optional(),
-  languages: z.string({ invalid_type_error: "Languages must be a string" }).optional(),
-  religion: z.string({ invalid_type_error: "Religion must be a string" }).optional(),
-  bloodGroup: z.string({ invalid_type_error: "Blood group must be a string" }).optional(),
-  previousSchool: z.string({ invalid_type_error: "Previous school must be a string" }).optional(),
   enrollmentDate: z
-    .date({ invalid_type_error: "Enrollment date must be a valid Date object" })
+    .string({
+      required_error: "Enrollment date is required",
+      invalid_type_error: "Enrollment date must be a valid Date object",
+    })
     .optional()
-    .default(() => new Date()),
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const date = new Date(val);
+        return !isNaN(date.getTime());
+      },
+      {
+        message: "Invalid enrollment date format",
+      }
+    )
+    .transform((val) => {
+      if (!val) return null;
+      const date = new Date(val);
+      return date;
+    }),
 });
 
 export const studentCriteriaSchema = z.object({

@@ -4,7 +4,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 
 export default class UserUpdateProvider {
   public async updateOneByCriteria(args: UpdateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations> {
-    const { userId, firstName, gender, lastName, dateOfBirth, phoneNumber, hasVerified, isFirstTimeLogin, lastLoginDate, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode } = args;
+    const { userId, firstName, gender, lastName, dateOfBirth, phoneNumber, religion, bloodGroup, hasVerified, isFirstTimeLogin, lastLoginDate, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode } = args;
 
     try {
       const result = await dbClient?.user?.update({
@@ -17,6 +17,8 @@ export default class UserUpdateProvider {
           ...(gender && { gender }),
           ...(dateOfBirth && { dateOfBirth }),
           ...(phoneNumber && { phoneNumber }),
+          ...(religion && { religion }),
+          ...(bloodGroup && { bloodGroup }),
           ...(hasVerified !== undefined && { hasVerified }),
           ...(isFirstTimeLogin !== undefined && { isFirstTimeLogin }),
           ...(lastLoginDate && { lastLoginDate }),

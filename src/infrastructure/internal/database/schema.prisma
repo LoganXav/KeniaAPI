@@ -72,6 +72,8 @@ model User {
   gender               String?
   dateOfBirth          DateTime?
   phoneNumber          String
+  religion             String?
+  bloodGroup           String?
   email                String      @unique
   password             String
   hasVerified          Boolean     @default(false)
@@ -111,24 +113,22 @@ model Staff {
   tin             String?
   cvUrl           String?
   highestLevelEdu String?
-  employmentType  StaffEmploymentType @default(FULL_TIME)
+  employmentType  StaffEmploymentType @default(FULLTIME)
   startDate       DateTime            @default(now())
   tenant          Tenant              @relation(fields: [tenantId], references: [id])
 }
 
 enum StaffEmploymentType {
-  FULL_TIME
-  PART_TIME
+  FULLTIME
+  PARTTIME
   CONTRACT
   INTERNSHIP
 }
 
 model Student {
   id             Int              @id @default(autoincrement())
-  enrollmentDate DateTime
+  enrollmentDate DateTime         @default(now())
   admissionNo    String?          @unique
-  religion       String?
-  bloodGroup     String?
   guardians      Guardian[]       @relation("StudentGuardian")
   documents      Document[]
   dormitoryId    Int?
@@ -143,12 +143,34 @@ model Student {
   tenant         Tenant           @relation(fields: [tenantId], references: [id])
 }
 
-model StudentGroup {
-  id       Int       @id @unique @default(autoincrement())
+model Class {
+  id             Int             @id @default(autoincrement())
+  type           ClassList?
+  classTeacherId Int?
+  classTeacher   Staff?          @relation("ClassTeacher", fields: [classTeacherId], references: [id])
+  students       Student[]
+  subjects       Subject[]       @relation("ClassSubjects")
+  divisions      ClassDivision[]
+  tenantId       Int
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+}
+
+model ClassDivision {
+  id       Int    @id @default(autoincrement())
   name     String
-  students Student[] @relation("StudentGroupRelation")
+  classId  Int
+  class    Class  @relation(fields: [classId], references: [id])
   tenantId Int
-  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+}
+
+enum ClassList {
+  JSS1
+  JSS2
+  JSS3
+  SSS1
+  SSS2
+  SSS3
 }
 
 model Guardian {
@@ -167,6 +189,61 @@ model Guardian {
   students             Student[] @relation("StudentGuardian")
   tenantId             Int
   tenant               Tenant    @relation(fields: [tenantId], references: [id])
+}
+
+// ==================== AUTHENTICATION TABLES START ==================== //
+
+model UserToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  tokenType TokenType
+  token     String
+  expiresAt DateTime
+  expired   Boolean   @default(false)
+  isActive  Boolean   @default(true)
+  Tenant    Tenant?   @relation(fields: [tenantId], references: [id])
+  tenantId  Int?
+}
+
+enum TokenType {
+  EMAIL
+  ACCESS
+  REFRESH
+  PASSWORD_RESET
+}
+
+// ==================== AUTHENTICATION TABLES END ==================== //
+
+// ==================== ROLES AND PERMISSIONS TABLES START ==================== //
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String
+  rank        Int
+  permissions Permission[] @relation("RolePermission")
+  Staff       Staff[]
+  tenantId    Int
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+}
+
+model Permission {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  roles    Role[] @relation("RolePermission")
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+}
+
+// ==================== ROLES AND PERMISSIONS TABLES END ==================== //
+
+// ==================== NOT IN USE YET ==================== //
+model StudentGroup {
+  id       Int       @id @unique @default(autoincrement())
+  name     String
+  students Student[] @relation("StudentGroupRelation")
+  tenantId Int
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
 }
 
 model Dormitory {
@@ -225,84 +302,7 @@ model Subject {
 //   staff     Staff   @relation(fields: [staffId], references: [id])
 // }
 
-model Class {
-  id             Int             @id @default(autoincrement())
-  type           ClassList?
-  classTeacherId Int?
-  classTeacher   Staff?          @relation("ClassTeacher", fields: [classTeacherId], references: [id])
-  students       Student[]
-  subjects       Subject[]       @relation("ClassSubjects")
-  divisions      ClassDivision[]
-  tenantId       Int
-  tenant         Tenant          @relation(fields: [tenantId], references: [id])
-}
-
-model ClassDivision {
-  id       Int    @id @default(autoincrement())
-  name     String
-  classId  Int
-  class    Class  @relation(fields: [classId], references: [id])
-  tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-}
-
-enum ClassList {
-  JSS1
-  JSS2
-  JSS3
-  SSS1
-  SSS2
-  SSS3
-  OTHER
-}
-
-// ------------------------- AUTHENTICATION TABLES START ------------------------- //  
-
-model UserToken {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id])
-  tokenType TokenType
-  token     String
-  expiresAt DateTime
-  expired   Boolean   @default(false)
-  isActive  Boolean   @default(true)
-  Tenant    Tenant?   @relation(fields: [tenantId], references: [id])
-  tenantId  Int?
-}
-
-enum TokenType {
-  EMAIL
-  ACCESS
-  REFRESH
-  PASSWORD_RESET
-}
-
-// ------------------------- AUTHENTICATION TABLES END ------------------------- //  
-
-// ------------------------- ROLES AND PERMISSIONS TABLES ------------------------- //
-
-model Role {
-  id          Int          @id @default(autoincrement())
-  name        String
-  rank        Int
-  permissions Permission[] @relation("RolePermission")
-  Staff       Staff[]
-  tenantId    Int
-  tenant      Tenant       @relation(fields: [tenantId], references: [id])
-}
-
-model Permission {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  roles    Role[] @relation("RolePermission")
-  tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-}
-
-// ------------------------- ROLES AND PERMISSIONS TABLES END ------------------------- //
-
-// ------------------------- UNDECIDED ------------------------- //  
+// ==================== UNDECIDED TABLES START ==================== //
 
 model Group {
   id       Int     @id @default(autoincrement())

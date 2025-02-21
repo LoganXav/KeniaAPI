@@ -6,7 +6,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StudentCreateProvider {
   public async create(data: StudentCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { userId, classId, tenantId, enrollmentDate, religion, bloodGroup, dormitoryId, studentGroupIds, guardianIds } = data;
+      const { userId, classId, tenantId, enrollmentDate, dormitoryId, studentGroupIds, guardianIds } = data;
 
       const student = await dbClient?.student.create({
         data: {
@@ -14,8 +14,6 @@ export default class StudentCreateProvider {
           classId,
           tenantId,
           enrollmentDate,
-          religion,
-          bloodGroup,
           dormitoryId,
           studentGroups: {
             connect: studentGroupIds?.map((id) => ({ id })),
