@@ -27,7 +27,7 @@ export default class StudentUpdateController extends BaseController {
   };
 
   updateOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.studentUpdateService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.studentUpdateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -37,7 +37,7 @@ export default class StudentUpdateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/student/update",
+      path: "/student/update/:id",
       handlers: [validateData(studentUpdateSchema), this.updateOne],
       produces: [
         {

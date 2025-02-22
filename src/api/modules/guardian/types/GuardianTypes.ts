@@ -21,13 +21,23 @@ export type GuardianReadOneRequestType = {
 };
 
 export type GuardianUpdateRequestType = {
-  id: number;
-  name?: string;
-  phone?: string;
-  email?: string;
+  id: number | string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  gender?: string;
+  dateOfBirth?: Date | null;
   address?: string;
-  tenantId?: number;
+  tenantId: number;
   studentIds?: number[];
+  religion?: string;
+  bloodGroup?: string;
+  residentialAddress?: string;
+  residentialStateId?: number;
+  residentialLgaId?: number;
+  residentialCountryId?: number;
+  residentialZipCode?: number;
 };
 
 export type GuardianCriteriaType = {
