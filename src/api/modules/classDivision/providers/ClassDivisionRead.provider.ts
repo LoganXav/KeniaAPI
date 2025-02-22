@@ -9,9 +9,9 @@ export default class ClassDivisionReadProvider {
 
       const classDivisions = await dbClient.classDivision.findMany({
         where: {
-          ...(id && { id }),
-          ...(ids && { id: { in: ids } }),
-          ...(name && { name: { contains: name } }),
+          // ...(id && { id }),
+          // ...(ids && { id: { in: ids } }),
+          // ...(name && { name: { contains: name } }),
           ...(classId && { classId }),
           ...(tenantId && { tenantId }),
         },

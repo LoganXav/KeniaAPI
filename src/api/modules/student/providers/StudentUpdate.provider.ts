@@ -1,32 +1,21 @@
 import { Prisma, Student } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types/StudentTypes";
+import { StudentUpdateManyRequestType, StudentUpdateRequestType, StudentWithRelationsType } from "../types/StudentTypes";
 
 export default class StudentUpdateProvider {
-  public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
+  public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<StudentWithRelationsType> {
     try {
       const { classId, classDivisionId, guardianIds, id, tenantId, dormitoryId, studentGroupIds } = criteria;
 
       const updatedStudent = await dbClient?.student?.update({
-        where: {
-          id,
-          tenantId,
-        },
+        where: { id, tenantId },
         data: {
-          ...(classId && { classId: Number(classId) }),
-          ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),
-          ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
-          ...(studentGroupIds && {
-            studentGroups: {
-              connect: studentGroupIds?.map((id) => ({ id })),
-            },
-          }),
-          ...(guardianIds && {
-            guardians: {
-              connect: guardianIds?.map((id) => ({ id })),
-            },
-          }),
+          ...(classId && { class: { connect: { id: Number(classId) } } }),
+          ...(classDivisionId && { classDivision: { connect: { id: Number(classDivisionId) } } }),
+          ...(dormitoryId && { dormitory: { connect: { id: Number(dormitoryId) } } }),
+          ...(studentGroupIds && { studentGroups: { connect: studentGroupIds.map((id) => ({ id })) } }),
+          ...(guardianIds && { guardians: { connect: guardianIds.map((id) => ({ id })) } }),
         },
         include: {
           user: true,
