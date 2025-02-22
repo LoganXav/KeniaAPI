@@ -15,28 +15,32 @@ import { GetLgasByCodeValue } from "~/api/shared/helpers/constants/GetLocalGover
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-
+import ClassDivisionReadProvider from "../../classDivision/providers/ClassDivisionRead.provider";
 @autoInjectable()
 export default class StudentTemplateService extends BaseService<IRequest> {
   static serviceName = "StudentTemplateService";
   loggingProvider: ILoggingDriver;
   classReadCache: ClassReadCache;
+  classDivisionReadProvider: ClassDivisionReadProvider;
 
-  constructor(classReadCache: ClassReadCache) {
+  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider) {
     super(StudentTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
     this.classReadCache = classReadCache;
+    this.classDivisionReadProvider = classDivisionReadProvider;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args?.body);
-      const { codeValue } = args.query;
+      const { codeValue, classId } = args.query;
 
       const classes = await this.classReadCache.getByCriteria({ tenantId: args.body.tenantId });
+      const classDivision = await this.classDivisionReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId });
 
       const data = {
         classOptions: classes,
+        classDivisionOptions: classDivision,
         genderOptions: GenderConstants,
         religionOptions: ReligionConstants,
         countryIdOptions: CountryConstants,

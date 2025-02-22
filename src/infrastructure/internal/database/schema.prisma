@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider  = "mysql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -175,9 +175,9 @@ enum ClassList {
 
 model Guardian {
   id                   Int       @id @default(autoincrement())
-  firstName            String
-  lastName             String
-  phoneNumber          String
+  firstName            String    @default("")
+  lastName             String    @default("")
+  phoneNumber          String    @default("")
   email                String?   @unique
   gender               String?
   dateOfBirth          DateTime?
