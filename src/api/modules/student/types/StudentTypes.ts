@@ -27,18 +27,3 @@ export interface StudentCriteria {
   dormitoryId?: number;
   guardianIds?: number[];
 }
-
-export interface UpdateStudentData {
-  classId?: number;
-  admissionNo?: string;
-  religion?: string;
-  bloodGroup?: string;
-  dormitoryId?: number;
-  guardianIds?: number[];
-}
-
-export interface GetAndUpdateStaff {
-  criteria: StudentCriteria;
-  data: UpdateStudentData;
-  updateStatus?: boolean;
-}

@@ -29,7 +29,7 @@ export default class UserReadService extends BaseService<IRequest> {
 
       const criteria = { userId: Number(userId), tenantId: Number(tenantId) };
 
-      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId, criteria });
+      const foundUser = await this.userReadCache.getOneByCriteria({ ...criteria });
 
       if (foundUser === NULL_OBJECT) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));

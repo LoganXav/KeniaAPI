@@ -4,26 +4,26 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types/StudentTypes";
 
 export default class StudentUpdateProvider {
-  public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
+  public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { classId, admissionNo, religion, bloodGroup, id, tenantId, dormitoryId, studentGroupIds } = criteria;
-
-      const numericId = Number(id);
+      const { classId, guardianIds, id, tenantId, dormitoryId, studentGroupIds } = criteria;
 
       const updatedStudent = await dbClient?.student?.update({
         where: {
-          userId: numericId,
+          id,
           tenantId,
         },
         data: {
           ...(classId && { classId: Number(classId) }),
-          ...(admissionNo && { admissionNo }),
-          ...(religion && { religion }),
-          ...(bloodGroup && { bloodGroup }),
           ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
           ...(studentGroupIds && {
             studentGroups: {
               connect: studentGroupIds?.map((id) => ({ id })),
+            },
+          }),
+          ...(guardianIds && {
+            guardians: {
+              connect: guardianIds?.map((id) => ({ id })),
             },
           }),
         },
@@ -50,7 +50,7 @@ export default class StudentUpdateProvider {
 
   public async updateMany(criteria: StudentUpdateManyRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Prisma.BatchPayload> {
     try {
-      const { ids, classId, tenantId, dormitoryId } = criteria;
+      const { ids, classId, tenantId, dormitoryId, guardianIds } = criteria;
 
       const updatedStudents = await dbClient?.student?.updateMany({
         where: {
@@ -62,6 +62,11 @@ export default class StudentUpdateProvider {
         data: {
           ...(classId && { classId: Number(classId) }),
           ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
+          ...(guardianIds && {
+            guardians: {
+              connect: guardianIds?.map((id) => ({ id })),
+            },
+          }),
         },
       });
 

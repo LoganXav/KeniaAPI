@@ -47,7 +47,7 @@ export default class StaffUpdateService extends BaseService<any> {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
       }
 
-      const result = await this.updateStaffTransaction(args);
+      const result = await this.updateStaffTransaction({ ...args, userId: foundStaff.id });
 
       trace.setSuccessful();
 
@@ -86,10 +86,10 @@ export default class StaffUpdateService extends BaseService<any> {
     }
   }
 
-  private async updateStaffTransaction(args: StaffUpdateRequestType & { id: string; tenantId: number }) {
+  private async updateStaffTransaction(args: StaffUpdateRequestType & { id: string; tenantId: number; userId: number }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        const user = await this.userUpdateProvider.updateOneByCriteria({ ...args, userId: Number(args.id) }, tx);
+        const user = await this.userUpdateProvider.updateOneByCriteria({ ...args, userId: Number(args.userId) }, tx);
         const staff = await this.staffUpdateProvider.updateOne(args, tx);
 
         await this.userReadCache.invalidate(args.tenantId);
