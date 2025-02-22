@@ -1,5 +1,5 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Prisma, Student } from "@prisma/client";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types/StudentTypes";
 

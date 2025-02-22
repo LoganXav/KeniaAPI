@@ -1,6 +1,6 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { StudentCreateType } from "../types/StudentTypes";
 import { Student } from "@prisma/client";
+import { StudentCreateType } from "../types/StudentTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StudentCreateProvider {

@@ -1,14 +1,14 @@
-import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
-import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
+import BaseController from "../../base/contollers/Base.controller";
+import StudentCreateService from "../services/StudentCreate.service";
+import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
+import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { studentCreateRequestSchema } from "../validators/StudentCreateSchema";
-import StudentCreateService from "../services/StudentCreate.service";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 
 @autoInjectable()
 export default class StudentCreateController extends BaseController {

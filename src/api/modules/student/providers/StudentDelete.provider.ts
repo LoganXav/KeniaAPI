@@ -1,9 +1,9 @@
-import DbClient from "~/infrastructure/internal/database";
 import { Student } from "@prisma/client";
+import DbClient from "~/infrastructure/internal/database";
 import { StudentCriteriaType } from "../types/StudentTypes";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StudentDeleteProvider {

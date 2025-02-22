@@ -1,14 +1,14 @@
-import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
-import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
+import BaseController from "../../base/contollers/Base.controller";
 import StudentDeleteService from "../services/StudentDelete.service";
-import { studentReadOneParamsSchema, studentReadParamsSchema } from "../validators/StudentReadSchema";
+import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
+import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
+import { studentReadOneParamsSchema } from "../validators/StudentReadSchema";
 import { validateParams } from "~/api/shared/helpers/middleware/validateData";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 
 @autoInjectable()
 export default class StudentDeleteController extends BaseController {
@@ -51,7 +51,7 @@ export default class StudentDeleteController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/student/delete_all",
-      handlers: [validateParams(studentReadParamsSchema), this.deleteStudents],
+      handlers: [validateParams(studentReadOneParamsSchema), this.deleteStudents],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
