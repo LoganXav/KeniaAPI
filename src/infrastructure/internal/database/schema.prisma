@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "mysql"
+  provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -126,23 +126,23 @@ enum StaffEmploymentType {
 }
 
 model Student {
-  id             Int              @id @default(autoincrement())
-  enrollmentDate DateTime         @default(now())
-  admissionNo    String?          @unique
-  guardians      Guardian[]       @relation("StudentGuardian")
-  documents      Document[]
-  dormitoryId    Int?
-  dormitory      Dormitory?       @relation(fields: [dormitoryId], references: [id])
-  medicalHistory MedicalHistory[]
-  studentGroups  StudentGroup[]   @relation("StudentGroupRelation")
-  classId        Int?
-  class          Class?           @relation(fields: [classId], references: [id])
+  id              Int              @id @default(autoincrement())
+  enrollmentDate  DateTime         @default(now())
+  admissionNo     String?          @unique
+  guardians       Guardian[]       @relation("StudentGuardian")
+  documents       Document[]
+  dormitoryId     Int?
+  dormitory       Dormitory?       @relation(fields: [dormitoryId], references: [id])
+  medicalHistory  MedicalHistory[]
+  studentGroups   StudentGroup[]   @relation("StudentGroupRelation")
+  classId         Int?
+  class           Class?           @relation(fields: [classId], references: [id])
   classDivisionId Int?
-  classDivision  ClassDivision?   @relation(fields: [classDivisionId], references: [id])
-  userId         Int              @unique
-  user           User             @relation(fields: [userId], references: [id], name: "StudentUser")
-  tenantId       Int
-  tenant         Tenant           @relation(fields: [tenantId], references: [id])
+  classDivision   ClassDivision?   @relation(fields: [classDivisionId], references: [id])
+  userId          Int              @unique
+  user            User             @relation(fields: [userId], references: [id], name: "StudentUser")
+  tenantId        Int
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
 }
 
 model Class {
@@ -158,13 +158,13 @@ model Class {
 }
 
 model ClassDivision {
-  id       Int    @id @default(autoincrement())
+  id       Int       @id @default(autoincrement())
   name     String
   classId  Int
-  class    Class  @relation(fields: [classId], references: [id])
+  class    Class     @relation(fields: [classId], references: [id])
   students Student[]
   tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
 }
 
 enum ClassList {

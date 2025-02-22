@@ -36,7 +36,10 @@ export default class StudentTemplateService extends BaseService<IRequest> {
       const { codeValue, classId } = args.query;
 
       const classes = await this.classReadCache.getByCriteria({ tenantId: args.body.tenantId });
-      const classDivision = await this.classDivisionReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId });
+      const classDivision = await this.classDivisionReadProvider.getByCriteria({
+        tenantId: args.body.tenantId,
+        classId: Number(classId),
+      });
 
       const data = {
         classOptions: classes,
