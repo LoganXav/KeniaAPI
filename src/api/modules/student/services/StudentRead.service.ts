@@ -1,16 +1,16 @@
-import { BaseService } from "../../base/services/Base.service";
-import { IResult } from "~/api/shared/helpers/results/IResult";
-import { SUCCESS, NOT_FOUND, READ, STUDENT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { autoInjectable } from "tsyringe";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import StudentReadCache from "../cache/StudentRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
+import { BaseService } from "../../base/services/Base.service";
+import { IResult } from "~/api/shared/helpers/results/IResult";
+import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { SUCCESS, STUDENT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class StudentReadService extends BaseService<IRequest> {

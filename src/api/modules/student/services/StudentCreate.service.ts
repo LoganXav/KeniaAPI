@@ -1,6 +1,6 @@
 import { autoInjectable } from "tsyringe";
-import ServerConfig from "~/config/ServerConfig";
 import { UserType } from "@prisma/client";
+import ServerConfig from "~/config/ServerConfig";
 import StudentReadCache from "../cache/StudentRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
 import UserReadCache from "../../user/cache/UserRead.cache";

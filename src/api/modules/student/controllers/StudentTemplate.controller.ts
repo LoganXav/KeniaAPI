@@ -1,13 +1,12 @@
-import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
-import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import { validateParams } from "~/api/shared/helpers/middleware/validateData";
+import BaseController from "../../base/contollers/Base.controller";
 import StudentTemplateService from "../services/StudentTemplate.service";
+import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
+import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
+import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 
 @autoInjectable()
 export default class StudentTemplateController extends BaseController {

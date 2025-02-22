@@ -1,57 +1,57 @@
+import { autoInjectable } from "tsyringe";
+import StudentReadCache from "../cache/StudentRead.cache";
+import { IRequest } from "~/infrastructure/internal/types";
+import UserReadCache from "../../user/cache/UserRead.cache";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { NOT_FOUND, SOMETHING_WENT_WRONG, STUDENT_RESOURCE, SUCCESS, UPDATED } from "~/api/shared/helpers/messages/SystemMessages";
-import { autoInjectable } from "tsyringe";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import StudentUpdateProvider from "../providers/StudentUpdate.provider";
-import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types/StudentTypes";
-import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import UserReadCache from "../../user/cache/UserRead.cache";
-import StudentReadCache from "../cache/StudentRead.cache";
+import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
 import UserUpdateProvider from "../../user/providers/UserUpdate.provider";
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-import { IRequest } from "~/infrastructure/internal/types";
+import { GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import GuardianUpdateProvider from "../../guardian/providers/GuardianUpdate.provider";
 import GuardianCreateProvider from "../../guardian/providers/GuardianCreate.provider";
-import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
-import { GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types/StudentTypes";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { SOMETHING_WENT_WRONG, STUDENT_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class StudentUpdateService extends BaseService<IRequest> {
   static serviceName = "StudentUpdateService";
-  studentUpdateProvider: StudentUpdateProvider;
-  userUpdateProvider: UserUpdateProvider;
-  loggingProvider: ILoggingDriver;
   userReadCache: UserReadCache;
+  loggingProvider: ILoggingDriver;
   studentReadCache: StudentReadCache;
+  guardianReadCache: GuardianReadCache;
+  userUpdateProvider: UserUpdateProvider;
+  studentUpdateProvider: StudentUpdateProvider;
   guardianUpdateProvider: GuardianUpdateProvider;
   guardianCreateProvider: GuardianCreateProvider;
-  guardianReadCache: GuardianReadCache;
 
   constructor(
-    studentUpdateProvider: StudentUpdateProvider,
-    userUpdateProvider: UserUpdateProvider,
     userReadCache: UserReadCache,
     studentReadCache: StudentReadCache,
+    guardianReadCache: GuardianReadCache,
+    userUpdateProvider: UserUpdateProvider,
+    studentUpdateProvider: StudentUpdateProvider,
     guardianUpdateProvider: GuardianUpdateProvider,
-    guardianCreateProvider: GuardianCreateProvider,
-    guardianReadCache: GuardianReadCache
+    guardianCreateProvider: GuardianCreateProvider
   ) {
     super(StudentUpdateService.serviceName);
-    this.studentUpdateProvider = studentUpdateProvider;
-    this.userUpdateProvider = userUpdateProvider;
-    this.loggingProvider = LoggingProviderFactory.build();
     this.userReadCache = userReadCache;
     this.studentReadCache = studentReadCache;
+    this.guardianReadCache = guardianReadCache;
+    this.userUpdateProvider = userUpdateProvider;
+    this.studentUpdateProvider = studentUpdateProvider;
     this.guardianUpdateProvider = guardianUpdateProvider;
     this.guardianCreateProvider = guardianCreateProvider;
-    this.guardianReadCache = guardianReadCache;
+    this.loggingProvider = LoggingProviderFactory.build();
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -159,9 +159,9 @@ export default class StudentUpdateService extends BaseService<IRequest> {
           tx
         );
 
-        await this.guardianReadCache.invalidate(args.tenantId);
         await this.userReadCache.invalidate(args.tenantId);
         await this.studentReadCache.invalidate(args.tenantId);
+        await this.guardianReadCache.invalidate(args.tenantId);
 
         return student;
       });
