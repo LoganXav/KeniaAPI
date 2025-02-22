@@ -5,16 +5,15 @@ export const studentUpdateSchema = z.object({
   userId: z.number({ required_error: "User ID is required", invalid_type_error: "User ID must be a number" }).positive("User ID must be a positive number"),
 
   // Personal Information
-  firstName: z.string({ required_error: "First name is required", invalid_type_error: "First name must be a string" }).min(1, "First name is required").max(50, "First name must be less than 50 characters"),
-  lastName: z.string({ required_error: "Last name is required", invalid_type_error: "Last name must be a string" }).min(1, "Last name is required").max(50, "Last name must be less than 50 characters"),
+  firstName: z.string({ invalid_type_error: "First name must be a string" }).optional(),
+  lastName: z.string({ invalid_type_error: "Last name must be a string" }).optional(),
   email: z.string({ required_error: "Email is required", invalid_type_error: "Email must be a string" }).email("Invalid email address"),
-  phoneNumber: z.string({ required_error: "Phone number is required", invalid_type_error: "Phone number must be a string" }),
-  gender: z.string({ required_error: "Gender is required", invalid_type_error: "Gender must be a string" }),
+  phoneNumber: z.string({ invalid_type_error: "Phone number must be a string" }).optional(),
+  gender: z.string({ invalid_type_error: "Gender must be a string" }).optional(),
   religion: z.string({ invalid_type_error: "Religion must be a string" }).optional(),
   bloodGroup: z.string({ invalid_type_error: "Blood group must be a string" }).optional(),
   dateOfBirth: z
     .string({
-      required_error: "Date of birth is required",
       invalid_type_error: "Date of birth must be a valid Date object",
     })
     .optional()

@@ -59,7 +59,7 @@ export default class StudentReadCache {
 
   public async getOneByCriteria(criteria: StudentCriteriaType): Promise<Student | null> {
     try {
-      const cacheKey = `${criteria.tenantId}:singleStudent:${JSON.stringify(criteria)}`;
+      const cacheKey = `${criteria.tenantId}:student:${JSON.stringify(criteria)}`;
       const cachedStudent = await this.redisClient.get(cacheKey);
 
       if (cachedStudent) {
