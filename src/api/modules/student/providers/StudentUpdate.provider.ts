@@ -6,7 +6,7 @@ import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types
 export default class StudentUpdateProvider {
   public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { classId, guardianIds, id, tenantId, dormitoryId, studentGroupIds } = criteria;
+      const { classId, classDivisionId, guardianIds, id, tenantId, dormitoryId, studentGroupIds } = criteria;
 
       const updatedStudent = await dbClient?.student?.update({
         where: {
@@ -15,6 +15,7 @@ export default class StudentUpdateProvider {
         },
         data: {
           ...(classId && { classId: Number(classId) }),
+          ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),
           ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
           ...(studentGroupIds && {
             studentGroups: {
@@ -30,6 +31,7 @@ export default class StudentUpdateProvider {
         include: {
           user: true,
           class: true,
+          classDivision: true,
           guardians: true,
           documents: true,
           dormitory: true,

@@ -11,6 +11,7 @@ export interface StudentCreateType {
   userId: number;
   tenantId: number;
   classId?: number;
+  classDivisionId?: number;
   enrollmentDate: Date;
   admissionNo?: string;
   studentGroupIds?: number[];

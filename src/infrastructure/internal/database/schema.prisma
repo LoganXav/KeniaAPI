@@ -137,6 +137,8 @@ model Student {
   studentGroups  StudentGroup[]   @relation("StudentGroupRelation")
   classId        Int?
   class          Class?           @relation(fields: [classId], references: [id])
+  classDivisionId Int?
+  classDivision  ClassDivision?   @relation(fields: [classDivisionId], references: [id])
   userId         Int              @unique
   user           User             @relation(fields: [userId], references: [id], name: "StudentUser")
   tenantId       Int
@@ -160,6 +162,7 @@ model ClassDivision {
   name     String
   classId  Int
   class    Class  @relation(fields: [classId], references: [id])
+  students Student[]
   tenantId Int
   tenant   Tenant @relation(fields: [tenantId], references: [id])
 }
