@@ -34,6 +34,7 @@ export default class StudentReadProvider {
         include: {
           user: true,
           class: true,
+          classDivision: true,
           guardians: true,
           documents: true,
           dormitory: true,
