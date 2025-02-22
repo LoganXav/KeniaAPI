@@ -15,7 +15,9 @@ export default class StudentUpdateProvider {
           ...(classDivisionId && { classDivision: { connect: { id: Number(classDivisionId) } } }),
           ...(dormitoryId && { dormitory: { connect: { id: Number(dormitoryId) } } }),
           ...(studentGroupIds && { studentGroups: { connect: studentGroupIds.map((id) => ({ id })) } }),
-          ...(guardianIds && { guardians: { connect: guardianIds.map((id) => ({ id })) } }),
+          guardians: {
+            set: guardianIds?.map((id) => ({ id })) || [],
+          },
         },
         include: {
           user: true,

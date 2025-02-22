@@ -33,8 +33,11 @@ export default class StudentReadProvider {
         },
         include: {
           user: true,
-          class: true,
-          classDivision: true,
+          class: {
+            include: {
+              divisions: true,
+            },
+          },
           guardians: true,
           documents: true,
           dormitory: true,
