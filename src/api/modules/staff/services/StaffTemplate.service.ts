@@ -1,17 +1,17 @@
 import { autoInjectable } from "tsyringe";
+import { StaffEmploymentType } from "@prisma/client";
+import { IRequest } from "~/infrastructure/internal/types";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import CountryConstants from "~/api/shared/helpers/constants/Country.constants";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import NigerianStatesConstant from "~/api/shared/helpers/constants/NigerianStates.constant";
+import { GetLgasByCodeValue } from "~/api/shared/helpers/constants/GetLocalGovernmentsByCode";
+import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
-import { IRequest } from "~/infrastructure/internal/types";
-import NigerianStatesConstant from "~/api/shared/helpers/constants/NigerianStates.constant";
-import CountryConstants from "~/api/shared/helpers/constants/Country.constants";
-import { GetLgasByCodeValue } from "~/api/shared/helpers/constants/GetLocalGovernmentsByCode";
-import { StaffEmploymentType } from "@prisma/client";
 import EducationLevelOptionsConstant from "~/api/shared/helpers/constants/EducationLevelOptions.constant";
 
 @autoInjectable()

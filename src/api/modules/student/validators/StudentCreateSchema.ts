@@ -42,6 +42,7 @@ export const studentCreateRequestSchema = z.object({
   // Guardians Information
   guardians: z.array(
     z.object({
+      id: z.number({ invalid_type_error: "Guardian ID must be a number" }).optional(),
       firstName: z.string({ required_error: "Guardian first name is required", invalid_type_error: "Guardian first name must be a string" }).min(1, "Guardian first name is required"),
       lastName: z.string({ required_error: "Guardian last name is required", invalid_type_error: "Guardian last name must be a string" }).min(1, "Guardian last name is required"),
       email: z.string({ required_error: "Guardian email is required", invalid_type_error: "Guardian email must be a string" }).email("Invalid guardian email address"),

@@ -12,8 +12,10 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
 import StudentCreateProvider from "../providers/StudentCreate.provider";
 import UserCreateProvider from "../../user/providers/UserCreate.provider";
+import { GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import GuardianUpdateProvider from "../../guardian/providers/GuardianUpdate.provider";
 import GuardianCreateProvider from "../../guardian/providers/GuardianCreate.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
@@ -32,8 +34,17 @@ export default class StudentCreateService extends BaseService<IRequest> {
   userCreateProvider: UserCreateProvider;
   studentCreateProvider: StudentCreateProvider;
   guardianCreateProvider: GuardianCreateProvider;
+  guardianUpdateProvider: GuardianUpdateProvider;
 
-  constructor(studentCreateProvider: StudentCreateProvider, userCreateProvider: UserCreateProvider, studentReadCache: StudentReadCache, userReadCache: UserReadCache, guardianCreateProvider: GuardianCreateProvider, guardianReadCache: GuardianReadCache) {
+  constructor(
+    studentCreateProvider: StudentCreateProvider,
+    userCreateProvider: UserCreateProvider,
+    studentReadCache: StudentReadCache,
+    userReadCache: UserReadCache,
+    guardianCreateProvider: GuardianCreateProvider,
+    guardianReadCache: GuardianReadCache,
+    guardianUpdateProvider: GuardianUpdateProvider
+  ) {
     super(StudentCreateService.serviceName);
     this.userReadCache = userReadCache;
     this.studentReadCache = studentReadCache;
@@ -41,6 +52,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
     this.userCreateProvider = userCreateProvider;
     this.studentCreateProvider = studentCreateProvider;
     this.guardianCreateProvider = guardianCreateProvider;
+    this.guardianUpdateProvider = guardianUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -91,18 +103,34 @@ export default class StudentCreateService extends BaseService<IRequest> {
   private async createUserStudentAndGuardianTransaction(args: StudentCreateRequestType & { password: string; userType: UserType }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        // Create guardians if guardian data is provided
-        let guardians: { id: number }[] = [];
+        // Update or create guardians and collect their IDs
+        const guardianIds: number[] = [];
         if (args.guardians?.length) {
           const guardianData = args.guardians.map((guardian) => ({
             ...guardian,
             tenantId: args.tenantId,
           }));
 
-          guardians = await this.guardianCreateProvider.createMany(guardianData, tx);
-        }
+          for (const guardian of guardianData) {
+            const foundGuardian = await this.guardianReadCache.getOneByCriteria({
+              email: guardian.email,
+              tenantId: args.tenantId,
+            });
 
-        await this.guardianReadCache.invalidate(args.tenantId);
+            if (foundGuardian) {
+              guardianIds.push(foundGuardian.id);
+              continue;
+            }
+
+            if (!guardian.id) {
+              const newGuardian = await this.guardianCreateProvider.create(guardian, tx);
+              guardianIds.push(newGuardian.id);
+            } else {
+              const updatedGuardian = await this.guardianUpdateProvider.update(guardian as GuardianUpdateRequestType, tx);
+              guardianIds.push(updatedGuardian.id);
+            }
+          }
+        }
 
         const user = await this.userCreateProvider.create(args, tx);
         await this.userReadCache.invalidate(args.tenantId);
@@ -115,7 +143,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
           dormitoryId: args.dormitoryId,
           studentGroupIds: args.studentGroupIds,
           enrollmentDate: args.enrollmentDate || new Date(),
-          guardianIds: guardians?.map((guardian) => guardian.id) || [],
+          guardianIds,
         };
 
         const student = await this.studentCreateProvider.create(studentArgs, tx);

@@ -52,7 +52,7 @@ export type UpdateUserRecordType = {
 
 export type ReadUserRecordType = {
   tenantId?: number;
-  id?: number;
+  userId?: number;
   email?: string;
 };
 

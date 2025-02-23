@@ -1,26 +1,26 @@
+import { autoInjectable } from "tsyringe";
+import { UserType } from "@prisma/client";
+import ServerConfig from "~/config/ServerConfig";
+import StaffReadCache from "../cache/StaffRead.cache";
+import { IRequest } from "~/infrastructure/internal/types";
+import UserReadCache from "../../user/cache/UserRead.cache";
+import { StaffCreateRequestType } from "../types/StaffTypes";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { SUCCESS, STAFF_RESOURCE, SOMETHING_WENT_WRONG } from "~/api/shared/helpers/messages/SystemMessages";
-import { autoInjectable } from "tsyringe";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import StaffCreateProvider from "../providers/StaffCreate.provider";
-import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { StaffCreateRequestType } from "../types/StaffTypes";
 import UserReadProvider from "../../user/providers/UserRead.provider";
-import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
-import ServerConfig from "~/config/ServerConfig";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import UserCreateProvider from "../../user/providers/UserCreate.provider";
-import { UserType } from "@prisma/client";
-import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { IRequest } from "~/infrastructure/internal/types";
-import StaffReadCache from "../cache/StaffRead.cache";
-import UserReadCache from "../../user/cache/UserRead.cache";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
+import { SUCCESS, STAFF_RESOURCE, SOMETHING_WENT_WRONG } from "~/api/shared/helpers/messages/SystemMessages";
+import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class StaffCreateService extends BaseService<IRequest> {

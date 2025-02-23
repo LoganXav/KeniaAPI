@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { studentCreateRequestSchema, studentCriteriaSchema } from "../validators/StudentCreateSchema";
+import { ClassList } from "@prisma/client";
 import { studentUpdateSchema, studentUpdateManySchema } from "../validators/StudentUpdateSchema";
-import { Student, Guardian, ClassDivision, Class, User, Document, Dormitory, MedicalHistory, StudentGroup, ClassList } from "@prisma/client";
+import { studentCreateRequestSchema, studentCriteriaSchema } from "../validators/StudentCreateSchema";
 
 export type StudentCreateRequestType = z.infer<typeof studentCreateRequestSchema>;
 export type StudentCriteriaType = z.infer<typeof studentCriteriaSchema>;
@@ -13,7 +13,7 @@ export interface StudentCreateType {
   tenantId: number;
   classId?: number;
   classDivisionId?: number;
-  enrollmentDate: Date;
+  enrollmentDate?: Date;
   admissionNo?: string;
   studentGroupIds?: number[];
   dormitoryId?: number;
@@ -38,7 +38,7 @@ export type StudentWithRelationsType = {
     name: string;
   } | null;
   guardians: {
-    id: number;
+    id?: number;
     firstName: string;
     lastName: string;
     phoneNumber: string;

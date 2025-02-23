@@ -4,7 +4,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/StaffTypes";
 
 export default class StaffUpdateProvider {
-  public async updateOne(criteria: StaffUpdateRequestType & { id: string; tenantId: number; userId: number }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
+  public async updateOne(criteria: StaffUpdateRequestType & { id: number; tenantId: number; userId: number }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
       const { jobTitle, roleId, id, tenantId, nin, tin, cvUrl, highestLevelEdu, employmentType, startDate } = criteria;
 

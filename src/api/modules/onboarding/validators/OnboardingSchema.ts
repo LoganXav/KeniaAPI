@@ -3,9 +3,11 @@ import { z } from "zod";
 export const onboardingPersonalSchema = z.object({
   tenantId: z.number({
     required_error: "Tenant Id is required",
+    invalid_type_error: "Tenant Id must be an integer",
   }),
   userId: z.number({
-    required_error: "User Id is required",
+    required_error: "Auth User Id is required",
+    invalid_type_error: "Auth User Id must be an integer",
   }),
   firstName: z
     .string({
@@ -57,7 +59,7 @@ export const onboardingResidentialSchema = z.object({
     required_error: "Tenant Id is required",
   }),
   userId: z.number({
-    required_error: "User Id is required",
+    required_error: "Auth User Id is required",
   }),
   residentialAddress: z
     .string({
@@ -84,7 +86,7 @@ export const onboardingSchoolSchema = z.object({
     required_error: "Tenant Id is required",
   }),
   userId: z.number({
-    required_error: "User Id is required",
+    required_error: "Auth User Id is required",
   }),
   name: z
     .string({
