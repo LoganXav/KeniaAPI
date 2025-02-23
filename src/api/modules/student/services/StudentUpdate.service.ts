@@ -60,14 +60,14 @@ export default class StudentUpdateService extends BaseService<IRequest> {
 
       const foundUser = await this.userReadCache.getOneByCriteria({
         tenantId: Number(args.body.tenantId),
-        email: args.body.email,
+        userId: Number(args.body.id),
       });
 
       if (!foundUser) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE), HttpStatusCodeEnum.BAD_REQUEST);
       }
 
-      const result = await this.updateStudentTransaction({ ...args.body, id: Number(args.params.id), userId: foundUser.id });
+      const result = await this.updateStudentTransaction({ ...args.body, studentId: Number(args.params.id), id: foundUser.id });
 
       trace.setSuccessful();
 
@@ -109,14 +109,14 @@ export default class StudentUpdateService extends BaseService<IRequest> {
     }
   }
 
-  private async updateStudentTransaction(args: StudentUpdateRequestType & { id: string; userId: number }) {
+  private async updateStudentTransaction(args: StudentUpdateRequestType & { studentId: number; id: number }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         // Update user-related fields
         await this.userUpdateProvider.updateOneByCriteria(
           {
             ...args,
-            userId: Number(args.userId),
+            userId: Number(args.id),
           },
           tx
         );
@@ -130,12 +130,12 @@ export default class StudentUpdateService extends BaseService<IRequest> {
           }));
 
           for (const guardian of guardianData) {
-            const foundGuardian = await this.guardianReadCache.getByCriteria({
+            const foundGuardian = await this.guardianReadCache.getOneByCriteria({
               email: guardian.email,
               tenantId: args.tenantId,
             });
-            if (foundGuardian?.[0]) {
-              guardianIds.push(foundGuardian[0].id);
+            if (foundGuardian) {
+              guardianIds.push(foundGuardian.id);
               continue;
             }
 
@@ -153,7 +153,7 @@ export default class StudentUpdateService extends BaseService<IRequest> {
         const student = await this.studentUpdateProvider.updateOne(
           {
             ...args,
-            id: Number(args.id),
+            id: Number(args.studentId),
             guardianIds,
           },
           tx

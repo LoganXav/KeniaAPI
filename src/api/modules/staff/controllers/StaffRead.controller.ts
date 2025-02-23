@@ -9,7 +9,7 @@ import { autoInjectable } from "tsyringe";
 import StaffReadService from "../services/StaffRead.service";
 import { staffCriteriaSchema } from "../validators/StaffCreateSchema";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
-import { staffReadParamsSchema } from "../validators/StaffReadSchema";
+import { staffReadOneParamsSchema, staffReadParamsSchema } from "../validators/StaffReadSchema";
 
 @autoInjectable()
 export default class StaffUpdateController extends BaseController {
@@ -52,7 +52,7 @@ export default class StaffUpdateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/staff/info/:id",
-      handlers: [this.staffReadOne],
+      handlers: [validateData(staffReadOneParamsSchema), this.staffReadOne],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

@@ -64,12 +64,13 @@ export default class GuardianReadCache {
       const cachedGuardian = await this.redisClient.get(cacheKey);
 
       if (cachedGuardian) {
-        // console.log("Criteria Single Guardian Cache HIT!");
+        console.log("Criteria Single Guardian Cache HIT!");
         return JSON.parse(cachedGuardian);
       }
 
       const guardian = await this.guardianReadProvider.getOneByCriteria(criteria);
-      // console.log("Criteria Single Guardian Cache MISS!");
+
+      console.log("Criteria Single Guardian Cache MISS!");
 
       if (guardian) {
         await this.redisClient.set(cacheKey, JSON.stringify(guardian), {

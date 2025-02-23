@@ -4,6 +4,7 @@ export const studentUpdateSchema = z.object({
   tenantId: z.number({ required_error: "Tenant ID is required", invalid_type_error: "Tenant ID must be a number" }).positive("Tenant ID must be a positive number"),
   userId: z.number({ required_error: "User ID is required", invalid_type_error: "User ID must be a number" }).positive("User ID must be a positive number"),
 
+  id: z.number({ required_error: "Student User ID is required", invalid_type_error: "Student User ID must be a number" }).positive("Student User ID must be a positive number"),
   // Personal Information
   firstName: z.string({ invalid_type_error: "First name must be a string" }).optional(),
   lastName: z.string({ invalid_type_error: "Last name must be a string" }).optional(),
