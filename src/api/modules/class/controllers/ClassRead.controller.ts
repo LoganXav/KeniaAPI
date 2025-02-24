@@ -22,13 +22,13 @@ export default class ClassReadController extends BaseController {
   }
 
   getAll: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.classReadService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.classReadService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
 
   getOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.classReadService.readOne(res.trace, req.body), {
+    return this.handleResultData(res, next, this.classReadService.readOne(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -38,7 +38,7 @@ export default class ClassReadController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/class/read",
+      path: "/class/list",
       handlers: [validateData(classReadSchema), this.getAll],
       produces: [
         {
@@ -51,7 +51,7 @@ export default class ClassReadController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/class/readone",
+      path: "/class/info/:id",
       handlers: [validateData(classReadSchema), this.getOne],
       produces: [
         {
