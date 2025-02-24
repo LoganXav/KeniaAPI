@@ -32,7 +32,7 @@ export default {
     },
   },
   Cache: {
-    Url: DefaultValue.evaluateAndGet(process.env.CACHE_URL, "redis://localhost:6379"),
+    Url: DefaultValue.evaluateAndGet(process.env.CACHE_URL, "redis://kenia_redis:6379"),
   },
   Params: {
     DefaultHealthRemoteService: DefaultValue.evaluateAndGet(process.env.REMOTE_HEALTH_SERVICE, "https://google.com"),

@@ -1,29 +1,54 @@
 version: "4.9"
+
 services:
   kenia_db:
     image: postgres:13
-    restart: always
     container_name: kenia_db
+    restart: always
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_HOST: kenia_db
       POSTGRES_USER: prisma
       POSTGRES_PASSWORD: prisma
-      POSTGRES_DB: dev_db
+      POSTGRES_DB: kenia_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prisma -d kenia_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  kenia_redis:
+    image: redis:6.2
+    container_name: kenia_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   kenia_api:
     build: .
     container_name: kenia_api
     ports:
-      - "80:5500"
+      - "5500:5500"
     volumes:
       - /usr/app/node_modules
-      # - .:/usr/app
+      - .:/usr/app
     depends_on:
-      - kenia_db
+      kenia_db:
+        condition: service_healthy
+      kenia_redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://prisma:prisma@kenia_db:5432/kenia_db"
+      REDIS_URL: "redis://kenia_redis:6379"
 
 volumes:
   postgres_data:
+  redis_data:
