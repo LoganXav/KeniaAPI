@@ -53,7 +53,6 @@ export type ClassUpdateRequestType = {
 export type ClassCriteriaType = {
   id?: number;
   ids?: number[];
-  name?: string;
   type?: ClassList;
   classTeacherId?: number;
   tenantId?: number;

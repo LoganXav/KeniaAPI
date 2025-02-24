@@ -2,10 +2,7 @@ import { z } from "zod";
 import { ClassList } from "@prisma/client";
 
 export const classReadSchema = z.object({
-  id: z.number().optional(),
-  ids: z.array(z.number()).optional(),
-  name: z.string().optional(),
+  userId: z.number({ required_error: "Auth User ID is required" }),
+  tenantId: z.number({ required_error: "Tenant ID is required" }),
   type: z.nativeEnum(ClassList).optional(),
-  classTeacherId: z.number().optional(),
-  tenantId: z.number().optional(),
 });
