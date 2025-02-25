@@ -2,6 +2,8 @@ import { Staff, Class } from "@prisma/client";
 
 export type SubjectCreateRequestType = {
   name: string;
+  description?: string;
+  classDivisionIds?: number[];
   classId?: number;
   tenantId: number;
   staffIds?: number[];
@@ -26,6 +28,8 @@ export type SubjectReadOneRequestType = {
 export type SubjectUpdateRequestType = {
   id: number;
   name?: string;
+  description?: string;
+  classDivisionIds?: number[];
   classId?: number;
   tenantId?: number;
   staffIds?: number[];

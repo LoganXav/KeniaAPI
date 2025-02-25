@@ -17,6 +17,7 @@ COPY . .
 RUN pnpm run prisma:generate
 
 EXPOSE 5500
+EXPOSE 5555
 
 # Run database migrations and start the application
 CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm run dev"]

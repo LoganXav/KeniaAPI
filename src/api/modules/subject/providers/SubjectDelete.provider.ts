@@ -1,5 +1,5 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { SubjectDeleteRequestType } from "../types/SubjectTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class SubjectDeleteProvider {

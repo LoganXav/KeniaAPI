@@ -37,6 +37,7 @@ services:
     container_name: kenia_api
     ports:
       - "5500:5500"
+      - "5555:5555"
     volumes:
       - /usr/app/node_modules
       - .:/usr/app

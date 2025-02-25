@@ -151,7 +151,7 @@ model Class {
   classTeacherId Int?
   classTeacher   Staff?          @relation("ClassTeacher", fields: [classTeacherId], references: [id])
   students       Student[]
-  subjects       Subject[]       @relation("ClassSubjects")
+  subjects       Subject[]
   divisions      ClassDivision[]
   tenantId       Int
   tenant         Tenant          @relation(fields: [tenantId], references: [id])
@@ -165,6 +165,7 @@ model ClassDivision {
   students Student[]
   tenantId Int
   tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  subjects Subject[] @relation("SubjectClassDivision")
 }
 
 enum ClassList {
@@ -192,6 +193,18 @@ model Guardian {
   students             Student[] @relation("StudentGuardian")
   tenantId             Int
   tenant               Tenant    @relation(fields: [tenantId], references: [id])
+}
+
+model Subject {
+  id             Int             @id @default(autoincrement())
+  name           String
+  description    String?
+  classDivisions ClassDivision[] @relation("SubjectClassDivision")
+  staffs         Staff[]         @relation("SubjectTeacher")
+  tenantId       Int
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  classId        Int
+  class          Class           @relation(fields: [classId], references: [id])
 }
 
 // ==================== AUTHENTICATION TABLES START ==================== //
@@ -286,24 +299,6 @@ model DocumentType {
   tenantId Int
   tenant   Tenant     @relation(fields: [tenantId], references: [id])
 }
-
-model Subject {
-  id       Int     @id @default(autoincrement())
-  name     String
-  classId  Int?
-  class    Class?  @relation("ClassSubjects", fields: [classId], references: [id])
-  staffs   Staff[] @relation("SubjectTeacher")
-  tenantId Int
-  tenant   Tenant  @relation(fields: [tenantId], references: [id])
-}
-
-// model SubjectTeacher {
-//   id        Int     @id @default(autoincrement())
-//   subjectId Int
-//   subject   Subject @relation(fields: [subjectId], references: [id])
-//   staffId   Int
-//   staff     Staff   @relation(fields: [staffId], references: [id])
-// }
 
 // ==================== UNDECIDED TABLES START ==================== //
 
