@@ -22,13 +22,13 @@ export default class ClassDivisionReadController extends BaseController {
   }
 
   read: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.classDivisionReadService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.classDivisionReadService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
 
   readOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.classDivisionReadService.readOne(res.trace, req.body), {
+    return this.handleResultData(res, next, this.classDivisionReadService.readOne(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -51,7 +51,7 @@ export default class ClassDivisionReadController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/classdivision/single",
+      path: "/classdivision/info/:id",
       handlers: [validateData(classDivisionReadSchema), this.readOne],
       produces: [
         {

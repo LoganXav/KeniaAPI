@@ -5,16 +5,21 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class ClassDivisionCreateProvider {
   public async create(args: ClassDivisionCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { name, classId, tenantId } = args;
+      const { name, classId, subjectIds, tenantId } = args;
 
       const classDivision = await dbClient.classDivision.create({
         data: {
           name,
           classId,
           tenantId,
+          subjects: {
+            connect: subjectIds.map((id) => ({ id })),
+          },
         },
         include: {
           class: true,
+          subjects: true,
+          students: true,
         },
       });
       return classDivision;

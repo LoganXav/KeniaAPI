@@ -5,18 +5,18 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class ClassDivisionReadProvider {
   public async getByCriteria(criteria: ClassDivisionCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, ids, name, classId, tenantId } = criteria;
+      const { id, name, classId, tenantId } = criteria;
 
       const classDivisions = await dbClient.classDivision.findMany({
         where: {
-          // ...(id && { id }),
-          // ...(ids && { id: { in: ids } }),
-          // ...(name && { name: { contains: name } }),
+          ...(id && { id }),
           ...(classId && { classId }),
           ...(tenantId && { tenantId }),
         },
         include: {
           class: true,
+          subjects: true,
+          students: true,
         },
       });
 
@@ -39,6 +39,8 @@ export default class ClassDivisionReadProvider {
         },
         include: {
           class: true,
+          subjects: true,
+          students: true,
         },
       });
 

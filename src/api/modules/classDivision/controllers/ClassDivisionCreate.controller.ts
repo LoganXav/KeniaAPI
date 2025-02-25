@@ -22,7 +22,7 @@ export default class ClassDivisionCreateController extends BaseController {
   }
 
   create: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.classDivisionCreateService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.classDivisionCreateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
