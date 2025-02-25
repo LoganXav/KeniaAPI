@@ -44,7 +44,7 @@ export default class ClassReadService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args?.params);
 
-      const criteria = { ...args.params, ...args.body };
+      const criteria = { id: Number(args.params.id), ...args.body };
 
       const classRecord = await this.classReadCache.getOneByCriteria(criteria);
       trace.setSuccessful();
