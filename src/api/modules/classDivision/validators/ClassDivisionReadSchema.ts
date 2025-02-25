@@ -5,5 +5,6 @@ export const classDivisionReadSchema = z.object({
   ids: z.array(z.number()).optional(),
   name: z.string().optional(),
   classId: z.number().optional(),
-  tenantId: z.number().optional(),
+  tenantId: z.number({ required_error: "Tenant ID is required" }),
+  userId: z.number({ required_error: "Auth User ID is required" }),
 });

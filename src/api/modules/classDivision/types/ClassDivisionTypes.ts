@@ -4,6 +4,7 @@ export type ClassDivisionCreateRequestType = {
   name: string;
   classId: number;
   tenantId: number;
+  subjectIds: number[];
 };
 
 export type ClassDivisionReadRequestType = {
@@ -24,6 +25,7 @@ export type ClassDivisionUpdateRequestType = {
   id: number;
   name?: string;
   classId?: number;
+  subjectIds?: number[];
   tenantId?: number;
 };
 

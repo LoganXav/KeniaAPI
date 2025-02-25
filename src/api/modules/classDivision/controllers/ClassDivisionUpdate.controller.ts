@@ -22,7 +22,7 @@ export default class ClassDivisionUpdateController extends BaseController {
   }
 
   update: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.classDivisionUpdateService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.classDivisionUpdateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -32,7 +32,7 @@ export default class ClassDivisionUpdateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/classdivision/update",
+      path: "/classdivision/update/:id",
       handlers: [validateData(classDivisionUpdateSchema), this.update],
       produces: [
         {
