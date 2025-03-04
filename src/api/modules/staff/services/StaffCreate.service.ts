@@ -79,7 +79,7 @@ export default class StaffCreateService extends BaseService<IRequest> {
 
         const userArgs = {
           ...args,
-          userId: user.id,
+          userId: user?.id,
           startDate: args.startDate ? args.startDate.toISOString() : undefined,
         };
 

@@ -14,16 +14,20 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import EducationLevelOptionsConstant from "~/api/shared/helpers/constants/EducationLevelOptions.constant";
 import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
+import ClassReadCache from "../../class/cache/ClassRead.cache";
 
 @autoInjectable()
 export default class StaffTemplateService extends BaseService<IRequest> {
   static serviceName = "StaffTemplateService";
   loggingProvider: ILoggingDriver;
   subjectReadProvider: SubjectReadProvider;
-  constructor(subjectReadProvider: SubjectReadProvider) {
+  classReadCache: ClassReadCache;
+
+  constructor(subjectReadProvider: SubjectReadProvider, classReadCache: ClassReadCache) {
     super(StaffTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
     this.subjectReadProvider = subjectReadProvider;
+    this.classReadCache = classReadCache;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -32,7 +36,7 @@ export default class StaffTemplateService extends BaseService<IRequest> {
       const { codeValue } = args.query;
 
       const subjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
-
+      const classes = await this.classReadCache.getByCriteria({ tenantId: args.body.tenantId });
       const data = {
         employmentTypeOptions: Object.values(StaffEmploymentType),
         countryIdOptions: CountryConstants,
@@ -40,6 +44,7 @@ export default class StaffTemplateService extends BaseService<IRequest> {
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
         educationLevelOptions: EducationLevelOptionsConstant,
         subjectOptions: subjects,
+        classOptions: classes,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);

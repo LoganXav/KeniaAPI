@@ -83,6 +83,7 @@ export interface StaffCreateType {
   highestLevelEdu?: string;
   cvUrl?: string;
   subjectIds?: number[];
+  classIds?: number[];
   userId: number;
   roleId?: number;
   tenantId: number;

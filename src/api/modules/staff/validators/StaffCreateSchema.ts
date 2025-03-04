@@ -82,6 +82,7 @@ export const staffCreateRequestSchema = z.object({
   highestLevelEdu: z.string({ invalid_type_error: "Education level must be a string" }).optional(),
   cvUrl: z.string({ invalid_type_error: "CV URL must be a string" }).optional(),
   subjectIds: z.array(z.number().int("Subject ID must be an integer")).optional(),
+  classIds: z.array(z.number().int("Class ID must be an integer")).optional(),
 });
 
 export const staffCriteriaSchema = z.object({

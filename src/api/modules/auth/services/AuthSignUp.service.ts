@@ -117,7 +117,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         const roleCreateInput = { name: SCHOOL_OWNER_ROLE_NAME, rank: SCHOOL_OWNER_ROLE_RANK, permissions: [], tenantId: tenant?.id };
         const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
 
-        const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULL_TIME };
+        const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULLTIME };
         await this.staffCreateProvider.create(staffCreateInput, tx);
         await this.staffReadCache.invalidate(user?.tenantId);
 
@@ -145,7 +145,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
 
   // REFACTOR TO SEED ON SERVER START IN PROD
   private async seedClassesForTenant(tenantId: number, tx: PrismaTransactionClient) {
-    const defaultClasses = Object.values(ClassList).map((type) => ({ type, tenantId }));
+    const defaultClasses = Object.values(ClassList).map((name) => ({ name, tenantId }));
 
     await this.classCreateProvider.createMany(defaultClasses, tx);
     await this.classReadCache.invalidate(tenantId);
