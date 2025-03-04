@@ -7,7 +7,7 @@ import UserReadCache from "../../user/cache/UserRead.cache";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { StudentCreateRequestType } from "../types/StudentTypes";
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
 import StudentCreateProvider from "../providers/StudentCreate.provider";
@@ -23,7 +23,9 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { SUCCESS, SOMETHING_WENT_WRONG, STUDENT_RESOURCE, GUARDIAN_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
-import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
+
 @autoInjectable()
 export default class StudentCreateService extends BaseService<IRequest> {
   static serviceName = "StudentCreateService";
@@ -35,6 +37,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
   studentCreateProvider: StudentCreateProvider;
   guardianCreateProvider: GuardianCreateProvider;
   guardianUpdateProvider: GuardianUpdateProvider;
+  subjectReadProvider: SubjectReadProvider;
 
   constructor(
     studentCreateProvider: StudentCreateProvider,
@@ -43,7 +46,8 @@ export default class StudentCreateService extends BaseService<IRequest> {
     userReadCache: UserReadCache,
     guardianCreateProvider: GuardianCreateProvider,
     guardianReadCache: GuardianReadCache,
-    guardianUpdateProvider: GuardianUpdateProvider
+    guardianUpdateProvider: GuardianUpdateProvider,
+    subjectReadProvider: SubjectReadProvider
   ) {
     super(StudentCreateService.serviceName);
     this.userReadCache = userReadCache;
@@ -53,6 +57,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
     this.studentCreateProvider = studentCreateProvider;
     this.guardianCreateProvider = guardianCreateProvider;
     this.guardianUpdateProvider = guardianUpdateProvider;
+    this.subjectReadProvider = subjectReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -79,6 +84,17 @@ export default class StudentCreateService extends BaseService<IRequest> {
           if (existingGuardian) {
             throw new BadRequestError(RESOURCE_RECORD_ALREADY_EXISTS(GUARDIAN_RESOURCE));
           }
+        }
+      }
+
+      // Validate subjectIds within the transaction
+      if (args.body.subjectIds?.length) {
+        const validSubjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+        const validSubjectIds = validSubjects.map((subject) => subject.id);
+        const invalidSubjectIds = args.body.subjectIds.filter((id: number) => !validSubjectIds.includes(id));
+
+        if (invalidSubjectIds.length > 0) {
+          throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_RESOURCE));
         }
       }
 
