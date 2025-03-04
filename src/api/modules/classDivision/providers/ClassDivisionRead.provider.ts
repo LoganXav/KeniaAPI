@@ -15,7 +15,6 @@ export default class ClassDivisionReadProvider {
         },
         include: {
           class: true,
-          subjects: true,
           students: true,
         },
       });
@@ -39,7 +38,6 @@ export default class ClassDivisionReadProvider {
         },
         include: {
           class: true,
-          subjects: true,
           students: true,
         },
       });

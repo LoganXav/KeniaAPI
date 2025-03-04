@@ -13,14 +13,17 @@ import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import EducationLevelOptionsConstant from "~/api/shared/helpers/constants/EducationLevelOptions.constant";
+import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 
 @autoInjectable()
 export default class StaffTemplateService extends BaseService<IRequest> {
   static serviceName = "StaffTemplateService";
   loggingProvider: ILoggingDriver;
-  constructor() {
+  subjectReadProvider: SubjectReadProvider;
+  constructor(subjectReadProvider: SubjectReadProvider) {
     super(StaffTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
+    this.subjectReadProvider = subjectReadProvider;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -28,12 +31,15 @@ export default class StaffTemplateService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args?.body);
       const { codeValue } = args.query;
 
+      const subjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+
       const data = {
         employmentTypeOptions: Object.values(StaffEmploymentType),
         countryIdOptions: CountryConstants,
         stateIdOptions: NigerianStatesConstant,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
         educationLevelOptions: EducationLevelOptionsConstant,
+        subjectOptions: subjects,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);

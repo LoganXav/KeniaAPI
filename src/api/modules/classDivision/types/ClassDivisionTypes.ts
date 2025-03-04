@@ -1,10 +1,9 @@
-import { Class, Staff } from "@prisma/client";
+import { Class } from "@prisma/client";
 
 export type ClassDivisionCreateRequestType = {
   name: string;
   classId: number;
   tenantId: number;
-  subjectIds: number[];
 };
 
 export type ClassDivisionReadRequestType = {
@@ -25,7 +24,6 @@ export type ClassDivisionUpdateRequestType = {
   id: number;
   name?: string;
   classId?: number;
-  subjectIds?: number[];
   tenantId?: number;
 };
 

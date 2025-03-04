@@ -63,6 +63,7 @@ export const staffUpdateSchema = z.object({
     }),
   nin: z.string().optional(),
   tin: z.string().optional(),
+  subjectIds: z.array(z.number().int("Subject ID must be an integer")).optional(),
 });
 
 export const staffUpdateManySchema = z.object({

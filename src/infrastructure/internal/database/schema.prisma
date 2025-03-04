@@ -48,6 +48,11 @@ model Tenant {
   documents        Document[]
   documentTypes    DocumentType[]
   classDivisions   ClassDivision[]
+  SchoolCalendar   SchoolCalendar[]
+  Term             Term[]
+  BreakPeriod      BreakPeriod[]
+  Timetable        Timetable[]
+  Period           Period[]
 }
 
 enum TenantOnboardingStatusType {
@@ -103,7 +108,7 @@ model Staff {
   jobTitle        String
   userId          Int                 @unique
   user            User                @relation(fields: [userId], references: [id], name: "StaffUser")
-  roleId          Int
+  roleId          Int?
   role            Role?               @relation(fields: [roleId], references: [id])
   group           Group[]             @relation("StaffGroup")
   classes         Class[]             @relation("ClassTeacher")
@@ -137,6 +142,7 @@ model Student {
   studentGroups   StudentGroup[]   @relation("StudentGroupRelation")
   classId         Int?
   class           Class?           @relation(fields: [classId], references: [id])
+  subjects        Subject[]        @relation("StudentSubject")
   classDivisionId Int?
   classDivision   ClassDivision?   @relation(fields: [classDivisionId], references: [id])
   userId          Int              @unique
@@ -155,6 +161,16 @@ model Class {
   divisions      ClassDivision[]
   tenantId       Int
   tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  timetable      Timetable[]
+}
+
+enum ClassList {
+  JSS1
+  JSS2
+  JSS3
+  SSS1
+  SSS2
+  SSS3
 }
 
 model ClassDivision {
@@ -165,16 +181,19 @@ model ClassDivision {
   students Student[]
   tenantId Int
   tenant   Tenant    @relation(fields: [tenantId], references: [id])
-  subjects Subject[] @relation("SubjectClassDivision")
 }
 
-enum ClassList {
-  JSS1
-  JSS2
-  JSS3
-  SSS1
-  SSS2
-  SSS3
+model Subject {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  staffs      Staff[]   @relation("SubjectTeacher")
+  tenantId    Int
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  classId     Int
+  class       Class     @relation(fields: [classId], references: [id])
+  period      Period[]
+  students    Student[] @relation("StudentSubject")
 }
 
 model Guardian {
@@ -193,18 +212,6 @@ model Guardian {
   students             Student[] @relation("StudentGuardian")
   tenantId             Int
   tenant               Tenant    @relation(fields: [tenantId], references: [id])
-}
-
-model Subject {
-  id             Int             @id @default(autoincrement())
-  name           String
-  description    String?
-  classDivisions ClassDivision[] @relation("SubjectClassDivision")
-  staffs         Staff[]         @relation("SubjectTeacher")
-  tenantId       Int
-  tenant         Tenant          @relation(fields: [tenantId], references: [id])
-  classId        Int
-  class          Class           @relation(fields: [classId], references: [id])
 }
 
 // ==================== AUTHENTICATION TABLES START ==================== //
@@ -230,6 +237,82 @@ enum TokenType {
 }
 
 // ==================== AUTHENTICATION TABLES END ==================== //
+
+// ==================== SCHOOL CALENDAR TABLES START ==================== //
+
+model SchoolCalendar {
+  id       Int    @id @default(autoincrement())
+  year     Int    @unique
+  terms    Term[]
+  tenantId Int
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model Term {
+  id         Int            @id @default(autoincrement())
+  name       String // e.g., "First Term", "Second Term"
+  startDate  DateTime
+  endDate    DateTime
+  breakWeeks BreakPeriod[]
+  calendarId Int
+  calendar   SchoolCalendar @relation(fields: [calendarId], references: [id])
+  tenantId   Int
+  tenant     Tenant         @relation(fields: [tenantId], references: [id])
+}
+
+model BreakPeriod {
+  id        Int      @id @default(autoincrement())
+  name      String // e.g., "Mid-Term Break", "Exam Week"
+  startDate DateTime
+  endDate   DateTime
+  termId    Int
+  term      Term     @relation(fields: [termId], references: [id])
+  tenantId  Int
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+// ==================== SCHOOL CALENDAR TABLES END ==================== //
+
+// ==================== TIMETABLE TABLES START ==================== //
+
+model Timetable {
+  id       Int      @id @default(autoincrement())
+  day      Weekday
+  periods  Period[]
+  classId  Int
+  class    Class    @relation(fields: [classId], references: [id])
+  tenantId Int
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
+model Period {
+  id          Int        @id @default(autoincrement())
+  startTime   String // "08:00"
+  endTime     String // "08:45"
+  subjectId   Int?
+  subject     Subject?   @relation(fields: [subjectId], references: [id])
+  timetableId Int
+  timetable   Timetable  @relation(fields: [timetableId], references: [id])
+  isBreak     Boolean    @default(false)
+  breakType   BreakType?
+  tenantId    Int
+  tenant      Tenant     @relation(fields: [tenantId], references: [id])
+}
+
+enum BreakType {
+  SHORTBREAK
+  LONGBREAK
+}
+
+// ==================== TIMETABLE TABLES END ==================== //
 
 // ==================== ROLES AND PERMISSIONS TABLES START ==================== //
 

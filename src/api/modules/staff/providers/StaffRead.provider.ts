@@ -19,6 +19,7 @@ export default class StaffReadProvider {
         include: {
           user: true,
           role: true,
+          subjects: true,
         },
       });
 
@@ -47,6 +48,7 @@ export default class StaffReadProvider {
         include: {
           user: true,
           role: true,
+          subjects: true,
         },
       });
 

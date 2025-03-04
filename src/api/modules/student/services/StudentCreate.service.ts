@@ -142,6 +142,8 @@ export default class StudentCreateService extends BaseService<IRequest> {
           bloodGroup: args.bloodGroup,
           dormitoryId: args.dormitoryId,
           studentGroupIds: args.studentGroupIds,
+          subjectIds: args.subjectIds,
+          classDivisionId: args.classDivisionId,
           enrollmentDate: args.enrollmentDate || new Date(),
           guardianIds,
         };

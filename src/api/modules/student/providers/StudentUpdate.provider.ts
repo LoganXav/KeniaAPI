@@ -28,6 +28,7 @@ export default class StudentUpdateProvider {
           dormitory: true,
           medicalHistory: true,
           studentGroups: true,
+          subjects: true,
         },
       });
 

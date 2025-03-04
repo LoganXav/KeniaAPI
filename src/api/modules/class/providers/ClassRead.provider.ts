@@ -23,7 +23,11 @@ export default class ClassReadProvider {
           ...(tenantId && { tenantId }),
         },
         include: {
-          classTeacher: true,
+          classTeacher: {
+            include: {
+              user: true,
+            },
+          },
           // students: true,
           subjects: true,
           divisions: true,
@@ -48,7 +52,11 @@ export default class ClassReadProvider {
           ...(tenantId && { tenantId }),
         },
         include: {
-          classTeacher: true,
+          classTeacher: {
+            include: {
+              user: true,
+            },
+          },
           // students: true,
           subjects: true,
           divisions: true,
