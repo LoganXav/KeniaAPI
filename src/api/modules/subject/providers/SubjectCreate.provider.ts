@@ -5,7 +5,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class SubjectCreateProvider {
   public async create(args: SubjectCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { name, description, classDivisionIds, classId, tenantId, staffIds } = args;
+      const { name, description, classId, tenantId, staffIds } = args;
 
       const subject = await dbClient.subject.create({
         data: {
@@ -16,13 +16,9 @@ export default class SubjectCreateProvider {
           staffs: {
             connect: staffIds?.map((id) => ({ id })),
           },
-          classDivisions: {
-            connect: classDivisionIds?.map((id) => ({ id })),
-          },
         },
         include: {
           class: true,
-          classDivisions: true,
           staffs: true,
         },
       });

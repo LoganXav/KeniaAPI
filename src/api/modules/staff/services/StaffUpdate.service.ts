@@ -6,7 +6,7 @@ import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import StaffReadProvider from "../providers/StaffRead.provider";
 import StaffUpdateProvider from "../providers/StaffUpdate.provider";
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import UserUpdateProvider from "../../user/providers/UserUpdate.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
@@ -18,6 +18,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { SOMETHING_WENT_WRONG, STAFF_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 @autoInjectable()
 export default class StaffUpdateService extends BaseService<IRequest> {
   static serviceName = "StaffUpdateService";
@@ -27,8 +28,9 @@ export default class StaffUpdateService extends BaseService<IRequest> {
   loggingProvider: ILoggingDriver;
   userReadCache: UserReadCache;
   staffReadCache: StaffReadCache;
+  subjectReadProvider: SubjectReadProvider;
 
-  constructor(staffUpdateProvider: StaffUpdateProvider, staffReadProvider: StaffReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache) {
+  constructor(staffUpdateProvider: StaffUpdateProvider, staffReadProvider: StaffReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache, subjectReadProvider: SubjectReadProvider) {
     super(StaffUpdateService.serviceName);
     this.staffReadProvider = staffReadProvider;
     this.staffUpdateProvider = staffUpdateProvider;
@@ -36,6 +38,7 @@ export default class StaffUpdateService extends BaseService<IRequest> {
     this.loggingProvider = LoggingProviderFactory.build();
     this.userReadCache = userReadCache;
     this.staffReadCache = staffReadCache;
+    this.subjectReadProvider = subjectReadProvider;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -46,6 +49,17 @@ export default class StaffUpdateService extends BaseService<IRequest> {
 
       if (!foundUser) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
+      }
+
+      // Validate subjectIds within the transaction
+      if (args.body.subjectIds?.length) {
+        const validSubjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+        const validSubjectIds = validSubjects.map((subject) => subject.id);
+        const invalidSubjectIds = args.body.subjectIds.filter((id: number) => !validSubjectIds.includes(id));
+
+        if (invalidSubjectIds.length > 0) {
+          throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_RESOURCE));
+        }
       }
 
       const result = await this.updateStaffTransaction({ ...args.body, staffId: Number(args.params.id), id: foundUser.id });

@@ -18,7 +18,6 @@ export default class SubjectReadProvider {
         },
         include: {
           class: true,
-          classDivisions: true,
           staffs: true,
         },
       });
@@ -43,7 +42,6 @@ export default class SubjectReadProvider {
         },
         include: {
           class: true,
-          classDivisions: true,
           staffs: true,
         },
       });

@@ -10,6 +10,8 @@ export default class StudentReadProvider {
         user: true,
         class: true,
         guardians: true,
+        subjects: true,
+        classDivision: true,
         documents: true,
         dormitory: true,
         medicalHistory: true,
@@ -33,14 +35,12 @@ export default class StudentReadProvider {
         },
         include: {
           user: true,
-          class: {
-            include: {
-              divisions: true,
-            },
-          },
+          class: true,
           guardians: true,
           documents: true,
           dormitory: true,
+          classDivision: true,
+          subjects: true,
           medicalHistory: true,
           studentGroups: true,
         },
@@ -76,6 +76,8 @@ export default class StudentReadProvider {
           dormitory: true,
           medicalHistory: true,
           studentGroups: true,
+          subjects: true,
+          classDivision: true,
         },
       });
 

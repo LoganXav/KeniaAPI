@@ -12,18 +12,22 @@ export default class ClassReadProvider {
 
   public async getByCriteria(criteria: ClassCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, ids, type, classTeacherId, tenantId } = criteria;
+      const { id, ids, name, classTeacherId, tenantId } = criteria;
 
       const classes = await dbClient.class.findMany({
         where: {
           ...(id && { id }),
           ...(ids && { id: { in: ids } }),
-          ...(type && { type }),
+          ...(name && { name }),
           ...(classTeacherId && { classTeacherId }),
           ...(tenantId && { tenantId }),
         },
         include: {
-          classTeacher: true,
+          classTeacher: {
+            include: {
+              user: true,
+            },
+          },
           // students: true,
           subjects: true,
           divisions: true,
@@ -38,17 +42,21 @@ export default class ClassReadProvider {
 
   public async getOneByCriteria(criteria: ClassCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, type, classTeacherId, tenantId } = criteria;
+      const { id, name, classTeacherId, tenantId } = criteria;
 
       const class_ = await dbClient.class.findFirst({
         where: {
           ...(id && { id }),
-          ...(type && { type }),
+          ...(name && { name }),
           ...(classTeacherId && { classTeacherId }),
           ...(tenantId && { tenantId }),
         },
         include: {
-          classTeacher: true,
+          classTeacher: {
+            include: {
+              user: true,
+            },
+          },
           // students: true,
           subjects: true,
           divisions: true,

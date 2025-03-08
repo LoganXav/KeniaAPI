@@ -8,7 +8,6 @@ export default class ClassUpdateProvider {
       where: { id: args.id },
       data: {
         ...(args.name && { name: args.name }),
-        ...(args.type && { type: args.type }),
         ...(args.classTeacherId && { classTeacherId: args.classTeacherId }),
       },
       include: {

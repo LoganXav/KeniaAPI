@@ -5,11 +5,11 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class ClassCreateProvider {
   public async create(args: ClassCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { type, tenantId } = args;
+      const { name, tenantId } = args;
 
       const classRecord = await dbClient.class.create({
         data: {
-          type,
+          name,
           tenantId,
         },
         include: {
@@ -28,8 +28,8 @@ export default class ClassCreateProvider {
 
   public async createMany(args: ClassCreateRequestType[], dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const data = args.map(({ type, tenantId }) => ({
-        type,
+      const data = args.map(({ name, tenantId }) => ({
+        name,
         tenantId,
       }));
 

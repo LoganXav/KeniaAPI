@@ -5,7 +5,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class SubjectUpdateProvider {
   public async update(criteria: SubjectUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, name, description, classDivisionIds, classId, tenantId, staffIds } = criteria;
+      const { id, name, description, classId, tenantId, staffIds } = criteria;
 
       const subject = await dbClient.subject.update({
         where: { id },
@@ -17,11 +17,6 @@ export default class SubjectUpdateProvider {
           ...(staffIds && {
             staffs: {
               connect: staffIds.map((id) => ({ id })),
-            },
-          }),
-          ...(classDivisionIds && {
-            classDivisions: {
-              connect: classDivisionIds.map((id) => ({ id })),
             },
           }),
         },
