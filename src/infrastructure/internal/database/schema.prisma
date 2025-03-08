@@ -161,7 +161,6 @@ model Class {
   divisions      ClassDivision[]
   tenantId       Int
   tenant         Tenant          @relation(fields: [tenantId], references: [id])
-  timetable      Timetable[]
 }
 
 enum ClassList {
@@ -174,13 +173,14 @@ enum ClassList {
 }
 
 model ClassDivision {
-  id       Int       @id @default(autoincrement())
-  name     String
-  classId  Int
-  class    Class     @relation(fields: [classId], references: [id])
-  students Student[]
-  tenantId Int
-  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  id        Int         @id @default(autoincrement())
+  name      String
+  classId   Int
+  class     Class       @relation(fields: [classId], references: [id])
+  students  Student[]
+  tenantId  Int
+  tenant    Tenant      @relation(fields: [tenantId], references: [id])
+  Timetable Timetable[]
 }
 
 model Subject {
@@ -276,13 +276,13 @@ model BreakPeriod {
 // ==================== TIMETABLE TABLES START ==================== //
 
 model Timetable {
-  id       Int      @id @default(autoincrement())
-  day      Weekday
-  periods  Period[]
-  classId  Int
-  class    Class    @relation(fields: [classId], references: [id])
-  tenantId Int
-  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  id              Int           @id @default(autoincrement())
+  day             Weekday
+  periods         Period[]
+  classDivisionId Int
+  classDivision   ClassDivision @relation(fields: [classDivisionId], references: [id])
+  tenantId        Int
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
 }
 
 enum Weekday {
@@ -296,7 +296,7 @@ enum Weekday {
 model Period {
   id          Int        @id @default(autoincrement())
   startTime   String // "08:00"
-  endTime     String // "08:45"
+  endTime     String // "08:15"
   subjectId   Int?
   subject     Subject?   @relation(fields: [subjectId], references: [id])
   timetableId Int
