@@ -9,23 +9,26 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_UPDATED_SUCCESSFULLY, RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-
+import ClassReadCache from "../cache/ClassRead.cache";
+import { IRequest } from "~/infrastructure/internal/types";
 @autoInjectable()
-export default class ClassReadService extends BaseService<ClassReadRequestType> {
+export default class ClassReadService extends BaseService<IRequest> {
   static serviceName = "ClassReadService";
   private classReadProvider: ClassReadProvider;
+  private classReadCache: ClassReadCache;
   loggingProvider: ILoggingDriver;
 
-  constructor(classReadProvider: ClassReadProvider) {
+  constructor(classReadProvider: ClassReadProvider, classReadCache: ClassReadCache) {
     super(ClassReadService.serviceName);
     this.classReadProvider = classReadProvider;
+    this.classReadCache = classReadCache;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
-  public async execute(trace: ServiceTrace, args: ClassReadRequestType): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
-      const classes = await this.classReadProvider.getByCriteria(args);
+      this.initializeServiceTrace(trace, args?.body);
+      const classes = await this.classReadCache.getByCriteria(args?.body);
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(CLASS_RESOURCE), classes);
@@ -37,10 +40,13 @@ export default class ClassReadService extends BaseService<ClassReadRequestType> 
     }
   }
 
-  public async readOne(trace: ServiceTrace, args: ClassReadOneRequestType): Promise<IResult> {
+  public async readOne(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
-      const classRecord = await this.classReadProvider.getOneByCriteria(args);
+      this.initializeServiceTrace(trace, args?.params);
+
+      const criteria = { id: Number(args.params.id), ...args.body };
+
+      const classRecord = await this.classReadCache.getOneByCriteria(criteria);
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(CLASS_RESOURCE), classRecord);

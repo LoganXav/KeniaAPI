@@ -4,7 +4,7 @@ import { IRequest } from "~/infrastructure/internal/types";
 import UserReadCache from "../../user/cache/UserRead.cache";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import StudentUpdateProvider from "../providers/StudentUpdate.provider";
 import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
@@ -21,6 +21,7 @@ import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "../types
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { SOMETHING_WENT_WRONG, STUDENT_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 
 @autoInjectable()
 export default class StudentUpdateService extends BaseService<IRequest> {
@@ -33,7 +34,7 @@ export default class StudentUpdateService extends BaseService<IRequest> {
   studentUpdateProvider: StudentUpdateProvider;
   guardianUpdateProvider: GuardianUpdateProvider;
   guardianCreateProvider: GuardianCreateProvider;
-
+  subjectReadProvider: SubjectReadProvider;
   constructor(
     userReadCache: UserReadCache,
     studentReadCache: StudentReadCache,
@@ -41,7 +42,8 @@ export default class StudentUpdateService extends BaseService<IRequest> {
     userUpdateProvider: UserUpdateProvider,
     studentUpdateProvider: StudentUpdateProvider,
     guardianUpdateProvider: GuardianUpdateProvider,
-    guardianCreateProvider: GuardianCreateProvider
+    guardianCreateProvider: GuardianCreateProvider,
+    subjectReadProvider: SubjectReadProvider
   ) {
     super(StudentUpdateService.serviceName);
     this.userReadCache = userReadCache;
@@ -52,6 +54,7 @@ export default class StudentUpdateService extends BaseService<IRequest> {
     this.guardianUpdateProvider = guardianUpdateProvider;
     this.guardianCreateProvider = guardianCreateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
+    this.subjectReadProvider = subjectReadProvider;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -60,14 +63,25 @@ export default class StudentUpdateService extends BaseService<IRequest> {
 
       const foundUser = await this.userReadCache.getOneByCriteria({
         tenantId: Number(args.body.tenantId),
-        email: args.body.email,
+        userId: Number(args.body.id),
       });
 
       if (!foundUser) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE), HttpStatusCodeEnum.BAD_REQUEST);
       }
 
-      const result = await this.updateStudentTransaction({ ...args.body, id: Number(args.params.id), userId: foundUser.id });
+      // Validate subjectIds within the transaction
+      if (args.body.subjectIds?.length) {
+        const validSubjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+        const validSubjectIds = validSubjects.map((subject) => subject.id);
+        const invalidSubjectIds = args.body.subjectIds.filter((id: number) => !validSubjectIds.includes(id));
+
+        if (invalidSubjectIds.length > 0) {
+          throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_RESOURCE));
+        }
+      }
+
+      const result = await this.updateStudentTransaction({ ...args.body, studentId: Number(args.params.id), id: foundUser.id });
 
       trace.setSuccessful();
 
@@ -109,14 +123,14 @@ export default class StudentUpdateService extends BaseService<IRequest> {
     }
   }
 
-  private async updateStudentTransaction(args: StudentUpdateRequestType & { id: string; userId: number }) {
+  private async updateStudentTransaction(args: StudentUpdateRequestType & { studentId: number; id: number }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         // Update user-related fields
         await this.userUpdateProvider.updateOneByCriteria(
           {
             ...args,
-            userId: Number(args.userId),
+            userId: Number(args.id),
           },
           tx
         );
@@ -130,12 +144,12 @@ export default class StudentUpdateService extends BaseService<IRequest> {
           }));
 
           for (const guardian of guardianData) {
-            const foundGuardian = await this.guardianReadCache.getByCriteria({
+            const foundGuardian = await this.guardianReadCache.getOneByCriteria({
               email: guardian.email,
               tenantId: args.tenantId,
             });
-            if (foundGuardian?.[0]) {
-              guardianIds.push(foundGuardian[0].id);
+            if (foundGuardian) {
+              guardianIds.push(foundGuardian.id);
               continue;
             }
 
@@ -153,7 +167,7 @@ export default class StudentUpdateService extends BaseService<IRequest> {
         const student = await this.studentUpdateProvider.updateOne(
           {
             ...args,
-            id: Number(args.id),
+            id: Number(args.studentId),
             guardianIds,
           },
           tx

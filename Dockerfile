@@ -2,16 +2,22 @@ FROM node:alpine
 
 WORKDIR /usr/app
 
-COPY ./package.json ./
-COPY ./pnpm-lock.yaml ./
+# Copy dependency definitions and install
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install
 
-RUN npm install -g pnpm
-RUN pnpm install
+# Install required system packages
+RUN apk add --no-cache openssl libssl3
 
-COPY ./ ./
+# Install prisma in the container
+RUN npm install -g prisma
 
-RUN pnpm run prisma:stage-generate
+# Copy source files and generate Prisma client
+COPY . .
+RUN pnpm run prisma:generate
 
 EXPOSE 5500
+EXPOSE 5555
 
-CMD ["pnpm", "run", "dev:stage"]
+# Run database migrations and start the application
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm run dev"]

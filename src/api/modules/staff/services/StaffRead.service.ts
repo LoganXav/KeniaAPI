@@ -1,31 +1,27 @@
-import { BaseService } from "../../base/services/Base.service";
-import { IResult } from "~/api/shared/helpers/results/IResult";
-import { STAFF_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import { autoInjectable } from "tsyringe";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import StaffReadProvider from "../providers/StaffRead.provider";
-import { StaffCriteriaType } from "../types/StaffTypes";
-import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import StaffReadCache from "../cache/StaffRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
 import UserReadCache from "../../user/cache/UserRead.cache";
+import { IResult } from "~/api/shared/helpers/results/IResult";
+import { BaseService } from "../../base/services/Base.service";
+import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { STAFF_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class StaffReadService extends BaseService<IRequest> {
   static serviceName = "StaffReadService";
-  staffReadProvider: StaffReadProvider;
   userReadCache: UserReadCache;
   loggingProvider: ILoggingDriver;
   staffReadCache: StaffReadCache;
 
-  constructor(staffReadProvider: StaffReadProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache) {
+  constructor(userReadCache: UserReadCache, staffReadCache: StaffReadCache) {
     super(StaffReadService.serviceName);
-    this.staffReadProvider = staffReadProvider;
     this.userReadCache = userReadCache;
     this.staffReadCache = staffReadCache;
     this.loggingProvider = LoggingProviderFactory.build();

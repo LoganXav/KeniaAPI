@@ -4,9 +4,9 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/StaffTypes";
 
 export default class StaffUpdateProvider {
-  public async updateOne(criteria: StaffUpdateRequestType & { id: string; tenantId: number; userId: number }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
+  public async updateOne(criteria: StaffUpdateRequestType & { id: number; tenantId: number; userId: number }, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
-      const { jobTitle, roleId, id, tenantId, nin, tin, cvUrl, highestLevelEdu, employmentType, startDate } = criteria;
+      const { jobTitle, roleId, id, tenantId, nin, tin, cvUrl, highestLevelEdu, employmentType, startDate, subjectIds, classIds } = criteria;
 
       const numericId = Number(id);
 
@@ -24,10 +24,22 @@ export default class StaffUpdateProvider {
           ...(highestLevelEdu && { highestLevelEdu }),
           ...(employmentType && { employmentType }),
           ...(startDate && { startDate }),
+          ...(subjectIds && {
+            subjects: {
+              connect: subjectIds.map((id) => ({ id })),
+            },
+          }),
+          ...(classIds && {
+            classes: {
+              connect: classIds.map((id) => ({ id })),
+            },
+          }),
         },
         include: {
           user: true,
           role: true,
+          subjects: true,
+          classes: true,
         },
       });
 
@@ -43,13 +55,14 @@ export default class StaffUpdateProvider {
 
   public async updateMany(criteria: StaffUpdateManyRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Prisma.BatchPayload> {
     try {
-      const { roleId, jobTitle, ids } = criteria;
+      const { roleId, jobTitle, ids, tenantId } = criteria;
 
       const updatedStaffs = await dbClient?.staff?.updateMany({
         where: {
           id: {
             in: ids,
           },
+          tenantId,
         },
         data: {
           ...(roleId && { roleId }),

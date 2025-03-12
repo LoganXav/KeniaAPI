@@ -64,12 +64,12 @@ export default class StaffReadCache {
       const cachedStaff = await this.redisClient.get(cacheKey);
 
       if (cachedStaff) {
-        // console.log("Criteria Single Staff Cache HIT!");
+        console.log("Criteria Single Staff Cache HIT!");
         return JSON.parse(cachedStaff);
       }
 
       const staff = await this.staffReadProvider.getOneByCriteria(criteria);
-      // console.log("Criteria Single Staff Cache MISS!");
+      console.log("Criteria Single Staff Cache MISS!");
 
       if (staff) {
         await this.redisClient.set(cacheKey, JSON.stringify(staff), {

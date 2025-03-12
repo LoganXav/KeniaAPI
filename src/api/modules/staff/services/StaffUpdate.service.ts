@@ -1,24 +1,26 @@
+import { autoInjectable } from "tsyringe";
+import StaffReadCache from "../cache/StaffRead.cache";
+import { IRequest } from "~/infrastructure/internal/types";
+import UserReadCache from "../../user/cache/UserRead.cache";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { SOMETHING_WENT_WRONG, STAFF_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
-import { autoInjectable } from "tsyringe";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import StaffUpdateProvider from "../providers/StaffUpdate.provider";
-import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/StaffTypes";
 import StaffReadProvider from "../providers/StaffRead.provider";
-import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import UserReadCache from "../../user/cache/UserRead.cache";
-import StaffReadCache from "../cache/StaffRead.cache";
+import StaffUpdateProvider from "../providers/StaffUpdate.provider";
+import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import UserUpdateProvider from "../../user/providers/UserUpdate.provider";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/StaffTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { SOMETHING_WENT_WRONG, STAFF_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 @autoInjectable()
-export default class StaffUpdateService extends BaseService<any> {
+export default class StaffUpdateService extends BaseService<IRequest> {
   static serviceName = "StaffUpdateService";
   staffUpdateProvider: StaffUpdateProvider;
   staffReadProvider: StaffReadProvider;
@@ -26,8 +28,9 @@ export default class StaffUpdateService extends BaseService<any> {
   loggingProvider: ILoggingDriver;
   userReadCache: UserReadCache;
   staffReadCache: StaffReadCache;
+  subjectReadProvider: SubjectReadProvider;
 
-  constructor(staffUpdateProvider: StaffUpdateProvider, staffReadProvider: StaffReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache) {
+  constructor(staffUpdateProvider: StaffUpdateProvider, staffReadProvider: StaffReadProvider, userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, staffReadCache: StaffReadCache, subjectReadProvider: SubjectReadProvider) {
     super(StaffUpdateService.serviceName);
     this.staffReadProvider = staffReadProvider;
     this.staffUpdateProvider = staffUpdateProvider;
@@ -35,19 +38,31 @@ export default class StaffUpdateService extends BaseService<any> {
     this.loggingProvider = LoggingProviderFactory.build();
     this.userReadCache = userReadCache;
     this.staffReadCache = staffReadCache;
+    this.subjectReadProvider = subjectReadProvider;
   }
 
-  public async execute(trace: ServiceTrace, args: StaffUpdateRequestType & { id: string; tenantId: number }): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
 
-      const foundStaff = await this.userReadCache.getOneByCriteria({ tenantId: Number(args.tenantId), id: Number(args.id) });
+      const foundUser = await this.userReadCache.getOneByCriteria({ tenantId: Number(args.body.tenantId), userId: Number(args.body.id) });
 
-      if (!foundStaff) {
+      if (!foundUser) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
       }
 
-      const result = await this.updateStaffTransaction({ ...args, userId: foundStaff.id });
+      // Validate subjectIds within the transaction
+      if (args.body.subjectIds?.length) {
+        const validSubjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+        const validSubjectIds = validSubjects.map((subject) => subject.id);
+        const invalidSubjectIds = args.body.subjectIds.filter((id: number) => !validSubjectIds.includes(id));
+
+        if (invalidSubjectIds.length > 0) {
+          throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_RESOURCE));
+        }
+      }
+
+      const result = await this.updateStaffTransaction({ ...args.body, staffId: Number(args.params.id), id: foundUser.id });
 
       trace.setSuccessful();
 
@@ -86,11 +101,11 @@ export default class StaffUpdateService extends BaseService<any> {
     }
   }
 
-  private async updateStaffTransaction(args: StaffUpdateRequestType & { id: string; tenantId: number; userId: number }) {
+  private async updateStaffTransaction(args: StaffUpdateRequestType & { staffId: number; id: number }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        const user = await this.userUpdateProvider.updateOneByCriteria({ ...args, userId: Number(args.userId) }, tx);
-        const staff = await this.staffUpdateProvider.updateOne(args, tx);
+        const user = await this.userUpdateProvider.updateOneByCriteria({ ...args, userId: Number(args.id) }, tx);
+        const staff = await this.staffUpdateProvider.updateOne({ ...args, id: args.staffId }, tx);
 
         await this.userReadCache.invalidate(args.tenantId);
         await this.staffReadCache.invalidate(args.tenantId);

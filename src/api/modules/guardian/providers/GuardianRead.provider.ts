@@ -1,5 +1,5 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { GuardianCriteriaType } from "../types/GuardianTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class GuardianReadProvider {
@@ -31,16 +31,15 @@ export default class GuardianReadProvider {
 
   public async getOneByCriteria(criteria: GuardianCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, firstName, lastName, phoneNumber, email, tenantId, studentIds } = criteria;
+      const { id, firstName, lastName, email, tenantId, studentIds } = criteria;
 
       const guardian = await dbClient.guardian.findFirst({
         where: {
+          ...(email && { email }),
+          ...(tenantId && { tenantId }),
           ...(id && { id }),
           ...(firstName && { firstName: { contains: firstName } }),
           ...(lastName && { lastName: { contains: lastName } }),
-          ...(phoneNumber && { phoneNumber: { contains: phoneNumber } }),
-          ...(email && { email: { contains: email } }),
-          ...(tenantId && { tenantId }),
           ...(studentIds && { students: { some: { id: { in: studentIds } } } }),
         },
         include: {

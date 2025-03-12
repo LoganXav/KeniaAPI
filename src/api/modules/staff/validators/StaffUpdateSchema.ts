@@ -3,6 +3,9 @@ import { StaffEmploymentType } from "@prisma/client";
 
 export const staffUpdateSchema = z.object({
   tenantId: z.number({ required_error: "Tenant Id is required" }),
+  userId: z.number({ required_error: "Auth User Id is required" }),
+
+  id: z.number({ required_error: "Staff User Id is required" }),
   jobTitle: z.string().optional(),
   roleId: z.number().optional(),
   cvUrl: z.string().optional(),
@@ -60,6 +63,8 @@ export const staffUpdateSchema = z.object({
     }),
   nin: z.string().optional(),
   tin: z.string().optional(),
+  subjectIds: z.array(z.number().int("Subject ID must be an integer")).optional(),
+  classIds: z.array(z.number().int("Class ID must be an integer")).optional(),
 });
 
 export const staffUpdateManySchema = z.object({

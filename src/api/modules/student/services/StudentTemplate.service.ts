@@ -16,18 +16,21 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import ClassDivisionReadProvider from "../../classDivision/providers/ClassDivisionRead.provider";
+import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 @autoInjectable()
 export default class StudentTemplateService extends BaseService<IRequest> {
   static serviceName = "StudentTemplateService";
   loggingProvider: ILoggingDriver;
   classReadCache: ClassReadCache;
   classDivisionReadProvider: ClassDivisionReadProvider;
+  subjectReadProvider: SubjectReadProvider;
 
-  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider) {
+  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider, subjectReadProvider: SubjectReadProvider) {
     super(StudentTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
     this.classReadCache = classReadCache;
     this.classDivisionReadProvider = classDivisionReadProvider;
+    this.subjectReadProvider = subjectReadProvider;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -41,6 +44,8 @@ export default class StudentTemplateService extends BaseService<IRequest> {
         classId: Number(classId),
       });
 
+      const subjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
+
       const data = {
         classOptions: classes,
         classDivisionOptions: classDivision,
@@ -50,6 +55,7 @@ export default class StudentTemplateService extends BaseService<IRequest> {
         stateIdOptions: NigerianStatesConstant,
         bloodGroupOptions: BloodGroupConstants,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
+        subjectOptions: subjects,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);

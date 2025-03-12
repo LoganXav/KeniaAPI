@@ -1,4 +1,4 @@
-import { Class, Staff } from "@prisma/client";
+import { Class } from "@prisma/client";
 
 export type ClassDivisionCreateRequestType = {
   name: string;

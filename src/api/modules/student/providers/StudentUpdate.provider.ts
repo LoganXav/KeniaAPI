@@ -15,12 +15,9 @@ export default class StudentUpdateProvider {
           ...(classDivisionId && { classDivision: { connect: { id: Number(classDivisionId) } } }),
           ...(dormitoryId && { dormitory: { connect: { id: Number(dormitoryId) } } }),
           ...(studentGroupIds && { studentGroups: { connect: studentGroupIds.map((id) => ({ id })) } }),
-          ...(guardianIds && {
-            guardians: {
-              disconnect: { id: { not: 0 } }, // Disconnect all existing guardians
-              connect: guardianIds.map((id) => ({ id })),
-            },
-          }),
+          guardians: {
+            set: guardianIds?.map((id) => ({ id })) || [],
+          },
         },
         include: {
           user: true,
@@ -31,6 +28,7 @@ export default class StudentUpdateProvider {
           dormitory: true,
           medicalHistory: true,
           studentGroups: true,
+          subjects: true,
         },
       });
 

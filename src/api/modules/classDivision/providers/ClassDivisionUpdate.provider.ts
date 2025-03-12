@@ -14,6 +14,10 @@ export default class ClassDivisionUpdateProvider {
           ...(classId && { classId }),
           ...(tenantId && { tenantId }),
         },
+        include: {
+          class: true,
+          students: true,
+        },
       });
 
       return classDivision;

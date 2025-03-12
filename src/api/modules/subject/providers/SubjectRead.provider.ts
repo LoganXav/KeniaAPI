@@ -1,5 +1,5 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { SubjectCriteriaType } from "../types/SubjectTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class SubjectReadProvider {
@@ -18,6 +18,7 @@ export default class SubjectReadProvider {
         },
         include: {
           class: true,
+          staffs: true,
         },
       });
 
@@ -34,13 +35,14 @@ export default class SubjectReadProvider {
       const subject = await dbClient.subject.findFirst({
         where: {
           ...(id && { id }),
-          ...(name && { name: { contains: name } }),
+          ...(name && { name }),
           ...(classId && { classId }),
           ...(tenantId && { tenantId }),
           ...(staffIds && { staffs: { some: { id: { in: staffIds } } } }),
         },
         include: {
           class: true,
+          staffs: true,
         },
       });
 

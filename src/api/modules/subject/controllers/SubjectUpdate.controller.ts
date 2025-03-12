@@ -1,14 +1,14 @@
-import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
-import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import { validateData } from "~/api/shared/helpers/middleware/validateData";
-import { subjectUpdateSchema } from "../validators/SubjectUpdateSchema";
+import BaseController from "../../base/contollers/Base.controller";
 import SubjectUpdateService from "../services/SubjectUpdate.service";
+import { subjectUpdateSchema } from "../validators/SubjectUpdateSchema";
+import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
+import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 
 @autoInjectable()
 export default class SubjectUpdateController extends BaseController {
@@ -22,7 +22,7 @@ export default class SubjectUpdateController extends BaseController {
   }
 
   update: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.subjectUpdateService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.subjectUpdateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -32,7 +32,7 @@ export default class SubjectUpdateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/subject/update",
+      path: "/subject/update/:id",
       handlers: [validateData(subjectUpdateSchema), this.update],
       produces: [
         {

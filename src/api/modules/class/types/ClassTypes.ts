@@ -22,7 +22,7 @@ export interface GetAndUpdateClass {
 }
 
 export type ClassCreateRequestType = {
-  type?: ClassList;
+  name?: string;
   tenantId: number;
 };
 
@@ -45,7 +45,6 @@ export type ClassReadOneRequestType = {
 export type ClassUpdateRequestType = {
   id: number;
   name?: string;
-  type?: ClassList;
   classTeacherId?: number;
   tenantId?: number;
 };
@@ -54,7 +53,6 @@ export type ClassCriteriaType = {
   id?: number;
   ids?: number[];
   name?: string;
-  type?: ClassList;
   classTeacherId?: number;
   tenantId?: number;
 };
@@ -62,7 +60,6 @@ export type ClassCriteriaType = {
 export type ClassResponseType = {
   id: number;
   name: string;
-  type: ClassList | null;
   classTeacherId: number | null;
   tenantId: number;
   classTeacher?: Staff;

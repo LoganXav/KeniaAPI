@@ -19,6 +19,8 @@ export default class StaffReadProvider {
         include: {
           user: true,
           role: true,
+          subjects: true,
+          classes: true,
         },
       });
 
@@ -41,12 +43,14 @@ export default class StaffReadProvider {
 
       const staff = await dbClient?.staff?.findFirst({
         where: {
-          ...(tenantId && { id: tenantId }),
+          ...(tenantId && { tenantId }),
           ...(numericId && { id: numericId }),
         },
         include: {
           user: true,
           role: true,
+          subjects: true,
+          classes: true,
         },
       });
 

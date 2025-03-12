@@ -37,9 +37,9 @@ export default class OnboardingService extends BaseService<IRequest> {
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args.body);
-      const { tenantId } = args.body;
+      const { tenantId, userId } = args.body;
 
-      const criteria = { tenantId, id: args.body.userId };
+      const criteria = { tenantId: Number(tenantId), userId: Number(userId) };
 
       const foundUser = await this.userReadCache.getOneByCriteria(criteria);
 
@@ -47,6 +47,7 @@ export default class OnboardingService extends BaseService<IRequest> {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
       }
 
+      // Refactor to use role and permission properly
       if (foundUser?.staff?.role?.rank !== SCHOOL_OWNER_ROLE_RANK) {
         throw new BadRequestError(AUTHORIZATION_REQUIRED);
       }
@@ -66,9 +67,9 @@ export default class OnboardingService extends BaseService<IRequest> {
   public async residentialInformation(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args.body);
-      const { tenantId } = args.body;
+      const { tenantId, userId } = args.body;
 
-      const criteria = { tenantId, id: args.body.userId };
+      const criteria = { tenantId: Number(tenantId), userId: Number(userId) };
 
       const foundUser = await this.userReadCache.getOneByCriteria(criteria);
 
@@ -95,9 +96,9 @@ export default class OnboardingService extends BaseService<IRequest> {
   public async schoolInformation(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args.body);
-      const { tenantId } = args.body;
+      const { tenantId, userId } = args.body;
 
-      const criteria = { tenantId, id: args.body.userId };
+      const criteria = { tenantId: Number(tenantId), userId: Number(userId) };
 
       const foundUser = await this.userReadCache.getOneByCriteria(criteria);
 

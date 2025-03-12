@@ -15,6 +15,7 @@ export default class ClassDivisionCreateProvider {
         },
         include: {
           class: true,
+          students: true,
         },
       });
       return classDivision;

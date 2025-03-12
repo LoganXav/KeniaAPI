@@ -7,13 +7,15 @@ import UserReadCache from "../../user/cache/UserRead.cache";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { StudentCreateRequestType } from "../types/StudentTypes";
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
 import StudentCreateProvider from "../providers/StudentCreate.provider";
 import UserCreateProvider from "../../user/providers/UserCreate.provider";
+import { GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import GuardianUpdateProvider from "../../guardian/providers/GuardianUpdate.provider";
 import GuardianCreateProvider from "../../guardian/providers/GuardianCreate.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
@@ -21,7 +23,9 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { SUCCESS, SOMETHING_WENT_WRONG, STUDENT_RESOURCE, GUARDIAN_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
-import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
+
 @autoInjectable()
 export default class StudentCreateService extends BaseService<IRequest> {
   static serviceName = "StudentCreateService";
@@ -32,8 +36,19 @@ export default class StudentCreateService extends BaseService<IRequest> {
   userCreateProvider: UserCreateProvider;
   studentCreateProvider: StudentCreateProvider;
   guardianCreateProvider: GuardianCreateProvider;
+  guardianUpdateProvider: GuardianUpdateProvider;
+  subjectReadProvider: SubjectReadProvider;
 
-  constructor(studentCreateProvider: StudentCreateProvider, userCreateProvider: UserCreateProvider, studentReadCache: StudentReadCache, userReadCache: UserReadCache, guardianCreateProvider: GuardianCreateProvider, guardianReadCache: GuardianReadCache) {
+  constructor(
+    studentCreateProvider: StudentCreateProvider,
+    userCreateProvider: UserCreateProvider,
+    studentReadCache: StudentReadCache,
+    userReadCache: UserReadCache,
+    guardianCreateProvider: GuardianCreateProvider,
+    guardianReadCache: GuardianReadCache,
+    guardianUpdateProvider: GuardianUpdateProvider,
+    subjectReadProvider: SubjectReadProvider
+  ) {
     super(StudentCreateService.serviceName);
     this.userReadCache = userReadCache;
     this.studentReadCache = studentReadCache;
@@ -41,6 +56,8 @@ export default class StudentCreateService extends BaseService<IRequest> {
     this.userCreateProvider = userCreateProvider;
     this.studentCreateProvider = studentCreateProvider;
     this.guardianCreateProvider = guardianCreateProvider;
+    this.guardianUpdateProvider = guardianUpdateProvider;
+    this.subjectReadProvider = subjectReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -70,6 +87,17 @@ export default class StudentCreateService extends BaseService<IRequest> {
         }
       }
 
+      // Validate subjectIds within the transaction
+      if (args.body.subjectIds?.length) {
+        const validSubjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+        const validSubjectIds = validSubjects.map((subject) => subject.id);
+        const invalidSubjectIds = args.body.subjectIds.filter((id: number) => !validSubjectIds.includes(id));
+
+        if (invalidSubjectIds.length > 0) {
+          throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_RESOURCE));
+        }
+      }
+
       const defaultHashedPassword = PasswordEncryptionService.hashPassword(ServerConfig.Params.Security.DefaultPassword.Student);
 
       const userCreateArgs = { ...args.body, password: defaultHashedPassword, userType: UserType.STUDENT };
@@ -91,18 +119,34 @@ export default class StudentCreateService extends BaseService<IRequest> {
   private async createUserStudentAndGuardianTransaction(args: StudentCreateRequestType & { password: string; userType: UserType }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        // Create guardians if guardian data is provided
-        let guardians: { id: number }[] = [];
+        // Update or create guardians and collect their IDs
+        const guardianIds: number[] = [];
         if (args.guardians?.length) {
           const guardianData = args.guardians.map((guardian) => ({
             ...guardian,
             tenantId: args.tenantId,
           }));
 
-          guardians = await this.guardianCreateProvider.createMany(guardianData, tx);
-        }
+          for (const guardian of guardianData) {
+            const foundGuardian = await this.guardianReadCache.getOneByCriteria({
+              email: guardian.email,
+              tenantId: args.tenantId,
+            });
 
-        await this.guardianReadCache.invalidate(args.tenantId);
+            if (foundGuardian) {
+              guardianIds.push(foundGuardian.id);
+              continue;
+            }
+
+            if (!guardian.id) {
+              const newGuardian = await this.guardianCreateProvider.create(guardian, tx);
+              guardianIds.push(newGuardian.id);
+            } else {
+              const updatedGuardian = await this.guardianUpdateProvider.update(guardian as GuardianUpdateRequestType, tx);
+              guardianIds.push(updatedGuardian.id);
+            }
+          }
+        }
 
         const user = await this.userCreateProvider.create(args, tx);
         await this.userReadCache.invalidate(args.tenantId);
@@ -114,8 +158,10 @@ export default class StudentCreateService extends BaseService<IRequest> {
           bloodGroup: args.bloodGroup,
           dormitoryId: args.dormitoryId,
           studentGroupIds: args.studentGroupIds,
+          subjectIds: args.subjectIds,
+          classDivisionId: args.classDivisionId,
           enrollmentDate: args.enrollmentDate || new Date(),
-          guardianIds: guardians?.map((guardian) => guardian.id) || [],
+          guardianIds,
         };
 
         const student = await this.studentCreateProvider.create(studentArgs, tx);
