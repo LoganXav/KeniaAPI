@@ -48,7 +48,7 @@ model Tenant {
   documents        Document[]
   documentTypes    DocumentType[]
   classDivisions   ClassDivision[]
-  SchoolCalendar   SchoolCalendar[]
+  SchoolCalendar   SchoolCalendar?
   Term             Term[]
   BreakPeriod      BreakPeriod[]
   Timetable        Timetable[]
@@ -242,9 +242,9 @@ enum TokenType {
 
 model SchoolCalendar {
   id       Int    @id @default(autoincrement())
-  year     Int    @unique
+  year     Int
   terms    Term[]
-  tenantId Int
+  tenantId Int    @unique
   tenant   Tenant @relation(fields: [tenantId], references: [id])
 }
 
