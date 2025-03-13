@@ -21,3 +21,7 @@ export function RESOURCE_RECORD_DELETED_SUCCESSFULLY(resourceName = "Resource") 
 export function RESOURCE_RECORD_ALREADY_EXISTS(resourceName = "Resource") {
   return `${resourceName} record already exists.`;
 }
+
+export function RESOURCE_RECORD_NOT_FOUND_WITH_ID(resourceName = "Resource", id = "ID") {
+  return `${resourceName} record with ${id} was found.`;
+}

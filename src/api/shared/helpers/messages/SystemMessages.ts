@@ -1,3 +1,5 @@
+import SchoolCalendarReadService from "~/api/modules/schoolCalendar/services/SchoolCalendarRead.service";
+
 /** <---------------> System Entities <---------------> */
 export const STAFF = "staff";
 export const STUDENT = "student";
@@ -17,6 +19,11 @@ export const DORMITORY_RESOURCE = "Dormitory";
 export const STUDENT_GROUP_RESOURCE = "Student Group";
 export const GUARDIAN_RESOURCE = "Guardian";
 export const MEDICAL_HISTORY_RESOURCE = "Medical History";
+export const SCHOOL_CALENDAR_RESOURCE = "School Calendar";
+export const TERM_RESOURCE = "Term";
+export const BREAK_PERIOD_RESOURCE = "Break Period";
+export const TIMETABLE_RESOURCE = "Timetable";
+export const PERIOD_RESOURCE = "Period";
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account Created Successfully";
 export const TOKEN_VERIFIED = "Token Verification Success";
