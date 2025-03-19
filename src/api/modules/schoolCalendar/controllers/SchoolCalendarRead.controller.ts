@@ -36,7 +36,7 @@ export default class SchoolCalendarReadController extends BaseController {
     this.setRouter(router());
 
     this.addRoute({
-      path: "/school-calendar/list",
+      path: "/calendar/list",
       method: HttpMethodEnum.POST,
       handlers: [validateData(schoolCalendarReadSchema), this.read],
       produces: [
@@ -49,7 +49,7 @@ export default class SchoolCalendarReadController extends BaseController {
     });
 
     this.addRoute({
-      path: "/school-calendar/info",
+      path: "/calendar/info",
       method: HttpMethodEnum.POST,
       handlers: [validateData(schoolCalendarReadSchema), this.readOne],
       produces: [
@@ -58,7 +58,7 @@ export default class SchoolCalendarReadController extends BaseController {
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Get a single school calendar",
+      description: "Get a Single School Calendar",
     });
   }
 }

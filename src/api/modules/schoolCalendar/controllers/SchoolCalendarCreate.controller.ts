@@ -8,7 +8,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import { totalSchoolCalendarCreateSchema } from "../validators/SchoolCalendarTotalCreateSchema";
+import { schoolCalendarCreateSchema } from "../validators/SchoolCalendarCreateSchema";
 
 @autoInjectable()
 export default class SchoolCalendarCreateController extends BaseController {
@@ -21,7 +21,7 @@ export default class SchoolCalendarCreateController extends BaseController {
     this.schoolCalendarCreateService = schoolCalendarCreateService;
   }
 
-  totalCreation: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+  create: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
     return this.handleResultData(res, next, this.schoolCalendarCreateService.execute(res.trace, req.body), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
@@ -31,9 +31,9 @@ export default class SchoolCalendarCreateController extends BaseController {
     this.setRouter(router());
 
     this.addRoute({
-      path: "/school-calendar/total-creation",
+      path: "/calendar/create",
       method: HttpMethodEnum.POST,
-      handlers: [validateData(totalSchoolCalendarCreateSchema), this.totalCreation],
+      handlers: [validateData(schoolCalendarCreateSchema), this.create],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

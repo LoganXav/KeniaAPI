@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "mysql"
+  provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -48,7 +48,7 @@ model Tenant {
   documents        Document[]
   documentTypes    DocumentType[]
   classDivisions   ClassDivision[]
-  SchoolCalendar   SchoolCalendar?
+  SchoolCalendar   SchoolCalendar[]
   Term             Term[]
   BreakPeriod      BreakPeriod[]
   Timetable        Timetable[]
@@ -244,7 +244,7 @@ model SchoolCalendar {
   id       Int    @id @default(autoincrement())
   year     Int
   terms    Term[]
-  tenantId Int    @unique
+  tenantId Int
   tenant   Tenant @relation(fields: [tenantId], references: [id])
 }
 
