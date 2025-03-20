@@ -3,7 +3,7 @@ import BaseController from "../../base/contollers/Base.controller";
 import TimetableReadService from "../services/TimetableRead.service";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { validateData, validateParams } from "~/api/shared/helpers/middleware/validateData";
 import { timetableReadSchema } from "../validators/TimetableReadSchema";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
@@ -51,7 +51,7 @@ export default class TimetableReadController extends BaseController {
     this.addRoute({
       path: "/timetable/info",
       method: HttpMethodEnum.POST,
-      handlers: [validateData(timetableReadSchema), this.readOne],
+      handlers: [validateParams(timetableReadSchema), this.readOne],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
