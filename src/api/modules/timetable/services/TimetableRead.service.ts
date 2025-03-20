@@ -26,6 +26,7 @@ export default class TimetableReadService extends BaseService<IRequest> {
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
+
       const timetables = await this.timetableReadProvider.getByCriteria(args.body);
       trace.setSuccessful();
 
@@ -40,8 +41,9 @@ export default class TimetableReadService extends BaseService<IRequest> {
 
   public async readOne(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
-      const timetable = await this.timetableReadProvider.getOneByCriteria(args.body);
+      this.initializeServiceTrace(trace, args?.query);
+
+      const timetable = await this.timetableReadProvider.getOneByCriteria({ ...args.query, tenantId: args.body.tenantId });
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TIMETABLE_RESOURCE), timetable);

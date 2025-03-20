@@ -36,10 +36,10 @@ export default class TimetableReadProvider {
 
       const timetable = await dbClient.timetable.findFirst({
         where: {
-          ...(id && { id }),
-          ...(classDivisionId && { classDivisionId }),
+          ...(id && { id: Number(id) }),
+          ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),
           ...(day && { day }),
-          ...(tenantId && { tenantId }),
+          ...(tenantId && { tenantId: Number(tenantId) }),
         },
         include: {
           periods: {
