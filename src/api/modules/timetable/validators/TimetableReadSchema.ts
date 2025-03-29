@@ -8,3 +8,9 @@ export const timetableReadSchema = z.object({
   day: z.nativeEnum(Weekday, { invalid_type_error: "Day must be a valid weekday" }).optional(),
   // tenantId: z.union([z.number({ invalid_type_error: "Tenant ID must be a number" }), z.string({ invalid_type_error: "Tenant ID must be a string" })]),
 });
+
+export const timetableFullRequestSchema = z.object({
+  classDivisionId: z.union([z.number({ invalid_type_error: "Class division ID must be a number" }), z.string({ invalid_type_error: "Class division ID must be a string" })]),
+  termId: z.union([z.number({ invalid_type_error: "Term ID must be a number" }), z.string({ invalid_type_error: "Term ID must be a string" })]),
+  tenantId: z.union([z.number({ invalid_type_error: "Tenant ID must be a number" }), z.string({ invalid_type_error: "Tenant ID must be a string" })]),
+});
