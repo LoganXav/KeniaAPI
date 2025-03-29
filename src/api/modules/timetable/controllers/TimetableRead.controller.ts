@@ -4,7 +4,7 @@ import TimetableReadService from "../services/TimetableRead.service";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateData, validateParams } from "~/api/shared/helpers/middleware/validateData";
-import { timetableReadSchema } from "../validators/TimetableReadSchema";
+import { timetableReadSchema, timetableFullRequestSchema } from "../validators/TimetableReadSchema";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
@@ -28,6 +28,12 @@ export default class TimetableReadController extends BaseController {
 
   readOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
     return this.handleResultData(res, next, this.timetableReadService.readOne(res.trace, req), {
+      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+    });
+  };
+
+  readFullTimetable: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.timetableReadService.readFullTimetable(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -59,6 +65,19 @@ export default class TimetableReadController extends BaseController {
         },
       ],
       description: "Get a single timetable",
+    });
+
+    this.addRoute({
+      path: "/timetable/full",
+      method: HttpMethodEnum.POST,
+      handlers: [validateData(timetableFullRequestSchema), this.readFullTimetable],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.SUCCESS,
+          httpStatus: HttpStatusCodeEnum.SUCCESS,
+        },
+      ],
+      description: "Get full timetable for a class division for the whole term",
     });
   }
 }
