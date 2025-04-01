@@ -5,6 +5,7 @@ export type TimetableCreateRequestType = {
   day: Weekday;
   classDivisionId: number;
   tenantId: number;
+  termId?: number;
 };
 
 export type TimetableReadRequestType = {
@@ -27,6 +28,7 @@ export type TimetableCriteriaType = {
   classDivisionId?: number;
   day?: Weekday;
   tenantId?: number;
+  termId?: number;
 };
 
 export type TimetableResponseType = {
@@ -47,5 +49,6 @@ export type TimetableCreateOrUpdateRequestType = {
   day: Weekday;
   classDivisionId: number;
   tenantId: number;
+  termId: number;
   periods: Period[];
 };

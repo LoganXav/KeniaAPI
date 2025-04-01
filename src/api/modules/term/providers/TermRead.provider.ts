@@ -15,6 +15,7 @@ export default class TermReadProvider {
           ...(tenantId && { tenantId }),
         },
         include: {
+          calendar: true,
           breakWeeks: true,
         },
       });
@@ -31,9 +32,9 @@ export default class TermReadProvider {
 
       const term = await dbClient.term.findFirst({
         where: {
-          ...(id && { id }),
-          ...(calendarId && { calendarId }),
-          ...(tenantId && { tenantId }),
+          ...(id && { id: Number(id) }),
+          ...(calendarId && { calendarId: Number(calendarId) }),
+          ...(tenantId && { tenantId: Number(tenantId) }),
         },
         include: {
           breakWeeks: true,

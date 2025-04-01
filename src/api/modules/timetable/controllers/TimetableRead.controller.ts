@@ -3,8 +3,8 @@ import BaseController from "../../base/contollers/Base.controller";
 import TimetableReadService from "../services/TimetableRead.service";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import { validateData, validateParams } from "~/api/shared/helpers/middleware/validateData";
-import { timetableReadSchema, timetableFullRequestSchema } from "../validators/TimetableReadSchema";
+import { validateParams } from "~/api/shared/helpers/middleware/validateData";
+import { timetableReadOneRequestSchema, timetableReadRequestSchema } from "../validators/TimetableReadSchema";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
@@ -32,52 +32,33 @@ export default class TimetableReadController extends BaseController {
     });
   };
 
-  readFullTimetable: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.timetableReadService.readFullTimetable(res.trace, req), {
-      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
-    });
-  };
-
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router());
 
     this.addRoute({
       path: "/timetable/list",
       method: HttpMethodEnum.POST,
-      handlers: [validateData(timetableReadSchema), this.read],
+      handlers: [validateParams(timetableReadRequestSchema), this.read],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Get all timetables",
+      description: "Get timetable info for a class division for the whole term",
     });
 
     this.addRoute({
       path: "/timetable/info",
       method: HttpMethodEnum.POST,
-      handlers: [validateParams(timetableReadSchema), this.readOne],
+      handlers: [validateParams(timetableReadOneRequestSchema), this.readOne],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Get a single timetable",
-    });
-
-    this.addRoute({
-      path: "/timetable/full",
-      method: HttpMethodEnum.POST,
-      handlers: [validateData(timetableFullRequestSchema), this.readFullTimetable],
-      produces: [
-        {
-          applicationStatus: ApplicationStatusEnum.SUCCESS,
-          httpStatus: HttpStatusCodeEnum.SUCCESS,
-        },
-      ],
-      description: "Get full timetable for a class division for the whole term",
+      description: "Get timetable info for a class division for a specific day",
     });
   }
 }

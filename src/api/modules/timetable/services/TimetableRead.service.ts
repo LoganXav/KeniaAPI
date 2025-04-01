@@ -2,16 +2,17 @@ import { autoInjectable } from "tsyringe";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { TimetableCriteriaType, TimetableReadOneRequestType } from "../types/TimetableTypes";
 import TimetableReadProvider from "../providers/TimetableRead.provider";
-import { SUCCESS, TIMETABLE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { SUCCESS, TIMETABLE_RESOURCE, ERROR, TERM_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { IRequest } from "~/infrastructure/internal/types";
 import TermReadProvider from "~/api/modules/term/providers/TermRead.provider";
-import { isWithinInterval, eachDayOfInterval, isWeekend } from "date-fns";
+import { eachDayOfInterval, isWeekend, format } from "date-fns";
+import { BreakPeriod, Period, Timetable, Term } from "@prisma/client";
+import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 
 @autoInjectable()
 export default class TimetableReadService extends BaseService<IRequest> {
@@ -29,12 +30,17 @@ export default class TimetableReadService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.query);
 
-      const timetables = await this.timetableReadProvider.getByCriteria(args.body);
+      const termInfo = await this.termReadProvider.getOneByCriteria({ id: args.query.termId, tenantId: args.body.tenantId });
+      if (!termInfo) throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(TERM_RESOURCE));
+
+      const timetables = await this.timetableReadProvider.getByCriteria({ classDivisionId: Number(args.query.classDivisionId), tenantId: args.body.tenantId });
+
+      const timedPeriods = this.transformTimetableInTermToTimedPeriods(termInfo, timetables);
+
       trace.setSuccessful();
-
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TIMETABLE_RESOURCE), timetables);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TIMETABLE_RESOURCE), timedPeriods);
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);
@@ -59,64 +65,79 @@ export default class TimetableReadService extends BaseService<IRequest> {
     }
   }
 
-  public async readFullTimetable(trace: ServiceTrace, args: IRequest): Promise<IResult> {
-    try {
-      this.initializeServiceTrace(trace, args);
+  private transformTimetableInTermToTimedPeriods(term: Term, timetables: Timetable[]) {
+    const timedPeriods: Array<{ start: string; end: string; title: string }> = [];
 
-      // 1. Fetch Term with BreakPeriods
-      const termInfo = await this.termReadProvider.getOneByCriteria({ id: args.body.termId, tenantId: args.body.tenantId });
-      if (!termInfo) throw new Error("Term not found");
-
-      // 2. Fetch BreakPeriod Intervals
-      const breakIntervals = termInfo.breakWeeks.map((b) => ({
-        start: new Date(b.startDate),
-        end: new Date(b.endDate),
-      }));
-
-      // 3. Generate valid school days
-      const allDays = eachDayOfInterval({
-        start: new Date(termInfo.startDate),
-        end: new Date(termInfo.endDate),
+    timetables.forEach((timetable) => {
+      const validDates = this.getWeekdayDatesBetween(new Date(term.startDate), new Date(term.endDate), timetable.day).filter((date) => {
+        const isBreak = this.checkIsDateInBreakWeeks(date, term.breakWeeks);
+        return !isBreak;
       });
 
-      const validDays = allDays.filter((day) => {
-        if (isWeekend(day)) return false;
-        const isInBreak = breakIntervals.some((b) => isWithinInterval(day, { start: b.start, end: b.end }));
-        return !isInBreak;
+      validDates.forEach((date) => {
+        timetable.periods.forEach((period: Period) => {
+          // Fix the parsing of the time string
+          const startTime = period.startTime.split("T")[1]; // Get the time part after 'T'
+          const endTime = period.endTime.split("T")[1];
+
+          const [startHour, startMin] = startTime.split(":");
+          const [endHour, endMin] = endTime.split(":");
+
+          // Create new dates
+          const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(startHour), parseInt(startMin), 0);
+
+          const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(endHour), parseInt(endMin), 0);
+
+          // TODO: Pass date format string from the frontend
+          // Format using date-fns for consistent output
+          const formattedStart = format(startDate, "yyyy-MM-dd'T'HH:mm:ss");
+          const formattedEnd = format(endDate, "yyyy-MM-dd'T'HH:mm:ss");
+
+          timedPeriods.push({
+            start: formattedStart,
+            end: formattedEnd,
+            title: period.isBreak ? period.breakType : period.subject?.name || "Unassigned",
+          });
+        });
       });
+    });
 
-      // 4. Fetch Timetables for classDivisionId
-      const timetables = await this.timetableReadProvider.getByCriteria({ classDivisionId: args.body.classDivisionId, tenantId: args.body.tenantId });
+    return timedPeriods;
+  }
 
-      // 5. Map valid days to timetable based on weekday
-      const enrichedDays = validDays
-        .map((date) => {
-          const weekday = date.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
-          const timetable = timetables.find((t) => t.day === weekday);
+  // Helper to check if the date is in the break weeks
+  private checkIsDateInBreakWeeks(date: Date, breakWeeks: BreakPeriod[]): boolean {
+    // Normalize the date to start of day for comparison
+    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-          if (!timetable) return null;
+    return breakWeeks.some((breakWeek) => {
+      const breakStart = new Date(breakWeek.startDate);
+      const breakEnd = new Date(breakWeek.endDate);
 
-          return {
-            date,
-            weekday,
-            timetable: {
-              id: timetable.id,
-              periods: timetable.periods.map((p) => ({
-                ...p,
-                date,
-              })),
-            },
-          };
-        })
-        .filter(Boolean);
+      // Normalize break dates to start of day
+      const normalizedBreakStart = new Date(breakStart.getFullYear(), breakStart.getMonth(), breakStart.getDate());
+      const normalizedBreakEnd = new Date(breakEnd.getFullYear(), breakEnd.getMonth(), breakEnd.getDate());
 
-      trace.setSuccessful();
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TIMETABLE_RESOURCE), enrichedDays);
-      return this.result;
-    } catch (error: any) {
-      this.loggingProvider.error(error);
-      this.result.setError(ERROR, error.httpStatusCode, error.description);
-      return this.result;
-    }
+      const isInBreak = normalizedDate >= normalizedBreakStart && normalizedDate <= normalizedBreakEnd;
+
+      return isInBreak;
+    });
+  }
+
+  // Helper to get all dates for a specific weekday between start and end dates of the term
+  private getWeekdayDatesBetween(start: Date, end: Date, weekday: string) {
+    const weekdayMap: Record<string, number> = {
+      MONDAY: 1,
+      TUESDAY: 2,
+      WEDNESDAY: 3,
+      THURSDAY: 4,
+      FRIDAY: 5,
+    };
+
+    const dates = eachDayOfInterval({ start, end })
+      .filter((date) => !isWeekend(date))
+      .filter((date) => date.getDay() === weekdayMap[weekday]);
+
+    return dates;
   }
 }

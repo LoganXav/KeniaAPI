@@ -3,29 +3,9 @@ import { TimetableCreateRequestType } from "../types/TimetableTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class TimetableCreateProvider {
-  public async create(args: TimetableCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
-    try {
-      const { day, classDivisionId, tenantId } = args;
-
-      const timetable = await dbClient.timetable.create({
-        data: {
-          day,
-          classDivisionId,
-          tenantId,
-        },
-        include: {
-          periods: true,
-        },
-      });
-      return timetable;
-    } catch (error: any) {
-      throw new InternalServerError(error);
-    }
-  }
-
   public async createOrUpdate(args: TimetableCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, day, classDivisionId, tenantId } = args;
+      const { id, day, classDivisionId, tenantId, termId } = args;
 
       const timetable = await dbClient.timetable.upsert({
         where: { id: id || 0 },
@@ -33,11 +13,13 @@ export default class TimetableCreateProvider {
           day,
           classDivisionId,
           tenantId,
+          termId,
         },
         create: {
           day,
           classDivisionId,
           tenantId,
+          termId,
         },
       });
       return timetable;

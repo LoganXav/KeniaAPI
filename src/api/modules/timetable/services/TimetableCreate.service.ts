@@ -16,7 +16,7 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 import { SUCCESS, TIMETABLE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 @autoInjectable()
-export default class TimetableCreateService extends BaseService<IRequest> {
+export default class TimetableCreateService extends BaseService<TimetableCreateOrUpdateRequestType> {
   static serviceName = "TimetableCreateService";
   loggingProvider: ILoggingDriver;
   periodReadProvider: PeriodReadProvider;
@@ -33,23 +33,7 @@ export default class TimetableCreateService extends BaseService<IRequest> {
     this.timetableCreateProvider = timetableCreateProvider;
   }
 
-  public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
-    try {
-      this.initializeServiceTrace(trace, args);
-
-      const timetable = await this.timetableCreateProvider.create(args.body);
-      trace.setSuccessful();
-
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(TIMETABLE_RESOURCE), timetable);
-      return this.result;
-    } catch (error: any) {
-      this.loggingProvider.error(error);
-      this.result.setError(ERROR, error.httpStatusCode, error.description);
-      return this.result;
-    }
-  }
-
-  public async createOrUpdate(trace: ServiceTrace, args: TimetableCreateOrUpdateRequestType): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: TimetableCreateOrUpdateRequestType): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
 
@@ -74,6 +58,7 @@ export default class TimetableCreateService extends BaseService<IRequest> {
           day: args.day,
           classDivisionId: args.classDivisionId,
           tenantId: args.tenantId,
+          termId: args.termId,
         },
         tx
       );
