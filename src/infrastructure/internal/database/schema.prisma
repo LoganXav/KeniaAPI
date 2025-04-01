@@ -258,6 +258,7 @@ model Term {
   calendar   SchoolCalendar @relation(fields: [calendarId], references: [id])
   tenantId   Int
   tenant     Tenant         @relation(fields: [tenantId], references: [id])
+  Timetable  Timetable[]
 }
 
 model BreakPeriod {
@@ -278,6 +279,8 @@ model BreakPeriod {
 model Timetable {
   id              Int           @id @default(autoincrement())
   day             Weekday
+  termId          Int
+  term            Term          @relation(fields: [termId], references: [id])
   periods         Period[]
   classDivisionId Int
   classDivision   ClassDivision @relation(fields: [classDivisionId], references: [id])

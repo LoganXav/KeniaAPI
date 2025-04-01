@@ -32,11 +32,12 @@ export default class TimetableReadProvider {
 
   public async getOneByCriteria(criteria: TimetableCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, classDivisionId, day, tenantId } = criteria;
+      const { id, classDivisionId, day, tenantId, termId } = criteria;
 
       const timetable = await dbClient.timetable.findFirst({
         where: {
           ...(id && { id: Number(id) }),
+          ...(termId && { termId: Number(termId) }),
           ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),
           ...(day && { day }),
           ...(tenantId && { tenantId: Number(tenantId) }),

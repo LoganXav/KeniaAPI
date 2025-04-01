@@ -22,7 +22,7 @@ export default class TimetableCreateController extends BaseController {
   }
 
   createOrUpdate: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.timetableCreateService.createOrUpdate(res.trace, req.body), {
+    return this.handleResultData(res, next, this.timetableCreateService.execute(res.trace, req.body), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
