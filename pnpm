@@ -1,3 +1,0 @@
-Environment variables loaded from .env
-Prisma schema loaded from src/infrastructure/internal/database/schema.prisma
-Prisma Studio is up on http://localhost:5555

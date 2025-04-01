@@ -44,3 +44,5 @@ notes.md
 /src/infrastructure/internal/database/migrations/
 
 design.md
+
+.pnpm-store/
