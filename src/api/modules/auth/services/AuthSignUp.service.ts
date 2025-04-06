@@ -77,6 +77,8 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         throw new BadRequestError(EMAIL_IN_USE);
       }
 
+      console.log(foundUser);
+
       const hashedPassword = PasswordEncryptionService.hashPassword(args.password);
 
       const input = { ...args, password: hashedPassword };
