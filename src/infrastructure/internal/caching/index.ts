@@ -13,11 +13,25 @@ class RedisClient {
     if (!RedisClient.instance) {
       RedisClient.instance = createClient({
         url: AppSettings.getCacheUrl(),
+        socket: {
+          connectTimeout: 10000, // Set a reasonable timeout
+        },
       }) as RedisClientType<RedisDefaultModules>;
 
-      RedisClient.instance.on("error", (err) => RedisClient.loggingProvider.error(`Redis Client Error: ${err}`));
+      // Log Redis connection errors
+      RedisClient.instance.on("error", (err) => {
+        RedisClient.loggingProvider.error(`Redis Client Error: ${err}`);
+      });
 
-      RedisClient.instance.connect().catch((err) => RedisClient.loggingProvider.error(`Redis Connection Error: ${err}`));
+      // Connect to Redis and handle any connection issues
+      RedisClient.instance.connect().catch((err) => {
+        RedisClient.loggingProvider.error(`Redis Connection Error: ${err}`);
+      });
+
+      // Optionally handle retry logic if you want to implement automatic retries on failure
+      RedisClient.instance.on("end", () => {
+        RedisClient.loggingProvider.info("Redis connection ended.");
+      });
     }
 
     return RedisClient.instance;

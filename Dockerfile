@@ -16,6 +16,7 @@ RUN npm install -g prisma
 COPY . .
 RUN pnpm run prisma:generate
 
+EXPOSE 6500
 EXPOSE 5500
 EXPOSE 5555
 
