@@ -20,7 +20,7 @@ import UserCreateProvider from "~/api/modules/user/providers/UserCreate.provider
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { TokenType, UserType, StaffEmploymentType, ClassList } from "@prisma/client";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import DbClient, { PrismaTransactionClient, TRANSACTION_MAX_WAIT, TRANSACTION_TIMEOUT } from "~/infrastructure/internal/database";
 import TenantCreateProvider from "~/api/modules/tenant/providers/TenantCreate.provider";
 import { CreateUserRecordType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -77,8 +77,6 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         throw new BadRequestError(EMAIL_IN_USE);
       }
 
-      console.log(foundUser);
-
       const hashedPassword = PasswordEncryptionService.hashPassword(args.password);
 
       const input = { ...args, password: hashedPassword };
@@ -107,37 +105,43 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
 
   private async createTenantAndUserRecordWithTokenTransaction(args: SignUpUserType) {
     try {
-      const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        const tenant = await this.tenantCreateProvider.create(null, tx);
+      const result = await DbClient.$transaction(
+        async (tx: PrismaTransactionClient) => {
+          const tenant = await this.tenantCreateProvider.create(null, tx);
 
-        await this.seedClassesForTenant(tenant.id, tx);
+          await this.seedClassesForTenant(tenant.id, tx);
 
-        const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
-        const user = await this.userCreateProvider.create(userCreateInput, tx);
-        await this.userReadCache.invalidate(user?.tenantId);
+          const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
+          const user = await this.userCreateProvider.create(userCreateInput, tx);
+          await this.userReadCache.invalidate(user?.tenantId);
 
-        const roleCreateInput = { name: SCHOOL_OWNER_ROLE_NAME, rank: SCHOOL_OWNER_ROLE_RANK, permissions: [], tenantId: tenant?.id };
-        const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
+          const roleCreateInput = { name: SCHOOL_OWNER_ROLE_NAME, rank: SCHOOL_OWNER_ROLE_RANK, permissions: [], tenantId: tenant?.id };
+          const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
 
-        const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULLTIME };
-        await this.staffCreateProvider.create(staffCreateInput, tx);
-        await this.staffReadCache.invalidate(user?.tenantId);
+          const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULLTIME };
+          await this.staffCreateProvider.create(staffCreateInput, tx);
+          await this.staffReadCache.invalidate(user?.tenantId);
 
-        const otpToken = generateStringOfLength(businessConfig.emailTokenLength);
-        const expiresAt = DateTime.now().plus({ minutes: businessConfig.emailTokenExpiresInMinutes }).toJSDate();
+          const otpToken = generateStringOfLength(businessConfig.emailTokenLength);
+          const expiresAt = DateTime.now().plus({ minutes: businessConfig.emailTokenExpiresInMinutes }).toJSDate();
 
-        await this.tokenProvider.create(
-          {
-            userId: user.id,
-            tokenType: TokenType.EMAIL,
-            expiresAt,
-            token: otpToken,
-          },
-          tx
-        );
+          await this.tokenProvider.create(
+            {
+              userId: user.id,
+              tokenType: TokenType.EMAIL,
+              expiresAt,
+              token: otpToken,
+            },
+            tx
+          );
 
-        return { user, otpToken };
-      });
+          return { user, otpToken };
+        },
+        {
+          maxWait: TRANSACTION_MAX_WAIT,
+          timeout: TRANSACTION_TIMEOUT,
+        }
+      );
       return result;
     } catch (error: any) {
       this.loggingProvider.error(error);

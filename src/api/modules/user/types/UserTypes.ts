@@ -51,6 +51,7 @@ export type UpdateUserRecordType = {
 };
 
 export type ReadUserRecordType = {
+  id?: number;
   tenantId?: number;
   userId?: number;
   email?: string;

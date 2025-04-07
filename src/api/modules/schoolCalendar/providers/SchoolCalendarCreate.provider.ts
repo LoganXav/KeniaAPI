@@ -26,7 +26,7 @@ export default class SchoolCalendarCreateProvider {
     }
   }
 
-  public async createOrUpdate(args: SchoolCalendarCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
+  public async createOrUpdate(args: Omit<SchoolCalendarCreateRequestType, "terms">, dbClient: PrismaTransactionClient = DbClient) {
     try {
       const { id, year, tenantId } = args;
 

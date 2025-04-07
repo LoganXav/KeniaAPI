@@ -4,7 +4,7 @@ export type SubjectCreateRequestType = {
   name: string;
   description?: string;
   classDivisionIds?: number[];
-  classId?: number;
+  classId: number;
   tenantId: number;
   staffIds?: number[];
 };

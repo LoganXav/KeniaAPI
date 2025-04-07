@@ -1,12 +1,12 @@
 import DbClient from "~/infrastructure/internal/database";
 import { Staff } from "@prisma/client";
-import { StaffCriteria } from "../types/StaffTypes";
+import { StaffCriteriaType } from "../types/StaffTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 
 export default class StaffDeleteProvider {
-  public async deleteOne(criteria: StaffCriteria, tx?: any): Promise<Staff | any> {
+  public async deleteOne(criteria: StaffCriteriaType, tx?: any): Promise<Staff | any> {
     const dbClient = tx ? tx : DbClient;
     const toDelete = await dbClient?.staff?.findFirst({
       where: criteria,
@@ -20,7 +20,7 @@ export default class StaffDeleteProvider {
     return deletedStaff;
   }
 
-  public async deleteMany(criteria: StaffCriteria, tx?: any): Promise<Staff | any> {
+  public async deleteMany(criteria: StaffCriteriaType, tx?: any): Promise<Staff | any> {
     const dbClient = tx ? tx : DbClient;
     const deletedStaff = await dbClient?.staff?.deleteMany({
       where: criteria,
