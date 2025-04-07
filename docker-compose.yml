@@ -52,5 +52,5 @@ services:
     env_file:
       - .env
 volumes:
-postgres_data:
-redis_data:
+  postgres_data:
+  redis_data:

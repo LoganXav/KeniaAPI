@@ -1,10 +1,4 @@
-import { Term } from "@prisma/client";
-
-export type SchoolCalendarCreateRequestType = {
-  id?: number;
-  year: number;
-  tenantId: number;
-};
+import { SchoolCalendar, Term } from "@prisma/client";
 
 export type SchoolCalendarReadRequestType = {
   ids?: number[];
@@ -37,7 +31,7 @@ export type SchoolCalendarDeleteRequestType = {
   tenantId: number;
 };
 
-export type TotalSchoolCalendarCreateRequestType = {
+export type SchoolCalendarCreateRequestType = {
   id?: number;
   year: number;
   tenantId: number;
@@ -45,7 +39,7 @@ export type TotalSchoolCalendarCreateRequestType = {
 };
 
 export type BreakWeekType = {
-  id?: number;
+  id: number;
   name: string;
   startDate: Date;
   endDate: Date;
@@ -53,10 +47,11 @@ export type BreakWeekType = {
 };
 
 export type TermType = {
-  id?: number;
+  id: number;
   name: string;
   startDate: Date;
   endDate: Date;
   breakWeeks: BreakWeekType[];
   tenantId: number;
+  calendar: SchoolCalendar;
 };

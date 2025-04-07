@@ -6,7 +6,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { StaffCriteria } from "../types/StaffTypes";
+import { StaffCriteriaType } from "../types/StaffTypes";
 import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import StaffDeleteProvider from "../providers/StaffDelete.provider";
@@ -23,7 +23,7 @@ export default class DeleteStaffService extends BaseService<any> {
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
-  public async execute(trace: ServiceTrace, args: StaffCriteria): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: StaffCriteriaType): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args, ["deleteStaff"]);
       const staff = await this.staffDeleteProvider.deleteOne(args);
@@ -42,7 +42,7 @@ export default class DeleteStaffService extends BaseService<any> {
     }
   }
 
-  public async deleteStaffs(trace: ServiceTrace, args: StaffCriteria): Promise<IResult> {
+  public async deleteStaffs(trace: ServiceTrace, args: StaffCriteriaType): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args, ["deleteStaffs"]);
       const staffs = await this.staffDeleteProvider.deleteMany(args);

@@ -13,6 +13,7 @@ import ClassDivisionReadProvider from "../../classDivision/providers/ClassDivisi
 import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 import { Weekday, BreakType, Term } from "@prisma/client";
 import TermReadProvider from "../../term/providers/TermRead.provider";
+import { TermType } from "../../schoolCalendar/types/SchoolCalendarTypes";
 @autoInjectable()
 export default class TimetableTemplateService extends BaseService<IRequest> {
   static serviceName = "TimetableTemplateService";
@@ -45,7 +46,7 @@ export default class TimetableTemplateService extends BaseService<IRequest> {
       const subjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
       const terms = await this.termReadProvider.getByCriteria({ tenantId: args.body.tenantId });
 
-      const termOptions = terms.map((term: Term) => ({
+      const termOptions = terms.map((term: TermType) => ({
         name: `${term?.calendar?.year} - ${term.name}`,
         id: term.id,
         startDate: term.startDate,

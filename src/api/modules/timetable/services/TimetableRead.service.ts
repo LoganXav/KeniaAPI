@@ -13,6 +13,8 @@ import TermReadProvider from "~/api/modules/term/providers/TermRead.provider";
 import { eachDayOfInterval, isWeekend, format } from "date-fns";
 import { BreakPeriod, Period, Timetable, Term } from "@prisma/client";
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
+import { BreakWeekType, TermType } from "../../schoolCalendar/types/SchoolCalendarTypes";
+import { PeriodType, TimetableType } from "../types/TimetableTypes";
 
 @autoInjectable()
 export default class TimetableReadService extends BaseService<IRequest> {
@@ -65,8 +67,8 @@ export default class TimetableReadService extends BaseService<IRequest> {
     }
   }
 
-  private transformTimetableInTermToTimedPeriods(term: Term, timetables: Timetable[]) {
-    const timedPeriods: Array<{ start: string; end: string; title: string }> = [];
+  private transformTimetableInTermToTimedPeriods(term: TermType, timetables: TimetableType[]) {
+    const timedPeriods: Array<{ start: string; end: string; title?: string | null }> = [];
 
     timetables.forEach((timetable) => {
       const validDates = this.getWeekdayDatesBetween(new Date(term.startDate), new Date(term.endDate), timetable.day).filter((date) => {
@@ -75,7 +77,7 @@ export default class TimetableReadService extends BaseService<IRequest> {
       });
 
       validDates.forEach((date) => {
-        timetable.periods.forEach((period: Period) => {
+        timetable.periods.forEach((period: PeriodType) => {
           // Fix the parsing of the time string
           const startTime = period.startTime.split("T")[1]; // Get the time part after 'T'
           const endTime = period.endTime.split("T")[1];
@@ -106,7 +108,7 @@ export default class TimetableReadService extends BaseService<IRequest> {
   }
 
   // Helper to check if the date is in the break weeks
-  private checkIsDateInBreakWeeks(date: Date, breakWeeks: BreakPeriod[]): boolean {
+  private checkIsDateInBreakWeeks(date: Date, breakWeeks: BreakWeekType[]): boolean {
     // Normalize the date to start of day for comparison
     const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 

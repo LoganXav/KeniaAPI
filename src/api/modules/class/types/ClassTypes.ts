@@ -6,12 +6,12 @@ export type CreateClassData = z.infer<typeof classCreateSchema>;
 
 export interface ClassCriteria {
   id?: number;
-  name?: string;
+  name?: ClassList;
   tenantId?: number;
 }
 
 export interface UpdateClassData {
-  name?: string;
+  name?: ClassList;
   tenantId?: number;
 }
 
@@ -22,13 +22,13 @@ export interface GetAndUpdateClass {
 }
 
 export type ClassCreateRequestType = {
-  name?: string;
+  name?: ClassList;
   tenantId: number;
 };
 
 export type ClassReadRequestType = {
   ids?: number[];
-  name?: string;
+  name?: ClassList;
   type?: ClassList;
   classTeacherId?: number;
   tenantId: number;
@@ -36,7 +36,7 @@ export type ClassReadRequestType = {
 
 export type ClassReadOneRequestType = {
   id?: number;
-  name?: string;
+  name?: ClassList;
   type?: ClassList;
   classTeacherId?: number;
   tenantId?: number;
@@ -44,7 +44,7 @@ export type ClassReadOneRequestType = {
 
 export type ClassUpdateRequestType = {
   id: number;
-  name?: string;
+  name?: ClassList;
   classTeacherId?: number;
   tenantId?: number;
 };
@@ -52,14 +52,14 @@ export type ClassUpdateRequestType = {
 export type ClassCriteriaType = {
   id?: number;
   ids?: number[];
-  name?: string;
+  name?: ClassList;
   classTeacherId?: number;
   tenantId?: number;
 };
 
 export type ClassResponseType = {
   id: number;
-  name: string;
+  name: ClassList;
   classTeacherId: number | null;
   tenantId: number;
   classTeacher?: Staff;
