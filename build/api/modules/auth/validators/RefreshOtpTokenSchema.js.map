@@ -1,0 +1,1 @@
+{"version":3,"file":"RefreshOtpTokenSchema.js","sourceRoot":"","sources":["../../../../../src/api/modules/auth/validators/RefreshOtpTokenSchema.ts"],"names":[],"mappings":";;;AAAA,6BAAwB;AAEX,QAAA,qBAAqB,GAAG,OAAC,CAAC,MAAM,CAAC;IAC5C,KAAK,EAAE,OAAC;SACL,MAAM,CAAC;QACN,cAAc,EAAE,2BAA2B;KAC5C,CAAC;SACD,KAAK,CAAC,mBAAmB,CAAC;CAC9B,CAAC,CAAC"}
