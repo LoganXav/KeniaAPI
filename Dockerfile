@@ -20,5 +20,8 @@ EXPOSE 6500
 EXPOSE 5500
 EXPOSE 5555
 
+RUN pnpm run build
+
+
 # Run database migrations and start the application
 CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm run start:stage"]
