@@ -16,6 +16,8 @@
     "prisma:migrate": "pnpm exec prisma migrate dev --name migration_$(date +%s)",
     "dev:stage": "dotenv -e .env.stage -- ts-node -r tsconfig-paths/register src/index.ts",
     "test:stage": "dotenv -e .env.stage -- jest -i",
+    "build": "tsc",
+    "start:stage": "dotenv -e .env.stage -- node dist/index.js",
     "prisma:stage-generate": "dotenv -e .env.stage -- pnpm exec prisma generate --schema=src/infrastructure/internal/database/schema.prisma",
     "prisma:stage-migrate": "dotenv -e .env.stage -- pnpm exec prisma migrate deploy",
     "prepare": "husky"
