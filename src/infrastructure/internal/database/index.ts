@@ -36,5 +36,5 @@ export type PrismaTransactionClient = PrismaClient | Omit<PrismaClient, "$connec
 
 export type PrismaDbClient = PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>;
 
-export const TRANSACTION_MAX_WAIT = 10000;
+export const TRANSACTION_MAX_WAIT = 15000;
 export const TRANSACTION_TIMEOUT = 15000;
