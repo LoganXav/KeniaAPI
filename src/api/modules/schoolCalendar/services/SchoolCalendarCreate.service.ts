@@ -121,7 +121,7 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
       await Promise.all(
         existingTerms
           .filter((t: Term) => !termIdsToKeep.includes(t.id))
-          .map(async (t: Term) => {
+          .map(async (t: any) => {
             await Promise.all(t.breakWeeks.map((bw: BreakPeriod) => this.breakPeriodDeleteProvider.delete({ id: bw.id, tenantId: args.tenantId }, tx)));
             return this.termDeleteProvider.delete({ id: t.id, tenantId: args.tenantId }, tx);
           })
@@ -129,10 +129,10 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
 
       // Delete break periods not present in the request for existing and passed terms
       await Promise.all(
-        existingTerms.map(async (existingTerm: Term) => {
-          const passedTerm = args.terms.find((t: Term) => t.id === existingTerm.id);
+        existingTerms.map(async (existingTerm: any) => {
+          const passedTerm = args.terms.find((t: any) => t.id === existingTerm.id);
           if (passedTerm) {
-            const breakPeriodIdsToKeep = passedTerm.breakWeeks.map((bw: BreakPeriod) => bw.id);
+            const breakPeriodIdsToKeep = passedTerm.breakWeeks.map((bw: any) => bw.id);
             await Promise.all(existingTerm.breakWeeks.filter((bw: BreakPeriod) => !breakPeriodIdsToKeep.includes(bw.id)).map((bw: BreakPeriod) => this.breakPeriodDeleteProvider.delete({ id: bw.id, tenantId: args.tenantId }, tx)));
           }
         })
