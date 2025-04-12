@@ -1,10 +1,12 @@
-import { Period, Weekday } from "@prisma/client";
+import { BreakType, Period, Subject, Weekday } from "@prisma/client";
+import { BreakWeekType, TermType } from "../../schoolCalendar/types/SchoolCalendarTypes";
 
 export type TimetableCreateRequestType = {
   id?: number;
   day: Weekday;
   classDivisionId: number;
   tenantId: number;
+  termId: number;
 };
 
 export type TimetableReadRequestType = {
@@ -27,6 +29,7 @@ export type TimetableCriteriaType = {
   classDivisionId?: number;
   day?: Weekday;
   tenantId?: number;
+  termId?: number;
 };
 
 export type TimetableResponseType = {
@@ -47,5 +50,28 @@ export type TimetableCreateOrUpdateRequestType = {
   day: Weekday;
   classDivisionId: number;
   tenantId: number;
+  termId: number;
   periods: Period[];
+};
+
+export type TimetableType = {
+  id?: number;
+  day: string;
+  termId: number;
+  // term: TermType;
+  periods: PeriodType[];
+  tenantId: number;
+  classDivisionId: number;
+};
+
+export type PeriodType = {
+  id: number;
+  startTime: string;
+  endTime: string;
+  subjectId: number;
+  subject: Subject;
+  timetableId: number;
+  isBreak: boolean;
+  breakType?: "SHORTBREAK" | "LONGBREAK" | null;
+  tenantId: number;
 };

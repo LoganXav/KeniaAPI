@@ -15,8 +15,7 @@ import BreakPeriodDeleteProvider from "../../breakPeriod/providers/BreakPeriodDe
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { SUCCESS, SCHOOL_CALENDAR_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { SchoolCalendarCreateRequestType, TotalSchoolCalendarCreateRequestType } from "../types/SchoolCalendarTypes";
-import { Term, BreakPeriod } from "@prisma/client";
+import { BreakWeekType, SchoolCalendarCreateRequestType, TermType } from "../types/SchoolCalendarTypes";
 
 @autoInjectable()
 export default class SchoolCalendarCreateService extends BaseService<SchoolCalendarCreateRequestType> {
@@ -50,7 +49,7 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
-  public async execute(trace: ServiceTrace, args: TotalSchoolCalendarCreateRequestType): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: SchoolCalendarCreateRequestType): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
 
@@ -69,7 +68,7 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
     }
   }
 
-  private async schoolCalendarCreateTransaction(args: TotalSchoolCalendarCreateRequestType) {
+  private async schoolCalendarCreateTransaction(args: SchoolCalendarCreateRequestType) {
     return DbClient.$transaction(async (tx) => {
       const schoolCalendar = await this.schoolCalendarCreateProvider.createOrUpdate(
         {
@@ -97,7 +96,7 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
           );
 
           const breakWeeks = await Promise.all(
-            termData.breakWeeks.map(async (breakData) => {
+            termData.breakWeeks.map(async (breakData: BreakWeekType) => {
               return this.breakPeriodCreateProvider.createOrUpdate(
                 {
                   id: breakData.id,
@@ -120,20 +119,20 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
       const termIdsToKeep = args.terms.map((t) => t.id);
       await Promise.all(
         existingTerms
-          .filter((t: Term) => !termIdsToKeep.includes(t.id))
-          .map(async (t: any) => {
-            await Promise.all(t.breakWeeks.map((bw: BreakPeriod) => this.breakPeriodDeleteProvider.delete({ id: bw.id, tenantId: args.tenantId }, tx)));
+          .filter((t: TermType) => !termIdsToKeep.includes(t.id))
+          .map(async (t: TermType) => {
+            await Promise.all(t.breakWeeks.map((bw: BreakWeekType) => this.breakPeriodDeleteProvider.delete({ id: bw.id, tenantId: args.tenantId }, tx)));
             return this.termDeleteProvider.delete({ id: t.id, tenantId: args.tenantId }, tx);
           })
       );
 
       // Delete break periods not present in the request for existing and passed terms
       await Promise.all(
-        existingTerms.map(async (existingTerm: any) => {
-          const passedTerm = args.terms.find((t: any) => t.id === existingTerm.id);
+        existingTerms.map(async (existingTerm: TermType) => {
+          const passedTerm = args.terms.find((t: TermType) => t.id === existingTerm.id);
           if (passedTerm) {
-            const breakPeriodIdsToKeep = passedTerm.breakWeeks.map((bw: any) => bw.id);
-            await Promise.all(existingTerm.breakWeeks.filter((bw: BreakPeriod) => !breakPeriodIdsToKeep.includes(bw.id)).map((bw: BreakPeriod) => this.breakPeriodDeleteProvider.delete({ id: bw.id, tenantId: args.tenantId }, tx)));
+            const breakPeriodIdsToKeep = passedTerm.breakWeeks.map((bw: BreakWeekType) => bw.id);
+            await Promise.all(existingTerm.breakWeeks.filter((bw: BreakWeekType) => !breakPeriodIdsToKeep.includes(bw.id)).map((bw: BreakWeekType) => this.breakPeriodDeleteProvider.delete({ id: bw.id, tenantId: args.tenantId }, tx)));
           }
         })
       );

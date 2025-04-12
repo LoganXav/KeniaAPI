@@ -11,11 +11,11 @@ export default class StudentCreateProvider {
       const student = await dbClient?.student.create({
         data: {
           userId,
-          classId,
-          classDivisionId,
           tenantId,
           enrollmentDate,
-          dormitoryId,
+          ...(classId !== undefined && { classId }),
+          ...(classDivisionId !== undefined && { classDivisionId }),
+          ...(dormitoryId !== undefined && { dormitoryId }),
           studentGroups: {
             connect: studentGroupIds?.map((id) => ({ id })),
           },

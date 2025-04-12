@@ -8,6 +8,7 @@ export const timetableCreateOrUpdateSchema = z.object({
     required_error: "Day is required",
     invalid_type_error: "Day must be a valid weekday",
   }),
+  termId: z.number({ invalid_type_error: "Term ID must be a number", required_error: "Term ID is required" }),
   classDivisionId: z.number({
     required_error: "Class division ID is required",
     invalid_type_error: "Class division ID must be a number",

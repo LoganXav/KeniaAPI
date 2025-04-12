@@ -1,0 +1,26 @@
+FROM node:alpine
+
+WORKDIR /usr/app
+
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install
+
+# Install system dependencies
+RUN apk add --no-cache openssl libssl3
+
+# Install Prisma globally in the container
+RUN npm install -g prisma
+
+# Copy the rest of the application files into the container
+COPY . .
+
+# Generate the Prisma client
+RUN pnpm run prisma:generate
+
+# Expose development ports
+EXPOSE 6500
+EXPOSE 5500
+EXPOSE 5555
+
+# Run the application in development mode with hot-reloading
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm run dev"]

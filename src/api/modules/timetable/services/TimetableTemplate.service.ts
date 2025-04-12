@@ -11,8 +11,9 @@ import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import ClassDivisionReadProvider from "../../classDivision/providers/ClassDivisionRead.provider";
 import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
-import { Weekday, BreakType } from "@prisma/client";
-
+import { Weekday, BreakType, Term } from "@prisma/client";
+import TermReadProvider from "../../term/providers/TermRead.provider";
+import { TermType } from "../../schoolCalendar/types/SchoolCalendarTypes";
 @autoInjectable()
 export default class TimetableTemplateService extends BaseService<IRequest> {
   static serviceName = "TimetableTemplateService";
@@ -20,13 +21,15 @@ export default class TimetableTemplateService extends BaseService<IRequest> {
   classReadCache: ClassReadCache;
   classDivisionReadProvider: ClassDivisionReadProvider;
   subjectReadProvider: SubjectReadProvider;
+  termReadProvider: TermReadProvider;
 
-  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider, subjectReadProvider: SubjectReadProvider) {
+  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider, subjectReadProvider: SubjectReadProvider, termReadProvider: TermReadProvider) {
     super(TimetableTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
     this.classReadCache = classReadCache;
     this.classDivisionReadProvider = classDivisionReadProvider;
     this.subjectReadProvider = subjectReadProvider;
+    this.termReadProvider = termReadProvider;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
@@ -41,6 +44,15 @@ export default class TimetableTemplateService extends BaseService<IRequest> {
       });
 
       const subjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
+      const terms = await this.termReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+
+      const termOptions = terms.map((term: TermType) => ({
+        name: `${term?.calendar?.year} - ${term.name}`,
+        id: term.id,
+        startDate: term.startDate,
+        endDate: term.endDate,
+        tenantId: term.tenantId,
+      }));
 
       const data = {
         classOptions: classes,
@@ -48,6 +60,7 @@ export default class TimetableTemplateService extends BaseService<IRequest> {
         subjectOptions: subjects,
         dayOptions: Object.values(Weekday),
         breakTypeOptions: Object.values(BreakType),
+        termOptions,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);

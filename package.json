@@ -7,6 +7,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
     "format": "prettier --write 'src/**/*.{ts,js,tsx}'",
+    "build": "tsc && tsc-alias",
     "dev": "ts-node-dev --respawn --transpile-only --no-notify -r tsconfig-paths/register src/index.ts",
     "test": "jest -i",
     "test:coverage": "jest --coverage",
@@ -14,8 +15,8 @@
     "prisma:studio": "pnpm exec prisma studio",
     "prisma:generate": "pnpm exec prisma generate --schema=src/infrastructure/internal/database/schema.prisma",
     "prisma:migrate": "pnpm exec prisma migrate dev --name migration_$(date +%s)",
-    "dev:stage": "dotenv -e .env.stage -- ts-node-dev --respawn --transpile-only --no-notify -r tsconfig-paths/register src/index.ts",
     "test:stage": "dotenv -e .env.stage -- jest -i",
+    "start:stage": "dotenv -e .env.stage -- node build/index.js",
     "prisma:stage-generate": "dotenv -e .env.stage -- pnpm exec prisma generate --schema=src/infrastructure/internal/database/schema.prisma",
     "prisma:stage-migrate": "dotenv -e .env.stage -- pnpm exec prisma migrate deploy",
     "prepare": "husky"
@@ -82,6 +83,7 @@
     "supertest": "^7.0.0",
     "ts-jest": "^29.1.2",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.14",
     "tsconfig-paths": "^4.2.0",
     "typescript-eslint": "^8.0.0"
   },

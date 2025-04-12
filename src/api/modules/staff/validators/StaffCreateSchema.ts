@@ -22,7 +22,7 @@ export const staffCreateRequestSchema = z.object({
 
   dateOfBirth: z
     .string({
-      invalid_type_error: "Date of birth must be a valid Date object",
+      invalid_type_error: "Date of birth must be a valid Date string",
     })
     .optional()
     .refine(
