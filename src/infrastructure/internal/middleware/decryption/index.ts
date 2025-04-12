@@ -9,7 +9,7 @@ class DecryptionMiddleware {
   public handle: Middleware = (req: Request, _res: Response, next: NextFunction): void => {
     const skipDecryption = SKIP_DECRYPTION.some((path) => BooleanUtil.areEqual(path, req.path));
 
-    if (ServerConfig.Environment !== DEV || !skipDecryption) {
+    if (ServerConfig.Environment !== DEV && !skipDecryption) {
       const decryptedRequestBody = PayloadEncryptService.decrypt(req.body.request);
 
       req.body = decryptedRequestBody;
