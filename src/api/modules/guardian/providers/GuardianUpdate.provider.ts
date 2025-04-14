@@ -44,8 +44,8 @@ export default class GuardianUpdateProvider {
   //     const updatedGuardians = [];
 
   //     for (const guardian of args) {
-  //       const existingGuardian = await dbClient.guardian.findUnique({
-  //         where: { email: guardian.email },
+  //       const existingGuardian = await dbClient.guardian.findFirst({
+  //         where: { email: guardian.email, tenantId: guardian.tenantId },
   //       });
 
   //       const { firstName, lastName, phoneNumber, email, gender, dateOfBirth, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode, tenantId } = guardian;
