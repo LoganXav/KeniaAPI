@@ -34,7 +34,7 @@ export type UpdateUserRecordType = {
   userId: number;
   firstName?: string;
   lastName?: string;
-  dateOfBirth?: Date | null;
+  dateOfBirth?: string | null;
   gender?: string;
   bloodGroup?: string;
   religion?: string;

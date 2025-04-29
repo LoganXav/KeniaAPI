@@ -1,5 +1,6 @@
 import { StaffEmploymentType } from "@prisma/client";
 import { z } from "zod";
+import DateTimeUtils from "~/utils/DateTimeUtil";
 
 export const staffCreateSchema = z.object({
   userId: z.number().int("User ID must be an integer").optional(),
@@ -37,8 +38,7 @@ export const staffCreateRequestSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
 
   jobTitle: z.string({ required_error: "Job title is required", invalid_type_error: "Job title must be a string" }).min(1, "Job title is required").max(100, "Job title must be less than 100 characters"),
