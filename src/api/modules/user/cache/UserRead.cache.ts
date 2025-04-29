@@ -24,12 +24,10 @@ export default class UserReadCache {
       const cachedUsers = await this.redisClient.get(cacheKey);
 
       if (cachedUsers) {
-        console.log("All User Cache HIT!");
         return JSON.parse(cachedUsers);
       }
 
       const users = await this.userReadProvider.getAll();
-      console.log("All User Cache MISS!");
 
       if (ArrayUtil.any(users)) {
         await this.redisClient.set(cacheKey, JSON.stringify(users), {
@@ -51,12 +49,10 @@ export default class UserReadCache {
       const cachedUser = await this.redisClient.get(cacheKey);
 
       if (cachedUser) {
-        console.log("Criteria User Cache HIT!");
         return JSON.parse(cachedUser);
       }
 
       const user = await this.userReadProvider.getOneByCriteria(criteria);
-      console.log("Criteria User Cache MISS!");
 
       if (user) {
         await this.redisClient.set(cacheKey, JSON.stringify(user), {
@@ -77,7 +73,6 @@ export default class UserReadCache {
 
       if (ArrayUtil.any(keys)) {
         await this.redisClient.del(keys);
-        console.log("Criteria User Cache CLEARED!");
       }
     } catch (error: any) {
       throw new InternalServerError(error);

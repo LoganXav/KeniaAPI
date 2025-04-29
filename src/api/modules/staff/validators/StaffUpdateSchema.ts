@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { StaffEmploymentType } from "@prisma/client";
+import DateTimeUtils from "~/utils/DateTimeUtil";
 
 export const staffUpdateSchema = z.object({
   tenantId: z.number({ required_error: "Tenant Id is required" }),
@@ -32,8 +33,7 @@ export const staffUpdateSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
   highestLevelEdu: z.string().optional(),
   firstName: z.string().optional(),
@@ -58,8 +58,9 @@ export const staffUpdateSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      console.log(val, "val", DateTimeUtils.parseToISO(val));
+
+      return DateTimeUtils.parseToISO(val);
     }),
   nin: z.string().optional(),
   tin: z.string().optional(),

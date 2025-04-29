@@ -1,17 +1,40 @@
 import { z } from "zod";
 import { BreakType } from "@prisma/client";
+import DateTimeUtils from "../../../../utils/DateTimeUtil";
 
 export const periodCreateSchema = z
   .object({
     id: z.number({ invalid_type_error: "ID must be a number" }).optional(),
-    startTime: z.string({
-      required_error: "Start time is required",
-      invalid_type_error: "Start time must be a string",
-    }),
-    endTime: z.string({
-      required_error: "End time is required",
-      invalid_type_error: "End time must be a string",
-    }),
+    startTime: z
+      .string({
+        required_error: "Start time is required",
+        invalid_type_error: "Start time must be a string",
+      })
+      .refine(
+        (val) => {
+          const date = new Date(val);
+          return !isNaN(date.getTime());
+        },
+        {
+          message: "Invalid start time format",
+        }
+      )
+      .transform((val) => DateTimeUtils.parseToISO(val)),
+    endTime: z
+      .string({
+        required_error: "End time is required",
+        invalid_type_error: "End time must be a string",
+      })
+      .refine(
+        (val) => {
+          const date = new Date(val);
+          return !isNaN(date.getTime());
+        },
+        {
+          message: "Invalid end time format",
+        }
+      )
+      .transform((val) => DateTimeUtils.parseToISO(val)),
     subjectId: z.number({ invalid_type_error: "Subject ID must be a number" }).optional(),
     timetableId: z.number({ invalid_type_error: "Timetable ID must be a number" }).optional(),
     isBreak: z.boolean({ invalid_type_error: "Is break must be a boolean" }).default(false),
