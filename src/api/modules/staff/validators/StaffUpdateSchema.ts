@@ -58,7 +58,6 @@ export const staffUpdateSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      console.log(val, "val", DateTimeUtils.parseToISO(val));
 
       return DateTimeUtils.parseToISO(val);
     }),

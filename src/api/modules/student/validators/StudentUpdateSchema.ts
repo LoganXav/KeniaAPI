@@ -1,4 +1,5 @@
 import * as z from "zod";
+import DateTimeUtils from "~/utils/DateTimeUtil";
 
 export const studentUpdateSchema = z.object({
   tenantId: z.number({ required_error: "Tenant ID is required", invalid_type_error: "Tenant ID must be a number" }).positive("Tenant ID must be a positive number"),
@@ -30,8 +31,7 @@ export const studentUpdateSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
 
   residentialAddress: z.string({ invalid_type_error: "Residential address must be a string" }).optional(),
@@ -100,8 +100,7 @@ export const studentUpdateSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
   subjectIds: z.array(z.number({ invalid_type_error: "Subject ID must be a number" }).int("Subject ID must be an integer")).optional(),
 });
