@@ -386,7 +386,7 @@ model DocumentType {
   tenant   Tenant     @relation(fields: [tenantId], references: [id])
 }
 
-// ==================== UNDECIDED TABLES START ==================== //
+// ===================== UNDECIDED TABLES START ===================== //
 
 model Group {
   id       Int     @id @default(autoincrement())
