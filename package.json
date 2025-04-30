@@ -91,12 +91,6 @@
   "prisma": {
     "schema": "src/infrastructure/internal/database/schema.prisma"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "pnpm run typecheck && pnpm run lint && pnpm run format"
-    }
-  },
   "lint-staged": {
     "src/**/*.{ts,js}": [
       "pnpm run lint:fix",
