@@ -1,4 +1,5 @@
 import { z } from "zod";
+import DateTimeUtils from "~/utils/DateTimeUtil";
 
 export const onboardingPersonalSchema = z.object({
   tenantId: z.number({
@@ -49,8 +50,7 @@ export const onboardingPersonalSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
 });
 
@@ -129,8 +129,7 @@ export const onboardingSchoolSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
 
   logoUrl: z

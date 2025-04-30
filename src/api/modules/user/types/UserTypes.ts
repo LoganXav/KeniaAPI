@@ -15,7 +15,7 @@ export type CreateUserRecordType = SignUpUserType & {
   gender?: string;
   bloodGroup?: string;
   religion?: string;
-  dateOfBirth?: Date | null;
+  dateOfBirth?: string | null;
   residentialAddress?: string;
   residentialStateId?: number;
   residentialLgaId?: number;
