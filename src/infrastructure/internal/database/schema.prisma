@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "mysql"
+  provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -96,6 +96,7 @@ model User {
   residentialStateId   Int?
   residentialCountryId Int?
   residentialZipCode   Int?
+
   @@unique([email, tenantId])
 }
 
@@ -213,6 +214,7 @@ model Guardian {
   students             Student[] @relation("StudentGuardian")
   tenantId             Int
   tenant               Tenant    @relation(fields: [tenantId], references: [id])
+
   @@unique([email, tenantId])
 }
 

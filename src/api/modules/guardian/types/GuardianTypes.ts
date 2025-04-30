@@ -27,7 +27,7 @@ export type GuardianUpdateRequestType = {
   phoneNumber: string;
   email: string;
   gender?: string;
-  dateOfBirth?: Date | null;
+  dateOfBirth?: string | null;
   address?: string;
   tenantId: number;
   studentIds?: number[];

@@ -12,7 +12,7 @@ import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
 import StudentCreateProvider from "../providers/StudentCreate.provider";
 import UserCreateProvider from "../../user/providers/UserCreate.provider";
 import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
-import { GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
+import { GuardianCreateRequestType, GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import GuardianUpdateProvider from "../../guardian/providers/GuardianUpdate.provider";
@@ -139,7 +139,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
             }
 
             if (!guardian.id) {
-              const newGuardian = await this.guardianCreateProvider.create(guardian, tx);
+              const newGuardian = await this.guardianCreateProvider.create(guardian as GuardianCreateRequestType, tx);
               guardianIds.push(newGuardian.id);
             } else {
               const updatedGuardian = await this.guardianUpdateProvider.update(guardian as GuardianUpdateRequestType, tx);
@@ -160,7 +160,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
           studentGroupIds: args.studentGroupIds,
           subjectIds: args.subjectIds,
           classDivisionId: args.classDivisionId,
-          enrollmentDate: args.enrollmentDate || new Date(),
+          enrollmentDate: args.enrollmentDate,
           guardianIds,
         };
 

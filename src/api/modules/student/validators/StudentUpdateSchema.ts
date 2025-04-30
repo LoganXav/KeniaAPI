@@ -66,8 +66,7 @@ export const studentUpdateSchema = z.object({
         )
         .transform((val) => {
           if (!val) return null;
-          const date = new Date(val);
-          return date;
+          return DateTimeUtils.parseToISO(val);
         }),
       residentialAddress: z.string({ required_error: "Guardian residential address is required", invalid_type_error: "Guardian residential address must be a string" }),
       residentialLgaId: z.number({ required_error: "Guardian LGA ID is required", invalid_type_error: "Guardian LGA ID must be a number" }),
