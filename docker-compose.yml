@@ -24,6 +24,7 @@ services:
     container_name: kenia_redis
     ports:
       - "6379:6379"
+    command: ["redis-server", "--maxmemory-policy", "noeviction"]
     volumes:
       - redis_data:/data
     healthcheck:

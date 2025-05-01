@@ -4,6 +4,7 @@ import Event from "~/api/shared/helpers/events";
 import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
 import UserReadCache from "../../user/cache/UserRead.cache";
+import QueueProvider from "~/infrastructure/internal/queue";
 import ClassReadCache from "../../class/cache/ClassRead.cache";
 import StaffReadCache from "../../staff/cache/StaffRead.cache";
 import { IResult } from "~/api/shared/helpers/results/IResult";
@@ -11,6 +12,7 @@ import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { generateStringOfLength } from "~/utils/GenerateStringOfLength";
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum";
+import { TokenType, UserType, StaffEmploymentType } from "@prisma/client";
 import RoleCreateProvider from "../../role/providers/RoleCreate.provider";
 import StaffCreateProvider from "../../staff/providers/StaffCreate.provider";
 import ClassCreateProvider from "../../class/providers/ClassCreate.provider";
@@ -18,16 +20,15 @@ import UserReadProvider from "~/api/modules/user/providers/UserRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import UserCreateProvider from "~/api/modules/user/providers/UserCreate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { TokenType, UserType, StaffEmploymentType, ClassList } from "@prisma/client";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import DbClient, { PrismaTransactionClient, TRANSACTION_MAX_WAIT, TRANSACTION_TIMEOUT } from "~/infrastructure/internal/database";
+import { SeedClassesJob, SeedClassesJobData } from "~/api/shared/jobs/SeedClasses.job";
 import TenantCreateProvider from "~/api/modules/tenant/providers/TenantCreate.provider";
 import { CreateUserRecordType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
+import DbClient, { PrismaTransactionClient, TRANSACTION_MAX_WAIT, TRANSACTION_TIMEOUT } from "~/infrastructure/internal/database";
 import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SCHOOL_OWNER_ROLE_NAME, SCHOOL_OWNER_ROLE_RANK, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
-
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
   static serviceName = "AuthSignUpService";
@@ -67,6 +68,8 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
     this.classCreateProvider = classCreateProvider;
     this.tenantCreateProvider = tenantCreateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
+
+    QueueProvider.registerWorker("seedClasses", SeedClassesJob.process);
   }
 
   public async execute(trace: ServiceTrace, args: CreateUserRecordType): Promise<IResult> {
@@ -84,6 +87,17 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       const data = await this.createTenantAndUserRecordWithTokenTransaction(input);
 
       const { user, otpToken } = data;
+
+      await QueueProvider.addJob<SeedClassesJobData>(
+        "seedClasses",
+        "seedClassesForTenant",
+        { tenantId: user.tenantId },
+        {
+          attempts: 3,
+          priority: 2,
+          delay: 30000,
+        }
+      );
 
       Event.emit(eventTypes.user.signUp, {
         userEmail: user.email,
@@ -108,8 +122,6 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       const result = await DbClient.$transaction(
         async (tx: PrismaTransactionClient) => {
           const tenant = await this.tenantCreateProvider.create(null, tx);
-
-          await this.seedClassesForTenant(tenant.id, tx);
 
           const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
           const user = await this.userCreateProvider.create(userCreateInput, tx);
@@ -147,13 +159,5 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       this.loggingProvider.error(error);
       throw new InternalServerError(SOMETHING_WENT_WRONG);
     }
-  }
-
-  // REFACTOR TO SEED ON SERVER START IN PROD
-  private async seedClassesForTenant(tenantId: number, tx: PrismaTransactionClient) {
-    const defaultClasses = Object.values(ClassList).map((name) => ({ name, tenantId }));
-
-    await this.classCreateProvider.createMany(defaultClasses, tx);
-    await this.classReadCache.invalidate(tenantId);
   }
 }
