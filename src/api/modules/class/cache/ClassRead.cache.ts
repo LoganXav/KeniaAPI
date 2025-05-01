@@ -25,12 +25,10 @@ export default class ClassReadCache {
       const cachedClasses = await this.redisClient.get(cacheKey);
 
       if (cachedClasses) {
-        console.log("Criteria Class Cache HIT!");
         return JSON.parse(cachedClasses);
       }
 
       const classes = await this.classReadProvider.getByCriteria(criteria);
-      console.log("Criteria Class Cache MISS!");
 
       if (ArrayUtil.any(classes)) {
         await this.redisClient.set(cacheKey, JSON.stringify(classes), {
@@ -64,12 +62,10 @@ export default class ClassReadCache {
       const cachedClass = await this.redisClient.get(cacheKey);
 
       if (cachedClass) {
-        // console.log("Criteria Single Class Cache HIT!");
         return JSON.parse(cachedClass);
       }
 
       const _class = await this.classReadProvider.getOneByCriteria(criteria);
-      // console.log("Criteria Single Class Cache MISS!");
 
       if (_class) {
         await this.redisClient.set(cacheKey, JSON.stringify(_class), {
