@@ -24,7 +24,7 @@ export default {
     Root: DefaultValue.evaluateAndGet(process.env.SERVER_ROOT, "/api"),
     Host: DefaultValue.evaluateAndGet(process.env.SERVER_HOST, "localhost"),
     Port: DefaultValue.evaluateAndGet(Number(process.env.PORT), 5500),
-    Origins: DefaultValue.evaluateAndGet(process.env.ORIGINS, "http://localhost:3000,http://localhost:3001,http://localhost:3002"),
+    Origins: DefaultValue.evaluateAndGet(process.env.ORIGINS, "http://localhost:3000,http://localhost:3001,http://localhost:3002,https://kenia-client-monorepo-web.vercel.app"),
     ServiceName: DefaultValue.evaluateAndGet(process.env.SERVICE_NAME, "KENIA"),
     ServiceContext: {
       LoadWithContext: !!process.env.SERVICE_CONTEXT,
