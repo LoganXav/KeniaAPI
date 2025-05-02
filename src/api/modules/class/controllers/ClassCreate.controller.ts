@@ -9,6 +9,8 @@ import { autoInjectable } from "tsyringe";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { classCreateSchema } from "../validators/ClassCreateSchema";
 import ClassCreateService from "../services/ClassCreate.service";
+import { ResultTDescriber, TypeDescriber, PropTypeEnum } from "~/infrastructure/internal/documentation/TypeDescriber";
+import { ClassResponseType, ClassCreateRequestType } from "../types/ClassTypes";
 
 @autoInjectable()
 export default class ClassCreateController extends BaseController {
@@ -41,6 +43,81 @@ export default class ClassCreateController extends BaseController {
         },
       ],
       description: "Create a new class",
+      apiDoc: {
+        contentType: HttpContentTypeEnum.APPLICATION_JSON,
+        requireAuth: false,
+        schema: new ResultTDescriber<ClassResponseType>({
+          name: "ClassCreateResponse",
+          type: PropTypeEnum.OBJECT,
+          props: {
+            data: new TypeDescriber<ClassResponseType>({
+              name: "ClassCreateResponse",
+              type: PropTypeEnum.OBJECT,
+              props: {
+                id: {
+                  type: PropTypeEnum.NUMBER,
+                },
+                name: {
+                  type: PropTypeEnum.STRING,
+                },
+                tenantId: {
+                  type: PropTypeEnum.NUMBER,
+                },
+                classTeacherId: {
+                  type: PropTypeEnum.NUMBER,
+                  nullable: true,
+                },
+                classTeacher: {
+                  type: PropTypeEnum.OBJECT,
+                  nullable: true,
+                },
+                students: {
+                  type: PropTypeEnum.ARRAY,
+                  nullable: true,
+                },
+                subjects: {
+                  type: PropTypeEnum.ARRAY,
+                  nullable: true,
+                },
+                divisions: {
+                  type: PropTypeEnum.ARRAY,
+                  nullable: true,
+                },
+              },
+            }),
+            error: {
+              type: PropTypeEnum.STRING,
+            },
+            message: {
+              type: PropTypeEnum.STRING,
+            },
+            statusCode: {
+              type: PropTypeEnum.STRING,
+            },
+            success: {
+              type: PropTypeEnum.BOOLEAN,
+            },
+          },
+        }),
+        requestBody: {
+          description: "ClassCreateRequest",
+          contentType: HttpContentTypeEnum.APPLICATION_JSON,
+          schema: new TypeDescriber<ClassCreateRequestType>({
+            name: "ClassCreateRequest",
+            type: PropTypeEnum.OBJECT,
+            props: {
+              name: {
+                type: PropTypeEnum.STRING,
+                required: false,
+              },
+              tenantId: {
+                type: PropTypeEnum.NUMBER,
+                required: true,
+              },
+            },
+          }),
+        },
+      },
     });
   }
 }
