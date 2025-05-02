@@ -2,9 +2,10 @@ import { CRITICAL_ERROR_EXITING, ERROR } from "~/api/shared/helpers/messages/Sys
 import ApplicationError from "./ApplicationError";
 import { Response } from "express";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-
+import { LoggingProviderFactory } from "../logger/LoggingProviderFactory";
 // https://www.codeconcisely.com/posts/how-to-handle-errors-in-express-with-typescript/
 class ErrorHandler {
+  private loggingProvider = LoggingProviderFactory.build();
   public handleError(error: Error | ApplicationError, response?: Response): void {
     if (this.isTrustedError(error) && response) {
       this.handleTrustedError(error as ApplicationError, response);
@@ -33,8 +34,8 @@ class ErrorHandler {
         status: ERROR,
         message: CRITICAL_ERROR_EXITING,
       });
-    } catch (error) {
-      console.log("Critical: Error in Error handling", error);
+    } catch (error: any) {
+      this.loggingProvider.error(`Critical: Error in Error handling: ${error.message}`);
     }
   }
 }

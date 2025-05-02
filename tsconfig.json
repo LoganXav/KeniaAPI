@@ -18,6 +18,7 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true,
 
     "paths": {
       "~/api/*": ["./src/api/*"],

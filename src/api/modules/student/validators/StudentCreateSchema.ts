@@ -1,4 +1,5 @@
 import { z } from "zod";
+import DateTimeUtils from "~/utils/DateTimeUtil";
 
 export const studentCreateRequestSchema = z.object({
   tenantId: z.number({ required_error: "Tenant ID is required", invalid_type_error: "Tenant ID must be a number" }).positive("Tenant ID must be a positive number"),
@@ -29,8 +30,7 @@ export const studentCreateRequestSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
 
   residentialAddress: z.string({ invalid_type_error: "Residential address must be a string" }).optional(),
@@ -65,8 +65,7 @@ export const studentCreateRequestSchema = z.object({
         )
         .transform((val) => {
           if (!val) return null;
-          const date = new Date(val);
-          return date;
+          return DateTimeUtils.parseToISO(val);
         }),
       residentialAddress: z.string({ required_error: "Guardian residential address is required", invalid_type_error: "Guardian residential address must be a string" }),
       residentialLgaId: z.number({ required_error: "Guardian LGA ID is required", invalid_type_error: "Guardian LGA ID must be a number" }),
@@ -86,10 +85,8 @@ export const studentCreateRequestSchema = z.object({
       required_error: "Enrollment date is required",
       invalid_type_error: "Enrollment date must be a valid Date object",
     })
-    .optional()
     .refine(
       (val) => {
-        if (!val) return true;
         const date = new Date(val);
         return !isNaN(date.getTime());
       },
@@ -98,9 +95,7 @@ export const studentCreateRequestSchema = z.object({
       }
     )
     .transform((val) => {
-      if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
 
   // Subject Registration

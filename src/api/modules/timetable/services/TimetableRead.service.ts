@@ -10,11 +10,10 @@ import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { IRequest } from "~/infrastructure/internal/types";
 import TermReadProvider from "~/api/modules/term/providers/TermRead.provider";
-import { eachDayOfInterval, isWeekend, format } from "date-fns";
-import { BreakPeriod, Period, Timetable, Term } from "@prisma/client";
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { BreakWeekType, TermType } from "../../schoolCalendar/types/SchoolCalendarTypes";
 import { PeriodType, TimetableType } from "../types/TimetableTypes";
+import DateTimeUtils from "~/utils/DateTimeUtil";
 
 @autoInjectable()
 export default class TimetableReadService extends BaseService<IRequest> {
@@ -71,14 +70,13 @@ export default class TimetableReadService extends BaseService<IRequest> {
     const timedPeriods: Array<{ start: string; end: string; title?: string | null }> = [];
 
     timetables.forEach((timetable) => {
-      const validDates = this.getWeekdayDatesBetween(new Date(term.startDate), new Date(term.endDate), timetable.day).filter((date) => {
+      const validDates = this.getWeekdayDatesBetween(new Date(term.startDate), new Date(term.endDate), timetable.day).filter((date: Date) => {
         const isBreak = this.checkIsDateInBreakWeeks(date, term.breakWeeks);
         return !isBreak;
       });
 
-      validDates.forEach((date) => {
+      validDates.forEach((date: Date) => {
         timetable.periods.forEach((period: PeriodType) => {
-          // Fix the parsing of the time string
           const startTime = period.startTime.split("T")[1]; // Get the time part after 'T'
           const endTime = period.endTime.split("T")[1];
 
@@ -90,10 +88,9 @@ export default class TimetableReadService extends BaseService<IRequest> {
 
           const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(endHour), parseInt(endMin), 0);
 
-          // TODO: Pass date format string from the frontend
-          // Format using date-fns for consistent output
-          const formattedStart = format(startDate, "yyyy-MM-dd'T'HH:mm:ss");
-          const formattedEnd = format(endDate, "yyyy-MM-dd'T'HH:mm:ss");
+          // Format for consistent output
+          const formattedStart = DateTimeUtils.format(startDate, "yyyy-MM-dd'T'HH:mm:ss");
+          const formattedEnd = DateTimeUtils.format(endDate, "yyyy-MM-dd'T'HH:mm:ss");
 
           timedPeriods.push({
             start: formattedStart,
@@ -136,9 +133,9 @@ export default class TimetableReadService extends BaseService<IRequest> {
       FRIDAY: 5,
     };
 
-    const dates = eachDayOfInterval({ start, end })
-      .filter((date) => !isWeekend(date))
-      .filter((date) => date.getDay() === weekdayMap[weekday]);
+    const dates = DateTimeUtils.eachDayOfInterval(start, end)
+      .filter((date: Date) => !DateTimeUtils.isWeekend(date))
+      .filter((date: Date) => date.getDay() === weekdayMap[weekday]);
 
     return dates;
   }

@@ -96,6 +96,7 @@ model User {
   residentialStateId   Int?
   residentialCountryId Int?
   residentialZipCode   Int?
+
   @@unique([email, tenantId])
 }
 
@@ -213,6 +214,7 @@ model Guardian {
   students             Student[] @relation("StudentGuardian")
   tenantId             Int
   tenant               Tenant    @relation(fields: [tenantId], references: [id])
+
   @@unique([email, tenantId])
 }
 
@@ -388,7 +390,7 @@ model DocumentType {
   tenant   Tenant     @relation(fields: [tenantId], references: [id])
 }
 
-// ==================== UNDECIDED TABLES START ==================== //
+// ===================== UNDECIDED TABLES START ===================== //
 
 model Group {
   id       Int     @id @default(autoincrement())

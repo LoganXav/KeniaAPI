@@ -11,5 +11,6 @@ export const signInUserRecordSchema = z.object({
     .email("Not a valid email"),
   userType: z.string({
     required_error: "Argument userType is missing",
+    invalid_type_error: "Argument User type must be a string specified",
   }),
 });

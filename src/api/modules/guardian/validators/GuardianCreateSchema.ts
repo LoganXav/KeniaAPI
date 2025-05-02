@@ -1,4 +1,5 @@
 import { z } from "zod";
+import DateTimeUtils from "~/utils/DateTimeUtil";
 
 export const guardianCreateSchema = z.object({
   firstName: z.string({ required_error: "First name is required", invalid_type_error: "First name must be a string" }).min(1, "First name is required").max(50, "First name must be less than 50 characters"),
@@ -23,8 +24,7 @@ export const guardianCreateSchema = z.object({
     )
     .transform((val) => {
       if (!val) return null;
-      const date = new Date(val);
-      return date;
+      return DateTimeUtils.parseToISO(val);
     }),
 
   // Address
