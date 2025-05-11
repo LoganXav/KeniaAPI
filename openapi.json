@@ -124,6 +124,33 @@
           }
         }
       }
+    },
+    "/class/create": {
+      "post": {
+        "description": "Create a new class",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultTClassCreateResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "ClassCreateRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassCreateRequest"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -344,6 +371,71 @@
         "required": [
           "id",
           "otpToken"
+        ]
+      },
+      "ClassCreateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "number"
+          },
+          "classTeacherId": {
+            "type": "number",
+            "nullable": true
+          },
+          "classTeacher": {
+            "type": "object",
+            "nullable": true
+          },
+          "students": {
+            "type": "array"
+          },
+          "subjects": {
+            "type": "array"
+          },
+          "divisions": {
+            "type": "array"
+          }
+        }
+      },
+      "ResultTClassCreateResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ClassCreateResponse"
+          }
+        }
+      },
+      "ClassCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "tenantId"
         ]
       }
     },
