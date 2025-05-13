@@ -14,11 +14,10 @@ export default class TenantUpdateProvider {
           ...(args.profileStatus !== undefined && { profileStatus: args.profileStatus }),
           ...(args.schoolCalendarStatus !== undefined && { schoolCalendarStatus: args.schoolCalendarStatus }),
           ...(args.schoolTimetableStatus !== undefined && { schoolTimetableStatus: args.schoolTimetableStatus }),
-          ...(args.schoolSubjectStatus !== undefined && { schoolSubjectStatus: args.schoolSubjectStatus }),
         },
       });
 
-      const statusColumns = [newTenantMetadata.profileStatus, newTenantMetadata.schoolCalendarStatus, newTenantMetadata.schoolTimetableStatus, newTenantMetadata.schoolSubjectStatus];
+      const statusColumns = [newTenantMetadata.profileStatus, newTenantMetadata.schoolCalendarStatus, newTenantMetadata.schoolTimetableStatus];
 
       const trueStatusCount = statusColumns.filter((status) => status).length;
       const totalStatusCount = statusColumns.length;

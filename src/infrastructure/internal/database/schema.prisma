@@ -71,7 +71,6 @@ model TenantMetadata {
   profileStatus           Boolean   @default(false)
   schoolCalendarStatus    Boolean   @default(false)
   schoolTimetableStatus   Boolean   @default(false)
-  schoolSubjectStatus     Boolean   @default(false)
   tenant                  Tenant @relation(fields: [tenantId], references: [id])
 }
 
