@@ -1,6 +1,6 @@
 import { emailConfig } from "~/config/EmailConfig";
-import { EmailProvider } from "./EmailProvider";
-import { NodeMailerDriver } from "./NodeMailerDriver";
+import { EmailProvider } from "~/infrastructure/external/email/EmailProvider";
+import { NodeMailerDriver } from "~/infrastructure/external/email/NodeMailerDriver";
 
 export class EmailProviderFactory {
   constructor() {}

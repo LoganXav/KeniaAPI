@@ -1,5 +1,5 @@
 import winston from "winston";
-import { ILoggingDriver } from "./ILoggingDriver";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 
 const customLevels = {
   levels: {

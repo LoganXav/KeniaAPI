@@ -1,8 +1,8 @@
 import { Queue, Worker, Job, QueueEvents } from "bullmq";
-import { ILoggingDriver } from "../logger/ILoggingDriver";
 import AppSettings from "~/api/shared/setttings/AppSettings";
-import { InternalServerError } from "../exceptions/InternalServerError";
-import { LoggingProviderFactory } from "../logger/LoggingProviderFactory";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 
 export type JobData = {
   [key: string]: any;

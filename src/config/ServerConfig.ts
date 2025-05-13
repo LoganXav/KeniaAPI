@@ -1,6 +1,6 @@
+import { Normalize } from "~/config/Normalize";
 import { BooleanUtil } from "~/utils/BooleanUtil";
 import { DefaultValue } from "~/utils/DefaultValue";
-import { Normalize } from "./Normalize";
 import { ServiceContext } from "~/api/shared/helpers/enums/ServiceContext.enum";
 
 export const DEV = "development";

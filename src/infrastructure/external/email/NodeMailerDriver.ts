@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
-import { SendEmailArgs } from "~/api/shared/types/EmailActivationTypes";
-import { IEmailDriver } from "./IEmailDriver";
 import { emailConfig } from "~/config/EmailConfig";
+import { SendEmailArgs } from "~/api/shared/types/EmailActivationTypes";
+import { IEmailDriver } from "~/infrastructure/external/email/IEmailDriver";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 
 export class NodeMailerDriver implements IEmailDriver {

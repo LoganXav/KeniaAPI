@@ -1,7 +1,7 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { DefaultArgs } from "@prisma/client/runtime/library";
 import { DEV } from "~/config/ServerConfig";
 import { BooleanUtil } from "~/utils/BooleanUtil";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
 declare global {
   // eslint-disable-next-line no-var

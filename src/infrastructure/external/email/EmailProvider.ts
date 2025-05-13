@@ -1,7 +1,7 @@
 import { SendEmailArgs } from "~/api/shared/types/EmailActivationTypes";
-import { IEmailDriver } from "./IEmailDriver";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { IEmailDriver } from "~/infrastructure/external/email/IEmailDriver";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 
 export class EmailProvider {
   loggingProvider: ILoggingDriver;

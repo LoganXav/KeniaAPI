@@ -1,5 +1,5 @@
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import ApplicationError from "./ApplicationError";
+import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError";
 
 export class ValidationError extends ApplicationError {
   constructor(description = "Validation Error") {

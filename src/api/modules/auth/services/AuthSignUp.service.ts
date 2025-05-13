@@ -95,7 +95,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         {
           attempts: 3,
           priority: 2,
-          delay: 30000,
+          delay: 0,
         }
       );
 

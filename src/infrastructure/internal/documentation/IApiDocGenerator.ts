@@ -1,8 +1,8 @@
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
-import { RefTypeDescriber, ResultDescriber, ResultTDescriber, TypeDescriber } from "./TypeDescriber";
+import { EntryPointHandler } from "~/infrastructure/internal/types";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import { EntryPointHandler } from "../types";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import { RefTypeDescriber, ResultDescriber, ResultTDescriber, TypeDescriber } from "~/infrastructure/internal/documentation/TypeDescriber";
 
 export enum ParameterIn {
   QUERY = "query",

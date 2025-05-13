@@ -1,4 +1,4 @@
-import { ILoggingDriver } from "./ILoggingDriver";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 
 export class LoggingProvider {
   constructor(private driver: ILoggingDriver) {}

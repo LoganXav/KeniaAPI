@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from "express";
-import { ROUTE_WHITE_LIST } from "~/config/RoutesConfig";
-import ServerConfig from "~/config/ServerConfig";
-import { Middleware, IRequest } from "~/infrastructure/internal/types";
-import { BooleanUtil } from "~/utils/BooleanUtil";
 import { TypeParser } from "~/utils/TypeParser";
+import ServerConfig from "~/config/ServerConfig";
+import { BooleanUtil } from "~/utils/BooleanUtil";
+import { ROUTE_WHITE_LIST } from "~/config/RoutesConfig";
+import { Request, Response, NextFunction } from "express";
+import { Middleware, IRequest } from "~/infrastructure/internal/types";
 
 const root = ServerConfig.Server.Root;
 
@@ -21,11 +21,11 @@ class RouteWhiteListMiddleware {
 
     const existsUnauthorizedPath = ROUTE_WHITE_LIST.some((path) => BooleanUtil.areEqual(path, req.path));
 
-    // if (existsUnauthorizedPath || isDynamicPath) {
-    //   TypeParser.cast<IRequest>(req).isWhiteList = true;
-    // }
+    if (existsUnauthorizedPath || isDynamicPath) {
+      TypeParser.cast<IRequest>(req).isWhiteList = true;
+    }
 
-    TypeParser.cast<IRequest>(req).isWhiteList = true;
+    // TypeParser.cast<IRequest>(req).isWhiteList = true;
 
     return next();
   };

@@ -1,9 +1,10 @@
-import { CRITICAL_ERROR_EXITING, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import ApplicationError from "./ApplicationError";
 import { Response } from "express";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { LoggingProviderFactory } from "../logger/LoggingProviderFactory";
+import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError";
+import { CRITICAL_ERROR_EXITING, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 // https://www.codeconcisely.com/posts/how-to-handle-errors-in-express-with-typescript/
+
 class ErrorHandler {
   private loggingProvider = LoggingProviderFactory.build();
   public handleError(error: Error | ApplicationError, response?: Response): void {

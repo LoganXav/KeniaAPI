@@ -54,7 +54,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
         throw new BadRequestError(ERROR_INVALID_TOKEN);
       }
 
-      const tokenOwner = await this.userReadProvider.getOneByCriteria({ id: dbOtpToken.userId });
+      const tokenOwner = await this.userReadCache.getOneByCriteria({ userId: dbOtpToken.userId });
 
       if (tokenOwner === NULL_OBJECT) {
         throw new BadRequestError(ERROR_INVALID_TOKEN);

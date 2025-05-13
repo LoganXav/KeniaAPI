@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import { LocaleTypeEnum } from "~/api/shared/helpers/enums/LocalType.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import { LocaleTypeEnum } from "~/api/shared/helpers/enums/LocalType.enum";
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 
 export type HeaderType = {
   [key in HttpHeaderEnum]?: HttpContentTypeEnum | string;

@@ -1,9 +1,9 @@
+import { BooleanUtil } from "~/utils/BooleanUtil";
+import { SKIP_DECRYPTION } from "~/config/RoutesConfig";
 import { Request, Response, NextFunction } from "express";
+import ServerConfig, { DEV } from "~/config/ServerConfig";
 import { Middleware } from "~/infrastructure/internal/types";
 import { PayloadEncryptService } from "~/api/shared/services/encryption/PayloadEncryptService";
-import ServerConfig, { DEV } from "~/config/ServerConfig";
-import { SKIP_DECRYPTION } from "~/config/RoutesConfig";
-import { BooleanUtil } from "~/utils/BooleanUtil";
 
 class DecryptionMiddleware {
   public handle: Middleware = (req: Request, _res: Response, next: NextFunction): void => {

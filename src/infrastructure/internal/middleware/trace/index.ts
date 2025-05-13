@@ -1,9 +1,9 @@
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { IRequest, IResponse, ISession, Middleware } from "../../types";
-import { NextFunction, Request, Response } from "express";
-import { TypeParser } from "~/utils/TypeParser";
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import GuidUtil from "~/utils/GuidUtil";
+import { TypeParser } from "~/utils/TypeParser";
+import { NextFunction, Request, Response } from "express";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
+import { IRequest, IResponse, ISession, Middleware } from "~/infrastructure/internal/types";
 
 class ServiceTraceMiddleware {
   handle: Middleware = (req: Request, res: Response, next: NextFunction): void => {

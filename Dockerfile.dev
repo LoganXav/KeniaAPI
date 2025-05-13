@@ -23,4 +23,4 @@ EXPOSE 5500
 EXPOSE 5555
 
 # Run the application in development mode with hot-reloading
-CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm run dev"]
+CMD ["sh", "-c", "pnpm exec prisma generate && pnpm exec prisma migrate deploy && pnpm run dev"]
