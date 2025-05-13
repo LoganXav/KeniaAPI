@@ -1,12 +1,12 @@
-import { Response, Request, NextFunction } from "express";
-import { ERROR_EXPIRED_TOKEN, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN } from "~/api/shared/helpers/messages/SystemMessages";
-import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
-import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError";
-import { UnauthorizedError } from "~/infrastructure/internal/exceptions/UnauthorizedError";
-import { IRequest, ISession, Middleware } from "~/infrastructure/internal/types";
 import ArrayUtil from "~/utils/ArrayUtil";
 import { TryWrapper } from "~/utils/TryWrapper";
 import { TypeParser } from "~/utils/TypeParser";
+import { Response, Request, NextFunction } from "express";
+import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
+import { IRequest, ISession, Middleware } from "~/infrastructure/internal/types";
+import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError";
+import { UnauthorizedError } from "~/infrastructure/internal/exceptions/UnauthorizedError";
+import { ERROR_EXPIRED_TOKEN, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN } from "~/api/shared/helpers/messages/SystemMessages";
 
 const TOKEN_PARTS = 2;
 const TOKEN_POSITION_VALUE = 1;
@@ -25,6 +25,7 @@ class AuthorizationMiddleware {
     const token = ArrayUtil.getWithIndex(jwtParts, TOKEN_POSITION_VALUE);
 
     const tokenValidation = TryWrapper.exec(JwtService.verifyJwt, [token]);
+
     if (!tokenValidation.success) return next(this.getUnauthorized(ERROR_EXPIRED_TOKEN));
 
     TypeParser.cast<IRequest>(req).session = TypeParser.cast<ISession>(tokenValidation.value);

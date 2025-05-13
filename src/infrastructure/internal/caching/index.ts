@@ -1,7 +1,7 @@
-import { ILoggingDriver } from "../logger/ILoggingDriver";
 import AppSettings from "~/api/shared/setttings/AppSettings";
-import { LoggingProviderFactory } from "../logger/LoggingProviderFactory";
 import { createClient, RedisClientType, RedisDefaultModules } from "redis";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 
 class RedisClient {
   private static instance: RedisClientType<RedisDefaultModules>;

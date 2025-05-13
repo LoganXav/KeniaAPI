@@ -1,10 +1,10 @@
-import Express from "../index";
 import { resolve } from "path";
-import { NextFunction, Router } from "express";
-import { container } from "tsyringe";
 import { sync } from "fast-glob";
-import ServerConfig from "../../../../config/ServerConfig";
-import AppSettings from "../../../../api/shared/setttings/AppSettings";
+import { container } from "tsyringe";
+import { NextFunction, Router } from "express";
+import ServerConfig from "~/config/ServerConfig";
+import Express from "~/infrastructure/internal/express";
+import AppSettings from "~/api/shared/setttings/AppSettings";
 
 jest.mock("fast-glob", () => ({
   sync: jest.fn(),
@@ -35,12 +35,12 @@ describe("Load Controllers Dynamically", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    ServerConfig.Controllers.DefaultPath = ["../../../../api/modules/status/controllers/*.controller.ts"];
+    ServerConfig.Controllers.DefaultPath = ["~/api/modules/status/controllers/*.controller.ts"];
     AppSettings.ServerRoot = "/api";
   });
 
   it("Should load controllers dynamically and initialize routes", async () => {
-    const mockControllerPaths = ["../../../api/modules/status/controllers/Status.controller.ts"];
+    const mockControllerPaths = ["~/api/modules/status/controllers/Status.controller.ts"];
     (sync as jest.Mock).mockReturnValue(mockControllerPaths);
 
     (resolve as jest.Mock).mockImplementation((path) => path);
@@ -54,7 +54,7 @@ describe("Load Controllers Dynamically", () => {
 
     const appUseSpy = jest.spyOn(app.app, "use");
 
-    jest.mock("../../../../api/modules/status/controllers/Status.controller", () => ({
+    jest.mock("~/api/modules/status/controllers/Status.controller", () => ({
       default: jest.fn(() => mockController),
     }));
 

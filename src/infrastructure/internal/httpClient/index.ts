@@ -1,6 +1,6 @@
 import axios from "axios";
-import { IGetRequest, IPostRequest } from "../types/httpTypes";
-import { InternalServerError } from "../exceptions/InternalServerError";
+import { IGetRequest, IPostRequest } from "~/infrastructure/internal/types/httpTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export class HttpClient {
   public static async get(getRequestDto: IGetRequest) {

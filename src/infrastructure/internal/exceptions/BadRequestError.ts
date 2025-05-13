@@ -1,5 +1,5 @@
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import ApplicationError from "./ApplicationError";
+import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError";
 
 export class BadRequestError extends ApplicationError {
   constructor(description = "Bad Request Error", httpStatusCode = HttpStatusCodeEnum.BAD_REQUEST) {

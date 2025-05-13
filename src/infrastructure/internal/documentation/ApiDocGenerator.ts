@@ -1,13 +1,13 @@
+import { writeFileSync } from "fs";
+import { join, resolve } from "path";
 import AppSettings from "~/api/shared/setttings/AppSettings";
 import { SchemasStore } from "~/infrastructure/internal/documentation/SchemasStore";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import HttpStatusDescriber from "~/infrastructure/internal/documentation/HttpStatusDescriber";
 import { SchemasSecurityStore } from "~/infrastructure/internal/documentation/SchemasSecurityStore";
 import { PropFormatEnum, PropTypeEnum } from "~/infrastructure/internal/documentation/TypeDescriber";
 import { ApiDoc, ParameterDescriber, RouteType, SecuritySchemes } from "~/infrastructure/internal/documentation/IApiDocGenerator";
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
-import HttpStatusDescriber from "./HttpStatusDescriber";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { join, resolve } from "path";
-import { writeFileSync } from "fs";
 
 type SchemaType = { type?: PropTypeEnum } | { $ref?: string } | { type?: PropTypeEnum.OBJECT | PropTypeEnum.ARRAY; items?: { $ref: string } };
 

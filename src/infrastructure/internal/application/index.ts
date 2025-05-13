@@ -1,6 +1,6 @@
 import { Server, createServer } from "http";
-import AppSettings from "~/api/shared/setttings/AppSettings";
 import Express from "~/infrastructure/internal/express";
+import AppSettings from "~/api/shared/setttings/AppSettings";
 
 export class Application {
   express: Express;

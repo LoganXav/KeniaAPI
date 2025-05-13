@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
 import { TypeParser } from "~/utils/TypeParser";
-import { IRequest, Middleware } from "~/infrastructure/internal/types";
 import { DefaultValue } from "~/utils/DefaultValue";
+import { Request, Response, NextFunction } from "express";
+import { IRequest, Middleware } from "~/infrastructure/internal/types";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 
 class ClientInfoMiddleware {
