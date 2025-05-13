@@ -112,6 +112,12 @@ export default class OnboardingService extends BaseService<IRequest> {
 
       const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.COMPLETE);
 
+      // update profile completion status
+      await this.tenantUpdateProvider.updateMetadata({
+        tenantId: Number(tenantId),
+        profileStatus: true,
+      });
+
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(TENANT_RESOURCE), data);
       trace.setSuccessful();
       return this.result;

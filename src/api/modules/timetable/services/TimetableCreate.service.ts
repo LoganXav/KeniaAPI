@@ -15,6 +15,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { SUCCESS, TIMETABLE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import TenantUpdateProvider from "../../tenant/providers/TenantUpdate.provider";
 @autoInjectable()
 export default class TimetableCreateService extends BaseService<TimetableCreateOrUpdateRequestType> {
   static serviceName = "TimetableCreateService";
@@ -23,14 +24,16 @@ export default class TimetableCreateService extends BaseService<TimetableCreateO
   periodDeleteProvider: PeriodDeleteProvider;
   periodCreateProvider: PeriodCreateProvider;
   timetableCreateProvider: TimetableCreateProvider;
+  tenantUpdateProvider: TenantUpdateProvider;
 
-  constructor(periodReadProvider: PeriodReadProvider, periodCreateProvider: PeriodCreateProvider, periodDeleteProvider: PeriodDeleteProvider, timetableCreateProvider: TimetableCreateProvider) {
+  constructor(periodReadProvider: PeriodReadProvider, periodCreateProvider: PeriodCreateProvider, periodDeleteProvider: PeriodDeleteProvider, timetableCreateProvider: TimetableCreateProvider, tenantUpdateProvider: TenantUpdateProvider) {
     super(TimetableCreateService.serviceName);
     this.periodReadProvider = periodReadProvider;
     this.periodCreateProvider = periodCreateProvider;
     this.periodDeleteProvider = periodDeleteProvider;
     this.loggingProvider = LoggingProviderFactory.build();
     this.timetableCreateProvider = timetableCreateProvider;
+    this.tenantUpdateProvider = tenantUpdateProvider;
   }
 
   public async execute(trace: ServiceTrace, args: TimetableCreateOrUpdateRequestType): Promise<IResult> {
@@ -52,6 +55,14 @@ export default class TimetableCreateService extends BaseService<TimetableCreateO
 
   private async createTimeTableWithPeriodsTransaction(args: TimetableCreateOrUpdateRequestType): Promise<Timetable> {
     return DbClient.$transaction(async (tx) => {
+      // update timetable completion status if new timetable is created
+      if (!args.id) {
+        await this.tenantUpdateProvider.updateMetadata({
+          tenantId: Number(args.tenantId),
+          schoolTimetableStatus: true,
+        });
+      }
+
       const timetable = await this.timetableCreateProvider.createOrUpdate(
         {
           id: args.id,

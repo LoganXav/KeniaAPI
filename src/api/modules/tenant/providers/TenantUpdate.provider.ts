@@ -11,6 +11,23 @@ export default class TenantUpdateProvider {
         data: {
           ...(staff && { totalStaff: { increment: 1 } }),
           ...(student && { totalStudents: { increment: 1 } }),
+          ...(args.profileStatus !== undefined && { profileStatus: args.profileStatus }),
+          ...(args.schoolCalendarStatus !== undefined && { schoolCalendarStatus: args.schoolCalendarStatus }),
+          ...(args.schoolTimetableStatus !== undefined && { schoolTimetableStatus: args.schoolTimetableStatus }),
+          ...(args.schoolSubjectStatus !== undefined && { schoolSubjectStatus: args.schoolSubjectStatus }),
+        },
+      });
+
+      const statusColumns = [newTenantMetadata.profileStatus, newTenantMetadata.schoolCalendarStatus, newTenantMetadata.schoolTimetableStatus, newTenantMetadata.schoolSubjectStatus];
+
+      const trueStatusCount = statusColumns.filter((status) => status).length;
+      const totalStatusCount = statusColumns.length;
+      const percentageCompleted = Math.floor((trueStatusCount / totalStatusCount) * 100);
+
+      await dbClient?.tenantMetadata?.update({
+        where: { tenantId },
+        data: {
+          percentageCompleted,
         },
       });
 

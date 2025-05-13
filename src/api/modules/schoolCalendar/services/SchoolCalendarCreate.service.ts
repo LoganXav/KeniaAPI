@@ -16,6 +16,7 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 import { SUCCESS, SCHOOL_CALENDAR_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { BreakWeekType, SchoolCalendarCreateRequestType, TermType } from "../types/SchoolCalendarTypes";
+import TenantUpdateProvider from "../../tenant/providers/TenantUpdate.provider";
 
 @autoInjectable()
 export default class SchoolCalendarCreateService extends BaseService<SchoolCalendarCreateRequestType> {
@@ -28,7 +29,7 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
   breakPeriodDeleteProvider: BreakPeriodDeleteProvider;
   schoolCalendarReadProvider: SchoolCalendarReadProvider;
   schoolCalendarCreateProvider: SchoolCalendarCreateProvider;
-
+  tenantUpdateProvider: TenantUpdateProvider;
   constructor(
     termReadProvider: TermReadProvider,
     termDeleteProvider: TermDeleteProvider,
@@ -36,7 +37,8 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
     breakPeriodDeleteProvider: BreakPeriodDeleteProvider,
     breakPeriodCreateProvider: BreakPeriodCreateProvider,
     schoolCalendarReadProvider: SchoolCalendarReadProvider,
-    schoolCalendarCreateProvider: SchoolCalendarCreateProvider
+    schoolCalendarCreateProvider: SchoolCalendarCreateProvider,
+    tenantUpdateProvider: TenantUpdateProvider
   ) {
     super(SchoolCalendarCreateService.serviceName);
     this.termReadProvider = termReadProvider;
@@ -46,6 +48,7 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
     this.breakPeriodDeleteProvider = breakPeriodDeleteProvider;
     this.schoolCalendarReadProvider = schoolCalendarReadProvider;
     this.schoolCalendarCreateProvider = schoolCalendarCreateProvider;
+    this.tenantUpdateProvider = tenantUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -70,6 +73,14 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
 
   private async schoolCalendarCreateTransaction(args: SchoolCalendarCreateRequestType) {
     return DbClient.$transaction(async (tx) => {
+      // update calender completion status if new calender is created
+      if (!args.id) {
+        await this.tenantUpdateProvider.updateMetadata({
+          tenantId: Number(args.tenantId),
+          schoolCalendarStatus: true,
+        });
+      }
+
       const schoolCalendar = await this.schoolCalendarCreateProvider.createOrUpdate(
         {
           id: args.id,
