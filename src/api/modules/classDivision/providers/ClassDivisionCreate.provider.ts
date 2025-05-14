@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { ClassDivisionCreateRequestType } from "../types/ClassDivisionTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class ClassDivisionCreateProvider {
   public async create(args: ClassDivisionCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

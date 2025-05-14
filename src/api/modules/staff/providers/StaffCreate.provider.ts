@@ -2,7 +2,9 @@ import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/dat
 import { StaffCreateType } from "../types/StaffTypes";
 import { Staff } from "@prisma/client";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class StaffCreateProvider {
   public async create(data: StaffCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {

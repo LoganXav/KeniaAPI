@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { SchoolCalendarCreateRequestType } from "../types/SchoolCalendarTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class SchoolCalendarCreateProvider {
   public async create(args: SchoolCalendarCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

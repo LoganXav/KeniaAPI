@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { SchoolCalendarDeleteRequestType } from "../types/SchoolCalendarTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class SchoolCalendarDeleteProvider {
   public async delete(args: SchoolCalendarDeleteRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

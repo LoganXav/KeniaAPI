@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Class } from "@prisma/client";
 import { ClassUpdateRequestType } from "../types/ClassTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class ClassUpdateProvider {
   public async updateOne(args: ClassUpdateRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Class> {
     const updatedClass = await dbClient?.class?.update({

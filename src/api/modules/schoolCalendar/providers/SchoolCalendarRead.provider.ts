@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { SchoolCalendarCriteriaType } from "../types/SchoolCalendarTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class SchoolCalendarReadProvider {
   public async getByCriteria(criteria: SchoolCalendarCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {

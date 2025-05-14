@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { GuardianUpdateRequestType } from "../types/GuardianTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class GuardianUpdateProvider {
   public async update(args: GuardianUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

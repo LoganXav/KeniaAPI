@@ -1,7 +1,9 @@
 import { SubjectUpdateRequestType } from "../types/SubjectTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class SubjectUpdateProvider {
   public async update(criteria: SubjectUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

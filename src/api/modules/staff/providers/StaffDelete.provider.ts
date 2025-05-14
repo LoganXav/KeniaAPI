@@ -4,7 +4,9 @@ import { StaffCriteriaType } from "../types/StaffTypes";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class StaffDeleteProvider {
   public async deleteOne(criteria: StaffCriteriaType, tx?: any): Promise<Staff | any> {
     const dbClient = tx ? tx : DbClient;

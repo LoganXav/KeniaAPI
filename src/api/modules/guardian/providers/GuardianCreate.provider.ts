@@ -1,7 +1,9 @@
 import { GuardianCreateRequestType } from "../types/GuardianTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class GuardianCreateProvider {
   public async create(args: GuardianCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
