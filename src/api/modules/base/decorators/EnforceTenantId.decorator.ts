@@ -29,7 +29,7 @@ export function EnforceTenantId<T extends { new (...args: any[]): object }>(cons
               if (Array.isArray(arg)) {
                 return arg.some((item) => typeof item === "object" && item !== null && typeof item.tenantId === "string");
               }
-              return typeof arg.tenantId === "number";
+              return typeof arg.tenantId === "number" || typeof arg.tenantId === "string";
             }
             return false;
           });
