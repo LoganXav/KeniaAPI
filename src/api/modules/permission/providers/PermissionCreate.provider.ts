@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { PermissionCreateRequestType } from "~/api/modules/permission/types/PermissionTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class PermissionCreateProvider {
   public async create(data: PermissionCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

@@ -1,7 +1,7 @@
+import { TemplateService } from "~/api/shared/services/template/Template.service";
 import { EmailProviderFactory } from "~/infrastructure/external/email/EmailProviderFactory";
-import { EMAIL_ACTIVATION_TOKEN_EMAIL_SUBJECT, PASSWORD_RESET_TOKEN_EMAIL_SUBJECT } from "../../helpers/messages/SystemMessages";
-import { SendAccountActivationEmailArgs, SendEmailArgs, SendPasswordResetLinkArgs } from "../../types/EmailActivationTypes";
-import { TemplateService } from "../template/Template.service";
+import { SendAccountActivationEmailArgs, SendEmailArgs, SendPasswordResetLinkArgs } from "~/api/shared/types/EmailActivationTypes";
+import { EMAIL_ACTIVATION_TOKEN_EMAIL_SUBJECT, PASSWORD_RESET_TOKEN_EMAIL_SUBJECT } from "~/api/shared/helpers/messages/SystemMessages";
 
 export class EmailService {
   public static async sendAccountActivationEmail(sendAccountActivationEmailArgs: SendAccountActivationEmailArgs) {

@@ -1,7 +1,9 @@
+import { TermDeleteRequestType } from "~/api/modules/term/types/TermTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { TermDeleteRequestType } from "../types/TermTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class TermDeleteProvider {
   public async delete(args: TermDeleteRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

@@ -1,10 +1,12 @@
-import DbClient from "~/infrastructure/internal/database";
 import { Group } from "@prisma/client";
-import { GroupCriteria } from "../types/GroupTypes";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import DbClient from "~/infrastructure/internal/database";
+import { GroupCriteria } from "~/api/modules/group/types/GroupTypes";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class GroupDeleteProvider {
   public async deleteOne(criteria: GroupCriteria, tx?: any): Promise<Group | any> {
     const dbClient = tx ? tx : DbClient;

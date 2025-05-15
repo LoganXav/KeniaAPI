@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { BreakPeriodCreateRequestType } from "../types/BreakPeriodTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { BreakPeriodCreateRequestType } from "~/api/modules/breakPeriod/types/BreakPeriodTypes";
 
+@EnforceTenantId
 export default class BreakPeriodCreateProvider {
   public async createOrUpdate(args: BreakPeriodCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

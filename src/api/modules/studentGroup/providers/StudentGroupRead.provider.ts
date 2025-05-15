@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { StudentGroupCriteriaType } from "../types/StudentGroupTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { StudentGroupCriteriaType } from "~/api/modules/studentGroup/types/StudentGroupTypes";
 
+@EnforceTenantId
 export default class StudentGroupReadProvider {
   public async getByCriteria(criteria: StudentGroupCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {

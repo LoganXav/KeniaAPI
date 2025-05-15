@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { GuardianDeleteRequestType } from "../types/GuardianTypes";
+import { GuardianDeleteRequestType } from "~/api/modules/guardian/types/GuardianTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class GuardianDeleteProvider {
   public async delete(args: GuardianDeleteRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

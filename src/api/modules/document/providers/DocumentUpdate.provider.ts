@@ -1,7 +1,9 @@
+import { DocumentUpdateRequestType } from "~/api/modules/document/types/DocumentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { DocumentUpdateRequestType } from "../types/DocumentTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class DocumentUpdateProvider {
   public async update(criteria: DocumentUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

@@ -1,8 +1,10 @@
 import { Role } from "@prisma/client";
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { RoleReadCriteria } from "~/api/modules/role/types/RoleTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class RoleReadProvider {
   public async getAllRole(dbClient: PrismaTransactionClient = DbClient): Promise<Role[]> {
     try {

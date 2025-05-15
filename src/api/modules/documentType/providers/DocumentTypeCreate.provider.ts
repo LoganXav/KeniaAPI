@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { DocumentTypeCreateRequestType } from "../types/DocumentTypeTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { DocumentTypeCreateRequestType } from "~/api/modules/documentType/types/DocumentTypeTypes";
 
+@EnforceTenantId
 export default class DocumentTypeCreateProvider {
   public async create(args: DocumentTypeCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

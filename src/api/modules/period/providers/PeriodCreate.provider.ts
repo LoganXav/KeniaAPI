@@ -1,7 +1,9 @@
+import { PeriodCreateRequestType } from "~/api/modules/period/types/PeriodTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { PeriodCreateRequestType } from "../types/PeriodTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class PeriodCreateProvider {
   public async create(args: PeriodCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

@@ -1,6 +1,6 @@
-import { sign, verify } from "jsonwebtoken";
-import AppSettings, { AppConstants } from "../../setttings/AppSettings";
 import { User } from "@prisma/client";
+import { sign, verify } from "jsonwebtoken";
+import AppSettings, { AppConstants } from "~/api/shared/setttings/AppSettings";
 import { UnauthenticatedError } from "~/infrastructure/internal/exceptions/UnauthenticatedError";
 
 type JwtPayload = {

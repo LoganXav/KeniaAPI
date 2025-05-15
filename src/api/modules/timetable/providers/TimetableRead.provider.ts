@@ -1,7 +1,9 @@
+import { TimetableCriteriaType } from "~/api/modules/timetable/types/TimetableTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { TimetableCriteriaType, TimetableType } from "../types/TimetableTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class TimetableReadProvider {
   public async getByCriteria(criteria: TimetableCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<any[]> {
     try {

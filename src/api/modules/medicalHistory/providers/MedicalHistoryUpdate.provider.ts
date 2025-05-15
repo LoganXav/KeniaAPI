@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { MedicalHistoryUpdateRequestType } from "../types/MedicalHistoryTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { MedicalHistoryUpdateRequestType } from "~/api/modules/medicalHistory/types/MedicalHistoryTypes";
 
+@EnforceTenantId
 export default class MedicalHistoryUpdateProvider {
   public async update(args: MedicalHistoryUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

@@ -1,8 +1,10 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Tenant } from "@prisma/client";
-import { TenantReadCriteria, TenantRecordWithRelations } from "../types/TenantTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { TenantReadCriteria, TenantRecordWithRelations } from "~/api/modules/tenant/types/TenantTypes";
 
+@EnforceTenantId
 export default class TenantReadProvider {
   public async getAllTenant(tx?: any): Promise<Tenant[]> {
     const dbClient = tx ? tx : DbClient;

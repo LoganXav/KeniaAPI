@@ -1,10 +1,11 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Class } from "@prisma/client";
-import { ClassDeleteRequestType } from "../types/ClassTypes";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
+import { ClassDeleteRequestType } from "~/api/modules/class/types/ClassTypes";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
+@EnforceTenantId
 export default class ClassDeleteProvider {
   public async deleteOne(args: ClassDeleteRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Class | any> {
     const toDelete = await dbClient?.class?.findFirst({

@@ -1,8 +1,10 @@
 import { Class } from "@prisma/client";
-import { ClassCriteriaType } from "../types/ClassTypes";
+import { ClassCriteriaType } from "~/api/modules/class/types/ClassTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class ClassReadProvider {
   public async getAllClass(dbClient: PrismaTransactionClient = DbClient): Promise<Class[]> {
     const classes = await dbClient?.class?.findMany();

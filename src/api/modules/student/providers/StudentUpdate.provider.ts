@@ -1,8 +1,10 @@
 import { Prisma, Student } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-import { StudentUpdateManyRequestType, StudentUpdateRequestType, StudentWithRelationsType } from "../types/StudentTypes";
+import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "~/api/modules/student/types/StudentTypes";
 
+@EnforceTenantId
 export default class StudentUpdateProvider {
   public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {

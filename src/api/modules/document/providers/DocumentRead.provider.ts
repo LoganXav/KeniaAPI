@@ -1,7 +1,8 @@
+import { DocumentCriteriaType } from "~/api/modules/document/types/DocumentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { DocumentCriteriaType } from "../types/DocumentTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-
+@EnforceTenantId
 export default class DocumentReadProvider {
   public async getByCriteria(criteria: DocumentCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {

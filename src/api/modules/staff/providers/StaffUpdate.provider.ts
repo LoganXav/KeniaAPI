@@ -1,8 +1,10 @@
 import { Prisma, Staff } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "~/api/modules/staff/types/StaffTypes";
 
+@EnforceTenantId
 export default class StaffUpdateProvider {
   public async updateOne(criteria: StaffUpdateRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {

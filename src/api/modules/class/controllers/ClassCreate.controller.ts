@@ -1,16 +1,16 @@
-import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
-import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
+import BaseController from "~/api/modules/base/contollers/Base.controller";
+import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
+import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
-import { classCreateSchema } from "../validators/ClassCreateSchema";
-import ClassCreateService from "../services/ClassCreate.service";
+import ClassCreateService from "~/api/modules/class/services/ClassCreate.service";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { classCreateSchema } from "~/api/modules/class/validators/ClassCreateSchema";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
+import { ClassResponseType, ClassCreateRequestType } from "~/api/modules/class/types/ClassTypes";
+import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 import { ResultTDescriber, TypeDescriber, PropTypeEnum } from "~/infrastructure/internal/documentation/TypeDescriber";
-import { ClassResponseType, ClassCreateRequestType } from "../types/ClassTypes";
 
 @autoInjectable()
 export default class ClassCreateController extends BaseController {

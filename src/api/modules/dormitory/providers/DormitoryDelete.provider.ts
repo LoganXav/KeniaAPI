@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { DormitoryDeleteRequestType } from "../types/DormitoryTypes";
+import { DormitoryDeleteRequestType } from "~/api/modules/dormitory/types/DormitoryTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class DormitoryDeleteProvider {
   public async delete(args: DormitoryDeleteRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

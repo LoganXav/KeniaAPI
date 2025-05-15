@@ -1,8 +1,10 @@
 import { Student } from "@prisma/client";
-import { StudentCreateType } from "../types/StudentTypes";
+import { StudentCreateType } from "~/api/modules/student/types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class StudentCreateProvider {
   public async create(data: StudentCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
