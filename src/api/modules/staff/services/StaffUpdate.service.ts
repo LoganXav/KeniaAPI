@@ -1,24 +1,24 @@
 import { autoInjectable } from "tsyringe";
-import StaffReadCache from "../cache/StaffRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
-import UserReadCache from "../../user/cache/UserRead.cache";
-import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import StaffReadProvider from "../providers/StaffRead.provider";
-import StaffUpdateProvider from "../providers/StaffUpdate.provider";
-import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import UserReadCache from "~/api/modules/user/cache/UserRead.cache";
+import { BaseService } from "~/api/modules/base/services/Base.service";
+import StaffReadCache from "~/api/modules/staff/cache/StaffRead.cache";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import UserUpdateProvider from "../../user/providers/UserUpdate.provider";
+import StaffReadProvider from "~/api/modules/staff/providers/StaffRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import UserUpdateProvider from "~/api/modules/user/providers/UserUpdate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import StaffUpdateProvider from "~/api/modules/staff/providers/StaffUpdate.provider";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import SubjectReadProvider from "~/api/modules/subject/providers/SubjectRead.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "../types/StaffTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { SOMETHING_WENT_WRONG, STAFF_RESOURCE, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 @autoInjectable()
 export default class StaffUpdateService extends BaseService<IRequest> {
   static serviceName = "StaffUpdateService";
@@ -104,7 +104,7 @@ export default class StaffUpdateService extends BaseService<IRequest> {
   private async updateStaffTransaction(args: StaffUpdateRequestType & { staffId: number; id: number }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        const user = await this.userUpdateProvider.updateOneByCriteria({ ...args, userId: Number(args.id) }, tx);
+        await this.userUpdateProvider.updateOneByCriteria({ ...args, userId: Number(args.id) }, tx);
         const staff = await this.staffUpdateProvider.updateOne({ ...args, id: args.staffId }, tx);
 
         await this.userReadCache.invalidate(args.tenantId);

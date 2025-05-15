@@ -1,7 +1,9 @@
-import { ClassCreateRequestType } from "../types/ClassTypes";
+import { ClassCreateRequestType } from "~/api/modules/class/types/ClassTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class ClassCreateProvider {
   public async create(args: ClassCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

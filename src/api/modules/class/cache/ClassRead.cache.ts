@@ -1,11 +1,11 @@
-import { autoInjectable } from "tsyringe";
 import { Class } from "@prisma/client";
-import RedisClient from "~/infrastructure/internal/caching";
 import { RedisClientType } from "redis";
-import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import ArrayUtil from "~/utils/ArrayUtil";
-import ClassReadProvider from "../providers/ClassRead.provider";
-import { ClassCriteriaType } from "../types/ClassTypes";
+import { autoInjectable } from "tsyringe";
+import RedisClient from "~/infrastructure/internal/caching";
+import { ClassCriteriaType } from "~/api/modules/class/types/ClassTypes";
+import ClassReadProvider from "~/api/modules/class/providers/ClassRead.provider";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 @autoInjectable()
 export default class ClassReadCache {

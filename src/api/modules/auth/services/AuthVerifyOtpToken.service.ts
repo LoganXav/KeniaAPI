@@ -3,6 +3,7 @@ import DateTimeUtil from "~/utils/DateTimeUtil";
 import { TokenType, UserToken } from "@prisma/client";
 import TokenProvider from "../providers/Token.provider";
 import { JwtService } from "~/api/shared/services/jwt/Jwt.service";
+import UserReadCache from "~/api/modules/user/cache/UserRead.cache";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { VerifyUserTokenType } from "~/api/modules/user/types/UserTypes";
@@ -15,7 +16,6 @@ import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/dat
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { ACCOUNT_VERIFIED, ERROR, ERROR_INVALID_TOKEN, NULL_OBJECT, SOMETHING_WENT_WRONG, SUCCESS, TOKEN_EXPIRED, TOKEN_VERIFIED } from "~/api/shared/helpers/messages/SystemMessages";
-import UserReadCache from "../../user/cache/UserRead.cache";
 
 @autoInjectable()
 export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTokenType> {

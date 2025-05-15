@@ -1,7 +1,9 @@
-import { UpdateUserRecordType, UserWithRelations } from "~/api/modules/user/types/UserTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
+import { UpdateUserRecordType, UserWithRelations } from "~/api/modules/user/types/UserTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class UserUpdateProvider {
   public async updateOneByCriteria(args: UpdateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations> {
     const { userId, firstName, gender, lastName, dateOfBirth, phoneNumber, religion, bloodGroup, hasVerified, isFirstTimeLogin, lastLoginDate, residentialAddress, residentialStateId, residentialLgaId, residentialCountryId, residentialZipCode } = args;

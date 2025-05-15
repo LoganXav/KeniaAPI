@@ -1,10 +1,12 @@
-import DbClient from "~/infrastructure/internal/database";
 import { Staff } from "@prisma/client";
-import { StaffCriteriaType } from "../types/StaffTypes";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import DbClient from "~/infrastructure/internal/database";
+import { StaffCriteriaType } from "~/api/modules/staff/types/StaffTypes";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class StaffDeleteProvider {
   public async deleteOne(criteria: StaffCriteriaType, tx?: any): Promise<Staff | any> {
     const dbClient = tx ? tx : DbClient;

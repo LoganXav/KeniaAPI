@@ -1,21 +1,25 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Role } from "@prisma/client";
-import { CreateRoleData } from "../types/RoleTypes";
+import { RoleCreateData } from "~/api/modules/role/types/RoleTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class RoleCreateProvider {
-  public async createRole(data: CreateRoleData, dbClient: PrismaTransactionClient = DbClient): Promise<Role> {
+  public async createRole(data: RoleCreateData, dbClient: PrismaTransactionClient = DbClient): Promise<Role> {
     try {
-      const { tenantId, name, rank, permissions } = data;
+      const { tenantId, name, permissionIds } = data;
 
       const newRole = await dbClient?.role?.create({
         data: {
           name,
-          rank,
-          permissions: {
-            connect: permissions.map((permission) => ({ id: permission.id })),
-          },
           tenantId,
+          permissions: {
+            connect: permissionIds?.map((id) => ({ id })),
+          },
+        },
+        include: {
+          permissions: true,
         },
       });
 

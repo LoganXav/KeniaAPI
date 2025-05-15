@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { BreakPeriodDeleteRequestType } from "../types/BreakPeriodTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { BreakPeriodDeleteRequestType } from "~/api/modules/breakPeriod/types/BreakPeriodTypes";
 
+@EnforceTenantId
 export default class BreakPeriodDeleteProvider {
   public async delete(args: BreakPeriodDeleteRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { ClassDivisionCriteriaType } from "../types/ClassDivisionTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { ClassDivisionCriteriaType } from "~/api/modules/classDivision/types/ClassDivisionTypes";
 
+@EnforceTenantId
 export default class ClassDivisionReadProvider {
   public async getByCriteria(criteria: ClassDivisionCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {

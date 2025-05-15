@@ -1,6 +1,5 @@
 import { Job } from "bullmq";
 import { ClassList } from "@prisma/client";
-import DbClient from "~/infrastructure/internal/database";
 import { JobResult } from "~/infrastructure/internal/queue";
 import ClassReadCache from "~/api/modules/class/cache/ClassRead.cache";
 import ClassReadProvider from "~/api/modules/class/providers/ClassRead.provider";
@@ -27,10 +26,8 @@ export class SeedClassesJob {
         tenantId,
       }));
 
-      await DbClient.$transaction(async (tx) => {
-        await SeedClassesJob.classCreateProvider.createMany(defaultClasses, tx);
-        await SeedClassesJob.classReadCache.invalidate(tenantId);
-      });
+      await SeedClassesJob.classCreateProvider.createMany(defaultClasses);
+      await SeedClassesJob.classReadCache.invalidate(tenantId);
 
       return {
         status: "completed",

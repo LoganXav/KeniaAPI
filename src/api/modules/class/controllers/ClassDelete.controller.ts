@@ -1,12 +1,12 @@
-import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
-import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import ClassDeleteService from "../services/ClassDelete.service";
+import BaseController from "~/api/modules/base/contollers/Base.controller";
+import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
+import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
+import ClassDeleteService from "~/api/modules/class/services/ClassDelete.service";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
+import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
+import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 
 @autoInjectable()
 export default class ClassDeleteController extends BaseController {

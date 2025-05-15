@@ -42,7 +42,7 @@ export const staffCreateRequestSchema = z.object({
     }),
 
   jobTitle: z.string({ required_error: "Job title is required", invalid_type_error: "Job title must be a string" }).min(1, "Job title is required").max(100, "Job title must be less than 100 characters"),
-  // roleId: z.number({ required_error: "Role ID is required", invalid_type_error: "Role ID must be a number" }).positive("Role ID must be a positive number"),
+  roleId: z.number({ required_error: "Role ID is required", invalid_type_error: "Role ID must be a number" }).positive("Role ID must be a positive number"),
 
   residentialAddress: z.string().optional(),
   residentialStateId: z.number({ invalid_type_error: "State ID must be a number" }).optional(),

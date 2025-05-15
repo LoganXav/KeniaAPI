@@ -1,7 +1,9 @@
-import { SubjectCreateRequestType } from "../types/SubjectTypes";
+import { SubjectCreateRequestType } from "~/api/modules/subject/types/SubjectTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class SubjectCreateProvider {
   public async create(args: SubjectCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { StudentGroupCreateRequestType } from "../types/StudentGroupTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { StudentGroupCreateRequestType } from "~/api/modules/studentGroup/types/StudentGroupTypes";
 
+@EnforceTenantId
 export default class StudentGroupCreateProvider {
   public async create(args: StudentGroupCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

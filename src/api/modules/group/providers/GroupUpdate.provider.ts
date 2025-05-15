@@ -1,7 +1,9 @@
-import DbClient from "~/infrastructure/internal/database";
 import { Group } from "@prisma/client";
-import { GroupCriteria, UpdateGroupData } from "../types/GroupTypes";
+import DbClient from "~/infrastructure/internal/database";
+import { GroupCriteria, UpdateGroupData } from "~/api/modules/group/types/GroupTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 
+@EnforceTenantId
 export default class GroupUpdateProvider {
   public async updateOne(criteria: GroupCriteria, updateData: UpdateGroupData, tx?: any): Promise<Group> {
     const dbClient = tx ? tx : DbClient;

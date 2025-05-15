@@ -1,7 +1,8 @@
-import { SubjectCriteriaType } from "../types/SubjectTypes";
+import { SubjectCriteriaType } from "~/api/modules/subject/types/SubjectTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-
+@EnforceTenantId
 export default class SubjectReadProvider {
   public async getByCriteria(criteria: SubjectCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {

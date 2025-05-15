@@ -1,10 +1,10 @@
 import request from "supertest";
-import { Application } from "../../application";
-import ApplicationError from "../ApplicationError";
-import { errorHandler } from "../ErrorHandler";
-import { HttpStatusCodeEnum } from "../../../../api/shared/helpers/enums/HttpStatusCode.enum";
-import { CRITICAL_ERROR_EXITING, ERROR } from "../../../../api/shared/helpers/messages/SystemMessages";
 import { NextFunction, Request, Response } from "express";
+import { Application } from "~/infrastructure/internal/application";
+import { errorHandler } from "~/infrastructure/internal/exceptions/ErrorHandler";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import ApplicationError from "~/infrastructure/internal/exceptions/ApplicationError";
+import { CRITICAL_ERROR_EXITING, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 
 describe("ErrorHandler", () => {
   it("Should handle trusted errors", async () => {

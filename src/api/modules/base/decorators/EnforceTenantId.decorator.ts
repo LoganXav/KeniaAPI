@@ -1,5 +1,6 @@
+import { SOMETHING_WENT_WRONG } from "~/api/shared/helpers/messages/SystemMessages";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 /**
  * This decorator is used to enforce the tenantId in the criteria object for used providers
  *
@@ -7,6 +8,8 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
  * @returns
  */
 export function EnforceTenantId<T extends { new (...args: any[]): object }>(constructor: T): T {
+  const loggingProvider = LoggingProviderFactory.build();
+
   return class extends constructor {
     [key: string]: any;
 
@@ -30,7 +33,8 @@ export function EnforceTenantId<T extends { new (...args: any[]): object }>(cons
           });
 
           if (!hasTenantId) {
-            throw new InternalServerError(`Method "${methodName}" requires an argument parameter with a tenantId`);
+            loggingProvider.error(`Missing tenantId`);
+            throw new InternalServerError(SOMETHING_WENT_WRONG);
           }
 
           return originalMethod.apply(this, args);

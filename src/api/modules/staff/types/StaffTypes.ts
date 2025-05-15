@@ -1,11 +1,10 @@
 import { z } from "zod";
-import { staffCriteriaSchema, staffCreateRequestSchema } from "../validators/StaffCreateSchema";
-import { staffUpdateManySchema, staffUpdateSchema } from "../validators/StaffUpdateSchema";
-import { Permission, StaffEmploymentType } from "@prisma/client";
+import { StaffEmploymentType } from "@prisma/client";
+import { staffUpdateManySchema, staffUpdateSchema } from "~/api/modules/staff/validators/StaffUpdateSchema";
+import { staffCriteriaSchema, staffCreateRequestSchema } from "~/api/modules/staff/validators/StaffCreateSchema";
 
 export type StaffCreateRequestType = z.infer<typeof staffCreateRequestSchema>;
 export type StaffCriteriaVType = z.infer<typeof staffCriteriaSchema>;
-// export type StaffUpdateVType = z.infer<typeof staffUpdateDataSchema>;
 export type StaffUpdateRequestType = z.infer<typeof staffUpdateSchema>;
 export type StaffUpdateManyRequestType = z.infer<typeof staffUpdateManySchema>;
 

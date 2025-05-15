@@ -1,8 +1,10 @@
 import { Student } from "@prisma/client";
-import { StudentCriteriaType } from "../types/StudentTypes";
+import { StudentCriteriaType } from "~/api/modules/student/types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class StudentReadProvider {
   public async getAllStudent(dbClient: PrismaTransactionClient = DbClient): Promise<Student[]> {
     const students = await dbClient?.student?.findMany({

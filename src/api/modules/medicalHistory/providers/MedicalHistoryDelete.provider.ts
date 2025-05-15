@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { MedicalHistoryDeleteRequestType } from "../types/MedicalHistoryTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { MedicalHistoryDeleteRequestType } from "~/api/modules/medicalHistory/types/MedicalHistoryTypes";
 
+@EnforceTenantId
 export default class MedicalHistoryDeleteProvider {
   public async delete(args: MedicalHistoryDeleteRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

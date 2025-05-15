@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { DormitoryUpdateRequestType } from "../types/DormitoryTypes";
+import { DormitoryUpdateRequestType } from "~/api/modules/dormitory/types/DormitoryTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class DormitoryUpdateProvider {
   public async update(args: DormitoryUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

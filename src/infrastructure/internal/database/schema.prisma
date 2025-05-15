@@ -326,7 +326,6 @@ enum BreakType {
 model Role {
   id          Int          @id @default(autoincrement())
   name        String
-  rank        Int
   permissions Permission[] @relation("RolePermission")
   Staff       Staff[]
   tenantId    Int
@@ -335,10 +334,12 @@ model Role {
 
 model Permission {
   id       Int    @id @default(autoincrement())
-  name     String @unique
+  name     String
   roles    Role[] @relation("RolePermission")
   tenantId Int
   tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([name, tenantId])
 }
 
 // ==================== ROLES AND PERMISSIONS TABLES END ==================== //

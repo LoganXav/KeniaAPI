@@ -1,7 +1,9 @@
+import { TermCreateRequestType } from "~/api/modules/term/types/TermTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { TermCreateRequestType } from "../types/TermTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class TermCreateProvider {
   public async createOrUpdate(args: TermCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

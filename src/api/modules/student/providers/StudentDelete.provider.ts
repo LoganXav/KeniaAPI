@@ -1,11 +1,13 @@
 import { Student } from "@prisma/client";
 import DbClient from "~/infrastructure/internal/database";
-import { StudentCriteriaType } from "../types/StudentTypes";
 import { NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessages";
+import { StudentCriteriaType } from "~/api/modules/student/types/StudentTypes";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class StudentDeleteProvider {
   public async deleteOne(criteria: StudentCriteriaType, tx?: any): Promise<Student | null> {
     try {

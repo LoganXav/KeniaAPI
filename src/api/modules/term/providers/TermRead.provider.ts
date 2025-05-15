@@ -1,8 +1,10 @@
+import { TermCriteriaType } from "~/api/modules/term/types/TermTypes";
+import { TermType } from "~/api/modules/schoolCalendar/types/SchoolCalendarTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { TermCriteriaType } from "../types/TermTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-import { Term } from "@prisma/client";
 
+@EnforceTenantId
 export default class TermReadProvider {
   public async getByCriteria(criteria: TermCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<TermType[]> {
     try {
@@ -48,5 +50,3 @@ export default class TermReadProvider {
     }
   }
 }
-import { Prisma } from "@prisma/client";
-import { TermType } from "../../schoolCalendar/types/SchoolCalendarTypes";

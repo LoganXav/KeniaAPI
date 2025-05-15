@@ -32,7 +32,7 @@ export const staffUpdateSchema = z.object({
       }
     )
     .transform((val) => {
-      if (!val) return null;
+      if (!val) return undefined;
       return DateTimeUtils.parseToISO(val);
     }),
   highestLevelEdu: z.string().optional(),
@@ -57,7 +57,7 @@ export const staffUpdateSchema = z.object({
       }
     )
     .transform((val) => {
-      if (!val) return null;
+      if (!val) return undefined;
 
       return DateTimeUtils.parseToISO(val);
     }),

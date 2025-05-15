@@ -1,7 +1,8 @@
+import { DocumentDeleteRequestType } from "~/api/modules/document/types/DocumentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { DocumentDeleteRequestType } from "../types/DocumentTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-
+@EnforceTenantId
 export default class DocumentDeleteProvider {
   public async delete(criteria: DocumentDeleteRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {

@@ -1,8 +1,10 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Staff } from "@prisma/client";
-import { StaffCriteriaType } from "../types/StaffTypes";
+import { StaffCriteriaType } from "~/api/modules/staff/types/StaffTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class StaffReadProvider {
   public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
     try {

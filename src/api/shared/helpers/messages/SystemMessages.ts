@@ -1,5 +1,3 @@
-import SchoolCalendarReadService from "~/api/modules/schoolCalendar/services/SchoolCalendarRead.service";
-
 /** <---------------> System Entities <---------------> */
 export const STAFF = "staff";
 export const STUDENT = "student";
@@ -24,6 +22,7 @@ export const TERM_RESOURCE = "Term";
 export const BREAK_PERIOD_RESOURCE = "Break Period";
 export const TIMETABLE_RESOURCE = "Timetable";
 export const PERIOD_RESOURCE = "Period";
+export const ROLE_RESOURCE = "Role";
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account Created Successfully";
 export const TOKEN_VERIFIED = "Token Verification Success";
@@ -46,7 +45,6 @@ export const EMAIL_ACTIVATION_TOKEN_EMAIL_SUBJECT = "Kenia Email Activation";
 
 /** <---------------> Role Labels <---------------> */
 export const SCHOOL_OWNER_ROLE_NAME = "Proprietor";
-export const SCHOOL_OWNER_ROLE_RANK = 1;
 
 /** <---------------> Server Errors <---------------> */
 export const CRITICAL_ERROR_EXITING = "Application Encountered a Critical Error. Exiting";

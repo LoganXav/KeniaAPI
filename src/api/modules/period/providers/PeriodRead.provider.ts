@@ -1,7 +1,9 @@
+import { PeriodCriteriaType } from "~/api/modules/period/types/PeriodTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { PeriodCriteriaType } from "../types/PeriodTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
+@EnforceTenantId
 export default class PeriodReadProvider {
   public async getByCriteria(criteria: PeriodCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {

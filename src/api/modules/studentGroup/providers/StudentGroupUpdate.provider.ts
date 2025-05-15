@@ -1,7 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { StudentGroupUpdateRequestType } from "../types/StudentGroupTypes";
+import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { StudentGroupUpdateRequestType } from "~/api/modules/studentGroup/types/StudentGroupTypes";
 
+@EnforceTenantId
 export default class StudentGroupUpdateProvider {
   public async update(args: StudentGroupUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
