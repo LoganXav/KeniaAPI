@@ -1,9 +1,7 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { ReadUserRecordType, UserWithRelations } from "~/api/modules/user/types/UserTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
-@EnforceTenantId
 export default class UserReadProvider {
   public async getAll(dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations[]> {
     try {
