@@ -22,12 +22,14 @@ export function EnforceTenantId<T extends { new (...args: any[]): object }>(cons
         const originalMethod = this[methodName];
 
         this[methodName] = function (...args: any[]) {
+          console.log("args", args);
+
           const hasTenantId = args.some((arg) => {
             if (typeof arg === "object" && arg !== null) {
               if (Array.isArray(arg)) {
                 return arg.some((item) => typeof item === "object" && item !== null && typeof item.tenantId === "string");
               }
-              return typeof arg.tenantId === "string";
+              return typeof arg.tenantId === "number" || typeof arg.tenantId === "string";
             }
             return false;
           });
