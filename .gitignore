@@ -44,9 +44,6 @@ coverage
 *.pem
 notes.md
 
-# db migrations
-/src/infrastructure/internal/database/migrations/
-
 design.md
 
 .pnpm-store/
