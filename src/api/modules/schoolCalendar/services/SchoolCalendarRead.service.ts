@@ -25,6 +25,7 @@ export default class SchoolCalendarReadService extends BaseService<SchoolCalenda
   public async execute(trace: ServiceTrace, args: SchoolCalendarReadRequestType): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
+
       const schoolCalendars = await this.schoolCalendarReadProvider.getByCriteria(args);
       trace.setSuccessful();
 

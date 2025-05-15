@@ -1,9 +1,7 @@
 import { Tenant } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
-@EnforceTenantId
 export default class TenantCreateProvider {
   public async create(args: any, dbClient: PrismaTransactionClient = DbClient): Promise<Tenant> {
     try {

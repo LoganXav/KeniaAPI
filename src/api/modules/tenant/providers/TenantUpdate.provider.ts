@@ -1,9 +1,7 @@
 import { Tenant, TenantMetadata } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
-@EnforceTenantId
 export default class TenantUpdateProvider {
   public async updateMetadata(args: any, dbClient: PrismaTransactionClient = DbClient): Promise<TenantMetadata> {
     const { tenantId, staff, student } = args;
