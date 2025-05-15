@@ -1,4 +1,0 @@
--- AlterTable
-ALTER TABLE "Guardian" ALTER COLUMN "firstName" DROP DEFAULT,
-ALTER COLUMN "lastName" DROP DEFAULT,
-ALTER COLUMN "phoneNumber" DROP DEFAULT;
