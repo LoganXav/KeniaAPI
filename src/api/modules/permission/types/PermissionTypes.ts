@@ -1,13 +1,12 @@
 import { z } from "zod";
 
-import { createPermissionSchema } from "../validators/PermissionCreateSchema";
+export interface PermissionCreateRequestType {
+  name: string;
+  tenantId: number;
+}
 
-export type CreatePermissionData = z.infer<typeof createPermissionSchema>;
-
-export interface PermissionCriteria {
-  id?: number;
-  name?: string;
-  tenantId?: number;
+export interface PermissionReadCriteria {
+  tenantId: number;
 }
 
 export interface UpdatePermissionData {
@@ -16,7 +15,7 @@ export interface UpdatePermissionData {
 }
 
 export interface GetAndUpdatePermission {
-  criteria: PermissionCriteria;
+  criteria: PermissionCreateRequestType;
   data: UpdatePermissionData;
   updateStatus?: boolean;
 }

@@ -1,6 +1,6 @@
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { Staff } from "@prisma/client";
-import { StaffCriteriaType } from "../types/StaffTypes";
+import { StaffCriteriaType } from "~/api/modules/staff/types/StaffTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class StaffReadProvider {

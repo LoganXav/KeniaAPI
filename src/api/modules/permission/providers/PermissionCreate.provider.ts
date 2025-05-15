@@ -1,23 +1,35 @@
-import DbClient from "~/infrastructure/internal/database";
-import { Permission } from "@prisma/client";
-import { CreatePermissionData } from "../types/PermissionTypes";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { PermissionCreateRequestType } from "~/api/modules/permission/types/PermissionTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class PermissionCreateProvider {
-  public async createPermission(data: CreatePermissionData, tx?: any): Promise<Permission> {
+  public async create(data: PermissionCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const dbClient = tx ? tx : DbClient;
-      const newPermission = await dbClient?.permission?.create({
+      const permission = await dbClient.permission.create({
         data: {
           name: data.name,
           tenantId: data.tenantId,
         },
       });
 
-      return newPermission;
-    } catch (error) {
-      throw new BadRequestError(`${error}`, HttpStatusCodeEnum.NOT_FOUND);
+      return permission;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
+  }
+
+  public async createMany(args: PermissionCreateRequestType[], dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const data = args.map(({ name, tenantId }) => ({
+        name,
+        tenantId,
+      }));
+
+      await dbClient.permission.createMany({
+        data,
+      });
+    } catch (error: any) {
+      throw new InternalServerError(error);
     }
   }
 }

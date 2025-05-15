@@ -1,27 +1,27 @@
 import { autoInjectable } from "tsyringe";
 import { UserType } from "@prisma/client";
 import ServerConfig from "~/config/ServerConfig";
-import StaffReadCache from "../cache/StaffRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
-import UserReadCache from "../../user/cache/UserRead.cache";
-import { StaffCreateRequestType } from "../types/StaffTypes";
-import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import StaffCreateProvider from "../providers/StaffCreate.provider";
-import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
-import UserReadProvider from "../../user/providers/UserRead.provider";
+import UserReadCache from "~/api/modules/user/cache/UserRead.cache";
+import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import UserCreateProvider from "../../user/providers/UserCreate.provider";
+import StaffReadCache from "~/api/modules/staff/cache/StaffRead.cache";
+import { StaffCreateRequestType } from "~/api/modules/staff/types/StaffTypes";
+import UserReadProvider from "~/api/modules/user/providers/UserRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import UserCreateProvider from "~/api/modules/user/providers/UserCreate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import StaffCreateProvider from "~/api/modules/staff/providers/StaffCreate.provider";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import SubjectReadProvider from "~/api/modules/subject/providers/SubjectRead.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { SUCCESS, STAFF_RESOURCE, SOMETHING_WENT_WRONG } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 
 @autoInjectable()
 export default class StaffCreateService extends BaseService<IRequest> {

@@ -1,30 +1,56 @@
-import DbClient from "~/infrastructure/internal/database";
 import { Role } from "@prisma/client";
-import { RoleCriteria } from "../types/RoleTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { RoleReadCriteria } from "~/api/modules/role/types/RoleTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class RoleReadProvider {
-  public async getAllRole(tx?: any): Promise<Role[]> {
-    const dbClient = tx ? tx : DbClient;
-    const roles = await dbClient?.role?.findMany();
-
-    return roles;
+  public async getAllRole(dbClient: PrismaTransactionClient = DbClient): Promise<Role[]> {
+    try {
+      const roles = await dbClient?.role?.findMany();
+      return roles;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
   }
 
-  public async getByCriteria(criteria: RoleCriteria, tx?: any): Promise<Role[]> {
-    const dbClient = tx ? tx : DbClient;
-    const roles = await dbClient?.role?.findMany({
-      where: criteria,
-    });
+  public async getByCriteria(criteria: RoleReadCriteria, dbClient: PrismaTransactionClient = DbClient): Promise<Role[]> {
+    try {
+      const { id, name, tenantId } = criteria;
 
-    return roles;
+      const roles = await dbClient?.role?.findMany({
+        where: {
+          ...(id && { id: Number(id) }),
+          ...(name && { name: { contains: name } }),
+          ...(tenantId && { tenantId }),
+        },
+        include: {
+          permissions: true,
+        },
+      });
+
+      return roles;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
   }
 
-  public async getOneByCriteria(criteria: RoleCriteria, tx?: any): Promise<Role> {
-    const dbClient = tx ? tx : DbClient;
-    const role = await dbClient?.role?.findFirst({
-      where: criteria,
-    });
+  public async getOneByCriteria(criteria: RoleReadCriteria, dbClient: PrismaTransactionClient = DbClient) {
+    try {
+      const { id, tenantId } = criteria;
 
-    return role;
+      const role = await dbClient?.role?.findFirst({
+        where: {
+          ...(id && { id }),
+          ...(tenantId && { tenantId }),
+        },
+        include: {
+          permissions: true,
+        },
+      });
+
+      return role;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
   }
 }

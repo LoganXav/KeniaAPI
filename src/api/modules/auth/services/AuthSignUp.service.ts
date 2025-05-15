@@ -1,34 +1,36 @@
 import { DateTime } from "luxon";
 import { autoInjectable } from "tsyringe";
 import Event from "~/api/shared/helpers/events";
-import TokenProvider from "../providers/Token.provider";
 import { businessConfig } from "~/config/BusinessConfig";
-import UserReadCache from "../../user/cache/UserRead.cache";
 import QueueProvider from "~/infrastructure/internal/queue";
-import ClassReadCache from "../../class/cache/ClassRead.cache";
-import StaffReadCache from "../../staff/cache/StaffRead.cache";
 import { IResult } from "~/api/shared/helpers/results/IResult";
+import UserReadCache from "~/api/modules/user/cache/UserRead.cache";
+import ClassReadCache from "~/api/modules/class/cache/ClassRead.cache";
+import StaffReadCache from "~/api/modules/staff/cache/StaffRead.cache";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { generateStringOfLength } from "~/utils/GenerateStringOfLength";
+import TokenProvider from "~/api/modules/auth/providers/Token.provider";
 import { eventTypes } from "~/api/shared/helpers/enums/EventTypes.enum";
 import { TokenType, UserType, StaffEmploymentType } from "@prisma/client";
-import RoleCreateProvider from "../../role/providers/RoleCreate.provider";
-import StaffCreateProvider from "../../staff/providers/StaffCreate.provider";
-import ClassCreateProvider from "../../class/providers/ClassCreate.provider";
 import UserReadProvider from "~/api/modules/user/providers/UserRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import UserCreateProvider from "~/api/modules/user/providers/UserCreate.provider";
+import RoleCreateProvider from "~/api/modules/role/providers/RoleCreate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import StaffCreateProvider from "~/api/modules/staff/providers/StaffCreate.provider";
+import ClassCreateProvider from "~/api/modules/class/providers/ClassCreate.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { SeedClassesJob, SeedClassesJobData } from "~/api/shared/jobs/SeedClasses.job";
 import TenantCreateProvider from "~/api/modules/tenant/providers/TenantCreate.provider";
 import { CreateUserRecordType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
+import { SeedClassesJob, SeedClassesJobData } from "~/api/shared/jobs/seeds/SeedClasses.job";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
+import { SeedPermissionsJob, SeedPermissionsJobData } from "~/api/shared/jobs/seeds/SeedPermissions.job";
 import DbClient, { PrismaTransactionClient, TRANSACTION_MAX_WAIT, TRANSACTION_TIMEOUT } from "~/infrastructure/internal/database";
-import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SCHOOL_OWNER_ROLE_NAME, SCHOOL_OWNER_ROLE_RANK, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
+import { AssignAdminRolePermissionsJob, AssignAdminRolePermissionsJobData } from "~/api/shared/jobs/assigns/AssignAdminRolePermissions.job";
+import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SCHOOL_OWNER_ROLE_NAME, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
   static serviceName = "AuthSignUpService";
@@ -70,6 +72,8 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
     this.loggingProvider = LoggingProviderFactory.build();
 
     QueueProvider.registerWorker("seedClasses", SeedClassesJob.process);
+    QueueProvider.registerWorker("seedPermissions", SeedPermissionsJob.process);
+    QueueProvider.registerWorker("assignAdminRolePermissions", AssignAdminRolePermissionsJob.process);
   }
 
   public async execute(trace: ServiceTrace, args: CreateUserRecordType): Promise<IResult> {
@@ -86,7 +90,18 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
 
       const data = await this.createTenantAndUserRecordWithTokenTransaction(input);
 
-      const { user, otpToken } = data;
+      const { user, otpToken, staffId } = data;
+
+      await QueueProvider.addJob<SeedPermissionsJobData>(
+        "seedPermissions",
+        "seedPermissionsForTenant",
+        { tenantId: user.tenantId },
+        {
+          attempts: 3,
+          priority: 1,
+          delay: 0,
+        }
+      );
 
       await QueueProvider.addJob<SeedClassesJobData>(
         "seedClasses",
@@ -95,6 +110,17 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         {
           attempts: 3,
           priority: 2,
+          delay: 0,
+        }
+      );
+
+      await QueueProvider.addJob<AssignAdminRolePermissionsJobData>(
+        "assignAdminRolePermissions",
+        "assignAdminRolePermissionsForTenant",
+        { tenantId: user.tenantId, staffId, userId: user.id },
+        {
+          attempts: 3,
+          priority: 3,
           delay: 0,
         }
       );
@@ -127,11 +153,8 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
           const user = await this.userCreateProvider.create(userCreateInput, tx);
           await this.userReadCache.invalidate(user?.tenantId);
 
-          const roleCreateInput = { name: SCHOOL_OWNER_ROLE_NAME, rank: SCHOOL_OWNER_ROLE_RANK, permissions: [], tenantId: tenant?.id };
-          const role = await this.roleCreateProvider.createRole(roleCreateInput, tx);
-
-          const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, roleId: role?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULLTIME };
-          await this.staffCreateProvider.create(staffCreateInput, tx);
+          const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULLTIME };
+          const staff = await this.staffCreateProvider.create(staffCreateInput, tx);
           await this.staffReadCache.invalidate(user?.tenantId);
 
           const otpToken = generateStringOfLength(businessConfig.emailTokenLength);
@@ -147,7 +170,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
             tx
           );
 
-          return { user, otpToken };
+          return { user, otpToken, staffId: staff.id };
         },
         {
           maxWait: TRANSACTION_MAX_WAIT,

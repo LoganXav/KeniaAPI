@@ -1,25 +1,27 @@
 import { Permission } from "@prisma/client";
 
-export type CreateRoleData = {
+export type RoleCreateData = {
   tenantId: number;
   name: string;
-  rank: number;
-  permissions: Permission[];
+  permissionIds: number[];
 };
 
-export interface RoleCriteria {
-  id?: number;
+export interface RoleReadCriteria {
+  id: number;
   name?: string;
-  tenantId?: number;
+  permissions?: Permission[];
+  tenantId: number;
 }
 
-export interface UpdateRoleData {
+export interface RoleUpdateData {
+  id: number;
   name?: string;
-  tenantId?: number;
+  permissions?: Permission[];
+  tenantId: number;
 }
 
 export interface GetAndUpdateRole {
-  criteria: RoleCriteria;
-  data: UpdateRoleData;
+  data: RoleUpdateData;
   updateStatus?: boolean;
+  criteria: RoleReadCriteria;
 }

@@ -35,7 +35,11 @@ export default class UserReadProvider {
         include: {
           staff: {
             include: {
-              role: true,
+              role: {
+                include: {
+                  permissions: true,
+                },
+              },
             },
           },
           student: true,

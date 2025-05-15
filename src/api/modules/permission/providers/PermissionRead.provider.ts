@@ -1,30 +1,22 @@
-import DbClient from "~/infrastructure/internal/database";
 import { Permission } from "@prisma/client";
-import { PermissionCriteria } from "../types/PermissionTypes";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { PermissionReadCriteria } from "~/api/modules/permission/types/PermissionTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 export default class PermissionReadProvider {
-  public async getAllPermission(tx?: any): Promise<Permission[]> {
-    const dbClient = tx ? tx : DbClient;
-    const permissions = await dbClient?.permission?.findMany();
+  public async getByCriteria(criteria: PermissionReadCriteria, dbClient: PrismaTransactionClient = DbClient): Promise<Permission[]> {
+    try {
+      const { tenantId } = criteria;
 
-    return permissions;
-  }
+      const permissions = await dbClient?.permission?.findMany({
+        where: {
+          ...(tenantId && { tenantId }),
+        },
+      });
 
-  public async getByCriteria(criteria: PermissionCriteria, tx?: any): Promise<Permission[]> {
-    const dbClient = tx ? tx : DbClient;
-    const permissions = await dbClient?.permission?.findMany({
-      where: criteria,
-    });
-
-    return permissions;
-  }
-
-  public async getOneByCriteria(criteria: PermissionCriteria, tx?: any): Promise<Permission> {
-    const dbClient = tx ? tx : DbClient;
-    const permission = await dbClient?.permission?.findFirst({
-      where: criteria,
-    });
-
-    return permission;
+      return permissions;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
   }
 }

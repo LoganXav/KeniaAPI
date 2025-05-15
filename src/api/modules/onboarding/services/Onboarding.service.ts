@@ -1,35 +1,34 @@
 import { autoInjectable } from "tsyringe";
-import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { BaseService } from "../../base/services/Base.service";
+import { IRequest } from "~/infrastructure/internal/types";
+import { TenantOnboardingStatusType } from "@prisma/client";
 import { IResult } from "~/api/shared/helpers/results/IResult";
+import UserReadCache from "~/api/modules/user/cache/UserRead.cache";
+import StaffReadCache from "~/api/modules/staff/cache/StaffRead.cache";
+import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import UserUpdateProvider from "~/api/modules/user/providers/UserUpdate.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import UserUpdateProvider from "~/api/modules/user/providers/UserUpdate.provider";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import TenantUpdateProvider from "~/api/modules/tenant/providers/TenantUpdate.provider";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { RESOURCE_RECORD_NOT_FOUND, RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { AUTHORIZATION_REQUIRED, ERROR, NULL_OBJECT, SCHOOL_OWNER_ROLE_RANK, SOMETHING_WENT_WRONG, SUCCESS, TENANT_RESOURCE, USER_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
-import TenantUpdateProvider from "../../tenant/providers/TenantUpdate.provider";
-import { onboardingPersonalInformationDataType, onboardingResidentialInformationDataType, onboardingSchoolInformationDataType } from "../types/OnboardingTypes";
-import { TenantOnboardingStatusType } from "@prisma/client";
-import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { IRequest } from "~/infrastructure/internal/types";
-import UserReadCache from "../../user/cache/UserRead.cache";
-import StaffReadCache from "../../staff/cache/StaffRead.cache";
+import { RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { ERROR, SOMETHING_WENT_WRONG, SUCCESS, TENANT_RESOURCE, USER_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import { onboardingPersonalInformationDataType, onboardingResidentialInformationDataType, onboardingSchoolInformationDataType } from "~/api/modules/onboarding/types/OnboardingTypes";
 @autoInjectable()
 export default class OnboardingService extends BaseService<IRequest> {
   static serviceName = "OnboardingService";
   loggingProvider: ILoggingDriver;
-  userUpdateProvider: UserUpdateProvider;
   userReadCache: UserReadCache;
   staffReadCache: StaffReadCache;
+  userUpdateProvider: UserUpdateProvider;
   tenantUpdateProvider: TenantUpdateProvider;
   constructor(userUpdateProvider: UserUpdateProvider, userReadCache: UserReadCache, tenantUpdateProvider: TenantUpdateProvider, staffReadCache: StaffReadCache) {
     super(OnboardingService.serviceName);
-    this.userUpdateProvider = userUpdateProvider;
     this.userReadCache = userReadCache;
     this.staffReadCache = staffReadCache;
+    this.userUpdateProvider = userUpdateProvider;
     this.tenantUpdateProvider = tenantUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
@@ -38,19 +37,6 @@ export default class OnboardingService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
       const { tenantId, userId } = args.body;
-
-      const criteria = { tenantId: Number(tenantId), userId: Number(userId) };
-
-      const foundUser = await this.userReadCache.getOneByCriteria(criteria);
-
-      if (foundUser === NULL_OBJECT) {
-        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
-      }
-
-      // Refactor to use role and permission properly
-      if (foundUser?.staff?.role?.rank !== SCHOOL_OWNER_ROLE_RANK) {
-        throw new BadRequestError(AUTHORIZATION_REQUIRED);
-      }
 
       const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.RESIDENTIAL);
 
@@ -69,18 +55,6 @@ export default class OnboardingService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args.body);
       const { tenantId, userId } = args.body;
 
-      const criteria = { tenantId: Number(tenantId), userId: Number(userId) };
-
-      const foundUser = await this.userReadCache.getOneByCriteria(criteria);
-
-      if (foundUser === NULL_OBJECT) {
-        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
-      }
-
-      if (foundUser?.staff?.role?.rank !== SCHOOL_OWNER_ROLE_RANK) {
-        throw new BadRequestError(AUTHORIZATION_REQUIRED);
-      }
-
       const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.SCHOOL);
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_RECORD_UPDATED_SUCCESSFULLY(USER_RESOURCE), data);
@@ -97,18 +71,6 @@ export default class OnboardingService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
       const { tenantId, userId } = args.body;
-
-      const criteria = { tenantId: Number(tenantId), userId: Number(userId) };
-
-      const foundUser = await this.userReadCache.getOneByCriteria(criteria);
-
-      if (foundUser === NULL_OBJECT) {
-        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(USER_RESOURCE));
-      }
-
-      if (foundUser?.staff?.role?.rank !== SCHOOL_OWNER_ROLE_RANK) {
-        throw new BadRequestError(AUTHORIZATION_REQUIRED);
-      }
 
       const data = await this.updateTenantAndUserOnboardingTransaction(Number(tenantId), args.body, TenantOnboardingStatusType.COMPLETE);
 
