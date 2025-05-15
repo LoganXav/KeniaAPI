@@ -14,7 +14,7 @@ RUN npm install -g prisma
 
 # Copy source files and generate Prisma client
 COPY . .
-RUN pnpm run prisma:generate
+RUN pnpm run prisma:stage-generate
 
 EXPOSE 6500
 EXPOSE 5500
@@ -23,4 +23,4 @@ EXPOSE 5555
 RUN pnpm run build
 
 # Run database migrations and start the application
-CMD ["sh", "-c", "pnpm run prisma:stage-generate && pnpm run prisma:stage-migrate && pnpm run start:stage"]
+CMD ["sh", "-c", "pnpm run prisma:stage-migrate && pnpm run start:stage"]

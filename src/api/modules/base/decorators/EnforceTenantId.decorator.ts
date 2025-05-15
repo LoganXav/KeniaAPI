@@ -25,7 +25,7 @@ export function EnforceTenantId<T extends { new (...args: any[]): object }>(cons
           const hasTenantId = args.some((arg) => {
             if (typeof arg === "object" && arg !== null) {
               if (Array.isArray(arg)) {
-                return arg.some((item) => typeof item === "object" && item !== null && typeof item.tenantId === "string");
+                return arg.some((item) => typeof item === "object" && item !== null && typeof item.tenantId === "number");
               }
               return typeof arg.tenantId === "number";
             }
