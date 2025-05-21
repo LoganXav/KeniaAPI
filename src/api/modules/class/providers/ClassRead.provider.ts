@@ -7,7 +7,18 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 @EnforceTenantId
 export default class ClassReadProvider {
   public async getAllClass(dbClient: PrismaTransactionClient = DbClient): Promise<Class[]> {
-    const classes = await dbClient?.class?.findMany();
+    const classes = await dbClient?.class?.findMany({
+      include: {
+        classTeacher: {
+          include: {
+            user: true,
+          },
+        },
+        // students: true,
+        subjects: true,
+        divisions: true,
+      },
+    });
 
     return classes;
   }

@@ -1,6 +1,6 @@
 import * as z from "zod";
-import { StaffEmploymentType } from "@prisma/client";
 import DateTimeUtils from "~/utils/DateTimeUtil";
+import { StaffEmploymentType } from "@prisma/client";
 
 export const staffUpdateSchema = z.object({
   tenantId: z.number({ required_error: "Tenant Id is required" }),

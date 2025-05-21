@@ -8,6 +8,8 @@ import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "~/api/module
 export default class StaffUpdateProvider {
   public async updateOne(criteria: StaffUpdateRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
+      console.log(criteria);
+
       const { jobTitle, roleId, id, tenantId, nin, tin, cvUrl, highestLevelEdu, employmentType, startDate, subjectIds, classIds } = criteria;
 
       const numericId = Number(id);
@@ -77,37 +79,4 @@ export default class StaffUpdateProvider {
       throw new InternalServerError(error.message);
     }
   }
-
-  // public async removeListFromStaff(criteria: StaffCriteria, updateData: UpdateStaffData, tx?: any): Promise<Staff> {
-  //   const dbClient = tx ? tx : DbClient;
-  //   const { groupIds, classIds, subjectIds } = updateData;
-  //   try {
-  //     const updatedStaff = await dbClient?.staff?.update({
-  //       where: {
-  //         id: criteria.id,
-  //       },
-  //       data: {
-  //         ...(groupIds && {
-  //           group: {
-  //             disconnect: groupIds.map((groupId) => ({ id: groupId })),
-  //           },
-  //         }),
-  //         ...(classIds && {
-  //           classes: {
-  //             disconnect: classIds.map((classId) => ({ id: classId })),
-  //           },
-  //         }),
-  //         ...(subjectIds && {
-  //           subjects: {
-  //             disconnect: subjectIds.map((subjectId) => ({ id: subjectId })),
-  //           },
-  //         }),
-  //       },
-  //     });
-
-  //     return updatedStaff as Promise<Staff>;
-  //   } catch (error: any) {
-  //     throw new InternalServerError(error.message);
-  //   }
-  // }
 }

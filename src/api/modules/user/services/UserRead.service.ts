@@ -1,15 +1,15 @@
 import { autoInjectable } from "tsyringe";
-import { BaseService } from "../../base/services/Base.service";
+import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
+import UserReadCache from "~/api/modules/user/cache/UserRead.cache";
+import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { ERROR, NULL_OBJECT, SUCCESS, USER_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
-import { IRequest } from "~/infrastructure/internal/types";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import UserReadCache from "../cache/UserRead.cache";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { ERROR, NULL_OBJECT, SUCCESS, USER_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class UserReadService extends BaseService<IRequest> {

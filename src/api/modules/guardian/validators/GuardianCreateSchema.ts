@@ -28,12 +28,12 @@ export const guardianCreateSchema = z.object({
     }),
 
   // Address
-  residentialAddress: z.string(),
-  residentialStateId: z.number({ invalid_type_error: "State ID must be a number" }),
-  residentialLgaId: z.number({ invalid_type_error: "LGA ID must be a number" }),
-  residentialCountryId: z.number({ invalid_type_error: "Country ID must be a number" }),
-  residentialZipCode: z.number({ invalid_type_error: "Zip Code must be a number" }),
+  residentialAddress: z.string({ required_error: "Residential address is required", invalid_type_error: "Residential address must be a string" }),
+  residentialStateId: z.number({ required_error: "Residential state ID is required", invalid_type_error: "Residential state ID must be a number" }),
+  residentialLgaId: z.number({ required_error: "Residential LGA ID is required", invalid_type_error: "Residential LGA ID must be a number" }),
+  residentialCountryId: z.number({ required_error: "Residential country ID is required", invalid_type_error: "Residential country ID must be a number" }),
+  residentialZipCode: z.number({ required_error: "Residential zip code is required", invalid_type_error: "Residential zip code must be a string" }),
 
   tenantId: z.number({ required_error: "Tenant ID is required", invalid_type_error: "Tenant ID must be a number" }).positive("Tenant ID must be a positive number"),
-  studentIds: z.array(z.number().int("Student ID must be an integer")).optional(),
+  studentIds: z.array(z.number({ required_error: "Student IDs are required", invalid_type_error: "Student IDs must be an array of numbers" })).optional(),
 });

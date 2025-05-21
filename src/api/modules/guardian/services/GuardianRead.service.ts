@@ -1,15 +1,15 @@
 import { autoInjectable } from "tsyringe";
-import { BaseService } from "../../base/services/Base.service";
-import { IResult } from "~/api/shared/helpers/results/IResult";
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { GuardianReadRequestType, GuardianReadOneRequestType } from "../types/GuardianTypes";
-import GuardianReadProvider from "../providers/GuardianRead.provider";
-import { SUCCESS, GUARDIAN_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { IRequest } from "~/infrastructure/internal/types";
+import { IResult } from "~/api/shared/helpers/results/IResult";
+import { BaseService } from "~/api/modules/base/services/Base.service";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import GuardianReadProvider from "~/api/modules/guardian/providers/GuardianRead.provider";
+import { SUCCESS, GUARDIAN_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class GuardianReadService extends BaseService<IRequest> {
@@ -39,10 +39,15 @@ export default class GuardianReadService extends BaseService<IRequest> {
     }
   }
 
-  public async readOne(trace: ServiceTrace, args: GuardianReadOneRequestType): Promise<IResult> {
+  public async readOne(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args);
-      const guardian = await this.guardianReadProvider.getOneByCriteria(args);
+      const guardian = await this.guardianReadProvider.getOneByCriteria({ id: args.params.id, ...args.body });
+
+      if (!guardian) {
+        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(GUARDIAN_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
+      }
+
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(GUARDIAN_RESOURCE), guardian);

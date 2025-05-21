@@ -55,7 +55,7 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
 
       const schoolCalendar = await this.schoolCalendarCreateTransaction(args);
 
-      const result = await this.schoolCalendarReadProvider.getOneByCriteria({ id: schoolCalendar.id });
+      const result = await this.schoolCalendarReadProvider.getOneByCriteria({ id: schoolCalendar.id, tenantId: args.tenantId });
 
       trace.setSuccessful();
       this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SCHOOL_CALENDAR_RESOURCE), result);
