@@ -24,3 +24,7 @@ RUN pnpm run build
 
 # Run database migrations and start the application
 CMD ["sh", "-c", "pnpm run prisma:stage-migrate && pnpm run start:stage"]
+
+
+
+

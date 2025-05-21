@@ -1,14 +1,15 @@
+import { IRequest } from "~/infrastructure/internal/types";
 import { autoInjectable } from "tsyringe";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import ClassDivisionReadProvider from "../providers/ClassDivisionRead.provider";
-import { SUCCESS, CLASS_DIVISION_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { IRequest } from "~/infrastructure/internal/types";
+import { SUCCESS, CLASS_DIVISION_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class ClassDivisionReadService extends BaseService<IRequest> {
@@ -41,6 +42,11 @@ export default class ClassDivisionReadService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args);
       const classDivision = await this.classDivisionReadProvider.getOneByCriteria({ ...args.body, id: Number(args.params.id) });
+
+      if (!classDivision) {
+        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(CLASS_DIVISION_RESOURCE), HttpStatusCodeEnum.NOT_FOUND);
+      }
+
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(CLASS_DIVISION_RESOURCE), classDivision);

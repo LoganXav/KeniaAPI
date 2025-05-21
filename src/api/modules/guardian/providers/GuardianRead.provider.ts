@@ -39,7 +39,7 @@ export default class GuardianReadProvider {
         where: {
           ...(email && { email }),
           ...(tenantId && { tenantId }),
-          ...(id && { id }),
+          ...(id && { id: Number(id) }),
           ...(firstName && { firstName: { contains: firstName } }),
           ...(lastName && { lastName: { contains: lastName } }),
           ...(studentIds && { students: { some: { id: { in: studentIds } } } }),

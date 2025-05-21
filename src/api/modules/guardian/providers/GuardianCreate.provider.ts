@@ -21,7 +21,7 @@ export default class GuardianCreateProvider {
           residentialStateId,
           residentialLgaId,
           residentialCountryId,
-          residentialZipCode,
+          residentialZipCode: Number(residentialZipCode),
           tenantId,
           students: {
             connect: studentIds?.map((id) => ({ id })),
@@ -50,7 +50,7 @@ export default class GuardianCreateProvider {
         residentialLgaId: guardian.residentialLgaId,
         residentialAddress: guardian.residentialAddress,
         residentialStateId: guardian.residentialStateId,
-        residentialZipCode: guardian.residentialZipCode,
+        residentialZipCode: Number(guardian.residentialZipCode),
         residentialCountryId: guardian.residentialCountryId,
       }));
 

@@ -7,7 +7,7 @@ import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.d
 export default class ClassUpdateProvider {
   public async updateOne(args: ClassUpdateRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Class> {
     const updatedClass = await dbClient?.class?.update({
-      where: { id: args.id },
+      where: { id: args.id, tenantId: args.tenantId },
       data: {
         ...(args.name && { name: args.name }),
         ...(args.classTeacherId && { classTeacherId: args.classTeacherId }),

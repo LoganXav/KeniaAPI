@@ -28,7 +28,7 @@ export default class GuardianReadController extends BaseController {
   };
 
   readOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.guardianReadService.readOne(res.trace, req.body), {
+    return this.handleResultData(res, next, this.guardianReadService.readOne(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -51,7 +51,7 @@ export default class GuardianReadController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/guardian/single",
+      path: "/guardian/:id",
       handlers: [validateData(guardianReadSchema), this.readOne],
       produces: [
         {

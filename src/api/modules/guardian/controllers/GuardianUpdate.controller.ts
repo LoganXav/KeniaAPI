@@ -22,7 +22,7 @@ export default class GuardianUpdateController extends BaseController {
   }
 
   update: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.guardianUpdateService.execute(res.trace, req.body), {
+    return this.handleResultData(res, next, this.guardianUpdateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -32,7 +32,7 @@ export default class GuardianUpdateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/guardian/update",
+      path: "/guardian/update/:id",
       handlers: [validateData(guardianUpdateSchema), this.update],
       produces: [
         {

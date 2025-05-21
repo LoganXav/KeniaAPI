@@ -10,7 +10,7 @@ export default class ClassDivisionUpdateProvider {
       const { id, name, classId, tenantId } = criteria;
 
       const classDivision = await dbClient.classDivision.update({
-        where: { id },
+        where: { id, tenantId },
         data: {
           ...(name && { name }),
           ...(classId && { classId }),
