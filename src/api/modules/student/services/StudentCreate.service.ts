@@ -139,7 +139,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
             }
 
             if (!guardian.id) {
-              const newGuardian = await this.guardianCreateProvider.create(guardian as GuardianCreateRequestType, tx);
+              const newGuardian = await this.guardianCreateProvider.create(guardian, tx);
               guardianIds.push(newGuardian.id);
             } else {
               const updatedGuardian = await this.guardianUpdateProvider.update(guardian as GuardianUpdateRequestType, tx);
