@@ -47,7 +47,7 @@ export default class TimetableTemplateService extends BaseService<IRequest> {
       const terms = await this.termReadProvider.getByCriteria({ tenantId: args.body.tenantId });
 
       const termOptions = terms.map((term: TermType) => ({
-        name: `${term?.calendar?.year} - ${term.name}`,
+        name: term.name,
         id: term.id,
         startDate: term.startDate,
         endDate: term.endDate,

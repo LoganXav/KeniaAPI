@@ -400,3 +400,5 @@ model Group {
   tenantId Int
   tenant   Tenant  @relation(fields: [tenantId], references: [id])
 }
+
+// ===================== UNDECIDED TABLES END ===================== //
