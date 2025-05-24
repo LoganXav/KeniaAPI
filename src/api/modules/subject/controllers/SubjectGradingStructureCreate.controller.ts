@@ -40,7 +40,7 @@ export default class SubjectGradingStructureCreateController extends BaseControl
           httpStatus: HttpStatusCodeEnum.CREATED,
         },
       ],
-      description: "Create a new subject grading structure",
+      description: "Create or edit a subject grading structure",
     });
   }
 }
