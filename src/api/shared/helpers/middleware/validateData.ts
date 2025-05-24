@@ -3,7 +3,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { INextFunction, IRequest, IResponse } from "~/infrastructure/internal/types";
 import { INTERNAL_SERVER_ERROR, VALIDATION_ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 
-export function validateData(schema: z.ZodObject<any, any>) {
+export function validateData(schema: z.ZodTypeAny) {
   return async (req: IRequest, res: IResponse, next: INextFunction) => {
     try {
       const validatedData = await schema.parseAsync(req.body);
@@ -22,7 +22,7 @@ export function validateData(schema: z.ZodObject<any, any>) {
   };
 }
 
-export function validateParams(schema: z.ZodObject<any, any>) {
+export function validateParams(schema: z.ZodTypeAny) {
   return async (req: IRequest, res: IResponse, next: INextFunction) => {
     try {
       const validatedQueryParams = await schema.parseAsync(req.query);

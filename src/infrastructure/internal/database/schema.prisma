@@ -14,45 +14,48 @@ datasource db {
 }
 
 model Tenant {
-  id               Int                        @id @default(autoincrement())
-  name             String?
-  address          String?
-  type             String?
-  registrationNo   String?
-  contactEmail     String?
-  contactPhone     String?
-  establishedDate  DateTime?
-  logoUrl          String?
-  stateId          Int?
-  lgaId            Int?
-  countryId        Int?
-  zipCode          Int?
-  postalCode       String?
-  onboardingStatus TenantOnboardingStatusType @default(PERSONAL)
-  users            User[]
-  metadata         TenantMetadata?
-  createdAt        DateTime                   @default(now())
-  updatedAt        DateTime                   @updatedAt
-  staffs           Staff[]
-  students         Student[]
-  userTokens       UserToken[]
-  roles            Role[]
-  permissions      Permission[]
-  groups           Group[]
-  classes          Class[]
-  subjects         Subject[]
-  studentGroups    StudentGroup[]
-  guardians        Guardian[]
-  dormitories      Dormitory[]
-  medicalHistories MedicalHistory[]
-  documents        Document[]
-  documentTypes    DocumentType[]
-  classDivisions   ClassDivision[]
-  SchoolCalendar   SchoolCalendar[]
-  Term             Term[]
-  BreakPeriod      BreakPeriod[]
-  Timetable        Timetable[]
-  Period           Period[]
+  id                      Int                        @id @default(autoincrement())
+  name                    String?
+  address                 String?
+  type                    String?
+  registrationNo          String?
+  contactEmail            String?
+  contactPhone            String?
+  establishedDate         DateTime?
+  logoUrl                 String?
+  stateId                 Int?
+  lgaId                   Int?
+  countryId               Int?
+  zipCode                 Int?
+  postalCode              String?
+  onboardingStatus        TenantOnboardingStatusType @default(PERSONAL)
+  users                   User[]
+  metadata                TenantMetadata?
+  createdAt               DateTime                   @default(now())
+  updatedAt               DateTime                   @updatedAt
+  staffs                  Staff[]
+  students                Student[]
+  userTokens              UserToken[]
+  roles                   Role[]
+  permissions             Permission[]
+  groups                  Group[]
+  classes                 Class[]
+  subjects                Subject[]
+  studentGroups           StudentGroup[]
+  guardians               Guardian[]
+  dormitories             Dormitory[]
+  medicalHistories        MedicalHistory[]
+  documents               Document[]
+  documentTypes           DocumentType[]
+  classDivisions          ClassDivision[]
+  schoolCalendars         SchoolCalendar[]
+  terms                   Term[]
+  breakPeriods            BreakPeriod[]
+  timetables              Timetable[]
+  periods                 Period[]
+  gradingStructures       TenantGradingStructure[]
+  SubjectGradingStructure SubjectGradingStructure[]
+  SubjectGrading          SubjectGrading[]
 }
 
 enum TenantOnboardingStatusType {
@@ -106,23 +109,24 @@ enum UserType {
 }
 
 model Staff {
-  id              Int                 @id @default(autoincrement())
-  jobTitle        String
-  userId          Int                 @unique
-  user            User                @relation(fields: [userId], references: [id], name: "StaffUser")
-  roleId          Int?
-  role            Role?               @relation(fields: [roleId], references: [id])
-  group           Group[]             @relation("StaffGroup")
-  classes         Class[]             @relation("ClassTeacher")
-  subjects        Subject[]           @relation("SubjectTeacher")
-  tenantId        Int
-  nin             String?
-  tin             String?
-  cvUrl           String?
-  highestLevelEdu String?
-  employmentType  StaffEmploymentType @default(FULLTIME)
-  startDate       DateTime            @default(now())
-  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  id                      Int                       @id @default(autoincrement())
+  jobTitle                String
+  userId                  Int                       @unique
+  user                    User                      @relation(fields: [userId], references: [id], name: "StaffUser")
+  roleId                  Int?
+  role                    Role?                     @relation(fields: [roleId], references: [id])
+  group                   Group[]                   @relation("StaffGroup")
+  classes                 Class[]                   @relation("ClassTeacher")
+  subjects                Subject[]                 @relation("SubjectTeacher")
+  tenantId                Int
+  nin                     String?
+  tin                     String?
+  cvUrl                   String?
+  highestLevelEdu         String?
+  employmentType          StaffEmploymentType       @default(FULLTIME)
+  startDate               DateTime                  @default(now())
+  tenant                  Tenant                    @relation(fields: [tenantId], references: [id])
+  SubjectGradingStructure SubjectGradingStructure[]
 }
 
 enum StaffEmploymentType {
@@ -151,18 +155,21 @@ model Student {
   user            User             @relation(fields: [userId], references: [id], name: "StudentUser")
   tenantId        Int
   tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  subjectGrades   SubjectGrading[]
 }
 
 model Class {
-  id             Int             @id @default(autoincrement())
-  name           ClassList?
-  classTeacherId Int?
-  classTeacher   Staff?          @relation("ClassTeacher", fields: [classTeacherId], references: [id])
-  students       Student[]
-  subjects       Subject[]
-  divisions      ClassDivision[]
-  tenantId       Int
-  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  id                Int                      @id @default(autoincrement())
+  name              ClassList?
+  classTeacherId    Int?
+  classTeacher      Staff?                   @relation("ClassTeacher", fields: [classTeacherId], references: [id])
+  students          Student[]
+  subjects          Subject[]
+  divisions         ClassDivision[]
+  tenantId          Int
+  tenant            Tenant                   @relation(fields: [tenantId], references: [id])
+  subjectGrades     SubjectGrading[]
+  gradingStructures TenantGradingStructure[] @relation("TenantGradingStructureClass")
 }
 
 enum ClassList {
@@ -175,27 +182,29 @@ enum ClassList {
 }
 
 model ClassDivision {
-  id        Int         @id @default(autoincrement())
-  name      String
-  classId   Int
-  class     Class       @relation(fields: [classId], references: [id])
-  students  Student[]
-  tenantId  Int
-  tenant    Tenant      @relation(fields: [tenantId], references: [id])
-  Timetable Timetable[]
+  id         Int         @id @default(autoincrement())
+  name       String
+  classId    Int
+  class      Class       @relation(fields: [classId], references: [id])
+  students   Student[]
+  tenantId   Int
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  timetables Timetable[]
 }
 
 model Subject {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String?
-  staffs      Staff[]   @relation("SubjectTeacher")
-  tenantId    Int
-  tenant      Tenant    @relation(fields: [tenantId], references: [id])
-  classId     Int
-  class       Class     @relation(fields: [classId], references: [id])
-  period      Period[]
-  students    Student[] @relation("StudentSubject")
+  id                Int                       @id @default(autoincrement())
+  name              String
+  description       String?
+  staffs            Staff[]                   @relation("SubjectTeacher")
+  tenantId          Int
+  tenant            Tenant                    @relation(fields: [tenantId], references: [id])
+  classId           Int
+  class             Class                     @relation(fields: [classId], references: [id])
+  periods           Period[]
+  students          Student[]                 @relation("StudentSubject")
+  gradingStructures SubjectGradingStructure[]
+  subjectGrades     SubjectGrading[]
 }
 
 model Guardian {
@@ -229,7 +238,7 @@ model UserToken {
   expiresAt DateTime
   expired   Boolean   @default(false)
   isActive  Boolean   @default(true)
-  Tenant    Tenant?   @relation(fields: [tenantId], references: [id])
+  tenant    Tenant?   @relation(fields: [tenantId], references: [id])
   tenantId  Int?
 }
 
@@ -245,24 +254,26 @@ enum TokenType {
 // ==================== SCHOOL CALENDAR TABLES START ==================== //
 
 model SchoolCalendar {
-  id       Int    @id @default(autoincrement())
-  year     Int
-  terms    Term[]
-  tenantId Int
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  id           Int              @id @default(autoincrement())
+  year         Int
+  terms        Term[]
+  tenantId     Int
+  tenant       Tenant           @relation(fields: [tenantId], references: [id])
+  SubjectGrade SubjectGrading[]
 }
 
 model Term {
-  id         Int            @id @default(autoincrement())
-  name       String // e.g., "First Term", "Second Term"
-  startDate  DateTime
-  endDate    DateTime
-  breakWeeks BreakPeriod[]
-  calendarId Int
-  calendar   SchoolCalendar @relation(fields: [calendarId], references: [id])
-  tenantId   Int
-  tenant     Tenant         @relation(fields: [tenantId], references: [id])
-  Timetable  Timetable[]
+  id           Int              @id @default(autoincrement())
+  name         String // e.g., "First Term", "Second Term"
+  startDate    DateTime
+  endDate      DateTime
+  breakWeeks   BreakPeriod[]
+  calendarId   Int
+  calendar     SchoolCalendar   @relation(fields: [calendarId], references: [id])
+  tenantId     Int
+  tenant       Tenant           @relation(fields: [tenantId], references: [id])
+  Timetable    Timetable[]
+  SubjectGrade SubjectGrading[]
 }
 
 model BreakPeriod {
@@ -344,6 +355,81 @@ model Permission {
 
 // ==================== ROLES AND PERMISSIONS TABLES END ==================== //
 
+// ==================== GRADING SYSTEM TABLES START ==================== //
+
+model TenantGradingStructure {
+  id                         Int                       @id @default(autoincrement())
+  tenantId                   Int
+  name                       String
+  continuousAssessmentWeight Int
+  examWeight                 Int
+  classes                    Class[]                   @relation("TenantGradingStructureClass")
+  tenant                     Tenant                    @relation(fields: [tenantId], references: [id])
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  subjectGradingStructures   SubjectGradingStructure[]
+}
+
+model SubjectGradingStructure {
+  id                                 Int                                 @id @default(autoincrement())
+  tenantId                           Int
+  subjectId                          Int
+  staffId                            Int
+  tenantGradingStructureId           Int
+  subject                            Subject                             @relation(fields: [subjectId], references: [id])
+  staff                              Staff                               @relation(fields: [staffId], references: [id])
+  tenantGradingStructure             TenantGradingStructure              @relation(fields: [tenantGradingStructureId], references: [id])
+  continuousAssessmentBreakdownItems ContinuousAssessmentBreakdownItem[]
+  tenant                             Tenant                              @relation(fields: [tenantId], references: [id])
+  createdAt                          DateTime                            @default(now())
+  updatedAt                          DateTime                            @updatedAt
+}
+
+model ContinuousAssessmentBreakdownItem {
+  id                        Int                     @id @default(autoincrement())
+  name                      String
+  weight                    Int
+  subjectGradingStructureId Int
+  subjectGradingStructure   SubjectGradingStructure @relation(fields: [subjectGradingStructureId], references: [id])
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
+}
+
+model SubjectGrading {
+  id                         Int                         @id @default(autoincrement())
+  tenantId                   Int
+  studentId                  Int
+  subjectId                  Int
+  classId                    Int
+  calendarId                 Int
+  termId                     Int
+  continuousAssessmentScores ContinuousAssessmentScore[]
+  examScore                  Float
+  totalScore                 Float
+  grade                      String
+  remark                     String?
+  student                    Student                     @relation(fields: [studentId], references: [id])
+  subject                    Subject                     @relation(fields: [subjectId], references: [id])
+  class                      Class                       @relation(fields: [classId], references: [id])
+  calendar                   SchoolCalendar              @relation(fields: [calendarId], references: [id])
+  term                       Term                        @relation(fields: [termId], references: [id])
+  tenant                     Tenant                      @relation(fields: [tenantId], references: [id])
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+}
+
+model ContinuousAssessmentScore {
+  id               Int            @id @default(autoincrement())
+  name             String
+  score            Float
+  subjectGradingId Int
+  subjectGrading   SubjectGrading @relation(fields: [subjectGradingId], references: [id])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+// ==================== GRADING SYSTEM TABLES END ==================== //
+
 // ==================== NOT IN USE YET ==================== //
 model StudentGroup {
   id       Int       @id @unique @default(autoincrement())
@@ -391,8 +477,6 @@ model DocumentType {
   tenant   Tenant     @relation(fields: [tenantId], references: [id])
 }
 
-// ===================== UNDECIDED TABLES START ===================== //
-
 model Group {
   id       Int     @id @default(autoincrement())
   name     String
@@ -401,4 +485,4 @@ model Group {
   tenant   Tenant  @relation(fields: [tenantId], references: [id])
 }
 
-// ===================== UNDECIDED TABLES END ===================== //
+// ==================== NOT IN USE YET ==================== //
