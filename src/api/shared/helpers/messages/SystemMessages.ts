@@ -23,6 +23,7 @@ export const BREAK_PERIOD_RESOURCE = "Break Period";
 export const TIMETABLE_RESOURCE = "Timetable";
 export const PERIOD_RESOURCE = "Period";
 export const ROLE_RESOURCE = "Role";
+export const GRADING_STRUCTURE_RESOURCE = "Grading Structure";
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account Created Successfully";
 export const TOKEN_VERIFIED = "Token Verification Success";
