@@ -139,7 +139,7 @@ enum StaffEmploymentType {
 model Student {
   id              Int              @id @default(autoincrement())
   enrollmentDate  DateTime         @default(now())
-  admissionNo     String?          @unique
+  admissionNo     String?
   guardians       Guardian[]       @relation("StudentGuardian")
   documents       Document[]
   dormitoryId     Int?
@@ -156,6 +156,8 @@ model Student {
   tenantId        Int
   tenant          Tenant           @relation(fields: [tenantId], references: [id])
   subjectGrades   SubjectGrading[]
+
+  @@unique([admissionNo, tenantId])
 }
 
 model Class {
