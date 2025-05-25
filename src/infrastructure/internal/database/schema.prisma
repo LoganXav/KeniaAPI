@@ -54,8 +54,8 @@ model Tenant {
   timetables              Timetable[]
   periods                 Period[]
   gradingStructures       TenantGradingStructure[]
-  SubjectGradingStructure SubjectGradingStructure[]
-  SubjectGrading          SubjectGrading[]
+  subjectGradingStructure SubjectGradingStructure[]
+  subjectGrading          SubjectGrading[]
 }
 
 enum TenantOnboardingStatusType {
@@ -126,7 +126,7 @@ model Staff {
   employmentType          StaffEmploymentType       @default(FULLTIME)
   startDate               DateTime                  @default(now())
   tenant                  Tenant                    @relation(fields: [tenantId], references: [id])
-  SubjectGradingStructure SubjectGradingStructure[]
+  subjectGradingStructure SubjectGradingStructure[]
 }
 
 enum StaffEmploymentType {
@@ -139,7 +139,7 @@ enum StaffEmploymentType {
 model Student {
   id              Int              @id @default(autoincrement())
   enrollmentDate  DateTime         @default(now())
-  admissionNo     String?          @unique
+  admissionNo     String?
   guardians       Guardian[]       @relation("StudentGuardian")
   documents       Document[]
   dormitoryId     Int?
@@ -156,6 +156,8 @@ model Student {
   tenantId        Int
   tenant          Tenant           @relation(fields: [tenantId], references: [id])
   subjectGrades   SubjectGrading[]
+
+  @@unique([admissionNo, tenantId])
 }
 
 model Class {
@@ -272,8 +274,8 @@ model Term {
   calendar     SchoolCalendar   @relation(fields: [calendarId], references: [id])
   tenantId     Int
   tenant       Tenant           @relation(fields: [tenantId], references: [id])
-  Timetable    Timetable[]
-  SubjectGrade SubjectGrading[]
+  timetable    Timetable[]
+  subjectGrade SubjectGrading[]
 }
 
 model BreakPeriod {
@@ -338,7 +340,7 @@ model Role {
   id          Int          @id @default(autoincrement())
   name        String
   permissions Permission[] @relation("RolePermission")
-  Staff       Staff[]
+  staff       Staff[]
   tenantId    Int
   tenant      Tenant       @relation(fields: [tenantId], references: [id])
 }
@@ -365,9 +367,22 @@ model TenantGradingStructure {
   examWeight                 Int
   classes                    Class[]                   @relation("TenantGradingStructureClass")
   tenant                     Tenant                    @relation(fields: [tenantId], references: [id])
+  subjectGradingStructures   SubjectGradingStructure[]
+  gradeBoundaries            GradeBoundary[]
   createdAt                  DateTime                  @default(now())
   updatedAt                  DateTime                  @updatedAt
-  subjectGradingStructures   SubjectGradingStructure[]
+}
+
+model GradeBoundary {
+  id                       Int                    @id @default(autoincrement())
+  tenantGradingStructureId Int
+  minimumScore             Int
+  maximumScore             Int
+  grade                    String
+  remark                   String
+  tenantGradingStructure   TenantGradingStructure @relation(fields: [tenantGradingStructureId], references: [id])
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
 }
 
 model SubjectGradingStructure {

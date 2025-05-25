@@ -48,7 +48,6 @@ export default class ClassReadCache {
       const keys = await this.redisClient.keys(`${tenantId}:class:*`);
       if (ArrayUtil.any(keys)) {
         await this.redisClient.del(keys);
-        console.log("Criteria Class Cache CLEARED!");
       }
     } catch (error: any) {
       throw new InternalServerError(error);

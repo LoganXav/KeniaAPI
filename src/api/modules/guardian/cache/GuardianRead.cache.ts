@@ -25,12 +25,10 @@ export default class GuardianReadCache {
       const cachedGuardians = await this.redisClient.get(cacheKey);
 
       if (cachedGuardians) {
-        console.log("Criteria Guardian Cache HIT!");
         return JSON.parse(cachedGuardians);
       }
 
       const guardians = await this.guardianReadProvider.getByCriteria(criteria);
-      console.log("Criteria Guardian Cache MISS!");
 
       if (ArrayUtil.any(guardians)) {
         await this.redisClient.set(cacheKey, JSON.stringify(guardians), {
@@ -50,7 +48,6 @@ export default class GuardianReadCache {
       const keys = await this.redisClient.keys(`${tenantId}:guardian:*`);
       if (ArrayUtil.any(keys)) {
         await this.redisClient.del(keys);
-        console.log("Criteria Guardian Cache CLEARED!");
       }
     } catch (error: any) {
       throw new InternalServerError(error);
@@ -64,13 +61,10 @@ export default class GuardianReadCache {
       const cachedGuardian = await this.redisClient.get(cacheKey);
 
       if (cachedGuardian) {
-        console.log("Criteria Single Guardian Cache HIT!");
         return JSON.parse(cachedGuardian);
       }
 
       const guardian = await this.guardianReadProvider.getOneByCriteria(criteria);
-
-      console.log("Criteria Single Guardian Cache MISS!");
 
       if (guardian) {
         await this.redisClient.set(cacheKey, JSON.stringify(guardian), {

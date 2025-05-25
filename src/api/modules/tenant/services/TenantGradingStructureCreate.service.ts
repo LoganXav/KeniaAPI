@@ -6,8 +6,8 @@ import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { SUCCESS, GRADING_STRUCTURE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { SUCCESS, TENANT_GRADING_STRUCTURE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import TenantGradingStructureCreateProvider from "~/api/modules/tenant/providers/TenantGradingStructureCreate.provider";
 
 @autoInjectable()
@@ -29,7 +29,7 @@ export default class TenantGradingStructureCreateService extends BaseService<IRe
       const gradingStructure = await this.tenantGradingStructureCreateProvider.createOrUpdate(args.body);
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(GRADING_STRUCTURE_RESOURCE), gradingStructure);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(TENANT_GRADING_STRUCTURE_RESOURCE), gradingStructure);
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);

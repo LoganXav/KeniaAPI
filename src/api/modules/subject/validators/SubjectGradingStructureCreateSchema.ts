@@ -15,6 +15,10 @@ export const subjectGradingStructureCreateSchema = z.object({
     required_error: "Staff ID is required",
     invalid_type_error: "Staff ID must be a number",
   }),
+  classId: z.number({
+    required_error: "Class ID is required",
+    invalid_type_error: "Class ID must be a number",
+  }),
   tenantGradingStructureId: z.number({
     required_error: "Tenant Grading Structure ID is required",
     invalid_type_error: "Tenant Grading Structure ID must be a number",
