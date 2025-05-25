@@ -8,8 +8,6 @@ import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "~/api/module
 export default class StaffUpdateProvider {
   public async updateOne(criteria: StaffUpdateRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
-      console.log(criteria);
-
       const { jobTitle, roleId, id, tenantId, nin, tin, cvUrl, highestLevelEdu, employmentType, startDate, subjectIds, classIds } = criteria;
 
       const numericId = Number(id);

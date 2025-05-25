@@ -25,13 +25,10 @@ export default class StudentReadCache {
       const cachedStudents = await this.redisClient.get(cacheKey);
 
       if (cachedStudents) {
-        // console.log("Criteria Student Cache HIT!");
         return JSON.parse(cachedStudents);
       }
 
       const students = await this.studentReadProvider.getByCriteria(criteria);
-
-      // console.log("Criteria Student Cache MISS!");
 
       if (ArrayUtil.any(students)) {
         await this.redisClient.set(cacheKey, JSON.stringify(students), {
@@ -50,7 +47,6 @@ export default class StudentReadCache {
       const keys = await this.redisClient.keys(`${tenantId}:student:*`);
       if (ArrayUtil.any(keys)) {
         await this.redisClient.del(keys);
-        console.log("Criteria Student Cache CLEARED!");
       }
     } catch (error: any) {
       throw new InternalServerError(error);
@@ -63,12 +59,10 @@ export default class StudentReadCache {
       const cachedStudent = await this.redisClient.get(cacheKey);
 
       if (cachedStudent) {
-        console.log("Criteria Single Student Cache HIT!");
         return JSON.parse(cachedStudent);
       }
 
       const student = await this.studentReadProvider.getOneByCriteria(criteria);
-      console.log("Criteria Single Student Cache MISS!");
 
       if (student) {
         await this.redisClient.set(cacheKey, JSON.stringify(student), {

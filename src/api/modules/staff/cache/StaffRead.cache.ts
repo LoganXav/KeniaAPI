@@ -25,12 +25,10 @@ export default class StaffReadCache {
       const cachedStaffs = await this.redisClient.get(cacheKey);
 
       if (cachedStaffs) {
-        console.log("Criteria Staff Cache HIT!");
         return JSON.parse(cachedStaffs);
       }
 
       const staffs = await this.staffReadProvider.getByCriteria(criteria);
-      console.log("Criteria Staff Cache MISS!");
 
       if (ArrayUtil.any(staffs)) {
         await this.redisClient.set(cacheKey, JSON.stringify(staffs), {
@@ -50,7 +48,6 @@ export default class StaffReadCache {
       const keys = await this.redisClient.keys(`${tenantId}:staff:*`);
       if (ArrayUtil.any(keys)) {
         await this.redisClient.del(keys);
-        console.log("Criteria Staff Cache CLEARED!");
       }
     } catch (error: any) {
       throw new InternalServerError(error);
@@ -64,12 +61,10 @@ export default class StaffReadCache {
       const cachedStaff = await this.redisClient.get(cacheKey);
 
       if (cachedStaff) {
-        console.log("Criteria Single Staff Cache HIT!");
         return JSON.parse(cachedStaff);
       }
 
       const staff = await this.staffReadProvider.getOneByCriteria(criteria);
-      console.log("Criteria Single Staff Cache MISS!");
 
       if (staff) {
         await this.redisClient.set(cacheKey, JSON.stringify(staff), {
