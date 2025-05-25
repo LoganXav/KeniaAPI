@@ -4,21 +4,22 @@ import { IResult } from "~/api/shared/helpers/results/IResult";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { SUCCESS, GRADING_STRUCTURE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
 import SubjectGradingStructureReadProvider from "~/api/modules/subject/providers/SubjectGradingStructureRead.provider";
 import SubjectGradingStructureCreateProvider from "~/api/modules/subject/providers/SubjectGradingStructureCreate.provider";
+import { SUCCESS, ERROR, SUBJECT_GRADING_STRUCTURE_RESOURCE, TENANT_GRADING_STRUCTURE_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class SubjectGradingStructureCreateService extends BaseService<IRequest> {
   static serviceName = "SubjectGradingStructureCreateService";
   private tenantGradingStructureReadProvider: TenantGradingStructureReadProvider;
-  private subjectGradingStructureCreateProvider: SubjectGradingStructureCreateProvider;
   private subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider;
+  private subjectGradingStructureCreateProvider: SubjectGradingStructureCreateProvider;
   loggingProvider: ILoggingDriver;
 
   constructor(subjectGradingStructureCreateProvider: SubjectGradingStructureCreateProvider, tenantGradingStructureReadProvider: TenantGradingStructureReadProvider, subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider) {
@@ -37,13 +38,13 @@ export default class SubjectGradingStructureCreateService extends BaseService<IR
 
       const foundExistingSubjectGradingStructure = await this.subjectGradingStructureReadProvider.getOneByCriteria({ subjectId, tenantId });
       if (!id && foundExistingSubjectGradingStructure) {
-        throw new BadRequestError(RESOURCE_RECORD_ALREADY_EXISTS(GRADING_STRUCTURE_RESOURCE));
+        throw new BadRequestError(RESOURCE_RECORD_ALREADY_EXISTS(SUBJECT_GRADING_STRUCTURE_RESOURCE));
       }
 
       // Fetch the tenant grading structure
       const tenantGradingStructure = await this.tenantGradingStructureReadProvider.getOneByCriteria(args.body);
       if (!tenantGradingStructure) {
-        throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(GRADING_STRUCTURE_RESOURCE));
+        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(TENANT_GRADING_STRUCTURE_RESOURCE));
       }
 
       // Calculate total weight of Continuous Assessment breakdown items
@@ -57,7 +58,7 @@ export default class SubjectGradingStructureCreateService extends BaseService<IR
       const gradingStructure = await this.subjectGradingStructureCreateProvider.createOrUpdate(args.body);
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(GRADING_STRUCTURE_RESOURCE), gradingStructure);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SUBJECT_GRADING_STRUCTURE_RESOURCE), gradingStructure);
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);

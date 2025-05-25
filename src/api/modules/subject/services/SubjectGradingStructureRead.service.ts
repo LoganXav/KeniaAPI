@@ -7,7 +7,7 @@ import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { SUCCESS, GRADING_STRUCTURE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { SUCCESS, SUBJECT_GRADING_STRUCTURE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import SubjectGradingStructureReadProvider from "~/api/modules/subject/providers/SubjectGradingStructureRead.provider";
 
 @autoInjectable()
@@ -29,7 +29,7 @@ export default class SubjectGradingStructureReadService extends BaseService<IReq
       const gradingStructures = await this.subjectGradingStructureReadProvider.getByCriteria(args.body);
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(GRADING_STRUCTURE_RESOURCE), gradingStructures);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(SUBJECT_GRADING_STRUCTURE_RESOURCE), gradingStructures);
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);
@@ -47,7 +47,7 @@ export default class SubjectGradingStructureReadService extends BaseService<IReq
       const gradingStructure = await this.subjectGradingStructureReadProvider.getOneByCriteria({ id: Number(id), ...args.body });
       trace.setSuccessful();
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(GRADING_STRUCTURE_RESOURCE), gradingStructure);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(SUBJECT_GRADING_STRUCTURE_RESOURCE), gradingStructure);
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);
