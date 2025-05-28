@@ -6,6 +6,25 @@ import { TenantGradingStructureCriteria } from "~/api/modules/tenant/types/Tenan
 
 @EnforceTenantId
 export default class TenantGradingStructureReadProvider {
+  public async getByCriteria(args: TenantGradingStructureCriteria, dbClient: PrismaTransactionClient = DbClient): Promise<TenantGradingStructure[] | null> {
+    try {
+      const { id, tenantId } = args;
+      const gradingStructure = await dbClient.tenantGradingStructure.findMany({
+        where: {
+          ...(id && { id: Number(id) }),
+          ...(tenantId && { tenantId }),
+        },
+        include: {
+          classes: true,
+        },
+      });
+
+      return gradingStructure;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
+  }
+
   public async getOneByCriteria(args: TenantGradingStructureCriteria, dbClient: PrismaTransactionClient = DbClient): Promise<(TenantGradingStructure & { gradeBoundaries: GradeBoundary[] }) | null> {
     try {
       const { id, classId, tenantId } = args;
@@ -23,6 +42,7 @@ export default class TenantGradingStructureReadProvider {
         },
         include: {
           gradeBoundaries: true,
+          classes: true,
         },
       });
 

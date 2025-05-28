@@ -25,7 +25,7 @@ export default class ClassReadProvider {
 
   public async getByCriteria(criteria: ClassCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, ids, name, classTeacherId, tenantId } = criteria;
+      const { id, ids, name, classTeacherId, tenantId, withoutGradingStructures } = criteria;
 
       const classes = await dbClient.class.findMany({
         where: {
@@ -34,6 +34,7 @@ export default class ClassReadProvider {
           ...(name && { name }),
           ...(classTeacherId && { classTeacherId }),
           ...(tenantId && { tenantId }),
+          ...(withoutGradingStructures && { gradingStructures: { none: {} } }),
         },
         include: {
           classTeacher: {
