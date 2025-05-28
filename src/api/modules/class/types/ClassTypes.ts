@@ -55,6 +55,7 @@ export type ClassCriteriaType = {
   name?: ClassList;
   classTeacherId?: number;
   tenantId?: number;
+  withoutGradingStructures?: boolean;
 };
 
 export type ClassResponseType = {

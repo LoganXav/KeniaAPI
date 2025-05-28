@@ -10,6 +10,12 @@ export default class TenantGradingStructureCreateProvider {
     try {
       const { id, name, continuousAssessmentWeight, examWeight, classIds, tenantId, gradeBoundaries } = args;
 
+      if (id) {
+        await dbClient.gradeBoundary.deleteMany({
+          where: { tenantGradingStructureId: id },
+        });
+      }
+
       const gradingStructure = await dbClient.tenantGradingStructure.upsert({
         where: { id: id || 0 },
         update: {
