@@ -24,8 +24,19 @@ export default class SubjectReadService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
-      const subjects = await this.subjectReadProvider.getByCriteria(args.body);
+      this.initializeServiceTrace(trace, args.body);
+
+      const { staffIds } = args.query;
+
+      const parsedStaffIds =
+        staffIds &&
+        staffIds
+          .split(",")
+          .map((id: string) => Number(id.trim()))
+          .filter(Boolean);
+
+      const subjects = await this.subjectReadProvider.getByCriteria({ staffIds: parsedStaffIds, ...args.body });
+
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(SUBJECT_RESOURCE), subjects);
