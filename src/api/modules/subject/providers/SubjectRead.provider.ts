@@ -15,7 +15,7 @@ export default class SubjectReadProvider {
           ...(name && { name: { contains: name } }),
           ...(classId && { classId }),
           ...(tenantId && { tenantId }),
-          ...(staffIds && { staffs: { some: { id: { in: staffIds } } } }),
+          ...(staffIds?.length && { staffs: { some: { id: { in: staffIds } } } }),
         },
         include: {
           class: true,
