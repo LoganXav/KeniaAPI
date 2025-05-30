@@ -28,6 +28,7 @@ export default class TenantGradingStructureReadProvider {
   public async getOneByCriteria(args: TenantGradingStructureCriteria, dbClient: PrismaTransactionClient = DbClient): Promise<(TenantGradingStructure & { gradeBoundaries: GradeBoundary[] }) | null> {
     try {
       const { id, classId, tenantId } = args;
+
       const gradingStructure = await dbClient.tenantGradingStructure.findFirst({
         where: {
           ...(id && { id: Number(id) }),

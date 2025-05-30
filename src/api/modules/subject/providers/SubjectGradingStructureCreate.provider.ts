@@ -10,6 +10,12 @@ export default class SubjectGradingStructureCreateProvider {
     try {
       const { id, subjectId, tenantGradingStructureId, continuousAssessmentBreakdownItems, tenantId, staffId } = args;
 
+      if (id) {
+        await dbClient.continuousAssessmentBreakdownItem.deleteMany({
+          where: { subjectGradingStructureId: id },
+        });
+      }
+
       const subjectGradingStructure = await dbClient.subjectGradingStructure.upsert({
         where: { id: id || 0 },
         update: {
