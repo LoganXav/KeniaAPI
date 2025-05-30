@@ -50,7 +50,7 @@ export default class SubjectReadService extends BaseService<IRequest> {
 
   public async readOne(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
       const subject = await this.subjectReadProvider.getOneByCriteria({ ...args.body, id: Number(args.params.id) });
       trace.setSuccessful();
 

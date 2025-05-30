@@ -195,18 +195,18 @@ model ClassDivision {
 }
 
 model Subject {
-  id                Int                       @id @default(autoincrement())
-  name              String
-  description       String?
-  staffs            Staff[]                   @relation("SubjectTeacher")
-  tenantId          Int
-  tenant            Tenant                    @relation(fields: [tenantId], references: [id])
-  classId           Int
-  class             Class                     @relation(fields: [classId], references: [id])
-  periods           Period[]
-  students          Student[]                 @relation("StudentSubject")
-  gradingStructures SubjectGradingStructure[]
-  subjectGrades     SubjectGrading[]
+  id               Int                      @id @default(autoincrement())
+  name             String
+  description      String?
+  staffs           Staff[]                  @relation("SubjectTeacher")
+  tenantId         Int
+  tenant           Tenant                   @relation(fields: [tenantId], references: [id])
+  classId          Int
+  class            Class                    @relation(fields: [classId], references: [id])
+  periods          Period[]
+  students         Student[]                @relation("StudentSubject")
+  gradingStructure SubjectGradingStructure?
+  subjectGrades    SubjectGrading[]
 }
 
 model Guardian {
@@ -388,7 +388,7 @@ model GradeBoundary {
 model SubjectGradingStructure {
   id                                 Int                                 @id @default(autoincrement())
   tenantId                           Int
-  subjectId                          Int
+  subjectId                          Int                                 @unique
   staffId                            Int
   tenantGradingStructureId           Int
   subject                            Subject                             @relation(fields: [subjectId], references: [id])

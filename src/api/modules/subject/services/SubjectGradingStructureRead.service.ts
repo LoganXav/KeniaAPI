@@ -44,7 +44,9 @@ export default class SubjectGradingStructureReadService extends BaseService<IReq
 
       const { id } = args.params;
 
-      const gradingStructure = await this.subjectGradingStructureReadProvider.getOneByCriteria({ id: Number(id), ...args.body });
+      const { subjectId } = args.query;
+
+      const gradingStructure = await this.subjectGradingStructureReadProvider.getOneByCriteria({ id: Number(id), subjectId: Number(subjectId), ...args.body });
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(SUBJECT_GRADING_STRUCTURE_RESOURCE), gradingStructure);

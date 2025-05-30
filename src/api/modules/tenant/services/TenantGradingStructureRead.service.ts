@@ -7,9 +7,9 @@ import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { SUCCESS, TENANT_GRADING_STRUCTURE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
+import { RESOURCE_FETCHED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class TenantGradingStructureReadService extends BaseService<IRequest> {
@@ -25,7 +25,7 @@ export default class TenantGradingStructureReadService extends BaseService<IRequ
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
 
       const gradingStructure = await this.tenantGradingStructureReadProvider.getByCriteria(args.body);
       trace.setSuccessful();
@@ -41,11 +41,12 @@ export default class TenantGradingStructureReadService extends BaseService<IRequ
 
   public async readOne(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
 
       const { id } = args.params;
+      const { classId } = args.query;
 
-      const gradingStructure = await this.tenantGradingStructureReadProvider.getOneByCriteria({ id: Number(id), ...args.body });
+      const gradingStructure = await this.tenantGradingStructureReadProvider.getOneByCriteria({ id: Number(id), classId: Number(classId), ...args.body });
 
       if (!gradingStructure) {
         throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(TENANT_GRADING_STRUCTURE_RESOURCE));
