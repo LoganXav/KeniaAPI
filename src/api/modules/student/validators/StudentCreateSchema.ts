@@ -76,8 +76,8 @@ export const studentCreateRequestSchema = z.object({
   ),
 
   // Admission Information
-  classId: z.number({ invalid_type_error: "Class ID must be a number" }).int("Class ID must be an integer").optional(),
-  classDivisionId: z.number({ invalid_type_error: "Class Division ID must be a number" }).int("Class Division ID must be an integer").optional(),
+  classId: z.number({ invalid_type_error: "Class ID must be a number" }).int("Class ID must be an integer"),
+  classDivisionId: z.number({ invalid_type_error: "Class Division ID must be a number" }).int("Class Division ID must be an integer"),
   dormitoryId: z.number({ invalid_type_error: "Dormitory ID must be a number" }).int("Dormitory ID must be an integer").optional(),
   studentGroupIds: z.array(z.number({ invalid_type_error: "Student Group ID must be a number" }).int("Student Group ID must be an integer")).optional(),
   enrollmentDate: z
@@ -96,7 +96,8 @@ export const studentCreateRequestSchema = z.object({
     )
     .transform((val) => {
       return DateTimeUtils.parseToISO(val);
-    }),
+    })
+    .optional(),
 
   // Subject Registration
   subjectIds: z.array(z.number({ invalid_type_error: "Subject ID must be a number" }).int("Subject ID must be an integer")).optional(),

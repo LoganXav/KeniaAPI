@@ -1,4 +1,4 @@
-import { SubjectGrading } from "@prisma/client";
+import { Student, SubjectGrading } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -6,18 +6,27 @@ import { SubjectGradingCreateRequestType } from "~/api/modules/subject/types/Sub
 
 @EnforceTenantId
 export default class SubjectGradingCreateProvider {
-  public async createOrUpdate(args: SubjectGradingCreateRequestType & { grade: string; remark: string; totalScore: number }, dbClient: PrismaTransactionClient = DbClient): Promise<SubjectGrading> {
+  public async createOrUpdate(args: SubjectGradingCreateRequestType & { grade: string; remark: string; totalScore: number; totalContinuousScore: number; student: Student }, dbClient: PrismaTransactionClient = DbClient): Promise<SubjectGrading> {
     try {
-      const { id, tenantId, studentId, subjectId, classId, calendarId, termId, examScore, grade, remark, continuousAssessmentScores, totalScore } = args;
+      const { tenantId, studentId, subjectId, calendarId, termId, examScore, grade, remark, continuousAssessmentScores, totalScore, student, totalContinuousScore } = args;
 
       const subjectGrading = await dbClient.subjectGrading.upsert({
-        where: { id: id ?? 0 },
+        where: {
+          studentId_subjectId_calendarId_termId: {
+            studentId,
+            subjectId,
+            calendarId,
+            termId,
+          },
+        },
         update: {
+          totalContinuousScore,
           examScore,
           totalScore,
           grade,
           remark,
           continuousAssessmentScores: {
+            deleteMany: {},
             create: continuousAssessmentScores.map((ca) => ({
               name: ca.name,
               score: ca.score,
@@ -26,11 +35,13 @@ export default class SubjectGradingCreateProvider {
           tenant: { connect: { id: tenantId } },
           student: { connect: { id: studentId } },
           subject: { connect: { id: subjectId } },
-          class: { connect: { id: classId } },
+          class: { connect: { id: student.classId! } },
+          classDivision: { connect: { id: student.classDivisionId! } },
           calendar: { connect: { id: calendarId } },
           term: { connect: { id: termId } },
         },
         create: {
+          totalContinuousScore,
           examScore,
           totalScore,
           grade,
@@ -44,7 +55,8 @@ export default class SubjectGradingCreateProvider {
           tenant: { connect: { id: tenantId } },
           student: { connect: { id: studentId } },
           subject: { connect: { id: subjectId } },
-          class: { connect: { id: classId } },
+          class: { connect: { id: student.classId! } },
+          classDivision: { connect: { id: student.classDivisionId! } },
           calendar: { connect: { id: calendarId } },
           term: { connect: { id: termId } },
         },
@@ -52,7 +64,6 @@ export default class SubjectGradingCreateProvider {
           continuousAssessmentScores: true,
         },
       });
-
       return subjectGrading;
     } catch (error: any) {
       throw new InternalServerError(error.message);

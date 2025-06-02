@@ -21,6 +21,11 @@ export default class SubjectReadProvider {
         include: {
           class: true,
           staffs: true,
+          students: {
+            include: {
+              user: true,
+            },
+          },
         },
       });
 

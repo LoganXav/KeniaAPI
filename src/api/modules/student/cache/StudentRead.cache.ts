@@ -1,5 +1,5 @@
 import { RedisClientType } from "redis";
-import { Student } from "@prisma/client";
+import { Student, Subject } from "@prisma/client";
 import { autoInjectable } from "tsyringe";
 import ArrayUtil from "~/utils/ArrayUtil";
 import { StudentCriteriaType } from "../types/StudentTypes";
@@ -53,7 +53,7 @@ export default class StudentReadCache {
     }
   }
 
-  public async getOneByCriteria(criteria: StudentCriteriaType): Promise<Student | null> {
+  public async getOneByCriteria(criteria: StudentCriteriaType): Promise<(Student & { subjects: Subject[] }) | null> {
     try {
       const cacheKey = `${criteria.tenantId}:student:${JSON.stringify(criteria)}`;
       const cachedStudent = await this.redisClient.get(cacheKey);

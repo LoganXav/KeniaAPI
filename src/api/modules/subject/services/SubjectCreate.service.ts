@@ -11,6 +11,7 @@ import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequest
 import { SUCCESS, SUBJECT_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+
 @autoInjectable()
 export default class SubjectCreateService extends BaseService<IRequest> {
   static serviceName = "SubjectCreateService";
@@ -27,7 +28,7 @@ export default class SubjectCreateService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
 
       const foundSubject = await this.subjectReadProvider.getOneByCriteria(args.body);
 
