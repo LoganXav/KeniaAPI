@@ -1,7 +1,6 @@
 import { autoInjectable } from "tsyringe";
 import { Timetable } from "@prisma/client";
 import DbClient from "~/infrastructure/internal/database";
-import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { BaseService } from "../../base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";

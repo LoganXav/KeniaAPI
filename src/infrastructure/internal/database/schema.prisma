@@ -184,14 +184,15 @@ enum ClassList {
 }
 
 model ClassDivision {
-  id         Int         @id @default(autoincrement())
-  name       String
-  classId    Int
-  class      Class       @relation(fields: [classId], references: [id])
-  students   Student[]
-  tenantId   Int
-  tenant     Tenant      @relation(fields: [tenantId], references: [id])
-  timetables Timetable[]
+  id             Int              @id @default(autoincrement())
+  name           String
+  classId        Int
+  class          Class            @relation(fields: [classId], references: [id])
+  students       Student[]
+  tenantId       Int
+  tenant         Tenant           @relation(fields: [tenantId], references: [id])
+  timetables     Timetable[]
+  SubjectGrading SubjectGrading[]
 }
 
 model Subject {
@@ -416,21 +417,26 @@ model SubjectGrading {
   studentId                  Int
   subjectId                  Int
   classId                    Int
+  classDivisionId            Int
   calendarId                 Int
   termId                     Int
   continuousAssessmentScores ContinuousAssessmentScore[]
-  examScore                  Float
-  totalScore                 Float
+  totalContinuousScore       Float                       @default(0)
+  examScore                  Float                       @default(0)
+  totalScore                 Float                       @default(0)
   grade                      String
   remark                     String?
   student                    Student                     @relation(fields: [studentId], references: [id])
   subject                    Subject                     @relation(fields: [subjectId], references: [id])
   class                      Class                       @relation(fields: [classId], references: [id])
+  classDivision              ClassDivision               @relation(fields: [classDivisionId], references: [id])
   calendar                   SchoolCalendar              @relation(fields: [calendarId], references: [id])
   term                       Term                        @relation(fields: [termId], references: [id])
   tenant                     Tenant                      @relation(fields: [tenantId], references: [id])
   createdAt                  DateTime                    @default(now())
   updatedAt                  DateTime                    @updatedAt
+
+  @@unique([studentId, subjectId, calendarId, termId])
 }
 
 model ContinuousAssessmentScore {

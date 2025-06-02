@@ -12,7 +12,7 @@ import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
 import StudentCreateProvider from "../providers/StudentCreate.provider";
 import UserCreateProvider from "../../user/providers/UserCreate.provider";
 import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
-import { GuardianCreateRequestType, GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
+import { GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import GuardianUpdateProvider from "../../guardian/providers/GuardianUpdate.provider";
@@ -34,30 +34,30 @@ export default class StudentCreateService extends BaseService<IRequest> {
   studentReadCache: StudentReadCache;
   guardianReadCache: GuardianReadCache;
   userCreateProvider: UserCreateProvider;
+  subjectReadProvider: SubjectReadProvider;
   studentCreateProvider: StudentCreateProvider;
   guardianCreateProvider: GuardianCreateProvider;
   guardianUpdateProvider: GuardianUpdateProvider;
-  subjectReadProvider: SubjectReadProvider;
 
   constructor(
-    studentCreateProvider: StudentCreateProvider,
-    userCreateProvider: UserCreateProvider,
-    studentReadCache: StudentReadCache,
     userReadCache: UserReadCache,
-    guardianCreateProvider: GuardianCreateProvider,
+    studentReadCache: StudentReadCache,
     guardianReadCache: GuardianReadCache,
-    guardianUpdateProvider: GuardianUpdateProvider,
-    subjectReadProvider: SubjectReadProvider
+    userCreateProvider: UserCreateProvider,
+    subjectReadProvider: SubjectReadProvider,
+    studentCreateProvider: StudentCreateProvider,
+    guardianCreateProvider: GuardianCreateProvider,
+    guardianUpdateProvider: GuardianUpdateProvider
   ) {
     super(StudentCreateService.serviceName);
     this.userReadCache = userReadCache;
     this.studentReadCache = studentReadCache;
     this.guardianReadCache = guardianReadCache;
     this.userCreateProvider = userCreateProvider;
+    this.subjectReadProvider = subjectReadProvider;
     this.studentCreateProvider = studentCreateProvider;
     this.guardianCreateProvider = guardianCreateProvider;
     this.guardianUpdateProvider = guardianUpdateProvider;
-    this.subjectReadProvider = subjectReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 

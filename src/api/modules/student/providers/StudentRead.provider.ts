@@ -1,4 +1,4 @@
-import { Student } from "@prisma/client";
+import { Student, Subject } from "@prisma/client";
 import { StudentCriteriaType } from "~/api/modules/student/types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
@@ -60,7 +60,7 @@ export default class StudentReadProvider {
     }
   }
 
-  public async getOneByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Student | null> {
+  public async getOneByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<(Student & { subjects: Subject[] }) | null> {
     try {
       const { id, tenantId } = criteria;
       const numericId = id ? Number(id) : undefined;

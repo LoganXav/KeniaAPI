@@ -11,9 +11,9 @@ export type StudentUpdateManyRequestType = z.infer<typeof studentUpdateManySchem
 export interface StudentCreateType {
   userId: number;
   tenantId: number;
-  classId?: number;
-  classDivisionId?: number;
-  enrollmentDate: string;
+  classId: number;
+  classDivisionId: number;
+  enrollmentDate?: string;
   admissionNo?: string;
   studentGroupIds?: number[];
   dormitoryId?: number;

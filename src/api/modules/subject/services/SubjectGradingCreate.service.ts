@@ -4,6 +4,7 @@ import { IResult } from "~/api/shared/helpers/results/IResult";
 import { TenantGradingStructure, GradeBoundary } from "@prisma/client";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import StudentReadCache from "~/api/modules/student/cache/StudentRead.cache";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
@@ -13,7 +14,7 @@ import SubjectGradingCreateProvider from "~/api/modules/subject/providers/Subjec
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
 import SubjectGradingStructureReadProvider from "~/api/modules/subject/providers/SubjectGradingStructureRead.provider";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { SUCCESS, SUBJECT_GRADING_RESOURCE, ERROR, TENANT_GRADING_STRUCTURE_RESOURCE, SUBJECT_GRADING_STRUCTURE_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import { SUCCESS, SUBJECT_GRADING_RESOURCE, ERROR, TENANT_GRADING_STRUCTURE_RESOURCE, SUBJECT_GRADING_STRUCTURE_RESOURCE, STUDENT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 
 @autoInjectable()
 export default class SubjectGradingCreateService extends BaseService<IRequest> {
@@ -21,10 +22,12 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
   private subjectGradingCreateProvider: SubjectGradingCreateProvider;
   private tenantGradingStructureReadProvider: TenantGradingStructureReadProvider;
   private subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider;
+  private studentReadCache: StudentReadCache;
   loggingProvider: ILoggingDriver;
 
-  constructor(subjectGradingCreateProvider: SubjectGradingCreateProvider, subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider, tenantGradingStructureReadProvider: TenantGradingStructureReadProvider) {
+  constructor(subjectGradingCreateProvider: SubjectGradingCreateProvider, subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider, tenantGradingStructureReadProvider: TenantGradingStructureReadProvider, studentReadCache: StudentReadCache) {
     super(SubjectGradingCreateService.serviceName);
+    this.studentReadCache = studentReadCache;
     this.subjectGradingCreateProvider = subjectGradingCreateProvider;
     this.tenantGradingStructureReadProvider = tenantGradingStructureReadProvider;
     this.subjectGradingStructureReadProvider = subjectGradingStructureReadProvider;
@@ -35,7 +38,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
 
-      const { tenantId, subjectId, classId, continuousAssessmentScores, examScore } = args.body;
+      const { tenantId, studentId, subjectId, classId, continuousAssessmentScores, examScore } = args.body;
 
       const tenantGradingStructure = await this.tenantGradingStructureReadProvider.getOneByCriteria({ tenantId, classId });
 
@@ -54,7 +57,23 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       // Get grade, remark and totalScore
       const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemark(tenantGradingStructure, continuousAssessmentScores, examScore);
 
-      const subjectGrading = await this.subjectGradingCreateProvider.createOrUpdate({ ...args.body, totalScore, grade, remark });
+      const student = await this.studentReadCache.getOneByCriteria({ id: studentId, tenantId });
+
+      if (!student) {
+        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE));
+      }
+
+      if (!student.classId || !student.classDivisionId) {
+        throw new BadRequestError("Student is not enrolled in a class.");
+      }
+
+      const isEnrolled = student.subjects?.some((subject) => subject.id === subjectId);
+
+      if (!isEnrolled) {
+        throw new BadRequestError("Student is not enrolled with this subject.");
+      }
+
+      const subjectGrading = await this.subjectGradingCreateProvider.createOrUpdate({ ...args.body, totalScore, grade, remark, totalContinuousScore, student });
 
       trace.setSuccessful();
       this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SUBJECT_GRADING_RESOURCE), subjectGrading);
@@ -100,7 +119,9 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
 
     const weightedTotalScore = totalContinuousScore + examScore;
 
-    const gradeBoundary = tenantGradingStructure.gradeBoundaries.find((boundary: GradeBoundary) => weightedTotalScore >= boundary.minimumScore);
+    const sortedBoundaries = tenantGradingStructure.gradeBoundaries.sort((a, b) => a.minimumScore - b.minimumScore);
+
+    const gradeBoundary = sortedBoundaries.find((boundary: GradeBoundary) => weightedTotalScore >= boundary.minimumScore && weightedTotalScore < boundary.maximumScore) || sortedBoundaries.find((boundary: GradeBoundary) => weightedTotalScore === boundary.maximumScore);
 
     return {
       grade: gradeBoundary?.grade ?? "N/A",
