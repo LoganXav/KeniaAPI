@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ClassList, Subject } from "@prisma/client";
+import { ClassList, Subject, User } from "@prisma/client";
 import { studentUpdateSchema, studentUpdateManySchema } from "../validators/StudentUpdateSchema";
 import { studentCreateRequestSchema, studentCriteriaSchema } from "../validators/StudentCreateSchema";
 
@@ -24,9 +24,11 @@ export interface StudentCreateType {
 export type StudentWithRelationsType = {
   id: number;
   userId: number;
+  classId: number | null;
+  classDivisionId: number | null;
   class: {
     id: number;
-    type: ClassList | null;
+    name: ClassList | null;
     classTeacherId: number | null;
     tenantId: number;
   } | null;
@@ -58,6 +60,7 @@ export type StudentWithRelationsType = {
     name: string;
   }[];
   subjects: Subject[];
+  user: User;
 };
 
 export interface StudentCriteria {

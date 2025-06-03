@@ -5,20 +5,28 @@ import { SubjectGradingCreateRequestType } from "~/api/modules/subject/types/Sub
 
 @EnforceTenantId
 export default class SubjectGradingReadProvider {
-  public async getByCriteria(criteria: SubjectGradingCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
+  public async getByCriteria(criteria: SubjectGradingCreateRequestType & { classId: number; classDivisionId: number }, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { subjectId, tenantId, calendarId, termId, studentId } = criteria;
+      const { subjectId, tenantId, calendarId, termId, studentId, classId, classDivisionId } = criteria;
 
       const subjectGradings = await dbClient.subjectGrading.findMany({
         where: {
-          ...(studentId && { studentId }),
-          ...(subjectId && { subjectId }),
           ...(tenantId && { tenantId }),
           ...(calendarId && { calendarId }),
           ...(termId && { termId }),
+          ...(classId && { classId }),
+          ...(classDivisionId && { classDivisionId }),
+          ...(studentId && { studentId }),
+          ...(subjectId && { subjectId }),
         },
         include: {
           continuousAssessmentScores: true,
+          subject: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           student: {
             include: {
               classDivision: true,
