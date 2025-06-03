@@ -26,6 +26,7 @@ export const ROLE_RESOURCE = "Role";
 export const TENANT_GRADING_STRUCTURE_RESOURCE = "School Grading Structure";
 export const SUBJECT_GRADING_STRUCTURE_RESOURCE = "Subject Grading Structure";
 export const SUBJECT_GRADING_RESOURCE = "Subject Grading";
+export const STUDENT_GRADING_RESOURCE = "Student Grading";
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account Created Successfully";
 export const TOKEN_VERIFIED = "Token Verification Success";

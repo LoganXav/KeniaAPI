@@ -8,7 +8,7 @@ import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "~/api/mo
 export default class StudentUpdateProvider {
   public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { classId, classDivisionId, guardianIds, id, tenantId, dormitoryId, studentGroupIds } = criteria;
+      const { classId, classDivisionId, guardianIds, id, tenantId, dormitoryId, studentGroupIds, subjectIds } = criteria;
 
       const updatedStudent = await dbClient?.student?.update({
         where: { id, tenantId },
@@ -16,10 +16,19 @@ export default class StudentUpdateProvider {
           ...(classId && { class: { connect: { id: Number(classId) } } }),
           ...(classDivisionId && { classDivision: { connect: { id: Number(classDivisionId) } } }),
           ...(dormitoryId && { dormitory: { connect: { id: Number(dormitoryId) } } }),
-          ...(studentGroupIds && { studentGroups: { connect: studentGroupIds.map((id) => ({ id })) } }),
+          ...(studentGroupIds && {
+            studentGroups: {
+              set: studentGroupIds.map((id) => ({ id })),
+            },
+          }),
           guardians: {
             set: guardianIds?.map((id) => ({ id })) || [],
           },
+          ...(subjectIds && {
+            subjects: {
+              set: subjectIds.map((id) => ({ id })),
+            },
+          }),
         },
         include: {
           user: true,

@@ -1,5 +1,5 @@
 import { Student, Subject } from "@prisma/client";
-import { StudentCriteriaType } from "~/api/modules/student/types/StudentTypes";
+import { StudentCriteriaType, StudentWithRelationsType } from "~/api/modules/student/types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -24,9 +24,9 @@ export default class StudentReadProvider {
     return students;
   }
 
-  public async getByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Student[]> {
+  public async getByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentWithRelationsType[]> {
     try {
-      const { ids, classId, tenantId, dormitoryId } = criteria;
+      const { ids, classId, classDivisionId, tenantId, dormitoryId } = criteria;
 
       const students = await dbClient.student.findMany({
         where: {
@@ -34,6 +34,7 @@ export default class StudentReadProvider {
           ...(ids && { id: { in: ids } }),
           ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
           ...(classId && { classId: Number(classId) }),
+          ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),
         },
         include: {
           user: true,

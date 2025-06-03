@@ -1,31 +1,34 @@
 import { autoInjectable } from "tsyringe";
 import { IRequest } from "~/infrastructure/internal/types";
-import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import ClassReadCache from "../../class/cache/ClassRead.cache";
-import TermReadProvider from "../../term/providers/TermRead.provider";
+import { BaseService } from "~/api/modules/base/services/Base.service";
+import ClassReadCache from "~/api/modules/class/cache/ClassRead.cache";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
+import StudentReadCache from "~/api/modules/student/cache/StudentRead.cache";
+import TermReadProvider from "~/api/modules/term/providers/TermRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { SUCCESS, ERROR, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
-import ClassDivisionReadProvider from "../../classDivision/providers/ClassDivisionRead.provider";
-import SchoolCalendarReadProvider from "../../schoolCalendar/providers/SchoolCalendarRead.provider";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import ClassDivisionReadProvider from "~/api/modules/classDivision/providers/ClassDivisionRead.provider";
+import SchoolCalendarReadProvider from "~/api/modules/schoolCalendar/providers/SchoolCalendarRead.provider";
 
 @autoInjectable()
 export default class SubjectGradingTemplateService extends BaseService<IRequest> {
   static serviceName = "SubjectGradingTemplateService";
   classReadCache: ClassReadCache;
   loggingProvider: ILoggingDriver;
+  studentReadCache: StudentReadCache;
   termReadProvider: TermReadProvider;
   classDivisionReadProvider: ClassDivisionReadProvider;
   schoolCalendarReadProvider: SchoolCalendarReadProvider;
 
-  constructor(schoolCalendarReadProvider: SchoolCalendarReadProvider, termReadProvider: TermReadProvider, classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider) {
+  constructor(schoolCalendarReadProvider: SchoolCalendarReadProvider, termReadProvider: TermReadProvider, classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider, studentReadCache: StudentReadCache) {
     super(SubjectGradingTemplateService.serviceName);
     this.classReadCache = classReadCache;
     this.termReadProvider = termReadProvider;
+    this.studentReadCache = studentReadCache;
     this.classDivisionReadProvider = classDivisionReadProvider;
     this.schoolCalendarReadProvider = schoolCalendarReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
@@ -36,7 +39,7 @@ export default class SubjectGradingTemplateService extends BaseService<IRequest>
       this.initializeServiceTrace(trace, args.body);
 
       const { tenantId } = args.body;
-      const { calendarId, classId } = args.query;
+      const { calendarId, classId, subjectId } = args.query;
 
       const schoolCalendars = await this.schoolCalendarReadProvider.getByCriteria({ tenantId });
       const terms = await this.termReadProvider.getByCriteria({ calendarId: Number(calendarId), tenantId });
@@ -47,11 +50,16 @@ export default class SubjectGradingTemplateService extends BaseService<IRequest>
         classId: Number(classId),
       });
 
+      const students = await this.studentReadCache.getByCriteria({ tenantId, classId: Number(classId) });
+
+      const studentsOfferingSubject = students?.filter((student) => student?.subjects.some((subject) => subject.id === Number(subjectId)));
+
       const template = {
         calendarOptions: schoolCalendars,
         termOptions: terms,
         classOptions: classes,
         classDivisionOptions: classDivision,
+        studentOptions: studentsOfferingSubject,
       };
 
       trace.setSuccessful();
