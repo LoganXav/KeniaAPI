@@ -44,8 +44,6 @@ export default class TenantGradingStructureTemplateService extends BaseService<I
         ids: classIdsArray,
       });
 
-      console.log(existingClasses, "existingClassesexistingClasses");
-
       const template = {
         classOptions: classes.concat(existingClasses),
         gradeOptions: GradeOptionsConstants,

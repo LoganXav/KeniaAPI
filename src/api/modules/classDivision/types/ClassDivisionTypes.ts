@@ -26,7 +26,7 @@ export type ClassDivisionUpdateRequestType = {
   name?: string;
   classId?: number;
   tenantId: number;
-  classTeacherId?: number;
+  classDivisionTeacherId?: number;
 };
 
 export type ClassDivisionCriteriaType = {
