@@ -2,21 +2,20 @@ import { SchoolCalendar, Term } from "@prisma/client";
 
 export type SchoolCalendarReadRequestType = {
   ids?: number[];
-  year?: number;
   tenantId: number;
 };
 
 export type SchoolCalendarReadOneRequestType = {
   id?: number;
-  year?: number;
-  tenantId?: number;
+  year: number;
+  tenantId: number;
 };
 
 export type SchoolCalendarCriteriaType = {
   id?: number;
   ids?: number[];
-  year?: number;
-  tenantId?: number;
+  year: number;
+  tenantId: number;
 };
 
 export type SchoolCalendarResponseType = {
@@ -32,7 +31,6 @@ export type SchoolCalendarDeleteRequestType = {
 };
 
 export type SchoolCalendarCreateRequestType = {
-  id?: number;
   year: number;
   tenantId: number;
   terms: TermType[];
