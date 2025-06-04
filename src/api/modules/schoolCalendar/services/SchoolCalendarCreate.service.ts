@@ -14,8 +14,8 @@ import BreakPeriodCreateProvider from "../../breakPeriod/providers/BreakPeriodCr
 import BreakPeriodDeleteProvider from "../../breakPeriod/providers/BreakPeriodDelete.provider";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { SUCCESS, SCHOOL_CALENDAR_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { BreakWeekType, SchoolCalendarCreateRequestType, TermType } from "../types/SchoolCalendarTypes";
+import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class SchoolCalendarCreateService extends BaseService<SchoolCalendarCreateRequestType> {
@@ -55,7 +55,7 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
 
       const schoolCalendar = await this.schoolCalendarCreateTransaction(args);
 
-      const result = await this.schoolCalendarReadProvider.getOneByCriteria({ id: schoolCalendar.id, tenantId: args.tenantId });
+      const result = await this.schoolCalendarReadProvider.getOneByCriteria({ year: schoolCalendar.year, tenantId: args.tenantId });
 
       trace.setSuccessful();
       this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SCHOOL_CALENDAR_RESOURCE), result);
@@ -72,7 +72,6 @@ export default class SchoolCalendarCreateService extends BaseService<SchoolCalen
     return DbClient.$transaction(async (tx) => {
       const schoolCalendar = await this.schoolCalendarCreateProvider.createOrUpdate(
         {
-          id: args.id,
           year: args.year,
           tenantId: args.tenantId,
         },

@@ -1,9 +1,9 @@
 import { autoInjectable } from "tsyringe";
 import BaseController from "../../base/contollers/Base.controller";
-import SchoolCalendarReadService from "../services/SchoolCalendarRead.service";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import SchoolCalendarReadService from "../services/SchoolCalendarRead.service";
 import { schoolCalendarReadSchema } from "../validators/SchoolCalendarReadSchema";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
@@ -27,7 +27,7 @@ export default class SchoolCalendarReadController extends BaseController {
   };
 
   readOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.schoolCalendarReadService.readOne(res.trace, req.body), {
+    return this.handleResultData(res, next, this.schoolCalendarReadService.readOne(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -38,7 +38,7 @@ export default class SchoolCalendarReadController extends BaseController {
     this.addRoute({
       path: "/calendar/list",
       method: HttpMethodEnum.POST,
-      handlers: [validateData(schoolCalendarReadSchema), this.read],
+      handlers: [this.read],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
@@ -51,7 +51,7 @@ export default class SchoolCalendarReadController extends BaseController {
     this.addRoute({
       path: "/calendar/info",
       method: HttpMethodEnum.POST,
-      handlers: [validateData(schoolCalendarReadSchema), this.readOne],
+      handlers: [this.readOne],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

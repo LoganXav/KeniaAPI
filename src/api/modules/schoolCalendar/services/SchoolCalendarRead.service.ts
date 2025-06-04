@@ -2,13 +2,14 @@ import { autoInjectable } from "tsyringe";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { SchoolCalendarReadRequestType, SchoolCalendarReadOneRequestType } from "../types/SchoolCalendarTypes";
-import SchoolCalendarReadProvider from "../providers/SchoolCalendarRead.provider";
-import { SUCCESS, SCHOOL_CALENDAR_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import SchoolCalendarReadProvider from "../providers/SchoolCalendarRead.provider";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { SUCCESS, SCHOOL_CALENDAR_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { SchoolCalendarReadRequestType, SchoolCalendarReadOneRequestType } from "../types/SchoolCalendarTypes";
+import { IRequest } from "~/infrastructure/internal/types";
 
 @autoInjectable()
 export default class SchoolCalendarReadService extends BaseService<SchoolCalendarReadRequestType> {
@@ -38,10 +39,13 @@ export default class SchoolCalendarReadService extends BaseService<SchoolCalenda
     }
   }
 
-  public async readOne(trace: ServiceTrace, args: SchoolCalendarReadOneRequestType): Promise<IResult> {
+  public async readOne(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
-      const schoolCalendar = await this.schoolCalendarReadProvider.getOneByCriteria(args);
+      this.initializeServiceTrace(trace, args.body);
+
+      const { tenantId } = args.body;
+      const { year } = args.query;
+      const schoolCalendar = await this.schoolCalendarReadProvider.getOneByCriteria({ tenantId, year: Number(year) });
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(SCHOOL_CALENDAR_RESOURCE), schoolCalendar);

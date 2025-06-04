@@ -30,19 +30,16 @@ export default class SchoolCalendarCreateProvider {
 
   public async createOrUpdate(args: Omit<SchoolCalendarCreateRequestType, "terms">, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, year, tenantId } = args;
+      const { year, tenantId } = args;
 
       const schoolCalendar = await dbClient.schoolCalendar.upsert({
-        where: { id: id || 0 },
-        update: {
-          year,
-          tenantId,
+        where: {
+          year_tenantId: { year, tenantId },
         },
-        create: {
-          year,
-          tenantId,
-        },
+        update: { year, tenantId },
+        create: { year, tenantId },
       });
+
       return schoolCalendar;
     } catch (error: any) {
       throw new InternalServerError(error);

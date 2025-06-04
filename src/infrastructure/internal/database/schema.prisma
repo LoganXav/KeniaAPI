@@ -263,6 +263,8 @@ model SchoolCalendar {
   tenantId     Int
   tenant       Tenant           @relation(fields: [tenantId], references: [id])
   SubjectGrade SubjectGrading[]
+
+  @@unique([year, tenantId])
 }
 
 model Term {
