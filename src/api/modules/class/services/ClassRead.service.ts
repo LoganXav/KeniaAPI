@@ -9,6 +9,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { SUCCESS, CLASS_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+
 @autoInjectable()
 export default class ClassReadService extends BaseService<IRequest> {
   static serviceName = "ClassReadService";
@@ -24,11 +25,8 @@ export default class ClassReadService extends BaseService<IRequest> {
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args?.body);
-      const { classTeacherId } = args.query;
 
-      console.log(classTeacherId);
-
-      const classes = await this.classReadCache.getByCriteria({ classTeacherId: Number(classTeacherId), ...args?.body });
+      const classes = await this.classReadCache.getByCriteria({ ...args?.body });
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(CLASS_RESOURCE), classes);

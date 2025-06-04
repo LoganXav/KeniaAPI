@@ -30,7 +30,6 @@ export type ClassReadRequestType = {
   ids?: number[];
   name?: ClassList;
   type?: ClassList;
-  classTeacherId?: number;
   tenantId: number;
 };
 
@@ -38,14 +37,12 @@ export type ClassReadOneRequestType = {
   id?: number;
   name?: ClassList;
   type?: ClassList;
-  classTeacherId?: number;
   tenantId?: number;
 };
 
 export type ClassUpdateRequestType = {
   id: number;
   name?: ClassList;
-  classTeacherId?: number;
   tenantId?: number;
 };
 
@@ -53,7 +50,6 @@ export type ClassCriteriaType = {
   id?: number;
   ids?: number[];
   name?: ClassList;
-  classTeacherId?: number;
   tenantId?: number;
   withoutGradingStructures?: boolean;
 };
@@ -61,9 +57,7 @@ export type ClassCriteriaType = {
 export type ClassResponseType = {
   id: number;
   name: ClassList;
-  classTeacherId: number | null;
   tenantId: number;
-  classTeacher?: Staff;
   students?: Student[];
   subjects?: Subject[];
   divisions?: ClassDivision[];

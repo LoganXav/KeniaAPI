@@ -385,14 +385,6 @@
           "tenantId": {
             "type": "number"
           },
-          "classTeacherId": {
-            "type": "number",
-            "nullable": true
-          },
-          "classTeacher": {
-            "type": "object",
-            "nullable": true
-          },
           "students": {
             "type": "array"
           },

@@ -9,11 +9,6 @@ export default class ClassReadProvider {
   public async getAllClass(dbClient: PrismaTransactionClient = DbClient): Promise<Class[]> {
     const classes = await dbClient?.class?.findMany({
       include: {
-        classTeacher: {
-          include: {
-            user: true,
-          },
-        },
         // students: true,
         subjects: true,
         divisions: true,
@@ -25,23 +20,17 @@ export default class ClassReadProvider {
 
   public async getByCriteria(criteria: ClassCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, ids, name, classTeacherId, tenantId, withoutGradingStructures } = criteria;
+      const { id, ids, name, tenantId, withoutGradingStructures } = criteria;
 
       const classes = await dbClient.class.findMany({
         where: {
           ...(id && { id }),
           ...(ids && { id: { in: ids } }),
           ...(name && { name }),
-          ...(classTeacherId && { classTeacherId }),
           ...(tenantId && { tenantId }),
           ...(withoutGradingStructures && { gradingStructures: { none: {} } }),
         },
         include: {
-          classTeacher: {
-            include: {
-              user: true,
-            },
-          },
           // students: true,
           subjects: true,
           divisions: true,
@@ -56,21 +45,15 @@ export default class ClassReadProvider {
 
   public async getOneByCriteria(criteria: ClassCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, name, classTeacherId, tenantId } = criteria;
+      const { id, name, tenantId } = criteria;
 
       const class_ = await dbClient.class.findFirst({
         where: {
           ...(id && { id }),
           ...(name && { name }),
-          ...(classTeacherId && { classTeacherId }),
           ...(tenantId && { tenantId }),
         },
         include: {
-          classTeacher: {
-            include: {
-              user: true,
-            },
-          },
           // students: true,
           subjects: true,
           divisions: true,

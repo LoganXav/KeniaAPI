@@ -22,7 +22,7 @@ export default class StaffReadProvider {
           user: true,
           role: true,
           subjects: true,
-          classes: true,
+          classDivisions: true,
         },
       });
 
@@ -52,7 +52,7 @@ export default class StaffReadProvider {
           user: true,
           role: true,
           subjects: true,
-          classes: true,
+          classDivisions: true,
         },
       });
 

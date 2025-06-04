@@ -116,7 +116,7 @@ model Staff {
   roleId                  Int?
   role                    Role?                     @relation(fields: [roleId], references: [id])
   group                   Group[]                   @relation("StaffGroup")
-  classes                 Class[]                   @relation("ClassTeacher")
+  classDivisions          ClassDivision[]           @relation("ClassDivisionTeacher")
   subjects                Subject[]                 @relation("SubjectTeacher")
   tenantId                Int
   nin                     String?
@@ -163,8 +163,6 @@ model Student {
 model Class {
   id                Int                      @id @default(autoincrement())
   name              ClassList?
-  classTeacherId    Int?
-  classTeacher      Staff?                   @relation("ClassTeacher", fields: [classTeacherId], references: [id])
   students          Student[]
   subjects          Subject[]
   divisions         ClassDivision[]
@@ -184,15 +182,17 @@ enum ClassList {
 }
 
 model ClassDivision {
-  id             Int              @id @default(autoincrement())
-  name           String
-  classId        Int
-  class          Class            @relation(fields: [classId], references: [id])
-  students       Student[]
-  tenantId       Int
-  tenant         Tenant           @relation(fields: [tenantId], references: [id])
-  timetables     Timetable[]
-  SubjectGrading SubjectGrading[]
+  id                     Int              @id @default(autoincrement())
+  name                   String
+  classId                Int
+  class                  Class            @relation(fields: [classId], references: [id])
+  classDivisionTeacherId Int?
+  classDivisionTeacher   Staff?           @relation("ClassDivisionTeacher", fields: [classDivisionTeacherId], references: [id])
+  students               Student[]
+  tenantId               Int
+  tenant                 Tenant           @relation(fields: [tenantId], references: [id])
+  timetables             Timetable[]
+  SubjectGrading         SubjectGrading[]
 }
 
 model Subject {

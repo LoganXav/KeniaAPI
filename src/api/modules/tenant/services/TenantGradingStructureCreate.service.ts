@@ -25,7 +25,7 @@ export default class TenantGradingStructureCreateService extends BaseService<IRe
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
 
       // 1. Extract gradeBoundaries from the request body
       //    (Assuming args.body has a property `gradeBoundaries: GradeBoundaryCreateInput[]`)

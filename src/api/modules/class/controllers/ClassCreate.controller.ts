@@ -63,14 +63,6 @@ export default class ClassCreateController extends BaseController {
                 tenantId: {
                   type: PropTypeEnum.NUMBER,
                 },
-                classTeacherId: {
-                  type: PropTypeEnum.NUMBER,
-                  nullable: true,
-                },
-                classTeacher: {
-                  type: PropTypeEnum.OBJECT,
-                  nullable: true,
-                },
                 students: {
                   type: PropTypeEnum.ARRAY,
                   nullable: true,

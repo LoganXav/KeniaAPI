@@ -7,15 +7,17 @@ import { ClassDivisionCreateRequestType } from "~/api/modules/classDivision/type
 export default class ClassDivisionCreateProvider {
   public async create(args: ClassDivisionCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { name, classId, tenantId } = args;
+      const { name, classId, tenantId, classDivisionTeacherId } = args;
 
       const classDivision = await dbClient.classDivision.create({
         data: {
           name,
           classId,
           tenantId,
+          classDivisionTeacherId,
         },
         include: {
+          classDivisionTeacher: true,
           class: true,
           students: true,
         },

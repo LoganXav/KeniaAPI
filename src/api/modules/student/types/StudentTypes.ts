@@ -29,7 +29,6 @@ export type StudentWithRelationsType = {
   class: {
     id: number;
     name: ClassList | null;
-    classTeacherId: number | null;
     tenantId: number;
   } | null;
   classDivision: {
