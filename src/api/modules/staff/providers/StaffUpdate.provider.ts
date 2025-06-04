@@ -8,7 +8,7 @@ import { StaffUpdateManyRequestType, StaffUpdateRequestType } from "~/api/module
 export default class StaffUpdateProvider {
   public async updateOne(criteria: StaffUpdateRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
-      const { jobTitle, roleId, id, tenantId, nin, tin, cvUrl, highestLevelEdu, employmentType, startDate, subjectIds, classIds } = criteria;
+      const { jobTitle, roleId, id, tenantId, nin, tin, cvUrl, highestLevelEdu, employmentType, startDate, subjectIds, classDivisionIds } = criteria;
 
       const numericId = Number(id);
 
@@ -31,9 +31,9 @@ export default class StaffUpdateProvider {
               connect: subjectIds.map((id) => ({ id })),
             },
           }),
-          ...(classIds && {
-            classes: {
-              connect: classIds.map((id) => ({ id })),
+          ...(classDivisionIds && {
+            classDivisions: {
+              connect: classDivisionIds.map((id) => ({ id })),
             },
           }),
         },
@@ -41,7 +41,7 @@ export default class StaffUpdateProvider {
           user: true,
           role: true,
           subjects: true,
-          classes: true,
+          classDivisions: true,
         },
       });
 

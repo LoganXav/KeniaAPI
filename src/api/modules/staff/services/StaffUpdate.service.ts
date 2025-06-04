@@ -43,7 +43,7 @@ export default class StaffUpdateService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
 
       const foundUser = await this.userReadCache.getOneByCriteria({ tenantId: Number(args.body.tenantId), userId: Number(args.body.id) });
 

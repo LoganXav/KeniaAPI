@@ -4,6 +4,7 @@ export type ClassDivisionCreateRequestType = {
   name: string;
   classId: number;
   tenantId: number;
+  classDivisionTeacherId?: number;
 };
 
 export type ClassDivisionReadRequestType = {
@@ -17,14 +18,15 @@ export type ClassDivisionReadOneRequestType = {
   id?: number;
   name?: string;
   classId?: number;
-  tenantId?: number;
+  tenantId: number;
 };
 
 export type ClassDivisionUpdateRequestType = {
   id: number;
   name?: string;
   classId?: number;
-  tenantId?: number;
+  tenantId: number;
+  classTeacherId?: number;
 };
 
 export type ClassDivisionCriteriaType = {
@@ -32,7 +34,8 @@ export type ClassDivisionCriteriaType = {
   ids?: number[];
   name?: string;
   classId?: number;
-  tenantId?: number;
+  tenantId: number;
+  classDivisionTeacherId?: number;
 };
 
 export type ClassDivisionResponseType = {

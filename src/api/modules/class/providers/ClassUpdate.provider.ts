@@ -10,10 +10,8 @@ export default class ClassUpdateProvider {
       where: { id: args.id, tenantId: args.tenantId },
       data: {
         ...(args.name && { name: args.name }),
-        ...(args.classTeacherId && { classTeacherId: args.classTeacherId }),
       },
       include: {
-        classTeacher: true,
         students: true,
         subjects: true,
         divisions: true,

@@ -1,17 +1,17 @@
 import { autoInjectable } from "tsyringe";
+import ClassReadCache from "../cache/ClassRead.cache";
+import { ClassCreateRequestType } from "../types/ClassTypes";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { ClassCreateRequestType } from "../types/ClassTypes";
 import ClassCreateProvider from "../providers/ClassCreate.provider";
-import { SUCCESS, CLASS_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
-import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import ClassReadCache from "../cache/ClassRead.cache";
-import { RESOURCE_RECORD_ALREADY_EXISTS } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { SUCCESS, CLASS_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import { RESOURCE_RECORD_ALREADY_EXISTS } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 @autoInjectable()
 export default class ClassCreateService extends BaseService<ClassCreateRequestType> {
   static serviceName = "ClassCreateService";

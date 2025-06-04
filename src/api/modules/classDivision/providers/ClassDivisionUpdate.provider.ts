@@ -7,13 +7,14 @@ import { ClassDivisionUpdateRequestType } from "~/api/modules/classDivision/type
 export default class ClassDivisionUpdateProvider {
   public async update(criteria: ClassDivisionUpdateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, name, classId, tenantId } = criteria;
+      const { id, name, classId, tenantId, classTeacherId } = criteria;
 
       const classDivision = await dbClient.classDivision.update({
         where: { id, tenantId },
         data: {
           ...(name && { name }),
           ...(classId && { classId }),
+          ...(classTeacherId && { classTeacherId }),
           ...(tenantId && { tenantId }),
         },
         include: {

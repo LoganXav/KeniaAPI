@@ -24,7 +24,7 @@ export default class SubjectUpdateService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
       const subject = await this.subjectUpdateProvider.update({ ...args.body, id: Number(args.params.id) });
       trace.setSuccessful();
 

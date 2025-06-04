@@ -1,14 +1,14 @@
 import { autoInjectable } from "tsyringe";
+import { IRequest } from "~/infrastructure/internal/types";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
-import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import ClassUpdateProvider from "../providers/ClassUpdate.provider";
-import { SUCCESS, CLASS_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
-import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import { RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { SUCCESS, CLASS_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import { IRequest } from "~/infrastructure/internal/types";
+import { RESOURCE_RECORD_UPDATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 
 @autoInjectable()
 export default class ClassUpdateService extends BaseService<IRequest> {
@@ -24,7 +24,7 @@ export default class ClassUpdateService extends BaseService<IRequest> {
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
-      this.initializeServiceTrace(trace, args);
+      this.initializeServiceTrace(trace, args.body);
       const classRecord = await this.classUpdateProvider.updateOne({ ...args.body, id: Number(args.params.id) });
       trace.setSuccessful();
 

@@ -15,7 +15,6 @@ export default class ClassCreateProvider {
           tenantId,
         },
         include: {
-          classTeacher: true,
           students: true,
           subjects: true,
           divisions: true,
