@@ -1,6 +1,7 @@
 import { autoInjectable } from "tsyringe";
 import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
+import StaffReadCache from "../../staff/cache/StaffRead.cache";
 import { TenantGradingStructure, GradeBoundary } from "@prisma/client";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
@@ -9,24 +10,27 @@ import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { UnauthorizedError } from "~/infrastructure/internal/exceptions/UnauthorizedError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import SubjectGradingCreateProvider from "~/api/modules/subject/providers/SubjectGradingCreate.provider";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
 import SubjectGradingStructureReadProvider from "~/api/modules/subject/providers/SubjectGradingStructureRead.provider";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { SUCCESS, SUBJECT_GRADING_RESOURCE, ERROR, TENANT_GRADING_STRUCTURE_RESOURCE, SUBJECT_GRADING_STRUCTURE_RESOURCE, STUDENT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import { SUCCESS, SUBJECT_GRADING_RESOURCE, ERROR, TENANT_GRADING_STRUCTURE_RESOURCE, SUBJECT_GRADING_STRUCTURE_RESOURCE, STUDENT_RESOURCE, STAFF_RESOURCE, AUTHORIZATION_REQUIRED } from "~/api/shared/helpers/messages/SystemMessages";
 
 @autoInjectable()
 export default class SubjectGradingCreateService extends BaseService<IRequest> {
   static serviceName = "SubjectGradingCreateService";
+  private staffReadCache: StaffReadCache;
+  private studentReadCache: StudentReadCache;
   private subjectGradingCreateProvider: SubjectGradingCreateProvider;
   private tenantGradingStructureReadProvider: TenantGradingStructureReadProvider;
   private subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider;
-  private studentReadCache: StudentReadCache;
   loggingProvider: ILoggingDriver;
 
-  constructor(subjectGradingCreateProvider: SubjectGradingCreateProvider, subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider, tenantGradingStructureReadProvider: TenantGradingStructureReadProvider, studentReadCache: StudentReadCache) {
+  constructor(subjectGradingCreateProvider: SubjectGradingCreateProvider, subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider, tenantGradingStructureReadProvider: TenantGradingStructureReadProvider, studentReadCache: StudentReadCache, staffReadCache: StaffReadCache) {
     super(SubjectGradingCreateService.serviceName);
+    this.staffReadCache = staffReadCache;
     this.studentReadCache = studentReadCache;
     this.subjectGradingCreateProvider = subjectGradingCreateProvider;
     this.tenantGradingStructureReadProvider = tenantGradingStructureReadProvider;
@@ -38,7 +42,20 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
 
-      const { tenantId, studentId, subjectId, classId, continuousAssessmentScores, examScore } = args.body;
+      const { tenantId, studentId, subjectId, classId, continuousAssessmentScores, examScore, userId } = args.body;
+
+      // TODO: using the userId (submitting grade user), check to see it the teacher is one of the subject teachers for that subjectId. Because only subject teachers can submit grades for a subject
+      const staff = await this.staffReadCache.getOneByCriteria({ tenantId, id: userId });
+
+      if (!staff) {
+        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE));
+      }
+
+      const isSubjectTeacher = staff.subjects.some((subject) => subject.id === subjectId);
+
+      if (!isSubjectTeacher) {
+        throw new UnauthorizedError(AUTHORIZATION_REQUIRED);
+      }
 
       const tenantGradingStructure = await this.tenantGradingStructureReadProvider.getOneByCriteria({ tenantId, classId });
 
@@ -51,11 +68,6 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       if (!subjectGradingStructure) {
         throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_GRADING_STRUCTURE_RESOURCE));
       }
-
-      this.validateExamAndAssessmentScores(examScore, tenantGradingStructure.examWeight, continuousAssessmentScores, subjectGradingStructure.continuousAssessmentBreakdownItems);
-
-      // Get grade, remark and totalScore
-      const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemark(tenantGradingStructure, continuousAssessmentScores, examScore);
 
       const student = await this.studentReadCache.getOneByCriteria({ id: studentId, tenantId });
 
@@ -72,6 +84,11 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       if (!isEnrolled) {
         throw new BadRequestError("Student is not enrolled with this subject.");
       }
+
+      this.validateExamAndAssessmentScores(examScore, tenantGradingStructure.examWeight, continuousAssessmentScores, subjectGradingStructure.continuousAssessmentBreakdownItems);
+
+      // Get grade, remark and totalScore
+      const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemark(tenantGradingStructure, continuousAssessmentScores, examScore);
 
       const subjectGrading = await this.subjectGradingCreateProvider.createOrUpdate({ ...args.body, totalScore, grade, remark, totalContinuousScore, student });
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { StaffEmploymentType } from "@prisma/client";
+import { Staff, StaffEmploymentType, Subject } from "@prisma/client";
 import { staffUpdateManySchema, staffUpdateSchema } from "~/api/modules/staff/validators/StaffUpdateSchema";
 import { staffCriteriaSchema, staffCreateRequestSchema } from "~/api/modules/staff/validators/StaffCreateSchema";
 
@@ -86,4 +86,8 @@ export interface StaffCreateType {
   userId: number;
   roleId?: number;
   tenantId: number;
+}
+
+export interface StaffWithRelationsType extends Staff {
+  subjects: Subject[];
 }
