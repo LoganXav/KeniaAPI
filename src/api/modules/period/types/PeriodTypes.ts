@@ -41,6 +41,7 @@ export type PeriodCriteriaType = {
   ids?: number[];
   timetableId?: number;
   subjectId?: number;
+  subjectIds?: number[];
   tenantId?: number;
 };
 

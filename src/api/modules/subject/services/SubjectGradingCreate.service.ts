@@ -44,7 +44,6 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
 
       const { tenantId, studentId, subjectId, classId, continuousAssessmentScores, examScore, userId } = args.body;
 
-      // TODO: using the userId (submitting grade user), check to see it the teacher is one of the subject teachers for that subjectId. Because only subject teachers can submit grades for a subject
       const staff = await this.staffReadCache.getOneByCriteria({ tenantId, id: userId });
 
       if (!staff) {
