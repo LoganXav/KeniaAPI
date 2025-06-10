@@ -1,11 +1,11 @@
-import { autoInjectable } from "tsyringe";
-import StaffReadProvider from "../providers/StaffRead.provider";
 import { Staff } from "@prisma/client";
-import RedisClient from "~/infrastructure/internal/caching";
 import { RedisClientType } from "redis";
-import { StaffCriteriaType } from "../types/StaffTypes";
-import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import ArrayUtil from "~/utils/ArrayUtil";
+import { autoInjectable } from "tsyringe";
+import RedisClient from "~/infrastructure/internal/caching";
+import StaffReadProvider from "../providers/StaffRead.provider";
+import { StaffCriteriaType, StaffWithRelationsType } from "../types/StaffTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 @autoInjectable()
 export default class StaffReadCache {
@@ -19,7 +19,7 @@ export default class StaffReadCache {
     this.staffReadProvider = staffReadProvider;
   }
 
-  public async getByCriteria(criteria: StaffCriteriaType): Promise<Staff[] | null> {
+  public async getByCriteria(criteria: StaffCriteriaType): Promise<StaffWithRelationsType[] | null> {
     try {
       const cacheKey = `${criteria.tenantId}:staff:${JSON.stringify(criteria)}`;
       const cachedStaffs = await this.redisClient.get(cacheKey);
@@ -54,7 +54,7 @@ export default class StaffReadCache {
     }
   }
 
-  public async getOneByCriteria(criteria: StaffCriteriaType): Promise<Staff | null> {
+  public async getOneByCriteria(criteria: StaffCriteriaType): Promise<StaffWithRelationsType | null> {
     try {
       const { tenantId } = criteria;
       const cacheKey = `${tenantId}:staff:${JSON.stringify(criteria)}`;

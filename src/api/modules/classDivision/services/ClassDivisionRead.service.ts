@@ -28,7 +28,7 @@ export default class ClassDivisionReadService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args.body);
       const { classTeacherId } = args.query;
 
-      const classDivisions = await this.classDivisionReadProvider.getByCriteria({ classTeacherId: Number(classTeacherId), ...args?.body });
+      const classDivisions = await this.classDivisionReadProvider.getByCriteria({ classDivisionTeacherId: Number(classTeacherId), ...args?.body });
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(CLASS_DIVISION_RESOURCE), classDivisions);

@@ -37,6 +37,14 @@ export default class StaffTemplateService extends BaseService<IRequest> {
 
       const subjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
       const classDivisions = await this.classDivisionReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+
+      const classDivisionOptions = classDivisions.map((division) => {
+        return {
+          ...division,
+          name: `${division?.class?.name} ${division?.name}`,
+        };
+      });
+
       const data = {
         employmentTypeOptions: Object.values(StaffEmploymentType),
         countryIdOptions: CountryConstants,
@@ -44,7 +52,7 @@ export default class StaffTemplateService extends BaseService<IRequest> {
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
         educationLevelOptions: EducationLevelOptionsConstant,
         subjectOptions: subjects,
-        classDivisionOptions: classDivisions,
+        classDivisionOptions,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);

@@ -7,7 +7,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class PeriodReadProvider {
   public async getByCriteria(criteria: PeriodCriteriaType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, ids, timetableId, subjectId, tenantId } = criteria;
+      const { id, ids, timetableId, subjectId, subjectIds, tenantId } = criteria;
 
       const periods = await dbClient.period.findMany({
         where: {
@@ -15,10 +15,15 @@ export default class PeriodReadProvider {
           ...(ids && { id: { in: ids } }),
           ...(timetableId && { timetableId }),
           ...(subjectId && { subjectId }),
+          ...(subjectIds && { subjectId: { in: subjectIds } }),
           ...(tenantId && { tenantId }),
         },
         include: {
-          subject: true,
+          subject: {
+            include: {
+              class: true,
+            },
+          },
         },
       });
 

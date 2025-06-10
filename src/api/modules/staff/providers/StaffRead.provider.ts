@@ -1,12 +1,11 @@
-import { Staff } from "@prisma/client";
-import { StaffCriteriaType } from "~/api/modules/staff/types/StaffTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { StaffCriteriaType, StaffWithRelationsType } from "~/api/modules/staff/types/StaffTypes";
 
 @EnforceTenantId
 export default class StaffReadProvider {
-  public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff[]> {
+  public async getByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StaffWithRelationsType[]> {
     try {
       const { ids, jobTitle, userId, roleId, tenantId } = criteria;
 
@@ -38,7 +37,7 @@ export default class StaffReadProvider {
     }
   }
 
-  public async getOneByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff | null> {
+  public async getOneByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StaffWithRelationsType | null> {
     try {
       const { id, tenantId } = criteria;
       const numericId = id ? Number(id) : undefined;
