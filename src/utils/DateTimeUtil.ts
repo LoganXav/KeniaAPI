@@ -36,6 +36,10 @@ export class DateTimeUtils {
 
     return parsedDate.toISO() as string;
   }
+
+  getDayOfTheWeek(date: string): string {
+    return format(parseISO(date), "EEEE");
+  }
 }
 
 export default new DateTimeUtils();

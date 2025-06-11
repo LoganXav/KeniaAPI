@@ -19,7 +19,7 @@ export default class PeriodReadController extends BaseController {
   }
 
   read: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResult(res, next, this.periodReadService.execute(res.trace, req), {
+    return this.handleResultData(res, next, this.periodReadService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
