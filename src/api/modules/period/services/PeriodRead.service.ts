@@ -1,4 +1,5 @@
 import { autoInjectable } from "tsyringe";
+import DateTimeUtil from "~/utils/DateTimeUtil";
 import { IRequest } from "~/infrastructure/internal/types";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
@@ -31,6 +32,12 @@ export default class PeriodReadService extends BaseService<IRequest> {
 
       const { tenantId, userId } = args.body;
 
+      const { today } = args.query;
+
+      const parsedTodayDate = DateTimeUtil.parseToISO(today);
+
+      const todayDayOfWeek = DateTimeUtil.getDayOfTheWeek(parsedTodayDate);
+
       const staff = await this.staffReadCache.getOneByCriteria({ tenantId, id: userId });
 
       if (!staff) {
@@ -41,7 +48,14 @@ export default class PeriodReadService extends BaseService<IRequest> {
 
       const periods = await this.periodReadProvider.getByCriteria({ tenantId, subjectIds });
 
-      const data = periods.map((period) => ({ subject: period?.subject?.name, class: period?.subject?.class?.name, startTime: period.startTime, endTime: period.endTime }));
+      const filteredPeriods = periods.filter((period) => period?.timetable?.day === todayDayOfWeek);
+
+      const data = filteredPeriods.map((period) => ({
+        subject: period?.subject?.name,
+        class: period?.subject?.class?.name,
+        startTime: period.startTime,
+        endTime: period.endTime,
+      }));
 
       const sortedData = data.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
