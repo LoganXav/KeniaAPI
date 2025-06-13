@@ -51,6 +51,11 @@ export default class SubjectReadProvider {
           class: true,
           gradingStructure: true,
           staffs: true,
+          students: {
+            include: {
+              user: true,
+            },
+          },
         },
       });
 

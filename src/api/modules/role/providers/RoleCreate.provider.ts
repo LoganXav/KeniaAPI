@@ -8,12 +8,18 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class RoleCreateProvider {
   public async createRole(data: RoleCreateData, dbClient: PrismaTransactionClient = DbClient): Promise<Role> {
     try {
-      const { tenantId, name, permissionIds } = data;
+      const { tenantId, name, permissionIds, staffIds, scope, description, isAdmin } = data;
 
       const newRole = await dbClient?.role?.create({
         data: {
           name,
           tenantId,
+          // scope,
+          isAdmin,
+          description,
+          staff: {
+            connect: staffIds?.map((id) => ({ id })),
+          },
           permissions: {
             connect: permissionIds?.map((id) => ({ id })),
           },

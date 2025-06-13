@@ -48,7 +48,7 @@ export const SUCCESS = "success";
 export const EMAIL_ACTIVATION_TOKEN_EMAIL_SUBJECT = "Kenia Email Activation";
 
 /** <---------------> Role Labels <---------------> */
-export const SCHOOL_OWNER_ROLE_NAME = "Proprietor";
+export const SCHOOL_OWNER_ROLE_NAME = "School Administrator";
 
 /** <---------------> Server Errors <---------------> */
 export const CRITICAL_ERROR_EXITING = "Application Encountered a Critical Error. Exiting";

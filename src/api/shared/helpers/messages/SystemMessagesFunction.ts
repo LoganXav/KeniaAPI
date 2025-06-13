@@ -14,6 +14,10 @@ export function RESOURCE_RECORD_UPDATED_SUCCESSFULLY(resourceName = "Resource") 
   return `${resourceName} record updated successfully.`;
 }
 
+export function RESOURCE_RECORD_CANNOT_BE_UPDATED(resourceName = "Resource") {
+  return `${resourceName} record cannot be updated.`;
+}
+
 export function RESOURCE_RECORD_DELETED_SUCCESSFULLY(resourceName = "Resource") {
   return `${resourceName} record deleted successfully.`;
 }
