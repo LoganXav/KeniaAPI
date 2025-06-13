@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Role, Staff, Student, User, UserToken, UserType } from "@prisma/client";
+import { Permission, Role, Staff, Student, User, UserToken, UserType } from "@prisma/client";
 import { verifyOtpTokenSchema } from "~/api/modules/auth/validators/VerifyOtpSchema";
 import { refreshOtpTokenSchema } from "~/api/modules/auth/validators/RefreshOtpTokenSchema";
 import { signUpUserRecordSchema } from "~/api/modules/auth/validators/SignUpUserRecordSchema";
@@ -59,5 +59,10 @@ export type ReadUserRecordType = {
 
 export interface UserWithRelations extends User {
   staff: (Staff & { role: Role | null }) | null;
+  student: Student | null;
+}
+
+export interface UserWithRelationsAndPermissions extends User {
+  staff: (Staff & { role: (Role & { permissions: Permission[] }) | null }) | null;
   student: Student | null;
 }

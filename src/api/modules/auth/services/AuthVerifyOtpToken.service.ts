@@ -66,10 +66,22 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
 
       const accessToken = await JwtService.getJwt(tokenOwner);
 
-      const { password, ...verifyUserData } = tokenOwner;
+      const returnData = {
+        id: tokenOwner?.id,
+        tenantId: tokenOwner?.tenantId,
+        firstName: tokenOwner?.firstName,
+        lastName: tokenOwner?.lastName,
+        staff: {
+          roleId: tokenOwner?.staff?.roleId,
+          role: {
+            permissions: tokenOwner?.staff?.role?.permissions,
+            isAdmin: tokenOwner?.staff?.role?.isAdmin,
+          },
+        },
+      };
 
       if (tokenOwner.hasVerified) {
-        this.result.setData(SUCCESS, HttpStatusCodeEnum.ACCEPTED, ACCOUNT_VERIFIED, verifyUserData, accessToken);
+        this.result.setData(SUCCESS, HttpStatusCodeEnum.ACCEPTED, ACCOUNT_VERIFIED, returnData, accessToken);
         trace.setSuccessful();
         return this.result;
       }
@@ -82,7 +94,7 @@ export default class AuthVerifyOtpTokenService extends BaseService<VerifyUserTok
 
       await this.verifyUserAccountTransaction(dbOtpToken, userId);
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, TOKEN_VERIFIED, verifyUserData, accessToken);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, TOKEN_VERIFIED, returnData, accessToken);
       trace.setSuccessful();
       return this.result;
     } catch (error: any) {

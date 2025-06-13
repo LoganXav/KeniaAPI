@@ -1,28 +1,9 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
-import { ReadUserRecordType, UserWithRelations } from "~/api/modules/user/types/UserTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { ReadUserRecordType, UserWithRelationsAndPermissions } from "~/api/modules/user/types/UserTypes";
 
 export default class UserReadProvider {
-  public async getAll(dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations[]> {
-    try {
-      const users = await dbClient.user.findMany({
-        include: {
-          staff: {
-            include: {
-              role: true,
-            },
-          },
-          student: true,
-        },
-      });
-
-      return users;
-    } catch (error: any) {
-      throw new InternalServerError(error);
-    }
-  }
-
-  public async getOneByCriteria(criteria: ReadUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelations | null> {
+  public async getOneByCriteria(criteria: ReadUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<UserWithRelationsAndPermissions | null> {
     try {
       const { userId, email, tenantId } = criteria;
 
