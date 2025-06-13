@@ -71,9 +71,21 @@ export default class AuthSignInService extends BaseService<SignInUserType> {
 
       const accessToken = await JwtService.getJwt(foundUser);
 
-      const { password, ...signedInUserData } = foundUser;
+      const returnData = {
+        id: foundUser?.id,
+        tenantId: foundUser?.tenantId,
+        firstName: foundUser?.firstName,
+        lastName: foundUser?.lastName,
+        staff: {
+          roleId: foundUser?.staff?.roleId,
+          role: {
+            permissions: foundUser?.staff?.role?.permissions,
+            isAdmin: foundUser?.staff?.role?.isAdmin,
+          },
+        },
+      };
 
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, SIGN_IN_SUCCESSFUL, signedInUserData, accessToken);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, SIGN_IN_SUCCESSFUL, returnData, accessToken);
 
       trace.setSuccessful();
       return this.result;

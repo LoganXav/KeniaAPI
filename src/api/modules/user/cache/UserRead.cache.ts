@@ -1,10 +1,10 @@
+import { RedisClientType } from "redis";
+import ArrayUtil from "~/utils/ArrayUtil";
 import { autoInjectable } from "tsyringe";
 import RedisClient from "~/infrastructure/internal/caching";
-import { RedisClientType } from "redis";
-import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-import ArrayUtil from "~/utils/ArrayUtil";
 import UserReadProvider from "../providers/UserRead.provider";
-import { ReadUserRecordType, UserWithRelations } from "../types/UserTypes";
+import { ReadUserRecordType, UserWithRelationsAndPermissions } from "../types/UserTypes";
+import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 @autoInjectable()
 export default class UserReadCache {
@@ -18,30 +18,7 @@ export default class UserReadCache {
     this.userReadProvider = userReadProvider;
   }
 
-  public async getAll(tenantId: number): Promise<UserWithRelations[] | null> {
-    try {
-      const cacheKey = `${tenantId}:user:all`;
-      const cachedUsers = await this.redisClient.get(cacheKey);
-
-      if (cachedUsers) {
-        return JSON.parse(cachedUsers);
-      }
-
-      const users = await this.userReadProvider.getAll();
-
-      if (ArrayUtil.any(users)) {
-        await this.redisClient.set(cacheKey, JSON.stringify(users), {
-          EX: this.CACHE_EXPIRY,
-        });
-      }
-
-      return users;
-    } catch (error: any) {
-      throw new InternalServerError(error);
-    }
-  }
-
-  public async getOneByCriteria(criteria: ReadUserRecordType): Promise<UserWithRelations | null> {
+  public async getOneByCriteria(criteria: ReadUserRecordType): Promise<UserWithRelationsAndPermissions | null> {
     try {
       const { tenantId } = criteria;
       const cacheKey = `${tenantId}:user:${JSON.stringify(criteria)}`;
