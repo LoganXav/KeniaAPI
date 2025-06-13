@@ -3,20 +3,29 @@ import { Permission } from "@prisma/client";
 export type RoleCreateData = {
   tenantId: number;
   name: string;
+  description?: string;
+  isAdmin?: boolean;
+  scope?: string;
   permissionIds: number[];
+  staffIds: number[];
 };
 
 export interface RoleReadCriteria {
-  id: number;
+  id?: number;
   name?: string;
+  description?: string;
+  scope?: string;
   permissions?: Permission[];
   tenantId: number;
 }
 
 export interface RoleUpdateData {
   id: number;
+  description?: string;
   name?: string;
-  permissions?: Permission[];
+  scope?: string;
+  permissionIds?: number[];
+  staffIds?: number[];
   tenantId: number;
 }
 

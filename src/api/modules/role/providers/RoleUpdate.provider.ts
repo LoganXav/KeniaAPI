@@ -8,15 +8,27 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class RoleUpdateProvider {
   public async updateOne(data: RoleUpdateData, dbClient: PrismaTransactionClient = DbClient): Promise<Role> {
     try {
-      const { id, tenantId, permissions } = data;
+      const { id, name, tenantId, permissionIds, description, scope, staffIds } = data;
 
       const updatedRole = await dbClient?.role?.update({
         where: {
           id,
         },
         data: {
+          ...(name && { name }),
           ...(tenantId && { tenantId }),
-          ...(permissions && { permissions: { connect: permissions.map((p) => ({ id: p.id })) } }),
+          ...(description && { description }),
+          // ...(scope && { scope }),
+          ...(staffIds && {
+            staff: {
+              connect: staffIds?.map((id) => ({ id })),
+            },
+          }),
+          ...(permissionIds && {
+            permissions: {
+              connect: permissionIds?.map((id) => ({ id })),
+            },
+          }),
         },
       });
 

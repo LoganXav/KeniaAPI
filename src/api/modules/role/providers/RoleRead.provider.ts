@@ -17,7 +17,7 @@ export default class RoleReadProvider {
 
   public async getByCriteria(criteria: RoleReadCriteria, dbClient: PrismaTransactionClient = DbClient): Promise<Role[]> {
     try {
-      const { id, name, tenantId } = criteria;
+      const { id, name, tenantId, scope, description } = criteria;
 
       const roles = await dbClient?.role?.findMany({
         where: {
@@ -27,6 +27,7 @@ export default class RoleReadProvider {
         },
         include: {
           permissions: true,
+          staff: true,
         },
       });
 
@@ -38,7 +39,7 @@ export default class RoleReadProvider {
 
   public async getOneByCriteria(criteria: RoleReadCriteria, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, tenantId } = criteria;
+      const { id, tenantId, scope, description } = criteria;
 
       const role = await dbClient?.role?.findFirst({
         where: {

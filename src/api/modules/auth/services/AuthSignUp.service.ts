@@ -21,6 +21,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import StaffCreateProvider from "~/api/modules/staff/providers/StaffCreate.provider";
 import ClassCreateProvider from "~/api/modules/class/providers/ClassCreate.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import { SeedRolesJob, SeedRolesJobData } from "~/api/shared/jobs/seeds/SeedRoles.job";
 import TenantCreateProvider from "~/api/modules/tenant/providers/TenantCreate.provider";
 import { CreateUserRecordType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
 import { SeedClassesJob, SeedClassesJobData } from "~/api/shared/jobs/seeds/SeedClasses.job";
@@ -29,7 +30,6 @@ import { LoggingProviderFactory } from "~/infrastructure/internal/logger/Logging
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { SeedPermissionsJob, SeedPermissionsJobData } from "~/api/shared/jobs/seeds/SeedPermissions.job";
 import DbClient, { PrismaTransactionClient, TRANSACTION_MAX_WAIT, TRANSACTION_TIMEOUT } from "~/infrastructure/internal/database";
-import { AssignAdminRolePermissionsJob, AssignAdminRolePermissionsJobData } from "~/api/shared/jobs/assigns/AssignAdminRolePermissions.job";
 import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SCHOOL_OWNER_ROLE_NAME, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 @autoInjectable()
 export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
@@ -73,7 +73,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
 
     QueueProvider.registerWorker("seedClasses", SeedClassesJob.process);
     QueueProvider.registerWorker("seedPermissions", SeedPermissionsJob.process);
-    QueueProvider.registerWorker("assignAdminRolePermissions", AssignAdminRolePermissionsJob.process);
+    QueueProvider.registerWorker("assignAdminRolePermissions", SeedRolesJob.process);
   }
 
   public async execute(trace: ServiceTrace, args: CreateUserRecordType): Promise<IResult> {
@@ -114,7 +114,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
         }
       );
 
-      await QueueProvider.addJob<AssignAdminRolePermissionsJobData>(
+      await QueueProvider.addJob<SeedRolesJobData>(
         "assignAdminRolePermissions",
         "assignAdminRolePermissionsForTenant",
         { tenantId: user.tenantId, staffId, userId: user.id },
