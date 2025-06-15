@@ -26,10 +26,10 @@ export type TimetableReadOneRequestType = {
 export type TimetableCriteriaType = {
   id?: number;
   ids?: number[];
-  classDivisionId?: number;
-  day?: Weekday;
-  tenantId?: number;
-  termId?: number;
+  classDivisionId: number;
+  day: Weekday;
+  tenantId: number;
+  termId: number;
 };
 
 export type TimetableResponseType = {
@@ -72,6 +72,6 @@ export type PeriodType = {
   subject: Subject;
   timetableId: number;
   isBreak: boolean;
-  breakType?: "SHORTBREAK" | "LONGBREAK" | null;
+  breakType?: "Shortbreak" | "Longbreak" | null;
   tenantId: number;
 };

@@ -7,7 +7,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class TimetableReadProvider {
   public async getByCriteria(criteria: TimetableCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<any[]> {
     try {
-      const { id, ids, classDivisionId, day, tenantId } = criteria;
+      const { id, ids, classDivisionId, day, termId, tenantId } = criteria;
 
       const timetables = await dbClient.timetable.findMany({
         where: {
@@ -15,6 +15,7 @@ export default class TimetableReadProvider {
           ...(ids && { id: { in: ids } }),
           ...(classDivisionId && { classDivisionId }),
           ...(day && { day }),
+          ...(termId && { termId }),
           ...(tenantId && { tenantId }),
         },
         include: {
@@ -36,21 +37,16 @@ export default class TimetableReadProvider {
     try {
       const { id, classDivisionId, day, tenantId, termId } = criteria;
 
-      const timetable = await dbClient.timetable.findFirst({
+      const timetable = await dbClient.timetable.findUnique({
         where: {
-          ...(id && { id: Number(id) }),
-          ...(termId && { termId: Number(termId) }),
-          ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),
-          ...(day && { day }),
-          ...(tenantId && { tenantId: Number(tenantId) }),
-        },
-        include: {
-          periods: {
-            include: {
-              subject: true,
-            },
+          day_classDivisionId_termId_tenantId: {
+            day,
+            classDivisionId,
+            termId,
+            tenantId,
           },
         },
+        include: { periods: { include: { subject: true } } },
       });
 
       return timetable;

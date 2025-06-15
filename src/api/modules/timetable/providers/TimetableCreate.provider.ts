@@ -7,23 +7,31 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class TimetableCreateProvider {
   public async createOrUpdate(args: TimetableCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { id, day, classDivisionId, tenantId, termId } = args;
+      const { day, classDivisionId, termId, tenantId } = args;
 
       const timetable = await dbClient.timetable.upsert({
-        where: { id: id || 0 },
+        where: {
+          day_classDivisionId_termId_tenantId: {
+            day,
+            classDivisionId,
+            termId,
+            tenantId,
+          },
+        },
         update: {
           day,
           classDivisionId,
-          tenantId,
           termId,
+          tenantId,
         },
         create: {
           day,
           classDivisionId,
-          tenantId,
           termId,
+          tenantId,
         },
       });
+
       return timetable;
     } catch (error: any) {
       throw new InternalServerError(error);
