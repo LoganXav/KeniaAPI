@@ -153,7 +153,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
           const user = await this.userCreateProvider.create(userCreateInput, tx);
           await this.userReadCache.invalidate(user?.tenantId);
 
-          const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.FULLTIME };
+          const staffCreateInput = { jobTitle: SCHOOL_OWNER_ROLE_NAME, userId: user?.id, tenantId: tenant?.id, employmentType: StaffEmploymentType.Fulltime };
           const staff = await this.staffCreateProvider.create(staffCreateInput, tx);
           await this.staffReadCache.invalidate(user?.tenantId);
 

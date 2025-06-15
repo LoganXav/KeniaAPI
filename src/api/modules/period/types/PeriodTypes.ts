@@ -7,7 +7,7 @@ export type PeriodCreateRequestType = {
   subjectId?: number;
   timetableId: number;
   isBreak: boolean;
-  breakType?: "SHORTBREAK" | "LONGBREAK";
+  breakType?: "Shortbreak" | "Longbreak";
   tenantId: number;
 };
 
@@ -32,7 +32,7 @@ export type PeriodUpdateRequestType = {
   subjectId?: number;
   timetableId?: number;
   isBreak?: boolean;
-  breakType?: "SHORTBREAK" | "LONGBREAK";
+  breakType?: "Shortbreak" | "Longbreak";
   tenantId?: number;
 };
 
@@ -52,7 +52,7 @@ export type PeriodResponseType = {
   subjectId: number | null;
   timetableId: number;
   isBreak: boolean;
-  breakType: "SHORTBREAK" | "LONGBREAK" | null;
+  breakType: "Shortbreak" | "Longbreak" | null;
   tenantId: number;
   subject?: Subject;
 };

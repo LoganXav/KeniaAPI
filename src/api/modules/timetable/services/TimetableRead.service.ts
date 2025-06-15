@@ -36,7 +36,10 @@ export default class TimetableReadService extends BaseService<IRequest> {
       const termInfo = await this.termReadProvider.getOneByCriteria({ id: args.query.termId, tenantId: args.body.tenantId });
       if (!termInfo) throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(TERM_RESOURCE));
 
-      const timetables = await this.timetableReadProvider.getByCriteria({ classDivisionId: Number(args.query.classDivisionId), tenantId: args.body.tenantId });
+      const timetables = await this.timetableReadProvider.getByCriteria({ classDivisionId: Number(args.query.classDivisionId), tenantId: args.body.tenantId, termId: Number(args.query.termId), day: args.query.day });
+
+      // Only transform timetables that belong to the requested term
+      // const filteredTimetables = timetables.filter((t) => t.termId === termInfo.id);
 
       const timedPeriods = this.transformTimetableInTermToTimedPeriods(termInfo, timetables);
 
@@ -54,7 +57,7 @@ export default class TimetableReadService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args?.query);
 
-      const timetable = await this.timetableReadProvider.getOneByCriteria({ ...args.query, tenantId: args.body.tenantId });
+      const timetable = await this.timetableReadProvider.getOneByCriteria({ day: args.query.day, classDivisionId: Number(args.query.classDivisionId), tenantId: args.body.tenantId, termId: Number(args.query.termId) });
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TIMETABLE_RESOURCE), timetable);
@@ -126,11 +129,11 @@ export default class TimetableReadService extends BaseService<IRequest> {
   // Helper to get all dates for a specific weekday between start and end dates of the term
   private getWeekdayDatesBetween(start: Date, end: Date, weekday: string) {
     const weekdayMap: Record<string, number> = {
-      MONDAY: 1,
-      TUESDAY: 2,
-      WEDNESDAY: 3,
-      THURSDAY: 4,
-      FRIDAY: 5,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
     };
 
     const dates = DateTimeUtils.eachDayOfInterval(start, end)

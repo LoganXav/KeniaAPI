@@ -123,17 +123,17 @@ model Staff {
   tin                     String?
   cvUrl                   String?
   highestLevelEdu         String?
-  employmentType          StaffEmploymentType       @default(FULLTIME)
+  employmentType          StaffEmploymentType       @default(Fulltime)
   startDate               DateTime                  @default(now())
   tenant                  Tenant                    @relation(fields: [tenantId], references: [id])
   subjectGradingStructure SubjectGradingStructure[]
 }
 
 enum StaffEmploymentType {
-  FULLTIME
-  PARTTIME
-  CONTRACT
-  INTERNSHIP
+  Fulltime
+  Parttime
+  Contract
+  Internship
 }
 
 model Student {
@@ -299,21 +299,23 @@ model BreakPeriod {
 model Timetable {
   id              Int           @id @default(autoincrement())
   day             Weekday
-  termId          Int?
-  term            Term?         @relation(fields: [termId], references: [id])
-  periods         Period[]
+  termId          Int
+  term            Term          @relation(fields: [termId], references: [id])
   classDivisionId Int
   classDivision   ClassDivision @relation(fields: [classDivisionId], references: [id])
   tenantId        Int
   tenant          Tenant        @relation(fields: [tenantId], references: [id])
+  periods         Period[]
+
+  @@unique([day, classDivisionId, termId, tenantId])
 }
 
 enum Weekday {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
 }
 
 model Period {
@@ -331,8 +333,8 @@ model Period {
 }
 
 enum BreakType {
-  SHORTBREAK
-  LONGBREAK
+  Shortbreak
+  Longbreak
 }
 
 // ==================== TIMETABLE TABLES END ==================== //

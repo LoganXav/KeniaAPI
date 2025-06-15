@@ -14,6 +14,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { SUCCESS, TIMETABLE_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+
 @autoInjectable()
 export default class TimetableCreateService extends BaseService<TimetableCreateOrUpdateRequestType> {
   static serviceName = "TimetableCreateService";
@@ -36,11 +37,10 @@ export default class TimetableCreateService extends BaseService<TimetableCreateO
     try {
       this.initializeServiceTrace(trace, args);
 
-      const timetable = await this.createTimeTableWithPeriodsTransaction(args);
+      const timetableWithPeriods = await this.createTimeTableWithPeriodsTransaction(args);
 
       trace.setSuccessful();
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(TIMETABLE_RESOURCE), timetable);
-
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(TIMETABLE_RESOURCE), timetableWithPeriods);
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);
@@ -49,11 +49,12 @@ export default class TimetableCreateService extends BaseService<TimetableCreateO
     }
   }
 
-  private async createTimeTableWithPeriodsTransaction(args: TimetableCreateOrUpdateRequestType): Promise<Timetable> {
+  private async createTimeTableWithPeriodsTransaction(args: TimetableCreateOrUpdateRequestType): Promise<Timetable & { periods: any[] }> {
+    // Note: return type includes periods[] so caller sees the updated periods
     return DbClient.$transaction(async (tx) => {
+      // 1. Upsert timetable record based on uniqueness criteria
       const timetable = await this.timetableCreateProvider.createOrUpdate(
         {
-          id: args.id,
           day: args.day,
           classDivisionId: args.classDivisionId,
           tenantId: args.tenantId,
@@ -62,6 +63,7 @@ export default class TimetableCreateService extends BaseService<TimetableCreateO
         tx
       );
 
+      // 2. Fetch existing periods for this timetable
       const existingPeriods = await this.periodReadProvider.getByCriteria(
         {
           timetableId: timetable.id,
@@ -70,6 +72,7 @@ export default class TimetableCreateService extends BaseService<TimetableCreateO
         tx
       );
 
+      // 3. Create or update each incoming period
       const periods = await Promise.all(
         args.periods.map(async (periodData: any) => {
           return this.periodCreateProvider.createOrUpdate(
@@ -88,10 +91,12 @@ export default class TimetableCreateService extends BaseService<TimetableCreateO
         })
       );
 
-      // Delete periods not present in the request
-      const periodIdsToKeep = args.periods.map((p: any) => p.id);
-      await Promise.all(existingPeriods.filter((p: any) => !periodIdsToKeep.includes(p.id)).map((p: any) => this.periodDeleteProvider.delete({ id: p.id, tenantId: args.tenantId }, tx)));
+      // 4. Delete periods that exist in DB but are not in the incoming list
+      const incomingIds = args.periods.map((p: any) => p.id).filter((id) => typeof id === "number");
+      const toDelete = existingPeriods.filter((p: any) => !incomingIds.includes(p.id));
+      await Promise.all(toDelete.map((p: any) => this.periodDeleteProvider.delete({ id: p.id, tenantId: args.tenantId }, tx)));
 
+      // 5. Return the timetable along with its updated periods
       return { ...timetable, periods };
     });
   }

@@ -5,7 +5,7 @@ CREATE TYPE "TenantOnboardingStatusType" AS ENUM ('PERSONAL', 'RESIDENTIAL', 'SC
 CREATE TYPE "UserType" AS ENUM ('STUDENT', 'STAFF');
 
 -- CreateEnum
-CREATE TYPE "StaffEmploymentType" AS ENUM ('FULLTIME', 'PARTTIME', 'CONTRACT', 'INTERNSHIP');
+CREATE TYPE "StaffEmploymentType" AS ENUM ('Fulltime', 'Parttime', 'Contract', 'Internship');
 
 -- CreateEnum
 CREATE TYPE "ClassList" AS ENUM ('JSS1', 'JSS2', 'JSS3', 'SSS1', 'SSS2', 'SSS3');
@@ -14,10 +14,10 @@ CREATE TYPE "ClassList" AS ENUM ('JSS1', 'JSS2', 'JSS3', 'SSS1', 'SSS2', 'SSS3')
 CREATE TYPE "TokenType" AS ENUM ('EMAIL', 'ACCESS', 'REFRESH', 'PASSWORD_RESET');
 
 -- CreateEnum
-CREATE TYPE "Weekday" AS ENUM ('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY');
+CREATE TYPE "Weekday" AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday');
 
 -- CreateEnum
-CREATE TYPE "BreakType" AS ENUM ('SHORTBREAK', 'LONGBREAK');
+CREATE TYPE "BreakType" AS ENUM ('Shortbreak', 'Longbreak');
 
 -- CreateTable
 CREATE TABLE "Tenant" (
@@ -90,7 +90,7 @@ CREATE TABLE "Staff" (
     "tin" TEXT,
     "cvUrl" TEXT,
     "highestLevelEdu" TEXT,
-    "employmentType" "StaffEmploymentType" NOT NULL DEFAULT 'FULLTIME',
+    "employmentType" "StaffEmploymentType" NOT NULL DEFAULT 'Fulltime',
     "startDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Staff_pkey" PRIMARY KEY ("id")
@@ -114,7 +114,6 @@ CREATE TABLE "Student" (
 CREATE TABLE "Class" (
     "id" SERIAL NOT NULL,
     "name" "ClassList",
-    "classTeacherId" INTEGER,
     "tenantId" INTEGER NOT NULL,
 
     CONSTRAINT "Class_pkey" PRIMARY KEY ("id")
@@ -125,6 +124,7 @@ CREATE TABLE "ClassDivision" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "classId" INTEGER NOT NULL,
+    "classDivisionTeacherId" INTEGER,
     "tenantId" INTEGER NOT NULL,
 
     CONSTRAINT "ClassDivision_pkey" PRIMARY KEY ("id")
@@ -211,7 +211,7 @@ CREATE TABLE "BreakPeriod" (
 CREATE TABLE "Timetable" (
     "id" SERIAL NOT NULL,
     "day" "Weekday" NOT NULL,
-    "termId" INTEGER,
+    "termId" INTEGER NOT NULL,
     "classDivisionId" INTEGER NOT NULL,
     "tenantId" INTEGER NOT NULL,
 
@@ -236,6 +236,9 @@ CREATE TABLE "Period" (
 CREATE TABLE "Role" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "isAdmin" BOOLEAN NOT NULL DEFAULT false,
+    "description" TEXT,
+    "scope" TEXT,
     "tenantId" INTEGER NOT NULL,
 
     CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
@@ -248,6 +251,91 @@ CREATE TABLE "Permission" (
     "tenantId" INTEGER NOT NULL,
 
     CONSTRAINT "Permission_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TenantGradingStructure" (
+    "id" SERIAL NOT NULL,
+    "tenantId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "continuousAssessmentWeight" INTEGER NOT NULL,
+    "examWeight" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TenantGradingStructure_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GradeBoundary" (
+    "id" SERIAL NOT NULL,
+    "tenantGradingStructureId" INTEGER NOT NULL,
+    "minimumScore" INTEGER NOT NULL,
+    "maximumScore" INTEGER NOT NULL,
+    "grade" TEXT NOT NULL,
+    "remark" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "GradeBoundary_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SubjectGradingStructure" (
+    "id" SERIAL NOT NULL,
+    "tenantId" INTEGER NOT NULL,
+    "subjectId" INTEGER NOT NULL,
+    "staffId" INTEGER NOT NULL,
+    "tenantGradingStructureId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SubjectGradingStructure_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ContinuousAssessmentBreakdownItem" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "weight" INTEGER NOT NULL,
+    "subjectGradingStructureId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ContinuousAssessmentBreakdownItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SubjectGrading" (
+    "id" SERIAL NOT NULL,
+    "tenantId" INTEGER NOT NULL,
+    "studentId" INTEGER NOT NULL,
+    "subjectId" INTEGER NOT NULL,
+    "classId" INTEGER NOT NULL,
+    "classDivisionId" INTEGER NOT NULL,
+    "calendarId" INTEGER NOT NULL,
+    "termId" INTEGER NOT NULL,
+    "totalContinuousScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "examScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "totalScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "grade" TEXT NOT NULL,
+    "remark" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SubjectGrading_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ContinuousAssessmentScore" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "score" DOUBLE PRECISION NOT NULL,
+    "subjectGradingId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ContinuousAssessmentScore_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -328,6 +416,12 @@ CREATE TABLE "_StudentSubject" (
 );
 
 -- CreateTable
+CREATE TABLE "_TenantGradingStructureClass" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "_StudentGuardian" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -355,16 +449,28 @@ CREATE UNIQUE INDEX "User_email_tenantId_key" ON "User"("email", "tenantId");
 CREATE UNIQUE INDEX "Staff_userId_key" ON "Staff"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Student_admissionNo_key" ON "Student"("admissionNo");
+CREATE UNIQUE INDEX "Student_userId_key" ON "Student"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Student_userId_key" ON "Student"("userId");
+CREATE UNIQUE INDEX "Student_admissionNo_tenantId_key" ON "Student"("admissionNo", "tenantId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Guardian_email_tenantId_key" ON "Guardian"("email", "tenantId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "SchoolCalendar_year_tenantId_key" ON "SchoolCalendar"("year", "tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Timetable_day_classDivisionId_termId_tenantId_key" ON "Timetable"("day", "classDivisionId", "termId", "tenantId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Permission_name_tenantId_key" ON "Permission"("name", "tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SubjectGradingStructure_subjectId_key" ON "SubjectGradingStructure"("subjectId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SubjectGrading_studentId_subjectId_calendarId_termId_key" ON "SubjectGrading"("studentId", "subjectId", "calendarId", "termId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "StudentGroup_id_key" ON "StudentGroup"("id");
@@ -386,6 +492,12 @@ CREATE UNIQUE INDEX "_StudentSubject_AB_unique" ON "_StudentSubject"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_StudentSubject_B_index" ON "_StudentSubject"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_TenantGradingStructureClass_AB_unique" ON "_TenantGradingStructureClass"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_TenantGradingStructureClass_B_index" ON "_TenantGradingStructureClass"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_StudentGuardian_AB_unique" ON "_StudentGuardian"("A", "B");
@@ -436,13 +548,13 @@ ALTER TABLE "Student" ADD CONSTRAINT "Student_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Student" ADD CONSTRAINT "Student_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Class" ADD CONSTRAINT "Class_classTeacherId_fkey" FOREIGN KEY ("classTeacherId") REFERENCES "Staff"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Class" ADD CONSTRAINT "Class_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ClassDivision" ADD CONSTRAINT "ClassDivision_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClassDivision" ADD CONSTRAINT "ClassDivision_classDivisionTeacherId_fkey" FOREIGN KEY ("classDivisionTeacherId") REFERENCES "Staff"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ClassDivision" ADD CONSTRAINT "ClassDivision_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -478,7 +590,7 @@ ALTER TABLE "BreakPeriod" ADD CONSTRAINT "BreakPeriod_termId_fkey" FOREIGN KEY (
 ALTER TABLE "BreakPeriod" ADD CONSTRAINT "BreakPeriod_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Timetable" ADD CONSTRAINT "Timetable_termId_fkey" FOREIGN KEY ("termId") REFERENCES "Term"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Timetable" ADD CONSTRAINT "Timetable_termId_fkey" FOREIGN KEY ("termId") REFERENCES "Term"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Timetable" ADD CONSTRAINT "Timetable_classDivisionId_fkey" FOREIGN KEY ("classDivisionId") REFERENCES "ClassDivision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -500,6 +612,51 @@ ALTER TABLE "Role" ADD CONSTRAINT "Role_tenantId_fkey" FOREIGN KEY ("tenantId") 
 
 -- AddForeignKey
 ALTER TABLE "Permission" ADD CONSTRAINT "Permission_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TenantGradingStructure" ADD CONSTRAINT "TenantGradingStructure_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GradeBoundary" ADD CONSTRAINT "GradeBoundary_tenantGradingStructureId_fkey" FOREIGN KEY ("tenantGradingStructureId") REFERENCES "TenantGradingStructure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGradingStructure" ADD CONSTRAINT "SubjectGradingStructure_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGradingStructure" ADD CONSTRAINT "SubjectGradingStructure_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "Staff"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGradingStructure" ADD CONSTRAINT "SubjectGradingStructure_tenantGradingStructureId_fkey" FOREIGN KEY ("tenantGradingStructureId") REFERENCES "TenantGradingStructure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGradingStructure" ADD CONSTRAINT "SubjectGradingStructure_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ContinuousAssessmentBreakdownItem" ADD CONSTRAINT "ContinuousAssessmentBreakdownItem_subjectGradingStructureI_fkey" FOREIGN KEY ("subjectGradingStructureId") REFERENCES "SubjectGradingStructure"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGrading" ADD CONSTRAINT "SubjectGrading_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGrading" ADD CONSTRAINT "SubjectGrading_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGrading" ADD CONSTRAINT "SubjectGrading_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGrading" ADD CONSTRAINT "SubjectGrading_classDivisionId_fkey" FOREIGN KEY ("classDivisionId") REFERENCES "ClassDivision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGrading" ADD CONSTRAINT "SubjectGrading_calendarId_fkey" FOREIGN KEY ("calendarId") REFERENCES "SchoolCalendar"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGrading" ADD CONSTRAINT "SubjectGrading_termId_fkey" FOREIGN KEY ("termId") REFERENCES "Term"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectGrading" ADD CONSTRAINT "SubjectGrading_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ContinuousAssessmentScore" ADD CONSTRAINT "ContinuousAssessmentScore_subjectGradingId_fkey" FOREIGN KEY ("subjectGradingId") REFERENCES "SubjectGrading"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "StudentGroup" ADD CONSTRAINT "StudentGroup_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -545,6 +702,12 @@ ALTER TABLE "_StudentSubject" ADD CONSTRAINT "_StudentSubject_A_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "_StudentSubject" ADD CONSTRAINT "_StudentSubject_B_fkey" FOREIGN KEY ("B") REFERENCES "Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_TenantGradingStructureClass" ADD CONSTRAINT "_TenantGradingStructureClass_A_fkey" FOREIGN KEY ("A") REFERENCES "Class"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_TenantGradingStructureClass" ADD CONSTRAINT "_TenantGradingStructureClass_B_fkey" FOREIGN KEY ("B") REFERENCES "TenantGradingStructure"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_StudentGuardian" ADD CONSTRAINT "_StudentGuardian_A_fkey" FOREIGN KEY ("A") REFERENCES "Guardian"("id") ON DELETE CASCADE ON UPDATE CASCADE;
