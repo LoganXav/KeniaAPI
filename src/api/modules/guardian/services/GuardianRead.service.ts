@@ -27,7 +27,9 @@ export default class GuardianReadService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.query);
 
-      const guardians = await this.guardianReadProvider.getByCriteria({ ...args.body, ...args.query });
+      const { firstName, lastName } = args.query;
+
+      const guardians = await this.guardianReadProvider.getByCriteria({ ...args.body, firstName, lastName });
       trace.setSuccessful();
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(GUARDIAN_RESOURCE), guardians);

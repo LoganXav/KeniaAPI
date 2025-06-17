@@ -3,6 +3,7 @@ import { StaffEmploymentType } from "@prisma/client";
 import { IRequest } from "~/infrastructure/internal/types";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
+import RoleReadProvider from "../../role/providers/RoleRead.provider";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 import CountryConstants from "~/api/shared/helpers/constants/Country.constants";
@@ -20,12 +21,14 @@ import EducationLevelOptionsConstant from "~/api/shared/helpers/constants/Educat
 export default class StaffTemplateService extends BaseService<IRequest> {
   static serviceName = "StaffTemplateService";
   loggingProvider: ILoggingDriver;
+  roleReadProvider: RoleReadProvider;
   subjectReadProvider: SubjectReadProvider;
   classDivisionReadProvider: ClassDivisionReadProvider;
 
-  constructor(subjectReadProvider: SubjectReadProvider, classDivisionReadProvider: ClassDivisionReadProvider) {
+  constructor(subjectReadProvider: SubjectReadProvider, classDivisionReadProvider: ClassDivisionReadProvider, roleReadProvider: RoleReadProvider) {
     super(StaffTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
+    this.roleReadProvider = roleReadProvider;
     this.subjectReadProvider = subjectReadProvider;
     this.classDivisionReadProvider = classDivisionReadProvider;
   }
@@ -35,7 +38,7 @@ export default class StaffTemplateService extends BaseService<IRequest> {
       this.initializeServiceTrace(trace, args?.body);
       const { codeValue } = args.query;
 
-      const subjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+      const subjectOptions = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
       const classDivisions = await this.classDivisionReadProvider.getByCriteria({ tenantId: args.body.tenantId });
 
       const classDivisionOptions = classDivisions.map((division) => {
@@ -45,14 +48,17 @@ export default class StaffTemplateService extends BaseService<IRequest> {
         };
       });
 
+      const roleOptions = await this.roleReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+
       const data = {
         employmentTypeOptions: Object.values(StaffEmploymentType),
         countryIdOptions: CountryConstants,
         stateIdOptions: NigerianStatesConstant,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
         educationLevelOptions: EducationLevelOptionsConstant,
-        subjectOptions: subjects,
+        subjectOptions,
         classDivisionOptions,
+        roleOptions,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);

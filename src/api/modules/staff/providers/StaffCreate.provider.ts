@@ -8,7 +8,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StaffCreateProvider {
   public async create(data: StaffCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Staff> {
     try {
-      const { jobTitle, employmentType, startDate, nin, tin, highestLevelEdu, cvUrl, userId, roleId, tenantId, subjectIds, classDivisionIds } = data;
+      const { jobTitle, employmentType, startDate, nin, tin, highestLevelEdu, cvUrl, userId, tenantId } = data;
 
       const staff = await dbClient?.staff.create({
         data: {
@@ -20,14 +20,7 @@ export default class StaffCreateProvider {
           tin,
           cvUrl,
           userId,
-          roleId,
           tenantId,
-          subjects: {
-            connect: subjectIds?.map((id) => ({ id })),
-          },
-          classDivisions: {
-            connect: classDivisionIds?.map((id) => ({ id })),
-          },
         },
         include: {
           user: true,
