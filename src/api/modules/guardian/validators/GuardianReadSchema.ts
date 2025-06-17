@@ -7,6 +7,6 @@ export const guardianReadSchema = z.object({
   lastName: z.string().optional(),
   phoneNumber: z.string().optional(),
   email: z.string().optional(),
-  tenantId: z.number().optional(),
+  tenantId: z.string().optional(),
   studentIds: z.array(z.number()).optional(),
 });

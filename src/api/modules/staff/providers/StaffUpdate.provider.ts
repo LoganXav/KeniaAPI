@@ -26,14 +26,14 @@ export default class StaffUpdateProvider {
           ...(highestLevelEdu && { highestLevelEdu }),
           ...(employmentType && { employmentType }),
           ...(startDate && { startDate }),
-          ...(subjectIds && {
+          ...(subjectIds !== undefined && {
             subjects: {
-              connect: subjectIds.map((id) => ({ id })),
+              set: subjectIds.map((id) => ({ id })),
             },
           }),
-          ...(classDivisionIds && {
+          ...(classDivisionIds !== undefined && {
             classDivisions: {
-              connect: classDivisionIds.map((id) => ({ id })),
+              set: classDivisionIds.map((id) => ({ id })),
             },
           }),
         },
