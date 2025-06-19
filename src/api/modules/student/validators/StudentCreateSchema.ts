@@ -98,9 +98,6 @@ export const studentCreateRequestSchema = z.object({
       return DateTimeUtils.parseToISO(val);
     })
     .optional(),
-
-  // Subject Registration
-  subjectIds: z.array(z.number({ invalid_type_error: "Subject ID must be a number" }).int("Subject ID must be an integer")).optional(),
 });
 
 export const studentCriteriaSchema = z.object({
@@ -108,6 +105,7 @@ export const studentCriteriaSchema = z.object({
   id: z.number().optional(),
   ids: z.array(z.number()).optional(),
   classId: z.number().int("Class ID must be an integer").optional(),
+  calendarId: z.number().int("Calendar ID must be an integer").optional(),
   classDivisionId: z.number().int("Class ID must be an integer").optional(),
   dormitoryId: z.number().int("Dormitory ID must be an integer").optional(),
 });

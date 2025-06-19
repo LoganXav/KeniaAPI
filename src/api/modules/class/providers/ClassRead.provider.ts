@@ -9,7 +9,6 @@ export default class ClassReadProvider {
   public async getAllClass(dbClient: PrismaTransactionClient = DbClient): Promise<Class[]> {
     const classes = await dbClient?.class?.findMany({
       include: {
-        // students: true,
         subjects: true,
         divisions: true,
       },
@@ -31,7 +30,6 @@ export default class ClassReadProvider {
           ...(withoutGradingStructures && { gradingStructures: { none: {} } }),
         },
         include: {
-          // students: true,
           subjects: true,
           divisions: true,
         },
@@ -54,7 +52,6 @@ export default class ClassReadProvider {
           ...(tenantId && { tenantId }),
         },
         include: {
-          // students: true,
           subjects: true,
           divisions: true,
         },

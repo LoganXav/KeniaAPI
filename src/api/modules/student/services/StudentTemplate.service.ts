@@ -1,4 +1,5 @@
 import { autoInjectable } from "tsyringe";
+import StudentReadCache from "../cache/StudentRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import ClassReadCache from "~/api/modules/class/cache/ClassRead.cache";
@@ -15,47 +16,68 @@ import NigerianStatesConstant from "~/api/shared/helpers/constants/NigerianState
 import { GetLgasByCodeValue } from "~/api/shared/helpers/constants/GetLocalGovernmentsByCode";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
+import SchoolCalendarReadProvider from "../../schoolCalendar/providers/SchoolCalendarRead.provider";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import ClassDivisionReadProvider from "~/api/modules/classDivision/providers/ClassDivisionRead.provider";
+
 @autoInjectable()
 export default class StudentTemplateService extends BaseService<IRequest> {
   static serviceName = "StudentTemplateService";
   loggingProvider: ILoggingDriver;
   classReadCache: ClassReadCache;
-  classDivisionReadProvider: ClassDivisionReadProvider;
+  studentReadCache: StudentReadCache;
   subjectReadProvider: SubjectReadProvider;
+  calendarReadProvider: SchoolCalendarReadProvider;
+  classDivisionReadProvider: ClassDivisionReadProvider;
 
-  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider, subjectReadProvider: SubjectReadProvider) {
+  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider, subjectReadProvider: SubjectReadProvider, calendarReadProvider: SchoolCalendarReadProvider, studentReadCache: StudentReadCache) {
     super(StudentTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
     this.classReadCache = classReadCache;
-    this.classDivisionReadProvider = classDivisionReadProvider;
+    this.studentReadCache = studentReadCache;
     this.subjectReadProvider = subjectReadProvider;
+    this.calendarReadProvider = calendarReadProvider;
+    this.classDivisionReadProvider = classDivisionReadProvider;
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args?.body);
-      const { codeValue, classId } = args.query;
+      const { codeValue, classId, calendarId } = args.query;
 
-      const classes = await this.classReadCache.getByCriteria({ tenantId: args.body.tenantId });
-      const classDivision = await this.classDivisionReadProvider.getByCriteria({
+      const classOptions = await this.classReadCache.getByCriteria({ tenantId: args.body.tenantId });
+      const classDivisionOptions = await this.classDivisionReadProvider.getByCriteria({
         tenantId: args.body.tenantId,
         classId: Number(classId),
       });
 
-      const subjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
+      const subjectOptions = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
+
+      const calendarOptions = await this.calendarReadProvider.getByCriteria({ tenantId: args.body.tenantId });
+
+      const students = await this.studentReadCache.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
+
+      const studentOptions = students?.map((student) => ({
+        ...student,
+        subjectsRegistered: student.subjectsRegistered.map((subjectRegistration) => ({
+          ...subjectRegistration,
+          name: subjectRegistration.subject?.name,
+          description: subjectRegistration.subject?.description,
+        })),
+      }));
 
       const data = {
-        classOptions: classes,
-        classDivisionOptions: classDivision,
+        classOptions,
+        classDivisionOptions,
         genderOptions: GenderConstants,
         religionOptions: ReligionConstants,
         countryIdOptions: CountryConstants,
         stateIdOptions: NigerianStatesConstant,
         bloodGroupOptions: BloodGroupConstants,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
-        subjectOptions: subjects,
+        subjectOptions,
+        calendarOptions,
+        studentOptions,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);

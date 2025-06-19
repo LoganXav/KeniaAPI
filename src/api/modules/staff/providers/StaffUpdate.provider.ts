@@ -1,4 +1,5 @@
 import { Prisma, Staff } from "@prisma/client";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -38,16 +39,12 @@ export default class StaffUpdateProvider {
           }),
         },
         include: {
-          user: true,
+          user: { select: userObjectWithoutPassword },
           role: true,
           subjects: true,
           classDivisions: true,
         },
       });
-
-      if (updatedStaff?.user) {
-        delete (updatedStaff.user as any).password;
-      }
 
       return updatedStaff;
     } catch (error: any) {

@@ -1,3 +1,4 @@
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -18,17 +19,11 @@ export default class StaffReadProvider {
           ...(roleId && { roleId }),
         },
         include: {
-          user: true,
+          user: { select: userObjectWithoutPassword },
           role: true,
           subjects: true,
           classDivisions: true,
         },
-      });
-
-      staffs.forEach((staff) => {
-        if (staff?.user) {
-          delete (staff.user as any).password;
-        }
       });
 
       return staffs;
@@ -48,16 +43,12 @@ export default class StaffReadProvider {
           ...(numericId && { id: numericId }),
         },
         include: {
-          user: true,
+          user: { select: userObjectWithoutPassword },
           role: true,
           subjects: true,
           classDivisions: true,
         },
       });
-
-      if (staff?.user) {
-        delete (staff.user as any).password;
-      }
 
       return staff;
     } catch (error: any) {
