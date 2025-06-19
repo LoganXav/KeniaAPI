@@ -1,32 +1,15 @@
 import { Student, Subject } from "@prisma/client";
-import { StudentCriteriaType, StudentWithRelationsType } from "~/api/modules/student/types/StudentTypes";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { StudentCriteriaType, StudentWithRelationsSafeUser } from "~/api/modules/student/types/StudentTypes";
 
 @EnforceTenantId
 export default class StudentReadProvider {
-  public async getAllStudent(dbClient: PrismaTransactionClient = DbClient): Promise<Student[]> {
-    const students = await dbClient?.student?.findMany({
-      include: {
-        user: true,
-        class: true,
-        guardians: true,
-        subjects: true,
-        classDivision: true,
-        documents: true,
-        dormitory: true,
-        medicalHistory: true,
-        studentGroups: true,
-      },
-    });
-
-    return students;
-  }
-
-  public async getByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentWithRelationsType[]> {
+  public async getByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentWithRelationsSafeUser[]> {
     try {
-      const { ids, classId, classDivisionId, tenantId, dormitoryId } = criteria;
+      const { ids, classId, classDivisionId, tenantId, dormitoryId, calendarId } = criteria;
 
       const students = await dbClient.student.findMany({
         where: {
@@ -37,22 +20,23 @@ export default class StudentReadProvider {
           ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),
         },
         include: {
-          user: true,
+          user: { select: userObjectWithoutPassword },
           class: true,
           guardians: true,
           documents: true,
           dormitory: true,
           classDivision: true,
-          subjects: true,
           medicalHistory: true,
           studentGroups: true,
+          subjectsRegistered: {
+            where: {
+              ...(calendarId && { calendarId: Number(calendarId) }),
+            },
+            include: {
+              subject: true,
+            },
+          },
         },
-      });
-
-      students.forEach((student) => {
-        if (student.user) {
-          delete (student.user as any).password;
-        }
       });
 
       return students;
@@ -61,9 +45,9 @@ export default class StudentReadProvider {
     }
   }
 
-  public async getOneByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<(Student & { subjects: Subject[] }) | null> {
+  public async getOneByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentWithRelationsSafeUser | null> {
     try {
-      const { id, tenantId } = criteria;
+      const { id, tenantId, calendarId } = criteria;
       const numericId = id ? Number(id) : undefined;
 
       const student = await dbClient?.student?.findFirst({
@@ -72,21 +56,24 @@ export default class StudentReadProvider {
           ...(numericId && { id: numericId }),
         },
         include: {
-          user: true,
+          user: { select: userObjectWithoutPassword },
           class: true,
           guardians: true,
           documents: true,
           dormitory: true,
           medicalHistory: true,
           studentGroups: true,
-          subjects: true,
           classDivision: true,
+          subjectsRegistered: {
+            where: {
+              ...(calendarId && { calendarId: Number(calendarId) }),
+            },
+            include: {
+              subject: true,
+            },
+          },
         },
       });
-
-      if (student?.user) {
-        delete (student.user as any).password;
-      }
 
       return student;
     } catch (error: any) {

@@ -40,8 +40,10 @@ export default class StudentGradingReadService extends BaseService<IRequest> {
       const subjectGradings = await this.subjectGradingReadProvider.getByCriteria({ calendarId: Number(calendarId), classId: Number(classId), termId: Number(termId), classDivisionId: Number(classDivisionId), ...args.body });
 
       // Match grades to students
-      const studentWithGrades = students?.map((student) => {
-        const studentSubjects = student.subjects.map((subject: Subject) => {
+      const studentsWithGrades = students?.map((student) => {
+        const studentSubjects = student.subjectsRegistered.map((registration) => {
+          const subject = registration.subject;
+
           const matchedGrading = subjectGradings.find((grade) => grade.subjectId === subject.id && grade.studentId === student.id);
 
           return {
@@ -68,7 +70,7 @@ export default class StudentGradingReadService extends BaseService<IRequest> {
       });
 
       trace.setSuccessful();
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STUDENT_GRADING_RESOURCE), studentWithGrades);
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STUDENT_GRADING_RESOURCE), studentsWithGrades);
       return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);

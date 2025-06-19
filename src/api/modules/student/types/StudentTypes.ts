@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { ClassList, Subject, User } from "@prisma/client";
+import { ClassList, Prisma, Subject, User } from "@prisma/client";
 import { studentUpdateSchema, studentUpdateManySchema } from "../validators/StudentUpdateSchema";
 import { studentCreateRequestSchema, studentCriteriaSchema } from "../validators/StudentCreateSchema";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 
 export type StudentCreateRequestType = z.infer<typeof studentCreateRequestSchema>;
 export type StudentCriteriaType = z.infer<typeof studentCriteriaSchema>;
@@ -18,7 +19,6 @@ export interface StudentCreateType {
   studentGroupIds?: number[];
   dormitoryId?: number;
   guardianIds?: number[];
-  subjectIds?: number[];
 }
 
 export type StudentWithRelationsType = {
@@ -58,9 +58,35 @@ export type StudentWithRelationsType = {
     id: number;
     name: string;
   }[];
-  subjects: Subject[];
-  user: User;
+  subjectsRegistered: {
+    subject: {
+      id: number;
+      name: string;
+      description: string | null;
+    };
+  }[];
+  user: Omit<User, "password">;
 };
+
+export type StudentWithRelationsSafeUser = Prisma.StudentGetPayload<{
+  include: {
+    user: {
+      select: typeof userObjectWithoutPassword;
+    };
+    class: true;
+    guardians: true;
+    documents: true;
+    dormitory: true;
+    classDivision: true;
+    medicalHistory: true;
+    studentGroups: true;
+    subjectsRegistered: {
+      include: {
+        subject: true;
+      };
+    };
+  };
+}>;
 
 export interface StudentCriteria {
   id?: number;
@@ -70,4 +96,20 @@ export interface StudentCriteria {
   tenantId?: number;
   dormitoryId?: number;
   guardianIds?: number[];
+}
+
+export interface StudentSubjectRegistrationCreateType {
+  studentId: number;
+  subjectId: number;
+  calendarId: number;
+  classId: number;
+  classDivisionId?: number;
+  tenantId: number;
+}
+
+export interface StudentSubjectRegistrationDeleteType {
+  studentId: number;
+  subjectId: number;
+  calendarId: number;
+  tenantId: number;
 }

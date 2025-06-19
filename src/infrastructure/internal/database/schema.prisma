@@ -56,6 +56,8 @@ model Tenant {
   gradingStructures       TenantGradingStructure[]
   subjectGradingStructure SubjectGradingStructure[]
   subjectGrading          SubjectGrading[]
+  subjectsRegistered      SubjectRegistration[]
+  studentPromotion        StudentPromotion[]
 }
 
 enum TenantOnboardingStatusType {
@@ -137,39 +139,43 @@ enum StaffEmploymentType {
 }
 
 model Student {
-  id              Int              @id @default(autoincrement())
-  enrollmentDate  DateTime         @default(now())
-  admissionNo     String?
-  guardians       Guardian[]       @relation("StudentGuardian")
-  documents       Document[]
-  dormitoryId     Int?
-  dormitory       Dormitory?       @relation(fields: [dormitoryId], references: [id])
-  medicalHistory  MedicalHistory[]
-  studentGroups   StudentGroup[]   @relation("StudentGroupRelation")
-  classId         Int?
-  class           Class?           @relation(fields: [classId], references: [id])
-  subjects        Subject[]        @relation("StudentSubject")
-  classDivisionId Int?
-  classDivision   ClassDivision?   @relation(fields: [classDivisionId], references: [id])
-  userId          Int              @unique
-  user            User             @relation(fields: [userId], references: [id], name: "StudentUser")
-  tenantId        Int
-  tenant          Tenant           @relation(fields: [tenantId], references: [id])
-  subjectGrades   SubjectGrading[]
+  id                 Int                   @id @default(autoincrement())
+  enrollmentDate     DateTime              @default(now())
+  admissionNo        String?
+  guardians          Guardian[]            @relation("StudentGuardian")
+  documents          Document[]
+  dormitoryId        Int?
+  dormitory          Dormitory?            @relation(fields: [dormitoryId], references: [id])
+  medicalHistory     MedicalHistory[]
+  studentGroups      StudentGroup[]        @relation("StudentGroupRelation")
+  classId            Int?
+  class              Class?                @relation(fields: [classId], references: [id])
+  classDivisionId    Int?
+  classDivision      ClassDivision?        @relation(fields: [classDivisionId], references: [id])
+  userId             Int                   @unique
+  user               User                  @relation(fields: [userId], references: [id], name: "StudentUser")
+  tenantId           Int
+  tenant             Tenant                @relation(fields: [tenantId], references: [id])
+  subjectGrades      SubjectGrading[]
+  subjectsRegistered SubjectRegistration[]
+  promotions         StudentPromotion[]
 
   @@unique([admissionNo, tenantId])
 }
 
 model Class {
-  id                Int                      @id @default(autoincrement())
-  name              ClassList?
-  students          Student[]
-  subjects          Subject[]
-  divisions         ClassDivision[]
-  tenantId          Int
-  tenant            Tenant                   @relation(fields: [tenantId], references: [id])
-  subjectGrades     SubjectGrading[]
-  gradingStructures TenantGradingStructure[] @relation("TenantGradingStructureClass")
+  id                 Int                      @id @default(autoincrement())
+  name               ClassList?
+  students           Student[]
+  subjects           Subject[]
+  divisions          ClassDivision[]
+  tenantId           Int
+  tenant             Tenant                   @relation(fields: [tenantId], references: [id])
+  subjectGrades      SubjectGrading[]
+  gradingStructures  TenantGradingStructure[] @relation("TenantGradingStructureClass")
+  subjectsRegistered SubjectRegistration[]
+  fromPromotions     StudentPromotion[]       @relation("FromClass")
+  toPromotions       StudentPromotion[]       @relation("ToClass")
 }
 
 enum ClassList {
@@ -182,32 +188,33 @@ enum ClassList {
 }
 
 model ClassDivision {
-  id                     Int              @id @default(autoincrement())
+  id                     Int                   @id @default(autoincrement())
   name                   String
   classId                Int
-  class                  Class            @relation(fields: [classId], references: [id])
+  class                  Class                 @relation(fields: [classId], references: [id])
   classDivisionTeacherId Int?
-  classDivisionTeacher   Staff?           @relation("ClassDivisionTeacher", fields: [classDivisionTeacherId], references: [id])
+  classDivisionTeacher   Staff?                @relation("ClassDivisionTeacher", fields: [classDivisionTeacherId], references: [id])
   students               Student[]
   tenantId               Int
-  tenant                 Tenant           @relation(fields: [tenantId], references: [id])
+  tenant                 Tenant                @relation(fields: [tenantId], references: [id])
   timetables             Timetable[]
-  SubjectGrading         SubjectGrading[]
+  subjectGrading         SubjectGrading[]
+  subjectsRegistered     SubjectRegistration[]
 }
 
 model Subject {
-  id               Int                      @id @default(autoincrement())
-  name             String
-  description      String?
-  staffs           Staff[]                  @relation("SubjectTeacher")
-  tenantId         Int
-  tenant           Tenant                   @relation(fields: [tenantId], references: [id])
-  classId          Int
-  class            Class                    @relation(fields: [classId], references: [id])
-  periods          Period[]
-  students         Student[]                @relation("StudentSubject")
-  gradingStructure SubjectGradingStructure?
-  subjectGrades    SubjectGrading[]
+  id                  Int                      @id @default(autoincrement())
+  name                String
+  description         String?
+  staffs              Staff[]                  @relation("SubjectTeacher")
+  tenantId            Int
+  tenant              Tenant                   @relation(fields: [tenantId], references: [id])
+  classId             Int
+  class               Class                    @relation(fields: [classId], references: [id])
+  periods             Period[]
+  gradingStructure    SubjectGradingStructure?
+  subjectGrades       SubjectGrading[]
+  subjectRegistration SubjectRegistration[]
 }
 
 model Guardian {
@@ -257,12 +264,14 @@ enum TokenType {
 // ==================== SCHOOL CALENDAR TABLES START ==================== //
 
 model SchoolCalendar {
-  id           Int              @id @default(autoincrement())
-  year         Int
-  terms        Term[]
-  tenantId     Int
-  tenant       Tenant           @relation(fields: [tenantId], references: [id])
-  SubjectGrade SubjectGrading[]
+  id                 Int                   @id @default(autoincrement())
+  year               Int
+  terms              Term[]
+  tenantId           Int
+  tenant             Tenant                @relation(fields: [tenantId], references: [id])
+  subjectGrade       SubjectGrading[]
+  subjectsRegistered SubjectRegistration[]
+  studentPromotion   StudentPromotion[]
 
   @@unique([year, tenantId])
 }
@@ -364,6 +373,46 @@ model Permission {
 }
 
 // ==================== ROLES AND PERMISSIONS TABLES END ==================== //
+
+// ==================== SUBJECT REGISTRATION AND CLASS PROMOTION START ==================== //
+
+model SubjectRegistration {
+  id              Int      @id @default(autoincrement())
+  studentId       Int
+  subjectId       Int
+  calendarId      Int
+  classId         Int
+  classDivisionId Int?
+  tenantId        Int
+  createdAt       DateTime @default(now())
+
+  student       Student        @relation(fields: [studentId], references: [id])
+  subject       Subject        @relation(fields: [subjectId], references: [id])
+  calendar      SchoolCalendar @relation(fields: [calendarId], references: [id])
+  class         Class          @relation(fields: [classId], references: [id])
+  classDivision ClassDivision? @relation(fields: [classDivisionId], references: [id])
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+
+  @@unique([studentId, subjectId, calendarId, tenantId])
+}
+
+model StudentPromotion {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  fromClassId Int
+  toClassId   Int
+  calendarId  Int
+  tenantId    Int
+  promotedAt  DateTime @default(now())
+
+  student   Student        @relation(fields: [studentId], references: [id])
+  fromClass Class          @relation("FromClass", fields: [fromClassId], references: [id])
+  toClass   Class          @relation("ToClass", fields: [toClassId], references: [id])
+  calendar  SchoolCalendar @relation(fields: [calendarId], references: [id])
+  tenant    Tenant         @relation(fields: [tenantId], references: [id])
+}
+
+// ==================== SUBJECT REGISTRATION AND CLASS PROMOTION END ==================== //
 
 // ==================== GRADING SYSTEM TABLES START ==================== //
 

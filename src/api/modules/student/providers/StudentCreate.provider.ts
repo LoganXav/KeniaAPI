@@ -1,4 +1,5 @@
 import { Student } from "@prisma/client";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import { StudentCreateType } from "~/api/modules/student/types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
@@ -8,7 +9,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StudentCreateProvider {
   public async create(data: StudentCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { userId, classId, classDivisionId, tenantId, enrollmentDate, dormitoryId, studentGroupIds, guardianIds, subjectIds } = data;
+      const { userId, classId, classDivisionId, tenantId, enrollmentDate, dormitoryId, studentGroupIds, guardianIds } = data;
 
       const student = await dbClient?.student.create({
         data: {
@@ -24,14 +25,10 @@ export default class StudentCreateProvider {
           guardians: {
             connect: guardianIds?.map((id) => ({ id })),
           },
-          subjects: {
-            connect: subjectIds?.map((id) => ({ id })),
-          },
         },
         include: {
-          user: true,
+          user: { select: userObjectWithoutPassword },
           class: true,
-          subjects: true,
           classDivision: true,
           guardians: true,
           documents: true,

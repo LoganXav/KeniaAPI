@@ -3,12 +3,13 @@ import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/dat
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { StudentUpdateManyRequestType, StudentUpdateRequestType } from "~/api/modules/student/types/StudentTypes";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 
 @EnforceTenantId
 export default class StudentUpdateProvider {
   public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { classId, classDivisionId, guardianIds, id, tenantId, dormitoryId, studentGroupIds, subjectIds } = criteria;
+      const { classId, classDivisionId, guardianIds, id, tenantId, dormitoryId, studentGroupIds } = criteria;
 
       const updatedStudent = await dbClient?.student?.update({
         where: { id, tenantId },
@@ -24,14 +25,9 @@ export default class StudentUpdateProvider {
           guardians: {
             set: guardianIds?.map((id) => ({ id })) || [],
           },
-          ...(subjectIds && {
-            subjects: {
-              set: subjectIds.map((id) => ({ id })),
-            },
-          }),
         },
         include: {
-          user: true,
+          user: { select: userObjectWithoutPassword },
           class: true,
           classDivision: true,
           guardians: true,
@@ -39,13 +35,8 @@ export default class StudentUpdateProvider {
           dormitory: true,
           medicalHistory: true,
           studentGroups: true,
-          subjects: true,
         },
       });
-
-      if (updatedStudent.user) {
-        delete (updatedStudent.user as any).password;
-      }
 
       return updatedStudent;
     } catch (error: any) {

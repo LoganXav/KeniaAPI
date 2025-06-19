@@ -87,17 +87,6 @@ export default class StudentCreateService extends BaseService<IRequest> {
         }
       }
 
-      // Validate subjectIds within the transaction
-      if (args.body.subjectIds?.length) {
-        const validSubjects = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId });
-        const validSubjectIds = validSubjects.map((subject) => subject.id);
-        const invalidSubjectIds = args.body.subjectIds.filter((id: number) => !validSubjectIds.includes(id));
-
-        if (invalidSubjectIds.length > 0) {
-          throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_RESOURCE));
-        }
-      }
-
       const defaultHashedPassword = PasswordEncryptionService.hashPassword(ServerConfig.Params.Security.DefaultPassword.Student);
 
       const userCreateArgs = { ...args.body, password: defaultHashedPassword, userType: UserType.STUDENT };
@@ -158,7 +147,6 @@ export default class StudentCreateService extends BaseService<IRequest> {
           bloodGroup: args.bloodGroup,
           dormitoryId: args.dormitoryId,
           studentGroupIds: args.studentGroupIds,
-          subjectIds: args.subjectIds,
           classDivisionId: args.classDivisionId,
           enrollmentDate: args.enrollmentDate,
           guardianIds,

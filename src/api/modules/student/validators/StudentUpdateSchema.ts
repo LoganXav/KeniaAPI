@@ -103,7 +103,6 @@ export const studentUpdateSchema = z.object({
       if (!val) return null;
       return DateTimeUtils.parseToISO(val);
     }),
-  subjectIds: z.array(z.number({ invalid_type_error: "Subject ID must be a number" }).int("Subject ID must be an integer")).optional(),
 });
 
 export const studentUpdateManySchema = z.object({

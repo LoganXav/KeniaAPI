@@ -25,6 +25,7 @@ export const PERIOD_RESOURCE = "Period";
 export const ROLE_RESOURCE = "Role";
 export const TENANT_GRADING_STRUCTURE_RESOURCE = "School Grading Structure";
 export const SUBJECT_GRADING_STRUCTURE_RESOURCE = "Subject Grading Structure";
+export const STUDENT_SUBJECT_REGISTRATION_RESOURCE = "Student Subject Registration";
 export const SUBJECT_GRADING_RESOURCE = "Subject Grading";
 export const STUDENT_GRADING_RESOURCE = "Student Grading";
 /** <---------------> Success Responses <---------------> */

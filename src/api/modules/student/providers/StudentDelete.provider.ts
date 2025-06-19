@@ -6,6 +6,7 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 
 @EnforceTenantId
 export default class StudentDeleteProvider {
@@ -39,7 +40,7 @@ export default class StudentDeleteProvider {
       const deletedStudent = await dbClient?.student?.delete({
         where: { id: toDelete.id },
         include: {
-          user: true,
+          user: { select: userObjectWithoutPassword },
           class: true,
           guardians: true,
           documents: true,

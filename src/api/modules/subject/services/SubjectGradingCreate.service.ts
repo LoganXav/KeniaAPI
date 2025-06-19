@@ -78,7 +78,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
         throw new BadRequestError("Student is not enrolled in a class.");
       }
 
-      const isEnrolled = student.subjects?.some((subject) => subject.id === subjectId);
+      const isEnrolled = student.subjectsRegistered?.some((registration) => registration.subject.id === subjectId);
 
       if (!isEnrolled) {
         throw new BadRequestError("Student is not enrolled with this subject.");
