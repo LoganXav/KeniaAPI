@@ -9,6 +9,7 @@ export const STUDENT_RESOURCE = "Student";
 export const TENANT_RESOURCE = "Tenant";
 export const TEMPLATE_RESOURCE = "Template";
 export const CLASS_RESOURCE = "Class";
+export const CLASS_PROMOTION_RESOURCE = "Class Promotion";
 export const CLASS_DIVISION_RESOURCE = "Class Division";
 export const SUBJECT_RESOURCE = "Subject";
 export const DOCUMENT_RESOURCE = "Document";

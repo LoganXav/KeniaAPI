@@ -7,7 +7,7 @@ import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 
 @EnforceTenantId
 export default class StudentUpdateProvider {
-  public async updateOne(criteria: StudentUpdateRequestType & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
+  public async updateOne(criteria: Partial<StudentUpdateRequestType> & { id: number; tenantId: number; guardianIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
       const { classId, classDivisionId, guardianIds, id, tenantId, dormitoryId, studentGroupIds } = criteria;
 

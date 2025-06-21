@@ -57,7 +57,7 @@ model Tenant {
   subjectGradingStructure SubjectGradingStructure[]
   subjectGrading          SubjectGrading[]
   subjectsRegistered      SubjectRegistration[]
-  studentPromotion        StudentPromotion[]
+  classPromotion          ClassPromotion[]
 }
 
 enum TenantOnboardingStatusType {
@@ -158,7 +158,7 @@ model Student {
   tenant             Tenant                @relation(fields: [tenantId], references: [id])
   subjectGrades      SubjectGrading[]
   subjectsRegistered SubjectRegistration[]
-  promotions         StudentPromotion[]
+  promotions         ClassPromotion[]
 
   @@unique([admissionNo, tenantId])
 }
@@ -174,8 +174,8 @@ model Class {
   subjectGrades      SubjectGrading[]
   gradingStructures  TenantGradingStructure[] @relation("TenantGradingStructureClass")
   subjectsRegistered SubjectRegistration[]
-  fromPromotions     StudentPromotion[]       @relation("FromClass")
-  toPromotions       StudentPromotion[]       @relation("ToClass")
+  fromPromotions     ClassPromotion[]         @relation("FromClass")
+  toPromotions       ClassPromotion[]         @relation("ToClass")
 }
 
 enum ClassList {
@@ -271,7 +271,7 @@ model SchoolCalendar {
   tenant             Tenant                @relation(fields: [tenantId], references: [id])
   subjectGrade       SubjectGrading[]
   subjectsRegistered SubjectRegistration[]
-  studentPromotion   StudentPromotion[]
+  classPromotions    ClassPromotion[]
 
   @@unique([year, tenantId])
 }
@@ -396,20 +396,28 @@ model SubjectRegistration {
   @@unique([studentId, subjectId, calendarId, tenantId])
 }
 
-model StudentPromotion {
-  id          Int      @id @default(autoincrement())
-  studentId   Int
-  fromClassId Int
-  toClassId   Int
-  calendarId  Int
-  tenantId    Int
-  promotedAt  DateTime @default(now())
+model ClassPromotion {
+  id              Int             @id @default(autoincrement())
+  studentId       Int
+  fromClassId     Int
+  toClassId       Int
+  calendarId      Int
+  tenantId        Int
+  decisionAt      DateTime        @default(now())
+  promotionStatus PromotionStatus @default(Promoted)
+  comments        String?
+  student         Student         @relation(fields: [studentId], references: [id])
+  fromClass       Class           @relation("FromClass", fields: [fromClassId], references: [id])
+  toClass         Class           @relation("ToClass", fields: [toClassId], references: [id])
+  calendar        SchoolCalendar  @relation(fields: [calendarId], references: [id])
+  tenant          Tenant          @relation(fields: [tenantId], references: [id])
 
-  student   Student        @relation(fields: [studentId], references: [id])
-  fromClass Class          @relation("FromClass", fields: [fromClassId], references: [id])
-  toClass   Class          @relation("ToClass", fields: [toClassId], references: [id])
-  calendar  SchoolCalendar @relation(fields: [calendarId], references: [id])
-  tenant    Tenant         @relation(fields: [tenantId], references: [id])
+  @@unique([studentId, calendarId, tenantId])
+}
+
+enum PromotionStatus {
+  Promoted
+  Withheld
 }
 
 // ==================== SUBJECT REGISTRATION AND CLASS PROMOTION END ==================== //
