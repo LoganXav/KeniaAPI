@@ -105,6 +105,7 @@ export const studentCriteriaSchema = z.object({
   id: z.number().optional(),
   ids: z.array(z.number()).optional(),
   classId: z.number().int("Class ID must be an integer").optional(),
+  excludePromotedInCalendarId: z.number().int("ExcludePromotedInCalendarId must be an integer").optional(),
   calendarId: z.number().int("Calendar ID must be an integer").optional(),
   classDivisionId: z.number().int("Class ID must be an integer").optional(),
   dormitoryId: z.number().int("Dormitory ID must be an integer").optional(),

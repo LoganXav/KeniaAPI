@@ -50,7 +50,10 @@ export default class StudentReadService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
 
-      const students = await this.studentReadCache.getByCriteria(args.body);
+      const { tenantId } = args.body;
+      const { classId, classDivisionId, excludePromotedInCalendarId } = args.query;
+
+      const students = await this.studentReadCache.getByCriteria({ tenantId, classId: Number(classId), classDivisionId: Number(classDivisionId), excludePromotedInCalendarId: Number(excludePromotedInCalendarId) });
 
       trace.setSuccessful();
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(STUDENT_RESOURCE), students);

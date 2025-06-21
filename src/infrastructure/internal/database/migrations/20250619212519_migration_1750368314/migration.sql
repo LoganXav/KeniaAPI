@@ -19,6 +19,9 @@ CREATE TYPE "Weekday" AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fr
 -- CreateEnum
 CREATE TYPE "BreakType" AS ENUM ('Shortbreak', 'Longbreak');
 
+-- CreateEnum
+CREATE TYPE "PromotionStatus" AS ENUM ('Awaiting', 'Promoted', 'Repeated', 'Withheld');
+
 -- CreateTable
 CREATE TABLE "Tenant" (
     "id" SERIAL NOT NULL,
@@ -254,6 +257,35 @@ CREATE TABLE "Permission" (
 );
 
 -- CreateTable
+CREATE TABLE "SubjectRegistration" (
+    "id" SERIAL NOT NULL,
+    "studentId" INTEGER NOT NULL,
+    "subjectId" INTEGER NOT NULL,
+    "calendarId" INTEGER NOT NULL,
+    "classId" INTEGER NOT NULL,
+    "classDivisionId" INTEGER,
+    "tenantId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "SubjectRegistration_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ClassPromotion" (
+    "id" SERIAL NOT NULL,
+    "studentId" INTEGER NOT NULL,
+    "fromClassId" INTEGER NOT NULL,
+    "toClassId" INTEGER NOT NULL,
+    "calendarId" INTEGER NOT NULL,
+    "tenantId" INTEGER NOT NULL,
+    "decisionAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "promotionStatus" "PromotionStatus" NOT NULL DEFAULT 'Awaiting',
+    "comments" TEXT,
+
+    CONSTRAINT "ClassPromotion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "TenantGradingStructure" (
     "id" SERIAL NOT NULL,
     "tenantId" INTEGER NOT NULL,
@@ -410,12 +442,6 @@ CREATE TABLE "_StudentGroupRelation" (
 );
 
 -- CreateTable
-CREATE TABLE "_StudentSubject" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL
-);
-
--- CreateTable
 CREATE TABLE "_TenantGradingStructureClass" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -467,6 +493,12 @@ CREATE UNIQUE INDEX "Timetable_day_classDivisionId_termId_tenantId_key" ON "Time
 CREATE UNIQUE INDEX "Permission_name_tenantId_key" ON "Permission"("name", "tenantId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "SubjectRegistration_studentId_subjectId_calendarId_tenantId_key" ON "SubjectRegistration"("studentId", "subjectId", "calendarId", "tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ClassPromotion_studentId_calendarId_tenantId_key" ON "ClassPromotion"("studentId", "calendarId", "tenantId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "SubjectGradingStructure_subjectId_key" ON "SubjectGradingStructure"("subjectId");
 
 -- CreateIndex
@@ -486,12 +518,6 @@ CREATE UNIQUE INDEX "_StudentGroupRelation_AB_unique" ON "_StudentGroupRelation"
 
 -- CreateIndex
 CREATE INDEX "_StudentGroupRelation_B_index" ON "_StudentGroupRelation"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_StudentSubject_AB_unique" ON "_StudentSubject"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_StudentSubject_B_index" ON "_StudentSubject"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_TenantGradingStructureClass_AB_unique" ON "_TenantGradingStructureClass"("A", "B");
@@ -614,6 +640,39 @@ ALTER TABLE "Role" ADD CONSTRAINT "Role_tenantId_fkey" FOREIGN KEY ("tenantId") 
 ALTER TABLE "Permission" ADD CONSTRAINT "Permission_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "SubjectRegistration" ADD CONSTRAINT "SubjectRegistration_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectRegistration" ADD CONSTRAINT "SubjectRegistration_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectRegistration" ADD CONSTRAINT "SubjectRegistration_calendarId_fkey" FOREIGN KEY ("calendarId") REFERENCES "SchoolCalendar"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectRegistration" ADD CONSTRAINT "SubjectRegistration_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectRegistration" ADD CONSTRAINT "SubjectRegistration_classDivisionId_fkey" FOREIGN KEY ("classDivisionId") REFERENCES "ClassDivision"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SubjectRegistration" ADD CONSTRAINT "SubjectRegistration_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClassPromotion" ADD CONSTRAINT "ClassPromotion_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClassPromotion" ADD CONSTRAINT "ClassPromotion_fromClassId_fkey" FOREIGN KEY ("fromClassId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClassPromotion" ADD CONSTRAINT "ClassPromotion_toClassId_fkey" FOREIGN KEY ("toClassId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClassPromotion" ADD CONSTRAINT "ClassPromotion_calendarId_fkey" FOREIGN KEY ("calendarId") REFERENCES "SchoolCalendar"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClassPromotion" ADD CONSTRAINT "ClassPromotion_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "TenantGradingStructure" ADD CONSTRAINT "TenantGradingStructure_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -696,12 +755,6 @@ ALTER TABLE "_StudentGroupRelation" ADD CONSTRAINT "_StudentGroupRelation_A_fkey
 
 -- AddForeignKey
 ALTER TABLE "_StudentGroupRelation" ADD CONSTRAINT "_StudentGroupRelation_B_fkey" FOREIGN KEY ("B") REFERENCES "StudentGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_StudentSubject" ADD CONSTRAINT "_StudentSubject_A_fkey" FOREIGN KEY ("A") REFERENCES "Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_StudentSubject" ADD CONSTRAINT "_StudentSubject_B_fkey" FOREIGN KEY ("B") REFERENCES "Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_TenantGradingStructureClass" ADD CONSTRAINT "_TenantGradingStructureClass_A_fkey" FOREIGN KEY ("A") REFERENCES "Class"("id") ON DELETE CASCADE ON UPDATE CASCADE;

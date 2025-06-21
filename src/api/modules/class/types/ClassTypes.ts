@@ -1,8 +1,11 @@
 import { z } from "zod";
 import { classCreateSchema } from "../validators/ClassCreateSchema";
 import { Staff, Subject, ClassList, Student, ClassDivision } from "@prisma/client";
+import { classPromotionCreateSchema } from "../validators/ClassPromotionCreateSchema";
 
 export type CreateClassData = z.infer<typeof classCreateSchema>;
+
+export type ClassPromotionCreateRequestType = z.infer<typeof classPromotionCreateSchema> & { fromClassId: number };
 
 export interface ClassCriteria {
   id?: number;
@@ -65,5 +68,20 @@ export type ClassResponseType = {
 
 export type ClassDeleteRequestType = {
   id: number;
+  tenantId: number;
+};
+
+export type ClassPromotionCriteriaType = {
+  id?: number;
+  studentId?: number;
+  calendarId: number;
+  classId: number;
+  classDivisionId: number;
+  tenantId: number;
+};
+
+export type ClassPromotionReadOneCriteriaType = {
+  studentId: number;
+  calendarId: number;
   tenantId: number;
 };

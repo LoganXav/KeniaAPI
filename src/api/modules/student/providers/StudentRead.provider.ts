@@ -1,4 +1,3 @@
-import { Student, Subject } from "@prisma/client";
 import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
@@ -9,7 +8,7 @@ import { StudentCriteriaType, StudentWithRelationsSafeUser } from "~/api/modules
 export default class StudentReadProvider {
   public async getByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentWithRelationsSafeUser[]> {
     try {
-      const { ids, classId, classDivisionId, tenantId, dormitoryId, calendarId } = criteria;
+      const { ids, classId, classDivisionId, tenantId, dormitoryId, calendarId, excludePromotedInCalendarId } = criteria;
 
       const students = await dbClient.student.findMany({
         where: {
@@ -18,6 +17,14 @@ export default class StudentReadProvider {
           ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
           ...(classId && { classId: Number(classId) }),
           ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),
+          ...(excludePromotedInCalendarId && {
+            promotions: {
+              none: {
+                calendarId: Number(excludePromotedInCalendarId),
+                tenantId: tenantId,
+              },
+            },
+          }),
         },
         include: {
           user: { select: userObjectWithoutPassword },
@@ -34,6 +41,13 @@ export default class StudentReadProvider {
             },
             include: {
               subject: true,
+            },
+          },
+          promotions: {
+            include: {
+              fromClass: true,
+              toClass: true,
+              calendar: true,
             },
           },
         },

@@ -4,10 +4,10 @@ import BaseController from "../../base/contollers/Base.controller";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { studentReadOneParamsSchema } from "../validators/StudentReadSchema";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
-import { studentReadOneParamsSchema, studentReadSchema } from "../validators/StudentReadSchema";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 
 @autoInjectable()
@@ -38,7 +38,7 @@ export default class StudentReadController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/student/list",
-      handlers: [validateData(studentReadSchema), this.studentRead],
+      handlers: [this.studentRead],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
