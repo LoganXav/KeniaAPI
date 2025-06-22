@@ -7,13 +7,15 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class ClassPromotionCreateProvider {
   public async create(args: ClassPromotionCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
     try {
-      const { studentId, fromClassId, toClassId, calendarId, tenantId, promotionStatus = "Awaiting", comments } = args;
+      const { studentId, fromClassId, toClassId, calendarId, tenantId, promotionStatus, comments, toClassDivisionId, fromClassDivisionId } = args;
 
       const classPromotion = await dbClient.classPromotion.create({
         data: {
           studentId,
           fromClassId,
           toClassId,
+          toClassDivisionId,
+          fromClassDivisionId,
           calendarId,
           tenantId,
           promotionStatus,

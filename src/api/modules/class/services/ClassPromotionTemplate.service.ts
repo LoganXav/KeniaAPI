@@ -43,6 +43,12 @@ export default class ClassPromotionTemplateService extends BaseService<IRequest>
         classId: Number(classId),
       });
 
+      const allClassDivisionOptions = await this.classDivisionReadProvider.getByCriteria({
+        tenantId: args.body.tenantId,
+      });
+
+      const promotionClassDivisionOptions = Array.from(new Map(allClassDivisionOptions.map((item) => [item.name, item])).values());
+
       const calendarOptions = await this.calendarReadProvider.getByCriteria({ tenantId: args.body.tenantId });
 
       const studentOptions = await this.studentReadCache.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId), classDivisionId: Number(classDivisionId) });
@@ -51,6 +57,7 @@ export default class ClassPromotionTemplateService extends BaseService<IRequest>
         calendarOptions,
         classOptions,
         classDivisionOptions,
+        promotionClassDivisionOptions,
         studentOptions,
         promotionDecisionOptions: Object.values(PromotionStatus),
       };

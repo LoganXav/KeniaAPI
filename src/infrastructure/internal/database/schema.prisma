@@ -200,6 +200,9 @@ model ClassDivision {
   timetables             Timetable[]
   subjectGrading         SubjectGrading[]
   subjectsRegistered     SubjectRegistration[]
+
+  fromPromotions ClassPromotion[] @relation("FromDivision")
+  toPromotions   ClassPromotion[] @relation("ToDivision")
 }
 
 model Subject {
@@ -397,20 +400,25 @@ model SubjectRegistration {
 }
 
 model ClassPromotion {
-  id              Int             @id @default(autoincrement())
-  studentId       Int
-  fromClassId     Int
-  toClassId       Int
-  calendarId      Int
-  tenantId        Int
-  decisionAt      DateTime        @default(now())
-  promotionStatus PromotionStatus @default(Promoted)
-  comments        String?
-  student         Student         @relation(fields: [studentId], references: [id])
-  fromClass       Class           @relation("FromClass", fields: [fromClassId], references: [id])
-  toClass         Class           @relation("ToClass", fields: [toClassId], references: [id])
-  calendar        SchoolCalendar  @relation(fields: [calendarId], references: [id])
-  tenant          Tenant          @relation(fields: [tenantId], references: [id])
+  id                  Int             @id @default(autoincrement())
+  studentId           Int
+  fromClassId         Int
+  toClassId           Int
+  fromClassDivisionId Int
+  toClassDivisionId   Int
+  calendarId          Int
+  tenantId            Int
+  decisionAt          DateTime        @default(now())
+  promotionStatus     PromotionStatus @default(Promoted)
+  comments            String?
+
+  student           Student        @relation(fields: [studentId], references: [id])
+  fromClass         Class          @relation("FromClass", fields: [fromClassId], references: [id])
+  toClass           Class          @relation("ToClass", fields: [toClassId], references: [id])
+  fromClassDivision ClassDivision  @relation("FromDivision", fields: [fromClassDivisionId], references: [id])
+  toClassDivision   ClassDivision  @relation("ToDivision", fields: [toClassDivisionId], references: [id])
+  calendar          SchoolCalendar @relation(fields: [calendarId], references: [id])
+  tenant            Tenant         @relation(fields: [tenantId], references: [id])
 
   @@unique([studentId, calendarId, tenantId])
 }

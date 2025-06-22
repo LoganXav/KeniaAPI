@@ -7,6 +7,7 @@ import UserReadCache from "../../user/cache/UserRead.cache";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { StudentCreateRequestType } from "../types/StudentTypes";
+import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
 import StudentCreateProvider from "../providers/StudentCreate.provider";
@@ -18,7 +19,6 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import GuardianUpdateProvider from "../../guardian/providers/GuardianUpdate.provider";
 import GuardianCreateProvider from "../../guardian/providers/GuardianCreate.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { ERROR, SUBJECT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
