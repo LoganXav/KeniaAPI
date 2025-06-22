@@ -1,5 +1,5 @@
-import { PromotionStatus } from "@prisma/client";
 import { z } from "zod";
+import { PromotionStatus } from "@prisma/client";
 
 export const classPromotionCreateSchema = z.object({
   userId: z.number({
@@ -14,6 +14,10 @@ export const classPromotionCreateSchema = z.object({
     required_error: "To Class ID is required",
     invalid_type_error: "To Class ID must be a number",
   }),
+  toClassDivisionName: z.string({
+    required_error: "To Class Division Name is required",
+    invalid_type_error: "To Class Division Name must be a string",
+  }),
   studentId: z.number({
     required_error: "Student ID is required",
     invalid_type_error: "Student ID must be a number",
@@ -22,7 +26,7 @@ export const classPromotionCreateSchema = z.object({
     required_error: "Calendar ID is required",
     invalid_type_error: "Calendar ID must be a number",
   }),
-  promotionStatus: z.nativeEnum(PromotionStatus, { invalid_type_error: "Invalid promotion status" }).optional(),
+  promotionStatus: z.nativeEnum(PromotionStatus, { invalid_type_error: "Invalid promotion status" }),
   comments: z
     .string({
       required_error: "Comments are required",

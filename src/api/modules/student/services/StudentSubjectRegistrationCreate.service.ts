@@ -7,6 +7,7 @@ import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
+import { StudentSubjectRegistrationCreateRequestType } from "../types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
@@ -58,7 +59,7 @@ export default class StudentSubjectRegistrationCreateService extends BaseService
     }
   }
 
-  private async createSubjectRegistrationsTransaction(args: { studentId: number; calendarId: number; classId: number; classDivisionId: number; tenantId: number; subjectIds: number[] }) {
+  private async createSubjectRegistrationsTransaction(args: StudentSubjectRegistrationCreateRequestType) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         await this.studentSubjectRegistrationDeleteProvider.deleteMany(

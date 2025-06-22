@@ -2,13 +2,13 @@ import { autoInjectable } from "tsyringe";
 import BaseController from "../../base/contollers/Base.controller";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-// import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import StudentSubjectRegistrationCreateService from "../services/StudentSubjectRegistrationCreate.service";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-// import { studentSubjectRegistrationCreateRequestSchema } from "../validators/StudentSubjectRegistrationCreateSchema";
+import { studentSubjectRegistrationCreateRequestSchema } from "../validators/StudentSubjectRegistrationCreateRequestSchema";
 
 @autoInjectable()
 export default class StudentSubjectRegistrationCreateController extends BaseController {
@@ -32,7 +32,7 @@ export default class StudentSubjectRegistrationCreateController extends BaseCont
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/student/subjectregistration/create",
-      handlers: [this.create],
+      handlers: [validateData(studentSubjectRegistrationCreateRequestSchema), this.create],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.CREATED,

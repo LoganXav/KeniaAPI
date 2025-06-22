@@ -5,7 +5,7 @@ import { classPromotionCreateSchema } from "../validators/ClassPromotionCreateSc
 
 export type CreateClassData = z.infer<typeof classCreateSchema>;
 
-export type ClassPromotionCreateRequestType = z.infer<typeof classPromotionCreateSchema> & { fromClassId: number };
+export type ClassPromotionCreateRequestType = z.infer<typeof classPromotionCreateSchema> & { fromClassId: number; fromClassDivisionId: number; toClassDivisionId: number };
 
 export interface ClassCriteria {
   id?: number;

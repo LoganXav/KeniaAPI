@@ -3,6 +3,7 @@ import { IRequest } from "~/infrastructure/internal/types";
 import RoleReadProvider from "../providers/RoleRead.provider";
 import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
+import StaffReadCache from "../../staff/cache/StaffRead.cache";
 import RoleUpdateProvider from "../providers/RoleUpdate.provider";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
@@ -17,11 +18,13 @@ import { RESOURCE_RECORD_CANNOT_BE_UPDATED, RESOURCE_RECORD_NOT_FOUND, RESOURCE_
 export default class RoleUpdateService extends BaseService<IRequest> {
   static serviceName = "RoleUpdateService";
   loggingProvider: ILoggingDriver;
-  private roleUpdateProvider: RoleUpdateProvider;
+  private staffReadCache: StaffReadCache;
   private roleReadProvider: RoleReadProvider;
+  private roleUpdateProvider: RoleUpdateProvider;
 
-  constructor(roleUpdateProvider: RoleUpdateProvider, roleReadProvider: RoleReadProvider) {
+  constructor(staffReadCache: StaffReadCache, roleUpdateProvider: RoleUpdateProvider, roleReadProvider: RoleReadProvider) {
     super(RoleUpdateService.serviceName);
+    this.staffReadCache = staffReadCache;
     this.roleReadProvider = roleReadProvider;
     this.roleUpdateProvider = roleUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
@@ -30,6 +33,8 @@ export default class RoleUpdateService extends BaseService<IRequest> {
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args.body);
+
+      const { tenantId, staffIds } = args.body;
 
       const { id } = args.params;
 
@@ -41,6 +46,16 @@ export default class RoleUpdateService extends BaseService<IRequest> {
 
       if (foundRole.isAdmin) {
         throw new BadRequestError(RESOURCE_RECORD_CANNOT_BE_UPDATED(SCHOOL_OWNER_ROLE_NAME));
+      }
+
+      if (staffIds.length > 0) {
+        const staffList = await this.staffReadCache.getByCriteria({ ids: staffIds, tenantId });
+
+        for (const staff of staffList) {
+          if (staff?.role?.isAdmin) {
+            throw new BadRequestError(`Staff ${staff.user?.firstName} ${staff.user?.lastName} is already assigned to an admin role and cannot be reassigned.`);
+          }
+        }
       }
 
       const role = await this.roleUpdateProvider.updateOne({ id: Number(id), ...args.body });

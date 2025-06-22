@@ -1,13 +1,16 @@
 import { z } from "zod";
 import { ClassList, Prisma, Subject, User } from "@prisma/client";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import { studentUpdateSchema, studentUpdateManySchema } from "../validators/StudentUpdateSchema";
 import { studentCreateRequestSchema, studentCriteriaSchema } from "../validators/StudentCreateSchema";
-import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
+import { studentSubjectRegistrationCreateRequestSchema } from "../validators/StudentSubjectRegistrationCreateRequestSchema";
 
 export type StudentCreateRequestType = z.infer<typeof studentCreateRequestSchema>;
 export type StudentCriteriaType = z.infer<typeof studentCriteriaSchema>;
 export type StudentUpdateRequestType = z.infer<typeof studentUpdateSchema>;
 export type StudentUpdateManyRequestType = z.infer<typeof studentUpdateManySchema>;
+
+export type StudentSubjectRegistrationCreateRequestType = z.infer<typeof studentSubjectRegistrationCreateRequestSchema>;
 
 export interface StudentCreateType {
   userId: number;

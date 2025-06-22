@@ -18,7 +18,7 @@ export default class RoleCreateController extends BaseController {
     this.roleCreateService = roleCreateService;
   }
 
-  read: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+  create: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
     return this.handleResultData(res, next, this.roleCreateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
@@ -29,7 +29,7 @@ export default class RoleCreateController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/role/create",
-      handlers: [this.read],
+      handlers: [this.create],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
