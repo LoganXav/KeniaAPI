@@ -18,7 +18,7 @@ export default class SubjectUpdateProvider {
           ...(tenantId && { tenantId }),
           ...(staffIds && {
             staffs: {
-              connect: staffIds.map((id) => ({ id })),
+              set: staffIds.map((id) => ({ id })),
             },
           }),
         },

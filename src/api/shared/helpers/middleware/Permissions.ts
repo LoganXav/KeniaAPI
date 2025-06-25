@@ -19,10 +19,10 @@ export default class PermissionMiddleware {
   public checkPermission = (requiredPermission: PermissionConstantsType) => {
     return async (req: IRequest, res: IResponse, next: INextFunction) => {
       try {
-        const roleId = req.body?.roleId;
+        const userRoleId = req.body?.userRoleId;
 
         const role = await this.roleReadProvider.getOneByCriteria({
-          id: roleId,
+          id: userRoleId,
           tenantId: req.body?.tenantId,
         });
 
@@ -46,10 +46,10 @@ export default class PermissionMiddleware {
   public checkAllPermissions = (requiredPermissions: PermissionConstantsType[]) => {
     return async (req: IRequest, res: IResponse, next: INextFunction) => {
       try {
-        const roleId = req.body?.roleId;
+        const userRoleId = req.body?.userRoleId;
 
         const role = await this.roleReadProvider.getOneByCriteria({
-          id: roleId,
+          id: userRoleId,
           tenantId: req.body?.tenantId,
         });
 

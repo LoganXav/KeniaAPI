@@ -83,6 +83,7 @@ export interface StaffCreateType {
   cvUrl?: string;
   userId: number;
   tenantId: number;
+  roleId?: number;
 }
 
 export interface StaffWithRelationsType extends Staff {

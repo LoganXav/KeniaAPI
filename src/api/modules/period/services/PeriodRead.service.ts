@@ -38,7 +38,7 @@ export default class PeriodReadService extends BaseService<IRequest> {
 
       const todayDayOfWeek = DateTimeUtil.getDayOfTheWeek(parsedTodayDate);
 
-      const staff = await this.staffReadCache.getOneByCriteria({ tenantId, id: userId });
+      const staff = await this.staffReadCache.getOneByCriteria({ tenantId, userId });
 
       if (!staff) {
         throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(STAFF_RESOURCE));

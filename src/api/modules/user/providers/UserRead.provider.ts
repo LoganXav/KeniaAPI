@@ -16,6 +16,7 @@ export default class UserReadProvider {
         include: {
           staff: {
             include: {
+              subjects: true,
               role: {
                 include: {
                   permissions: true,
