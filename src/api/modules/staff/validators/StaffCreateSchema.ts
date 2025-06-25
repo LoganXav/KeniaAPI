@@ -42,7 +42,7 @@ export const staffCreateRequestSchema = z.object({
     }),
 
   jobTitle: z.string({ required_error: "Job title is required", invalid_type_error: "Job title must be a string" }).min(1, "Job title is required").max(100, "Job title must be less than 100 characters"),
-  // roleId: z.number({ required_error: "Role ID is required", invalid_type_error: "Role ID must be a number" }).positive("Role ID must be a positive number"),
+  roleId: z.number({ required_error: "Role ID is required", invalid_type_error: "Role ID must be a number" }).positive("Role ID must be a positive number"),
 
   residentialAddress: z.string().optional(),
   residentialStateId: z.number({ invalid_type_error: "State ID must be a number" }).optional(),
@@ -78,7 +78,7 @@ export const staffCreateRequestSchema = z.object({
   //   .length(11, "NIN must be exactly 11 digits long")
   //   .regex(/^\d{11}$/, "NIN must contain only digits")
   //   .optional(),
-  tin: z.string({ invalid_type_error: "TIN must be a string" }).optional(),
+  // tin: z.string({ invalid_type_error: "TIN must be a string" }).optional(),
   highestLevelEdu: z.string({ invalid_type_error: "Education level must be a string" }).optional(),
   cvUrl: z.string({ invalid_type_error: "CV URL must be a string" }).optional(),
   // subjectIds: z.array(z.number().int("Subject ID must be an integer")).optional(),

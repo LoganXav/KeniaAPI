@@ -26,7 +26,7 @@ export default class RoleUpdateProvider {
           }),
           ...(permissionIds && {
             permissions: {
-              connect: permissionIds?.map((id) => ({ id })),
+              set: permissionIds?.map((id) => ({ id })),
             },
           }),
         },

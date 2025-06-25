@@ -1,38 +1,26 @@
 import { z } from "zod";
 import DateTimeUtils from "~/utils/DateTimeUtil";
 
-export const breakPeriodCreateSchema = z.object({
-  id: z.number({ required_error: "ID is required", invalid_type_error: "ID must be a number" }).optional(),
-  name: z.string({ required_error: "Break period name is required", invalid_type_error: "Break period name must be a string" }).optional(),
-  startDate: z
-    .string({ required_error: "Break period start date is required", invalid_type_error: "Break period start date must be a string" })
-    .refine(
-      (val) => {
-        const date = new Date(val);
-        return !isNaN(date.getTime());
-      },
-      {
-        message: "Invalid start date format",
-      }
-    )
-    .transform((val) => {
-      return DateTimeUtils.parseToISO(val);
-    }),
-  endDate: z
-    .string({ required_error: "Break period end date is required", invalid_type_error: "Break period end date must be a string" })
-    .refine(
-      (val) => {
-        const date = new Date(val);
-        return !isNaN(date.getTime());
-      },
-      {
-        message: "Invalid end date format",
-      }
-    )
-    .transform((val) => {
-      return DateTimeUtils.parseToISO(val);
-    }),
+export const breakPeriodCreateSchema = z
+  .object({
+    id: z.number().optional(),
 
-  termId: z.number({ required_error: "Term ID is required", invalid_type_error: "Term ID must be a number" }).optional(),
-  tenantId: z.number({ required_error: "Tenant ID is required", invalid_type_error: "Tenant ID must be a number" }).optional(),
-});
+    name: z.string({ required_error: "Break period name is required" }).min(1, "Break period name cannot be empty"),
+
+    startDate: z
+      .string({ required_error: "Start date is required" })
+      .refine((val) => !isNaN(new Date(val).getTime()), { message: "Invalid start date format" })
+      .transform((val) => DateTimeUtils.parseToISO(val)),
+
+    endDate: z
+      .string({ required_error: "End date is required" })
+      .refine((val) => !isNaN(new Date(val).getTime()), { message: "Invalid end date format" })
+      .transform((val) => DateTimeUtils.parseToISO(val)),
+
+    termId: z.number().optional(),
+    tenantId: z.number().optional(),
+  })
+  .refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
+    message: "Break period start date cannot be after end date",
+    path: ["startDate"],
+  });

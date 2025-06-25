@@ -67,8 +67,6 @@ export default class SubjectGradingTemplateService extends BaseService<IRequest>
       this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), template);
       return this.result;
     } catch (error: any) {
-      console.log(error);
-
       this.loggingProvider.error(error);
       this.result.setError(ERROR, error.httpStatusCode, error.description);
       return this.result;

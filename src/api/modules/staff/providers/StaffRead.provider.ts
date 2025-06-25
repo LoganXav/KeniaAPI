@@ -34,13 +34,14 @@ export default class StaffReadProvider {
 
   public async getOneByCriteria(criteria: StaffCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StaffWithRelationsType | null> {
     try {
-      const { id, tenantId } = criteria;
+      const { id, tenantId, userId } = criteria;
       const numericId = id ? Number(id) : undefined;
 
       const staff = await dbClient?.staff?.findFirst({
         where: {
           ...(tenantId && { tenantId }),
           ...(numericId && { id: numericId }),
+          ...(!numericId && { userId }),
         },
         include: {
           user: { select: userObjectWithoutPassword },
