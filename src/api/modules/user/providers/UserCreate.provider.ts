@@ -1,7 +1,7 @@
-import { Staff, User } from "@prisma/client";
-import { CreateUserRecordType } from "~/api/modules/user/types/UserTypes";
+import { Prisma, Staff, User } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { CreateBulkUserRecordType, CreateUserRecordType } from "~/api/modules/user/types/UserTypes";
 
 export default class UserCreateProvider {
   public async create(args: CreateUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<User & { staff: Staff | null }> {
@@ -35,6 +35,19 @@ export default class UserCreateProvider {
           },
           student: true,
         },
+      });
+
+      return newUser;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
+  }
+
+  public async createMany(args: CreateBulkUserRecordType[], dbClient: PrismaTransactionClient = DbClient): Promise<Prisma.BatchPayload> {
+    try {
+      const newUser = await dbClient.user.createMany({
+        data: args,
+        skipDuplicates: true,
       });
 
       return newUser;

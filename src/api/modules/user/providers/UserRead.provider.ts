@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { ReadUserRecordType, UserWithRelationsAndPermissions } from "~/api/modules/user/types/UserTypes";
@@ -25,6 +26,22 @@ export default class UserReadProvider {
             },
           },
           student: true,
+        },
+      });
+
+      return result;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
+  }
+  public async getByCriteria(criteria: ReadUserRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<User[] | null> {
+    try {
+      const { userId, emails, email, tenantId } = criteria;
+
+      const result = await dbClient?.user?.findMany({
+        where: {
+          ...(tenantId && { tenantId }),
+          ...(emails && { email: { in: emails } }),
         },
       });
 

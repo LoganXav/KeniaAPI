@@ -1,5 +1,5 @@
 import { autoInjectable } from "tsyringe";
-import { UserType } from "@prisma/client";
+import { Staff, UserType } from "@prisma/client";
 import ServerConfig from "~/config/ServerConfig";
 import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
@@ -84,6 +84,35 @@ export default class StaffCreateService extends BaseService<IRequest> {
     }
   }
 
+  public async createBulk(trace: ServiceTrace, args: IRequest): Promise<IResult> {
+    try {
+      this.initializeServiceTrace(trace, args.body);
+
+      const { tenantId, staffs } = args.body;
+
+      const hashedPassword = PasswordEncryptionService.hashPassword(ServerConfig.Params.Security.DefaultPassword.Staff);
+
+      const userCreateArgs = staffs.map((staff: Staff) => ({
+        ...staff,
+        password: hashedPassword,
+        userType: UserType.STAFF,
+        tenantId,
+      }));
+
+      const createdStaffUser = await this.createBulkUserAndStaffTransaction(userCreateArgs, tenantId);
+
+      trace.setSuccessful();
+
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(STAFF_RESOURCE), createdStaffUser);
+
+      return this.result;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      this.result.setError(ERROR, error.httpStatusCode, error.description);
+      return this.result;
+    }
+  }
+
   private async createUserAndStaffTransaction(args: StaffCreateRequestType & { password: string; userType: UserType }) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
@@ -100,6 +129,45 @@ export default class StaffCreateService extends BaseService<IRequest> {
         await this.staffReadCache.invalidate(args.tenantId);
 
         return staff;
+      });
+      return result;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new InternalServerError(SOMETHING_WENT_WRONG);
+    }
+  }
+
+  private async createBulkUserAndStaffTransaction(args: (StaffCreateRequestType & { password: string; userType: UserType })[], tenantId: number) {
+    try {
+      const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
+        const userArgs = args.map((staff) => ({
+          tenantId,
+          email: staff.email,
+          gender: staff.gender,
+          lastName: staff.lastName,
+          password: staff.password,
+          userType: staff.userType,
+          firstName: staff.firstName,
+          phoneNumber: staff.phoneNumber,
+        }));
+
+        await this.userCreateProvider.createMany(userArgs, tx);
+        await this.userReadCache.invalidate(tenantId);
+
+        const emails = args.map((s) => s.email);
+        const foundUsers = await this.userReadProvider.getByCriteria({ tenantId, emails }, tx);
+
+        const userMap = new Map(foundUsers?.map((user) => [user.email, user.id]));
+
+        const staffData = args.map((staff) => ({
+          jobTitle: staff.jobTitle,
+          nin: staff.nin,
+          tenantId: tenantId,
+          userId: userMap.get(staff.email)!,
+        }));
+
+        await this.staffCreateProvider.createMany(staffData, tx);
+        await this.staffReadCache.invalidate(tenantId);
       });
       return result;
     } catch (error: any) {
