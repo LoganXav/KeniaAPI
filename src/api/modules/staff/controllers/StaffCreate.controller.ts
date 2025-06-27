@@ -9,7 +9,7 @@ import { PERMISSIONS } from "~/api/shared/helpers/constants/Permissions.constant
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
-import { staffCreateRequestSchema } from "~/api/modules/staff/validators/StaffCreateSchema";
+import { staffBulkCreateRequestSchema, staffCreateRequestSchema } from "~/api/modules/staff/validators/StaffCreateSchema";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
 
 @autoInjectable()
@@ -31,6 +31,12 @@ export default class StaffCreateController extends BaseController {
     });
   };
 
+  createBulk: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.staffCreateService.createBulk(res.trace, req), {
+      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+    });
+  };
+
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router());
 
@@ -45,6 +51,19 @@ export default class StaffCreateController extends BaseController {
         },
       ],
       description: "Create Staff",
+    });
+
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/staff/bulk/create",
+      handlers: [validateData(staffBulkCreateRequestSchema), this.permissionMiddleware.checkPermission(PERMISSIONS.STAFF.CREATE), this.createBulk],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.CREATED,
+          httpStatus: HttpStatusCodeEnum.CREATED,
+        },
+      ],
+      description: "Bulk Create Staff",
     });
   }
 }

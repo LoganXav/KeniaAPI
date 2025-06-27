@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { Staff, StaffEmploymentType, Subject } from "@prisma/client";
 import { staffUpdateManySchema, staffUpdateSchema } from "~/api/modules/staff/validators/StaffUpdateSchema";
-import { staffCriteriaSchema, staffCreateRequestSchema } from "~/api/modules/staff/validators/StaffCreateSchema";
+import { staffCriteriaSchema, staffCreateRequestSchema, staffBulkCreateRequestSchema } from "~/api/modules/staff/validators/StaffCreateSchema";
 
 export type StaffCreateRequestType = z.infer<typeof staffCreateRequestSchema>;
+export type StaffBulkCreateRequestType = z.infer<typeof staffBulkCreateRequestSchema>;
 export type StaffCriteriaVType = z.infer<typeof staffCriteriaSchema>;
 export type StaffUpdateRequestType = z.infer<typeof staffUpdateSchema>;
 export type StaffUpdateManyRequestType = z.infer<typeof staffUpdateManySchema>;
@@ -84,6 +85,13 @@ export interface StaffCreateType {
   userId: number;
   tenantId: number;
   roleId?: number;
+}
+
+export interface StaffBulkCreateType {
+  jobTitle: string;
+  nin: string;
+  tenantId: number;
+  userId: number;
 }
 
 export interface StaffWithRelationsType extends Staff {

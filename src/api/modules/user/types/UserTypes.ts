@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { Permission, Role, Staff, Student, User, UserToken, UserType } from "@prisma/client";
 import { verifyOtpTokenSchema } from "~/api/modules/auth/validators/VerifyOtpSchema";
 import { refreshOtpTokenSchema } from "~/api/modules/auth/validators/RefreshOtpTokenSchema";
+import { Permission, Role, Staff, Student, User, UserToken, UserType } from "@prisma/client";
 import { signUpUserRecordSchema } from "~/api/modules/auth/validators/SignUpUserRecordSchema";
 import { signInUserRecordSchema } from "~/api/modules/auth/validators/SignInUserRecordSchema";
 import { requestPasswordResetSchema } from "~/api/modules/auth/validators/RequestPasswordResetSchema";
@@ -21,6 +21,12 @@ export type CreateUserRecordType = SignUpUserType & {
   residentialLgaId?: number;
   residentialCountryId?: number;
   residentialZipCode?: number;
+};
+
+export type CreateBulkUserRecordType = SignUpUserType & {
+  tenantId: number;
+  userType?: UserType;
+  gender?: string;
 };
 
 export type SignInUserType = z.infer<typeof signInUserRecordSchema>;
@@ -55,6 +61,7 @@ export type ReadUserRecordType = {
   tenantId?: number;
   userId?: number;
   email?: string;
+  emails?: string[];
 };
 
 export interface UserWithRelations extends User {
