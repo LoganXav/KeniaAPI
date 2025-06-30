@@ -1,27 +1,31 @@
-import { autoInjectable } from "tsyringe";
 import { UserType } from "@prisma/client";
+import { autoInjectable } from "tsyringe";
 import ServerConfig from "~/config/ServerConfig";
 import StudentReadCache from "../cache/StudentRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
-import UserReadCache from "../../user/cache/UserRead.cache";
-import { BaseService } from "../../base/services/Base.service";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { StudentCreateRequestType } from "../types/StudentTypes";
-import { ERROR } from "~/api/shared/helpers/messages/SystemMessages";
+import UserReadCache from "~/api/modules/user/cache/UserRead.cache";
+import { BaseService } from "~/api/modules/base/services/Base.service";
+import ClassReadCache from "~/api/modules/class/cache/ClassRead.cache";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import GuardianReadCache from "../../guardian/cache/GuardianRead.cache";
 import StudentCreateProvider from "../providers/StudentCreate.provider";
-import UserCreateProvider from "../../user/providers/UserCreate.provider";
-import SubjectReadProvider from "../../subject/providers/SubjectRead.provider";
-import { GuardianUpdateRequestType } from "../../guardian/types/GuardianTypes";
+import UserReadProvider from "~/api/modules/user/providers/UserRead.provider";
+import GuardianReadCache from "~/api/modules/guardian/cache/GuardianRead.cache";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import UserCreateProvider from "~/api/modules/user/providers/UserCreate.provider";
+import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
-import GuardianUpdateProvider from "../../guardian/providers/GuardianUpdate.provider";
-import GuardianCreateProvider from "../../guardian/providers/GuardianCreate.provider";
+import { CLASS_RESOURCE, ERROR } from "~/api/shared/helpers/messages/SystemMessages";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
+import SubjectReadProvider from "~/api/modules/subject/providers/SubjectRead.provider";
+import { GuardianUpdateRequestType } from "~/api/modules/guardian/types/GuardianTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import GuardianUpdateProvider from "~/api/modules/guardian/providers/GuardianUpdate.provider";
+import GuardianCreateProvider from "~/api/modules/guardian/providers/GuardianCreate.provider";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import ClassDivisionReadProvider from "~/api/modules/classDivision/providers/ClassDivisionRead.provider";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { SUCCESS, SOMETHING_WENT_WRONG, STUDENT_RESOURCE, GUARDIAN_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
@@ -30,27 +34,35 @@ import { RESOURCE_RECORD_ALREADY_EXISTS, RESOURCE_RECORD_CREATED_SUCCESSFULLY, R
 export default class StudentCreateService extends BaseService<IRequest> {
   static serviceName = "StudentCreateService";
   userReadCache: UserReadCache;
+  classReadCache: ClassReadCache;
   loggingProvider: ILoggingDriver;
   studentReadCache: StudentReadCache;
+  userReadProvider: UserReadProvider;
   guardianReadCache: GuardianReadCache;
   userCreateProvider: UserCreateProvider;
   subjectReadProvider: SubjectReadProvider;
   studentCreateProvider: StudentCreateProvider;
   guardianCreateProvider: GuardianCreateProvider;
   guardianUpdateProvider: GuardianUpdateProvider;
+  classDivisionReadProvider: ClassDivisionReadProvider;
 
   constructor(
     userReadCache: UserReadCache,
+    classReadCache: ClassReadCache,
     studentReadCache: StudentReadCache,
+    userReadProvider: UserReadProvider,
     guardianReadCache: GuardianReadCache,
     userCreateProvider: UserCreateProvider,
     subjectReadProvider: SubjectReadProvider,
     studentCreateProvider: StudentCreateProvider,
     guardianCreateProvider: GuardianCreateProvider,
-    guardianUpdateProvider: GuardianUpdateProvider
+    guardianUpdateProvider: GuardianUpdateProvider,
+    classDivisionReadProvider: ClassDivisionReadProvider
   ) {
     super(StudentCreateService.serviceName);
     this.userReadCache = userReadCache;
+    this.classReadCache = classReadCache;
+    this.userReadProvider = userReadProvider;
     this.studentReadCache = studentReadCache;
     this.guardianReadCache = guardianReadCache;
     this.userCreateProvider = userCreateProvider;
@@ -58,6 +70,7 @@ export default class StudentCreateService extends BaseService<IRequest> {
     this.studentCreateProvider = studentCreateProvider;
     this.guardianCreateProvider = guardianCreateProvider;
     this.guardianUpdateProvider = guardianUpdateProvider;
+    this.classDivisionReadProvider = classDivisionReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -101,6 +114,65 @@ export default class StudentCreateService extends BaseService<IRequest> {
     } catch (error: any) {
       this.loggingProvider.error(error);
       this.result.setError(ERROR, error.httpStatusCode, error.description);
+      return this.result;
+    }
+  }
+
+  public async createBulk(trace: ServiceTrace, args: IRequest): Promise<IResult> {
+    try {
+      this.initializeServiceTrace(trace, args.body);
+
+      const { tenantId, students } = args.body;
+
+      const hashedPassword = PasswordEncryptionService.hashPassword(ServerConfig.Params.Security.DefaultPassword.Student);
+
+      const processedStudents = [];
+
+      for (const student of students) {
+        const { className, classDivisionName, ...rest } = student;
+
+        // Get class by name and tenantId
+        const classRecord = await this.classReadCache.getByCriteria({ name: className, tenantId });
+
+        if (!classRecord || classRecord.length === 0) {
+          throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(CLASS_RESOURCE));
+        }
+
+        const classId = classRecord[0].id;
+
+        // Get class division by name, classId, and tenantId
+        const classDivision = await this.classDivisionReadProvider.getOneByCriteria({
+          name: classDivisionName,
+          classId,
+          tenantId,
+        });
+
+        if (!classDivision) {
+          throw new BadRequestError(`Class division "${classDivisionName}" not found under class "${className}".`);
+        }
+
+        const classDivisionId = classDivision.id;
+
+        processedStudents.push({
+          ...rest,
+          classId,
+          classDivisionId,
+          password: hashedPassword,
+          userType: UserType.STUDENT,
+          tenantId,
+        });
+      }
+
+      const createdStudentUser = await this.createBulkUserAndStudentTransaction(processedStudents, tenantId);
+
+      trace.setSuccessful();
+
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(STUDENT_RESOURCE), createdStudentUser);
+
+      return this.result;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      this.result.setError(ERROR, error.httpStatusCode || 500, error.message || "An error occurred during student creation.");
       return this.result;
     }
   }
@@ -158,6 +230,43 @@ export default class StudentCreateService extends BaseService<IRequest> {
         return student;
       });
       return result;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new InternalServerError(SOMETHING_WENT_WRONG);
+    }
+  }
+
+  private async createBulkUserAndStudentTransaction(args: (StudentCreateRequestType & { password: string; userType: UserType })[], tenantId: number) {
+    try {
+      const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
+        const userArgs = args.map((student) => ({
+          tenantId,
+          gender: student.gender,
+          lastName: student.lastName,
+          password: student.password,
+          userType: student.userType,
+          firstName: student.firstName,
+          email: student.email,
+        }));
+
+        await this.userCreateProvider.createMany(userArgs, tx);
+        await this.userReadCache.invalidate(tenantId);
+
+        const emails = args.map((s) => s.email);
+        const foundUsers = await this.userReadProvider.getByCriteria({ tenantId, emails }, tx);
+
+        const userMap = new Map(foundUsers?.map((user) => [user.email, user.id]));
+
+        const studentData = args.map((student) => ({
+          classId: student.classId,
+          classDivisionId: student.classDivisionId,
+          tenantId: tenantId,
+          userId: userMap.get(student.email)!,
+        }));
+
+        await this.studentCreateProvider.createMany(studentData, tx);
+        await this.studentReadCache.invalidate(tenantId);
+      });
     } catch (error: any) {
       this.loggingProvider.error(error);
       throw new InternalServerError(SOMETHING_WENT_WRONG);

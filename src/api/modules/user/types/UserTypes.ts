@@ -23,10 +23,15 @@ export type CreateUserRecordType = SignUpUserType & {
   residentialZipCode?: number;
 };
 
-export type CreateBulkUserRecordType = SignUpUserType & {
+export type CreateBulkUserRecordType = {
+  firstName: string;
+  lastName: string;
   tenantId: number;
   userType?: UserType;
   gender?: string;
+  email: string;
+  password: string;
+  phoneNumber?: string;
 };
 
 export type SignInUserType = z.infer<typeof signInUserRecordSchema>;

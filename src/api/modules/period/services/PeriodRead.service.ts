@@ -53,6 +53,7 @@ export default class PeriodReadService extends BaseService<IRequest> {
       const data = filteredPeriods.map((period) => ({
         subject: period?.subject?.name,
         class: period?.subject?.class?.name,
+        classDivision: period?.timetable?.classDivision?.name,
         startTime: period.startTime,
         endTime: period.endTime,
       }));
