@@ -27,5 +27,5 @@ export function RESOURCE_RECORD_ALREADY_EXISTS(resourceName = "Resource") {
 }
 
 export function RESOURCE_RECORD_NOT_FOUND_WITH_ID(resourceName = "Resource", id = "ID") {
-  return `${resourceName} record with ${id} was found.`;
+  return `${resourceName} record with ${id} was not found.`;
 }

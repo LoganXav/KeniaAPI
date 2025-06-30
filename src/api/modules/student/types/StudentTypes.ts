@@ -24,6 +24,13 @@ export interface StudentCreateType {
   guardianIds?: number[];
 }
 
+export interface StudentBulkCreateType {
+  tenantId: number;
+  userId: number;
+  classId: number;
+  classDivisionId: number;
+}
+
 export type StudentWithRelationsType = {
   id: number;
   userId: number;

@@ -24,7 +24,11 @@ export default class PeriodReadProvider {
               class: true,
             },
           },
-          timetable: true,
+          timetable: {
+            include: {
+              classDivision: true,
+            },
+          },
         },
       });
 

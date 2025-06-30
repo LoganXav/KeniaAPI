@@ -1,9 +1,9 @@
-import { Student } from "@prisma/client";
+import { Prisma, Student } from "@prisma/client";
 import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
-import { StudentCreateType } from "~/api/modules/student/types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { StudentBulkCreateType, StudentCreateType } from "~/api/modules/student/types/StudentTypes";
 
 @EnforceTenantId
 export default class StudentCreateProvider {
@@ -38,9 +38,18 @@ export default class StudentCreateProvider {
         },
       });
 
-      if (student.user) {
-        delete (student.user as any).password;
-      }
+      return student;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
+  }
+
+  public async createMany(args: StudentBulkCreateType[], dbClient: PrismaTransactionClient = DbClient): Promise<Prisma.BatchPayload> {
+    try {
+      const student = await dbClient?.student.createMany({
+        data: args,
+        skipDuplicates: true,
+      });
 
       return student;
     } catch (error: any) {
