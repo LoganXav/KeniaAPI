@@ -78,15 +78,16 @@ export default class StudentCreateService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
 
-      const criteria = { tenantId: args.body.tenantId, email: args.body.email };
+      const criteria = { tenantId: args.body.tenantId, admissionNo: args.body.admissionNo };
 
       // Check if student exists
-      const foundUser = await this.userReadCache.getOneByCriteria(criteria);
-      if (foundUser) {
+      const foundStudent = await this.studentReadCache.getOneByCriteria(criteria);
+
+      if (foundStudent) {
         throw new BadRequestError(RESOURCE_RECORD_ALREADY_EXISTS(STUDENT_RESOURCE));
       }
 
-      // Check if any guardian emails already exist
+      // Check if any guardian emails already exist as users
       if (args.body.guardians?.length) {
         for (const guardianData of args.body.guardians) {
           const existingGuardian = await this.userReadCache.getOneByCriteria({
@@ -213,15 +214,16 @@ export default class StudentCreateService extends BaseService<IRequest> {
         await this.userReadCache.invalidate(args.tenantId);
 
         const studentArgs = {
+          guardianIds,
           userId: user.id,
           classId: args.classId,
           tenantId: args.tenantId,
           bloodGroup: args.bloodGroup,
           dormitoryId: args.dormitoryId,
+          admissionNo: args.admissionNo,
+          enrollmentDate: args.enrollmentDate,
           studentGroupIds: args.studentGroupIds,
           classDivisionId: args.classDivisionId,
-          enrollmentDate: args.enrollmentDate,
-          guardianIds,
         };
 
         const student = await this.studentCreateProvider.create(studentArgs, tx);
@@ -238,15 +240,15 @@ export default class StudentCreateService extends BaseService<IRequest> {
 
   private async createBulkUserAndStudentTransaction(args: (StudentCreateRequestType & { password: string; userType: UserType })[], tenantId: number) {
     try {
-      const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
+      await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
         const userArgs = args.map((student) => ({
           tenantId,
+          email: student.email,
           gender: student.gender,
           lastName: student.lastName,
           password: student.password,
           userType: student.userType,
           firstName: student.firstName,
-          email: student.email,
         }));
 
         await this.userCreateProvider.createMany(userArgs, tx);
@@ -258,10 +260,11 @@ export default class StudentCreateService extends BaseService<IRequest> {
         const userMap = new Map(foundUsers?.map((user) => [user.email, user.id]));
 
         const studentData = args.map((student) => ({
-          classId: student.classId,
-          classDivisionId: student.classDivisionId,
           tenantId: tenantId,
+          classId: student.classId,
+          admissionNo: student.admissionNo,
           userId: userMap.get(student.email)!,
+          classDivisionId: student.classDivisionId,
         }));
 
         await this.studentCreateProvider.createMany(studentData, tx);

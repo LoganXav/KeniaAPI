@@ -9,13 +9,14 @@ import { StudentBulkCreateType, StudentCreateType } from "~/api/modules/student/
 export default class StudentCreateProvider {
   public async create(data: StudentCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<Student> {
     try {
-      const { userId, classId, classDivisionId, tenantId, enrollmentDate, dormitoryId, studentGroupIds, guardianIds } = data;
+      const { userId, classId, classDivisionId, tenantId, enrollmentDate, dormitoryId, studentGroupIds, guardianIds, admissionNo } = data;
 
       const student = await dbClient?.student.create({
         data: {
           userId,
           tenantId,
           enrollmentDate,
+          admissionNo,
           ...(classId !== undefined && { classId }),
           ...(classDivisionId !== undefined && { classDivisionId }),
           ...(dormitoryId !== undefined && { dormitoryId }),

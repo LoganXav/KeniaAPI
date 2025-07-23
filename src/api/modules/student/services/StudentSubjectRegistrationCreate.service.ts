@@ -1,4 +1,5 @@
 import { autoInjectable } from "tsyringe";
+import StudentReadCache from "../cache/StudentRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import { BaseService } from "~/api/modules/base/services/Base.service";
@@ -8,35 +9,49 @@ import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver"
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { StudentSubjectRegistrationCreateRequestType } from "../types/StudentTypes";
+import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import StudentSubjectRegistrationDeleteProvider from "../providers/StudentSubjectRegistrationDelete.provider";
 import StudentSubjectRegistrationCreateProvider from "~/api/modules/student/providers/StudentSubjectRegistrationCreate.provider";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { SUCCESS, ERROR, STUDENT_SUBJECT_REGISTRATION_RESOURCE, SUBJECT_RESOURCE, SOMETHING_WENT_WRONG } from "~/api/shared/helpers/messages/SystemMessages";
+import { SUCCESS, ERROR, STUDENT_SUBJECT_REGISTRATION_RESOURCE, SUBJECT_RESOURCE, SOMETHING_WENT_WRONG, STUDENT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 
 @autoInjectable()
 export default class StudentSubjectRegistrationCreateService extends BaseService<IRequest> {
   static serviceName = "StudentSubjectRegistrationCreateService";
   loggingProvider: ILoggingDriver;
+  private studentReadCache: StudentReadCache;
   private subjectReadProvider: SubjectReadProvider;
-  private studentSubjectRegistrationDeleteProvider: StudentSubjectRegistrationDeleteProvider;
   private studentSubjectRegistrationCreateProvider: StudentSubjectRegistrationCreateProvider;
 
-  constructor(studentSubjectRegistrationCreateProvider: StudentSubjectRegistrationCreateProvider, studentSubjectRegistrationDeleteProvider: StudentSubjectRegistrationDeleteProvider, subjectReadProvider: SubjectReadProvider) {
+  constructor(studentSubjectRegistrationCreateProvider: StudentSubjectRegistrationCreateProvider, subjectReadProvider: SubjectReadProvider, studentReadCache: StudentReadCache) {
     super(StudentSubjectRegistrationCreateService.serviceName);
+    this.studentReadCache = studentReadCache;
     this.subjectReadProvider = subjectReadProvider;
-    this.loggingProvider = LoggingProviderFactory.build();
     this.studentSubjectRegistrationCreateProvider = studentSubjectRegistrationCreateProvider;
-    this.studentSubjectRegistrationDeleteProvider = studentSubjectRegistrationDeleteProvider;
+    this.loggingProvider = LoggingProviderFactory.build();
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args.body);
 
-      const { tenantId, subjectIds } = args.body;
+      const { tenantId, subjectIds, classId, studentId, classDivisionId } = args.body;
+
+      // Get the student and validate class
+      const student = await this.studentReadCache.getOneByCriteria({ id: studentId, tenantId });
+      if (!student) {
+        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE));
+      }
+
+      if (student.classId !== classId) {
+        throw new BadRequestError("Selected class does not match the student's current class.");
+      }
+
+      if (student.classDivisionId !== classDivisionId) {
+        throw new BadRequestError("Selected class Division does not match the student's current class.");
+      }
 
       const validSubjects = await this.subjectReadProvider.getByCriteria({ tenantId });
       const validSubjectIds = validSubjects.map((subject) => subject.id);
@@ -62,19 +77,10 @@ export default class StudentSubjectRegistrationCreateService extends BaseService
   private async createSubjectRegistrationsTransaction(args: StudentSubjectRegistrationCreateRequestType) {
     try {
       const result = await DbClient.$transaction(async (tx: PrismaTransactionClient) => {
-        await this.studentSubjectRegistrationDeleteProvider.deleteMany(
-          {
-            studentId: args.studentId,
-            calendarId: args.calendarId,
-            tenantId: args.tenantId,
-          },
-          tx
-        );
-
         const created = [];
 
         for (const subjectId of args.subjectIds) {
-          const registration = await this.studentSubjectRegistrationCreateProvider.createOrUpdate(
+          const registration = await this.studentSubjectRegistrationCreateProvider.create(
             {
               studentId: args.studentId,
               subjectId,

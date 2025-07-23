@@ -1,8 +1,8 @@
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import { SubjectCriteriaType } from "~/api/modules/subject/types/SubjectTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 
 @EnforceTenantId
 export default class SubjectReadProvider {

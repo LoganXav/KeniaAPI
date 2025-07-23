@@ -52,7 +52,7 @@ export default class SubjectGradingTemplateService extends BaseService<IRequest>
 
       const students = await this.studentReadCache.getByCriteria({ tenantId, classId: Number(classId), calendarId: Number(calendarId) });
 
-      const studentsOfferingSubject = students?.filter((student) => student.subjectsRegistered?.some((registration) => registration.subject?.id === Number(subjectId)));
+      const studentsOfferingSubject = students?.filter((student) => student.subjectsRegistered?.some((registration) => registration.subjectId === Number(subjectId) && registration.classId === Number(classId) && registration.calendarId === Number(calendarId)));
 
       const template = {
         calendarOptions: schoolCalendars,

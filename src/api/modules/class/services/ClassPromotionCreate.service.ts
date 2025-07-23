@@ -1,5 +1,5 @@
 import { autoInjectable } from "tsyringe";
-import { ClassList } from "@prisma/client";
+import { ClassList, Status } from "@prisma/client";
 import ClassReadCache from "../cache/ClassRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
 import { BaseService } from "../../base/services/Base.service";
@@ -7,7 +7,6 @@ import { IResult } from "~/api/shared/helpers/results/IResult";
 import StudentReadCache from "../../student/cache/StudentRead.cache";
 import { ClassPromotionCreateRequestType } from "../types/ClassTypes";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
-import { StudentWithRelationsSafeUser } from "../../student/types/StudentTypes";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import ClassPromotionReadProvider from "../providers/ClassPromotionRead.provider";
 import StudentUpdateProvider from "../../student/providers/StudentUpdate.provider";
@@ -15,9 +14,11 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import ClassPromotionCreateProvider from "../providers/ClassPromotionCreate.provider";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
+import { StudentWithRelationsSafeUser } from "~/api/modules/student/types/StudentTypes";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 import ClassDivisionReadProvider from "../../classDivision/providers/ClassDivisionRead.provider";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import StudentSubjectRegistrationUpdateProvider from "~/api/modules/student/providers/StudentSubjectRegistrationUpdate.provider";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { SUCCESS, CLASS_PROMOTION_RESOURCE, ERROR, STUDENT_RESOURCE, SOMETHING_WENT_WRONG } from "~/api/shared/helpers/messages/SystemMessages";
 
@@ -30,16 +31,26 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
   private classDivisionReadProvider: ClassDivisionReadProvider;
   private classPromotionReadProvider: ClassPromotionReadProvider;
   private classPromotionCreateProvider: ClassPromotionCreateProvider;
+  private studentSubjectRegistrationUpdateProvider: StudentSubjectRegistrationUpdateProvider;
   loggingProvider: ILoggingDriver;
 
-  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider, studentUpdateProvider: StudentUpdateProvider, classPromotionReadProvider: ClassPromotionReadProvider, studentReadCache: StudentReadCache, classPromotionCreateProvider: ClassPromotionCreateProvider) {
+  constructor(
+    classReadCache: ClassReadCache,
+    studentReadCache: StudentReadCache,
+    studentUpdateProvider: StudentUpdateProvider,
+    classDivisionReadProvider: ClassDivisionReadProvider,
+    classPromotionReadProvider: ClassPromotionReadProvider,
+    classPromotionCreateProvider: ClassPromotionCreateProvider,
+    studentSubjectRegistrationUpdateProvider: StudentSubjectRegistrationUpdateProvider
+  ) {
     super(ClassPromotionCreateService.serviceName);
-    this.studentReadCache = studentReadCache;
     this.classReadCache = classReadCache;
+    this.studentReadCache = studentReadCache;
     this.studentUpdateProvider = studentUpdateProvider;
     this.classDivisionReadProvider = classDivisionReadProvider;
     this.classPromotionReadProvider = classPromotionReadProvider;
     this.classPromotionCreateProvider = classPromotionCreateProvider;
+    this.studentSubjectRegistrationUpdateProvider = studentSubjectRegistrationUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -117,6 +128,17 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
         await this.studentUpdateProvider.updateOne({ id: args.studentId, classId: args.toClassId, tenantId: args.tenantId, classDivisionId: args.toClassDivisionId }, tx);
 
         const classPromotionRecord = await this.classPromotionCreateProvider.create({ ...args, fromClassId: args.fromClassId, fromClassDivisionId: args.fromClassDivisionId });
+
+        await this.studentSubjectRegistrationUpdateProvider.updateByCriteria(
+          {
+            tenantId: args.tenantId,
+            status: Status.Inactive,
+            studentId: args.studentId,
+            calendarId: args.calendarId,
+          },
+          tx
+        );
+
         await this.studentReadCache.invalidate(args.tenantId);
 
         return { classPromotionRecord };

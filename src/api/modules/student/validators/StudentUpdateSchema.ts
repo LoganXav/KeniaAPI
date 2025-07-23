@@ -81,6 +81,7 @@ export const studentUpdateSchema = z.object({
   // Admission Information
   classId: z.number({ invalid_type_error: "Class ID must be a number" }).int("Class ID must be an integer").optional(),
   classDivisionId: z.number({ invalid_type_error: "Class Division ID must be a number" }).int("Class Division ID must be an integer").optional(),
+  // admissionNo: z.string({ invalid_type_error: "Admission number must be a string" }).min(1, "Admission number is required").max(20, "Admission number must be less than 20 characters"),
   dormitoryId: z.number({ invalid_type_error: "Dormitory ID must be a number" }).int("Dormitory ID must be an integer").optional(),
   studentGroupIds: z.array(z.number({ invalid_type_error: "Student Group ID must be a number" }).int("Student Group ID must be an integer")).optional(),
   enrollmentDate: z

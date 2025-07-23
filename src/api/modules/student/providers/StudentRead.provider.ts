@@ -61,13 +61,14 @@ export default class StudentReadProvider {
 
   public async getOneByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentWithRelationsSafeUser | null> {
     try {
-      const { id, tenantId, calendarId } = criteria;
+      const { id, tenantId, calendarId, admissionNo } = criteria;
       const numericId = id ? Number(id) : undefined;
 
       const student = await dbClient?.student?.findFirst({
         where: {
           ...(tenantId && { tenantId }),
           ...(numericId && { id: numericId }),
+          ...(admissionNo && { admissionNo }),
         },
         include: {
           user: { select: userObjectWithoutPassword },

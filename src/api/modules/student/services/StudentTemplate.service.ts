@@ -1,4 +1,5 @@
 import { autoInjectable } from "tsyringe";
+import { Status, SubjectRegistration } from "@prisma/client";
 import StudentReadCache from "../cache/StudentRead.cache";
 import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
@@ -19,6 +20,7 @@ import { ERROR, SUCCESS, TEMPLATE_RESOURCE } from "~/api/shared/helpers/messages
 import SchoolCalendarReadProvider from "../../schoolCalendar/providers/SchoolCalendarRead.provider";
 import { RESOURCE_FETCHED_SUCCESSFULLY } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import ClassDivisionReadProvider from "~/api/modules/classDivision/providers/ClassDivisionRead.provider";
+import StudentSubjectRegistrationReadProvider from "../providers/StudentSubjectRegistrationRead.provider";
 
 @autoInjectable()
 export default class StudentTemplateService extends BaseService<IRequest> {
@@ -29,21 +31,30 @@ export default class StudentTemplateService extends BaseService<IRequest> {
   subjectReadProvider: SubjectReadProvider;
   calendarReadProvider: SchoolCalendarReadProvider;
   classDivisionReadProvider: ClassDivisionReadProvider;
+  studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider;
 
-  constructor(classReadCache: ClassReadCache, classDivisionReadProvider: ClassDivisionReadProvider, subjectReadProvider: SubjectReadProvider, calendarReadProvider: SchoolCalendarReadProvider, studentReadCache: StudentReadCache) {
+  constructor(
+    classReadCache: ClassReadCache,
+    studentReadCache: StudentReadCache,
+    subjectReadProvider: SubjectReadProvider,
+    calendarReadProvider: SchoolCalendarReadProvider,
+    classDivisionReadProvider: ClassDivisionReadProvider,
+    studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider
+  ) {
     super(StudentTemplateService.serviceName);
-    this.loggingProvider = LoggingProviderFactory.build();
     this.classReadCache = classReadCache;
     this.studentReadCache = studentReadCache;
     this.subjectReadProvider = subjectReadProvider;
     this.calendarReadProvider = calendarReadProvider;
     this.classDivisionReadProvider = classDivisionReadProvider;
+    this.studentSubjectRegistrationReadProvider = studentSubjectRegistrationReadProvider;
+    this.loggingProvider = LoggingProviderFactory.build();
   }
 
   public async execute(trace: ServiceTrace, args: IRequest): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args?.body);
-      const { codeValue, classId, calendarId } = args.query;
+      const { codeValue, classId, calendarId, studentId, classDivisionId } = args.query;
 
       const classOptions = await this.classReadCache.getByCriteria({ tenantId: args.body.tenantId });
       const classDivisionOptions = await this.classDivisionReadProvider.getByCriteria({
@@ -51,11 +62,11 @@ export default class StudentTemplateService extends BaseService<IRequest> {
         classId: Number(classId),
       });
 
-      const subjectOptions = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
-
       const calendarOptions = await this.calendarReadProvider.getByCriteria({ tenantId: args.body.tenantId });
 
-      const students = await this.studentReadCache.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
+      const subjectOptions = await this.subjectReadProvider.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId) });
+
+      const students = await this.studentReadCache.getByCriteria({ tenantId: args.body.tenantId, classId: Number(classId), classDivisionId: Number(classDivisionId) });
 
       const studentOptions = students?.map((student) => ({
         ...student,
@@ -66,18 +77,30 @@ export default class StudentTemplateService extends BaseService<IRequest> {
         })),
       }));
 
+      let studentSubjectRegistrationOptions: SubjectRegistration[] = [];
+
+      if (studentId && calendarId) {
+        studentSubjectRegistrationOptions = await this.studentSubjectRegistrationReadProvider.getByCriteria({
+          status: Status.Active,
+          classId: Number(classId),
+          studentId: Number(studentId),
+          tenantId: args.body.tenantId,
+          calendarId: Number(calendarId),
+        });
+      }
       const data = {
         classOptions,
+        subjectOptions,
+        studentOptions,
+        calendarOptions,
         classDivisionOptions,
         genderOptions: GenderConstants,
+        studentSubjectRegistrationOptions,
         religionOptions: ReligionConstants,
         countryIdOptions: CountryConstants,
         stateIdOptions: NigerianStatesConstant,
         bloodGroupOptions: BloodGroupConstants,
         lgaIdOptions: GetLgasByCodeValue(Number(codeValue)),
-        subjectOptions,
-        calendarOptions,
-        studentOptions,
       };
 
       this.result.setData(SUCCESS, HttpStatusCodeEnum.SUCCESS, RESOURCE_FETCHED_SUCCESSFULLY(TEMPLATE_RESOURCE), data);
