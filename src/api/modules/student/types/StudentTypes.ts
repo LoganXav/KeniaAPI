@@ -1,27 +1,26 @@
 import { z } from "zod";
-import { ClassList, Prisma, Subject, User } from "@prisma/client";
+import { ClassList, Prisma, Status, User } from "@prisma/client";
 import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
-import { studentUpdateSchema, studentUpdateManySchema } from "../validators/StudentUpdateSchema";
-import { studentCreateRequestSchema, studentCriteriaSchema } from "../validators/StudentCreateSchema";
-import { studentSubjectRegistrationCreateRequestSchema } from "../validators/StudentSubjectRegistrationCreateRequestSchema";
+import { studentUpdateSchema, studentUpdateManySchema } from "~/api/modules/student/validators/StudentUpdateSchema";
+import { studentCreateRequestSchema, studentCriteriaSchema } from "~/api/modules/student/validators/StudentCreateSchema";
+import { studentSubjectRegistrationCreateRequestSchema } from "~/api/modules/student/validators/StudentSubjectRegistrationCreateRequestSchema";
 
 export type StudentCreateRequestType = z.infer<typeof studentCreateRequestSchema>;
 export type StudentCriteriaType = z.infer<typeof studentCriteriaSchema>;
 export type StudentUpdateRequestType = z.infer<typeof studentUpdateSchema>;
 export type StudentUpdateManyRequestType = z.infer<typeof studentUpdateManySchema>;
-
 export type StudentSubjectRegistrationCreateRequestType = z.infer<typeof studentSubjectRegistrationCreateRequestSchema>;
 
 export interface StudentCreateType {
   userId: number;
-  tenantId: number;
   classId: number;
-  classDivisionId: number;
-  enrollmentDate?: string;
-  admissionNo?: string;
-  studentGroupIds?: number[];
+  tenantId: number;
+  admissionNo: string;
   dormitoryId?: number;
   guardianIds?: number[];
+  classDivisionId: number;
+  enrollmentDate?: string;
+  studentGroupIds?: number[];
 }
 
 export interface StudentBulkCreateType {
@@ -117,9 +116,26 @@ export interface StudentSubjectRegistrationCreateType {
   tenantId: number;
 }
 
+export interface StudentSubjectRegistrationReadType {
+  status: Status;
+  classId: number;
+  tenantId: number;
+  subjectId?: number;
+  studentId?: number;
+  calendarId: number;
+  classDivisionId?: number;
+}
+
 export interface StudentSubjectRegistrationDeleteType {
   studentId: number;
   subjectId: number;
   calendarId: number;
   tenantId: number;
+}
+
+export interface StudentSubjectRegistrationUpdateType {
+  status: Status;
+  tenantId: number;
+  studentId: number;
+  calendarId: number;
 }

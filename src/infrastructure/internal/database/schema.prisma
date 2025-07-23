@@ -388,6 +388,7 @@ model SubjectRegistration {
   classDivisionId Int?
   tenantId        Int
   createdAt       DateTime @default(now())
+  status          Status   @default(Active)
 
   student       Student        @relation(fields: [studentId], references: [id])
   subject       Subject        @relation(fields: [subjectId], references: [id])
@@ -397,6 +398,11 @@ model SubjectRegistration {
   tenant        Tenant         @relation(fields: [tenantId], references: [id])
 
   @@unique([studentId, subjectId, calendarId, tenantId])
+}
+
+enum Status {
+  Active
+  Inactive
 }
 
 model ClassPromotion {

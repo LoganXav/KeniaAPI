@@ -5,18 +5,18 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 
 @EnforceTenantId
 export default class StudentSubjectRegistrationCreateProvider {
-  public async createOrUpdate(args: StudentSubjectRegistrationCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<any> {
+  public async create(args: StudentSubjectRegistrationCreateType, dbClient: PrismaTransactionClient = DbClient) {
     const { studentId, subjectId, calendarId, classId, classDivisionId, tenantId } = args;
 
     try {
       const subjectRegistration = await dbClient.subjectRegistration.create({
         data: {
+          classId,
+          tenantId,
           studentId,
           subjectId,
           calendarId,
-          classId,
           classDivisionId,
-          tenantId,
         },
       });
 
