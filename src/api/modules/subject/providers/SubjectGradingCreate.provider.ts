@@ -1,4 +1,4 @@
-import { Student, SubjectGrading } from "@prisma/client";
+import { SubjectGrading } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -6,7 +6,7 @@ import { SubjectGradingCreateRequestType } from "~/api/modules/subject/types/Sub
 
 @EnforceTenantId
 export default class SubjectGradingCreateProvider {
-  public async createOrUpdate(args: SubjectGradingCreateRequestType & { grade: string; remark: string; totalScore: number; totalContinuousScore: number; student: Student }, dbClient: PrismaTransactionClient = DbClient): Promise<SubjectGrading> {
+  public async createOrUpdate(args: SubjectGradingCreateRequestType, dbClient: PrismaTransactionClient = DbClient): Promise<SubjectGrading> {
     try {
       const { tenantId, studentId, subjectId, calendarId, termId, examScore, grade, remark, continuousAssessmentScores, totalScore, student, totalContinuousScore } = args;
 
@@ -65,6 +65,14 @@ export default class SubjectGradingCreateProvider {
         },
       });
       return subjectGrading;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
+  }
+
+  public async createOrUpdateMany(): Promise<void> {
+    try {
+      return;
     } catch (error: any) {
       throw new InternalServerError(error.message);
     }

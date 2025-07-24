@@ -7,8 +7,8 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 
 @EnforceTenantId
 export default class StudentSubjectRegistrationReadProvider {
-  public async getByCriteria(args: StudentSubjectRegistrationReadType, dbClient: PrismaTransactionClient = DbClient): Promise<SubjectRegistration[]> {
-    const { studentId, calendarId, classId, classDivisionId, subjectId, tenantId, status } = args;
+  public async getByCriteria(args: StudentSubjectRegistrationReadType & { studentIds?: number[] }, dbClient: PrismaTransactionClient = DbClient): Promise<SubjectRegistration[]> {
+    const { studentId, studentIds, calendarId, classId, classDivisionId, subjectId, tenantId, status } = args;
 
     try {
       const subjectRegistrations = await dbClient.subjectRegistration.findMany({
@@ -17,9 +17,9 @@ export default class StudentSubjectRegistrationReadProvider {
           tenantId,
           subjectId,
           ...(status && { status }),
-          ...(studentId && { studentId }),
           ...(calendarId && { calendarId }),
           ...(classDivisionId && { classDivisionId }),
+          ...(studentIds && studentIds.length > 0 ? { studentId: { in: studentIds } } : studentId ? { studentId } : {}),
         },
         include: {
           student: {

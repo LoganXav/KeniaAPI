@@ -8,12 +8,13 @@ import { StudentCriteriaType, StudentWithRelationsSafeUser } from "~/api/modules
 export default class StudentReadProvider {
   public async getByCriteria(criteria: StudentCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentWithRelationsSafeUser[]> {
     try {
-      const { ids, classId, classDivisionId, tenantId, dormitoryId, calendarId, excludePromotedInCalendarId } = criteria;
+      const { ids, admissionNos, classId, classDivisionId, tenantId, dormitoryId, calendarId, excludePromotedInCalendarId } = criteria;
 
       const students = await dbClient.student.findMany({
         where: {
           ...(tenantId && { tenantId }),
           ...(ids && { id: { in: ids } }),
+          ...(admissionNos && { admissionNo: { in: admissionNos } }),
           ...(dormitoryId && { dormitoryId: Number(dormitoryId) }),
           ...(classId && { classId: Number(classId) }),
           ...(classDivisionId && { classDivisionId: Number(classDivisionId) }),

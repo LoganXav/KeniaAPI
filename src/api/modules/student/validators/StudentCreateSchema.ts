@@ -106,6 +106,7 @@ export const studentCriteriaSchema = z.object({
   id: z.number().optional(),
   ids: z.array(z.number()).optional(),
   admissionNo: z.string().optional(),
+  admissionNos: z.array(z.string()).optional(),
   classId: z.number().int("Class ID must be an integer").optional(),
   excludePromotedInCalendarId: z.number().int("ExcludePromotedInCalendarId must be an integer").optional(),
   calendarId: z.number().int("Calendar ID must be an integer").optional(),
@@ -120,6 +121,10 @@ export const studentBulkCreateRequestSchema = z.object({
       firstName: z.string({ required_error: "First name is required", invalid_type_error: "First name must be a string" }).min(1, "First name is required").max(50, "First name must be less than 50 characters"),
       lastName: z.string({ required_error: "Last name is required", invalid_type_error: "Last name must be a string" }).min(1, "Last name is required").max(50, "Last name must be less than 50 characters"),
       email: z.string({ required_error: "Email is required", invalid_type_error: "Email must be a string" }).email("Invalid email address"),
+      admissionNo: z.string({
+        required_error: "Admission number fields are required",
+        invalid_type_error: "Admission number must be a string",
+      }),
       class: z.string({ required_error: "Enrolled class fields are required" }),
       classDivision: z.string({ required_error: "Enrolled class division fields are required" }),
       gender: z.string({ required_error: "Genders are required", invalid_type_error: "Gender must be a string" }),
