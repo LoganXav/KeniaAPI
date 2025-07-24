@@ -58,6 +58,7 @@ model Tenant {
   subjectGrading          SubjectGrading[]
   subjectsRegistered      SubjectRegistration[]
   classPromotion          ClassPromotion[]
+  studentSessionResult    StudentSessionResult[]
 }
 
 enum TenantOnboardingStatusType {
@@ -139,26 +140,27 @@ enum StaffEmploymentType {
 }
 
 model Student {
-  id                 Int                   @id @default(autoincrement())
-  enrollmentDate     DateTime              @default(now())
-  admissionNo        String?
-  guardians          Guardian[]            @relation("StudentGuardian")
-  documents          Document[]
-  dormitoryId        Int?
-  dormitory          Dormitory?            @relation(fields: [dormitoryId], references: [id])
-  medicalHistory     MedicalHistory[]
-  studentGroups      StudentGroup[]        @relation("StudentGroupRelation")
-  classId            Int?
-  class              Class?                @relation(fields: [classId], references: [id])
-  classDivisionId    Int?
-  classDivision      ClassDivision?        @relation(fields: [classDivisionId], references: [id])
-  userId             Int                   @unique
-  user               User                  @relation(fields: [userId], references: [id], name: "StudentUser")
-  tenantId           Int
-  tenant             Tenant                @relation(fields: [tenantId], references: [id])
-  subjectGrades      SubjectGrading[]
-  subjectsRegistered SubjectRegistration[]
-  promotions         ClassPromotion[]
+  id                   Int                    @id @default(autoincrement())
+  enrollmentDate       DateTime               @default(now())
+  admissionNo          String?
+  guardians            Guardian[]             @relation("StudentGuardian")
+  documents            Document[]
+  dormitoryId          Int?
+  dormitory            Dormitory?             @relation(fields: [dormitoryId], references: [id])
+  medicalHistory       MedicalHistory[]
+  studentGroups        StudentGroup[]         @relation("StudentGroupRelation")
+  classId              Int?
+  class                Class?                 @relation(fields: [classId], references: [id])
+  classDivisionId      Int?
+  classDivision        ClassDivision?         @relation(fields: [classDivisionId], references: [id])
+  userId               Int                    @unique
+  user                 User                   @relation(fields: [userId], references: [id], name: "StudentUser")
+  tenantId             Int
+  tenant               Tenant                 @relation(fields: [tenantId], references: [id])
+  subjectGrades        SubjectGrading[]
+  subjectsRegistered   SubjectRegistration[]
+  promotions           ClassPromotion[]
+  studentSessionResult StudentSessionResult[]
 
   @@unique([admissionNo, tenantId])
 }
@@ -267,14 +269,15 @@ enum TokenType {
 // ==================== SCHOOL CALENDAR TABLES START ==================== //
 
 model SchoolCalendar {
-  id                 Int                   @id @default(autoincrement())
-  year               Int
-  terms              Term[]
-  tenantId           Int
-  tenant             Tenant                @relation(fields: [tenantId], references: [id])
-  subjectGrade       SubjectGrading[]
-  subjectsRegistered SubjectRegistration[]
-  classPromotions    ClassPromotion[]
+  id                   Int                    @id @default(autoincrement())
+  year                 Int
+  terms                Term[]
+  tenantId             Int
+  tenant               Tenant                 @relation(fields: [tenantId], references: [id])
+  subjectGrade         SubjectGrading[]
+  subjectsRegistered   SubjectRegistration[]
+  classPromotions      ClassPromotion[]
+  studentSessionResult StudentSessionResult[]
 
   @@unique([year, tenantId])
 }
@@ -525,6 +528,26 @@ model ContinuousAssessmentScore {
   subjectGrading   SubjectGrading @relation(fields: [subjectGradingId], references: [id])
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+}
+
+model StudentSessionResult {
+  id           Int     @id @default(autoincrement())
+  studentId    Int
+  calendarId   Int
+  tenantId     Int
+  totalScore   Float   @default(0)
+  averageScore Float   @default(0)
+  subjectCount Int     @default(0)
+  finalized    Boolean @default(false)
+
+  student  Student        @relation(fields: [studentId], references: [id])
+  calendar SchoolCalendar @relation(fields: [calendarId], references: [id])
+  tenant   Tenant         @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, calendarId])
 }
 
 // ==================== GRADING SYSTEM TABLES END ==================== //

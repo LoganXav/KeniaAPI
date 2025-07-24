@@ -15,12 +15,13 @@ import ClassPromotionCreateProvider from "../providers/ClassPromotionCreate.prov
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { StudentWithRelationsSafeUser } from "~/api/modules/student/types/StudentTypes";
-import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { NormalizedAppError } from "~/infrastructure/internal/exceptions/NormalizedAppError";
 import ClassDivisionReadProvider from "../../classDivision/providers/ClassDivisionRead.provider";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import StudentSessionResultReadProvider from "../../student/providers/StudentSessionResultRead.provider";
+import { SUCCESS, CLASS_PROMOTION_RESOURCE, ERROR, STUDENT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import StudentSubjectRegistrationUpdateProvider from "~/api/modules/student/providers/StudentSubjectRegistrationUpdate.provider";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
-import { SUCCESS, CLASS_PROMOTION_RESOURCE, ERROR, STUDENT_RESOURCE, SOMETHING_WENT_WRONG } from "~/api/shared/helpers/messages/SystemMessages";
 
 @autoInjectable()
 export default class ClassPromotionCreateService extends BaseService<IRequest> {
@@ -31,6 +32,7 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
   private classDivisionReadProvider: ClassDivisionReadProvider;
   private classPromotionReadProvider: ClassPromotionReadProvider;
   private classPromotionCreateProvider: ClassPromotionCreateProvider;
+  private studentSessionResultReadProvider: StudentSessionResultReadProvider;
   private studentSubjectRegistrationUpdateProvider: StudentSubjectRegistrationUpdateProvider;
   loggingProvider: ILoggingDriver;
 
@@ -41,6 +43,7 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
     classDivisionReadProvider: ClassDivisionReadProvider,
     classPromotionReadProvider: ClassPromotionReadProvider,
     classPromotionCreateProvider: ClassPromotionCreateProvider,
+    studentSessionResultReadProvider: StudentSessionResultReadProvider,
     studentSubjectRegistrationUpdateProvider: StudentSubjectRegistrationUpdateProvider
   ) {
     super(ClassPromotionCreateService.serviceName);
@@ -50,6 +53,7 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
     this.classDivisionReadProvider = classDivisionReadProvider;
     this.classPromotionReadProvider = classPromotionReadProvider;
     this.classPromotionCreateProvider = classPromotionCreateProvider;
+    this.studentSessionResultReadProvider = studentSessionResultReadProvider;
     this.studentSubjectRegistrationUpdateProvider = studentSubjectRegistrationUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
@@ -65,6 +69,8 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
       if (!foundStudent) {
         throw new BadRequestError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE));
       }
+
+      await this.verifyStudentEligibleForPromotion({ studentId, calendarId, tenantId });
 
       const foundPromotionDecision = await this.classPromotionReadProvider.getOneByCriteria({ tenantId, calendarId, studentId });
 
@@ -146,7 +152,19 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
       return result;
     } catch (error: any) {
       this.loggingProvider.error(error);
-      throw new InternalServerError(SOMETHING_WENT_WRONG);
+      throw new NormalizedAppError(error);
+    }
+  }
+
+  private async verifyStudentEligibleForPromotion({ studentId, calendarId, tenantId }: { studentId: number; calendarId: number; tenantId: number }): Promise<void> {
+    try {
+      const sessionResult = await this.studentSessionResultReadProvider.getOneByCriteria({ studentId, calendarId, tenantId });
+      if (!sessionResult || !sessionResult.finalized) {
+        throw new BadRequestError("Student's session result is not finalized. Cannot proceed with promotion.");
+      }
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new NormalizedAppError(error);
     }
   }
 }

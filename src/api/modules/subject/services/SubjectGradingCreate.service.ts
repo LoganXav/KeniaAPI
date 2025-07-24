@@ -2,20 +2,24 @@ import { autoInjectable } from "tsyringe";
 import { IRequest } from "~/infrastructure/internal/types";
 import { IResult } from "~/api/shared/helpers/results/IResult";
 import StaffReadCache from "../../staff/cache/StaffRead.cache";
-import { TenantGradingStructure, GradeBoundary } from "@prisma/client";
 import { BaseService } from "~/api/modules/base/services/Base.service";
 import { ServiceTrace } from "~/api/shared/helpers/trace/ServiceTrace";
 import StudentReadCache from "~/api/modules/student/cache/StudentRead.cache";
+import { SubjectGradingCreateRequestType } from "../types/SubjectGradingTypes";
+import { StudentWithRelationsSafeUser } from "../../student/types/StudentTypes";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { UnauthorizedError } from "~/infrastructure/internal/exceptions/UnauthorizedError";
+import { NormalizedAppError } from "~/infrastructure/internal/exceptions/NormalizedAppError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import SubjectGradingCreateProvider from "~/api/modules/subject/providers/SubjectGradingCreate.provider";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
+import StudentSubjectRegistrationReadProvider from "../../student/providers/StudentSubjectRegistrationRead.provider";
 import SubjectGradingStructureReadProvider from "~/api/modules/subject/providers/SubjectGradingStructureRead.provider";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
+import { TenantGradingStructure, GradeBoundary, Status, Student, SubjectGradingStructure, ContinuousAssessmentBreakdownItem } from "@prisma/client";
 import { SUCCESS, SUBJECT_GRADING_RESOURCE, ERROR, TENANT_GRADING_STRUCTURE_RESOURCE, SUBJECT_GRADING_STRUCTURE_RESOURCE, STUDENT_RESOURCE, STAFF_RESOURCE, AUTHORIZATION_REQUIRED } from "~/api/shared/helpers/messages/SystemMessages";
 
 @autoInjectable()
@@ -26,15 +30,24 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
   private subjectGradingCreateProvider: SubjectGradingCreateProvider;
   private tenantGradingStructureReadProvider: TenantGradingStructureReadProvider;
   private subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider;
+  private studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider;
   loggingProvider: ILoggingDriver;
 
-  constructor(subjectGradingCreateProvider: SubjectGradingCreateProvider, subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider, tenantGradingStructureReadProvider: TenantGradingStructureReadProvider, studentReadCache: StudentReadCache, staffReadCache: StaffReadCache) {
+  constructor(
+    staffReadCache: StaffReadCache,
+    studentReadCache: StudentReadCache,
+    subjectGradingCreateProvider: SubjectGradingCreateProvider,
+    tenantGradingStructureReadProvider: TenantGradingStructureReadProvider,
+    subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider,
+    studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider
+  ) {
     super(SubjectGradingCreateService.serviceName);
     this.staffReadCache = staffReadCache;
     this.studentReadCache = studentReadCache;
     this.subjectGradingCreateProvider = subjectGradingCreateProvider;
     this.tenantGradingStructureReadProvider = tenantGradingStructureReadProvider;
     this.subjectGradingStructureReadProvider = subjectGradingStructureReadProvider;
+    this.studentSubjectRegistrationReadProvider = studentSubjectRegistrationReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
 
@@ -44,6 +57,195 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
 
       const { tenantId, studentId, subjectId, classId, continuousAssessmentScores, examScore, userId } = args.body;
 
+      await this.validateSubjectTeacher(tenantId, userId, subjectId);
+      const tenantGradingStructure = await this.getTenantGradingStructure(tenantId, classId);
+      const subjectGradingStructure = await this.getSubjectGradingStructure(tenantId, subjectId);
+      const student = await this.getValidatedStudentWithSubjectEnrollment(tenantId, studentId, subjectId);
+      this.validateExamAndAssessmentScores(examScore, tenantGradingStructure.examWeight, continuousAssessmentScores, subjectGradingStructure.continuousAssessmentBreakdownItems);
+
+      // Get grade, remark and totalScore
+      const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemarkWithGradingStructure(tenantGradingStructure, continuousAssessmentScores, examScore);
+
+      const subjectGrading = await this.subjectGradingCreateProvider.createOrUpdate({ ...args.body, totalScore, grade, remark, totalContinuousScore, student });
+
+      trace.setSuccessful();
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SUBJECT_GRADING_RESOURCE), subjectGrading);
+      return this.result;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      this.result.setError(ERROR, error.httpStatusCode || HttpStatusCodeEnum.INTERNAL_SERVER_ERROR, error.message);
+      return this.result;
+    }
+  }
+
+  public async createBulk(trace: ServiceTrace, args: IRequest): Promise<IResult> {
+    try {
+      this.initializeServiceTrace(trace, args.body);
+
+      const { tenantId, subjectId, calendarId, termId, grades, classId, userId } = args.body;
+
+      // await this.validateSubjectTeacher(tenantId, userId, subjectId);
+      const tenantGradingStructure = await this.getTenantGradingStructure(tenantId, classId);
+      const subjectGradingStructure = await this.getSubjectGradingStructure(tenantId, subjectId);
+      const { studentsMap, studentsById } = await this.validateAndMapStudentsByAdmissionNo(tenantId, grades);
+      await this.validateBulkStudentsAreRegisteredForSubject(studentsMap, {
+        classId,
+        subjectId,
+        calendarId,
+        tenantId,
+      });
+
+      const gradingInputs = grades.map((gradeEntry: { admissionNo: string; examScore: number; continuousAssessmentScores: Array<{ name: string; score: number }> }) => {
+        const studentId = studentsMap.get(gradeEntry.admissionNo);
+        const student = studentId ? studentsById.get(studentId) : null;
+
+        this.validateExamAndAssessmentScores(gradeEntry.examScore, tenantGradingStructure.examWeight, gradeEntry.continuousAssessmentScores, subjectGradingStructure.continuousAssessmentBreakdownItems);
+
+        const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemarkWithGradingStructure(tenantGradingStructure, gradeEntry.continuousAssessmentScores, gradeEntry.examScore);
+
+        return {
+          tenantId,
+          studentId: student?.id,
+          subjectId,
+          calendarId,
+          termId,
+          examScore: gradeEntry.examScore,
+          continuousAssessmentScores: gradeEntry.continuousAssessmentScores,
+          grade,
+          remark,
+          totalScore,
+          totalContinuousScore,
+          student,
+        };
+      });
+
+      const createdRecords = await Promise.all(gradingInputs.map((input: SubjectGradingCreateRequestType) => this.subjectGradingCreateProvider.createOrUpdate(input)));
+
+      trace.setSuccessful();
+      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SUBJECT_GRADING_RESOURCE), createdRecords);
+      return this.result;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      this.result.setError(ERROR, error.httpStatusCode || HttpStatusCodeEnum.INTERNAL_SERVER_ERROR, error.message);
+      return this.result;
+    }
+  }
+
+  private mapGradeAndRemarkWithGradingStructure(
+    tenantGradingStructure: TenantGradingStructure & { gradeBoundaries: GradeBoundary[] },
+    continuousAssessmentScores: Array<{ name: string; score: number }>,
+    examScore: number
+  ): { grade: string; remark: string; totalScore: number; totalContinuousScore: number } {
+    const totalContinuousScore = continuousAssessmentScores.reduce((acc, cur) => acc + cur.score, 0);
+
+    const weightedTotalScore = totalContinuousScore + examScore;
+
+    const sortedBoundaries = tenantGradingStructure.gradeBoundaries.sort((a, b) => a.minimumScore - b.minimumScore);
+
+    const gradeBoundary = sortedBoundaries.find((boundary: GradeBoundary) => weightedTotalScore >= boundary.minimumScore && weightedTotalScore < boundary.maximumScore) || sortedBoundaries.find((boundary: GradeBoundary) => weightedTotalScore === boundary.maximumScore);
+
+    return {
+      grade: gradeBoundary?.grade ?? "N/A",
+      remark: gradeBoundary?.remark ?? "No remark available",
+      totalScore: weightedTotalScore,
+      totalContinuousScore,
+    };
+  }
+
+  private async getSubjectGradingStructure(tenantId: number, subjectId: number): Promise<SubjectGradingStructure & { continuousAssessmentBreakdownItems: ContinuousAssessmentBreakdownItem[] }> {
+    try {
+      const structure = await this.subjectGradingStructureReadProvider.getOneByCriteria({ tenantId, subjectId });
+      if (!structure) {
+        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_GRADING_STRUCTURE_RESOURCE));
+      }
+      return structure;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new NormalizedAppError(error);
+    }
+  }
+
+  private async getTenantGradingStructure(
+    tenantId: number,
+    classId: number
+  ): Promise<
+    TenantGradingStructure & {
+      gradeBoundaries: GradeBoundary[];
+    }
+  > {
+    try {
+      const structure = await this.tenantGradingStructureReadProvider.getOneByCriteria({ tenantId, classId });
+      if (!structure) {
+        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(TENANT_GRADING_STRUCTURE_RESOURCE));
+      }
+      return structure;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new NormalizedAppError(error);
+    }
+  }
+
+  private async getValidatedStudentWithSubjectEnrollment(tenantId: number, studentId: number, subjectId: number): Promise<Student> {
+    try {
+      const student = await this.studentReadCache.getOneByCriteria({ id: studentId, tenantId });
+
+      if (!student) {
+        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE));
+      }
+
+      if (!student.classId || !student.classDivisionId) {
+        throw new BadRequestError("Student is not enrolled in a class.");
+      }
+
+      const isEnrolled = student.subjectsRegistered?.some((reg) => reg.subject.id === subjectId);
+
+      if (!isEnrolled) {
+        throw new BadRequestError("Student is not enrolled with this subject.");
+      }
+
+      return student;
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new NormalizedAppError(error);
+    }
+  }
+
+  private async validateBulkStudentsAreRegisteredForSubject(
+    studentsMap: Map<string | null, number>,
+    args: {
+      classId: number;
+      subjectId: number;
+      calendarId: number;
+      tenantId: number;
+    }
+  ): Promise<void> {
+    try {
+      const studentIds = Array.from(studentsMap.values());
+
+      const subjectRegistrations = await this.studentSubjectRegistrationReadProvider.getByCriteria({
+        classId: args.classId,
+        studentIds,
+        subjectId: args.subjectId,
+        calendarId: args.calendarId,
+        tenantId: args.tenantId,
+        status: Status.Active,
+      });
+
+      const registeredStudentIds = new Set(subjectRegistrations.map((reg) => reg.studentId));
+
+      const unregisteredAdmissionNos = [...studentsMap.entries()].filter(([_, studentId]) => !registeredStudentIds.has(studentId)).map(([admissionNo]) => admissionNo);
+
+      if (unregisteredAdmissionNos.length > 0) {
+        throw new BadRequestError(`Students with admission numbers ${unregisteredAdmissionNos.join(", ")} are not currently registered for the subject.`);
+      }
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new NormalizedAppError(error);
+    }
+  }
+
+  private async validateSubjectTeacher(tenantId: number, userId: number, subjectId: number): Promise<void> {
+    try {
       const staff = await this.staffReadCache.getOneByCriteria({ tenantId, id: userId });
 
       if (!staff) {
@@ -55,49 +257,9 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       if (!isSubjectTeacher) {
         throw new UnauthorizedError(AUTHORIZATION_REQUIRED);
       }
-
-      const tenantGradingStructure = await this.tenantGradingStructureReadProvider.getOneByCriteria({ tenantId, classId });
-
-      if (!tenantGradingStructure) {
-        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(TENANT_GRADING_STRUCTURE_RESOURCE));
-      }
-
-      const subjectGradingStructure = await this.subjectGradingStructureReadProvider.getOneByCriteria({ tenantId, subjectId });
-
-      if (!subjectGradingStructure) {
-        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(SUBJECT_GRADING_STRUCTURE_RESOURCE));
-      }
-
-      const student = await this.studentReadCache.getOneByCriteria({ id: studentId, tenantId });
-
-      if (!student) {
-        throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE));
-      }
-
-      if (!student.classId || !student.classDivisionId) {
-        throw new BadRequestError("Student is not enrolled in a class.");
-      }
-
-      const isEnrolled = student.subjectsRegistered?.some((registration) => registration.subject.id === subjectId);
-
-      if (!isEnrolled) {
-        throw new BadRequestError("Student is not enrolled with this subject.");
-      }
-
-      this.validateExamAndAssessmentScores(examScore, tenantGradingStructure.examWeight, continuousAssessmentScores, subjectGradingStructure.continuousAssessmentBreakdownItems);
-
-      // Get grade, remark and totalScore
-      const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemark(tenantGradingStructure, continuousAssessmentScores, examScore);
-
-      const subjectGrading = await this.subjectGradingCreateProvider.createOrUpdate({ ...args.body, totalScore, grade, remark, totalContinuousScore, student });
-
-      trace.setSuccessful();
-      this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SUBJECT_GRADING_RESOURCE), subjectGrading);
-      return this.result;
     } catch (error: any) {
       this.loggingProvider.error(error);
-      this.result.setError(ERROR, error.httpStatusCode || HttpStatusCodeEnum.INTERNAL_SERVER_ERROR, error.message);
-      return this.result;
+      throw new NormalizedAppError(error);
     }
   }
 
@@ -130,20 +292,35 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     }
   }
 
-  private mapGradeAndRemark(tenantGradingStructure: TenantGradingStructure & { gradeBoundaries: GradeBoundary[] }, continuousAssessmentScores: Array<{ name: string; score: number }>, examScore: number): { grade: string; remark: string; totalScore: number; totalContinuousScore: number } {
-    const totalContinuousScore = continuousAssessmentScores.reduce((acc, cur) => acc + cur.score, 0);
+  private async validateAndMapStudentsByAdmissionNo(
+    tenantId: number,
+    grades: { admissionNo: string }[]
+  ): Promise<{
+    studentsMap: Map<string, number>;
+    studentsById: Map<number, StudentWithRelationsSafeUser>;
+  }> {
+    try {
+      const studentsMap = new Map<string, number>();
+      const studentsById = new Map<number, StudentWithRelationsSafeUser>();
+      const admissionNos = grades.map((g) => g.admissionNo);
+      const students = await this.studentReadCache.getByCriteria({ tenantId, admissionNos });
 
-    const weightedTotalScore = totalContinuousScore + examScore;
+      for (const student of students) {
+        if (student.admissionNo) {
+          studentsMap.set(student.admissionNo, student.id);
+          studentsById.set(student.id, student);
+        }
+      }
 
-    const sortedBoundaries = tenantGradingStructure.gradeBoundaries.sort((a, b) => a.minimumScore - b.minimumScore);
+      if (studentsMap.size !== admissionNos.length) {
+        const missing = admissionNos.filter((adm) => !studentsMap.has(adm));
+        throw new BadRequestError(`Students with admission numbers ${missing.join(", ")} not found.`);
+      }
 
-    const gradeBoundary = sortedBoundaries.find((boundary: GradeBoundary) => weightedTotalScore >= boundary.minimumScore && weightedTotalScore < boundary.maximumScore) || sortedBoundaries.find((boundary: GradeBoundary) => weightedTotalScore === boundary.maximumScore);
-
-    return {
-      grade: gradeBoundary?.grade ?? "N/A",
-      remark: gradeBoundary?.remark ?? "No remark available",
-      totalScore: weightedTotalScore,
-      totalContinuousScore,
-    };
+      return { studentsMap, studentsById };
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new NormalizedAppError(error);
+    }
   }
 }

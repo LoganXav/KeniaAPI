@@ -18,7 +18,7 @@ export default class StudentReadCache {
     this.studentReadProvider = studentReadProvider;
   }
 
-  public async getByCriteria(criteria: StudentCriteriaType): Promise<StudentWithRelationsSafeUser[] | null> {
+  public async getByCriteria(criteria: StudentCriteriaType): Promise<StudentWithRelationsSafeUser[]> {
     try {
       const cacheKey = `${criteria.tenantId}:student:${JSON.stringify(criteria)}`;
       const cachedStudents = await this.redisClient.get(cacheKey);

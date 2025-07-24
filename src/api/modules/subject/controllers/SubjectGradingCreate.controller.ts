@@ -7,8 +7,8 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import SubjectGradingCreateService from "~/api/modules/subject/services/SubjectGradingCreate.service";
-import { subjectGradingCreateRequestSchema } from "~/api/modules/subject/validators/SubjectGradingSchema";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
+import { subjectBulkGradingCreateRequestSchema, subjectGradingCreateRequestSchema } from "~/api/modules/subject/validators/SubjectGradingSchema";
 
 @autoInjectable()
 export default class SubjectGradingCreateController extends BaseController {
@@ -27,6 +27,12 @@ export default class SubjectGradingCreateController extends BaseController {
     });
   };
 
+  createBulk: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.subjectGradingCreateService.createBulk(res.trace, req), {
+      [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
+    });
+  };
+
   public initializeRoutes(router: IRouter): void {
     this.setRouter(router());
 
@@ -41,6 +47,19 @@ export default class SubjectGradingCreateController extends BaseController {
         },
       ],
       description: "Submit grades for a subject",
+    });
+
+    this.addRoute({
+      method: HttpMethodEnum.POST,
+      path: "/subject/grading/bulk/create",
+      handlers: [validateData(subjectBulkGradingCreateRequestSchema), this.createBulk],
+      produces: [
+        {
+          applicationStatus: ApplicationStatusEnum.SUCCESS,
+          httpStatus: HttpStatusCodeEnum.CREATED,
+        },
+      ],
+      description: "Bulk submit grades for a subject",
     });
   }
 }
