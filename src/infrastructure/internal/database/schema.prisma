@@ -180,6 +180,7 @@ model Class {
   subjectsRegistered SubjectRegistration[]
   fromPromotions     ClassPromotion[]         @relation("FromClass")
   toPromotions       ClassPromotion[]         @relation("ToClass")
+  studentTermResult  StudentTermResult[]
 }
 
 enum ClassList {
@@ -205,8 +206,9 @@ model ClassDivision {
   subjectGrading         SubjectGrading[]
   subjectsRegistered     SubjectRegistration[]
 
-  fromPromotions ClassPromotion[] @relation("FromDivision")
-  toPromotions   ClassPromotion[] @relation("ToDivision")
+  fromPromotions    ClassPromotion[]    @relation("FromDivision")
+  toPromotions      ClassPromotion[]    @relation("ToDivision")
+  studentTermResult StudentTermResult[]
 }
 
 model Subject {
@@ -280,7 +282,6 @@ model SchoolCalendar {
   subjectsRegistered    SubjectRegistration[]
   classPromotions       ClassPromotion[]
   studentCalendarResult StudentCalendarResult[]
-  StudentTermResult     StudentTermResult[]
 
   @@unique([year, tenantId])
 }
@@ -297,7 +298,7 @@ model Term {
   tenant            Tenant              @relation(fields: [tenantId], references: [id])
   timetable         Timetable[]
   subjectGrade      SubjectGrading[]
-  StudentTermResult StudentTermResult[]
+  studentTermResult StudentTermResult[]
 }
 
 model BreakPeriod {
@@ -558,6 +559,8 @@ model StudentCalendarResult {
 model StudentTermResult {
   id                  Int     @id @default(autoincrement())
   studentId           Int
+  classId             Int
+  classDivisionId     Int
   termId              Int
   tenantId            Int
   totalScore          Float   @default(0)
@@ -566,14 +569,14 @@ model StudentTermResult {
   subjectCountGraded  Int     @default(0)
   finalized           Boolean @default(false)
 
-  student Student @relation(fields: [studentId], references: [id])
-  term    Term    @relation(fields: [termId], references: [id])
-  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student       Student       @relation(fields: [studentId], references: [id])
+  term          Term          @relation(fields: [termId], references: [id])
+  class         Class         @relation(fields: [classId], references: [id])
+  classDivision ClassDivision @relation(fields: [classDivisionId], references: [id])
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
 
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  SchoolCalendar   SchoolCalendar? @relation(fields: [schoolCalendarId], references: [id])
-  schoolCalendarId Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([studentId, termId, tenantId])
 }

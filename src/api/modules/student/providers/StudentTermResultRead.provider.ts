@@ -1,5 +1,6 @@
 import { StudentTermResult } from "@prisma/client";
 import { StudentTermResultReadType } from "../types/StudentTypes";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -8,13 +9,32 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StudentTermResultReadProvider {
   public async getByCriteria(criteria: StudentTermResultReadType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentTermResult[]> {
     try {
-      const { studentId, termId, tenantId } = criteria;
+      const { studentId, termId, tenantId, classId, classDivisionId } = criteria;
 
       const results = await dbClient.studentTermResult.findMany({
         where: {
-          ...(studentId && { studentId }),
           ...(termId && { termId }),
+          ...(classId && { classId }),
           ...(tenantId && { tenantId }),
+          ...(studentId && { studentId }),
+          ...(classDivisionId && { classDivisionId }),
+        },
+        include: {
+          student: {
+            include: {
+              user: { select: userObjectWithoutPassword },
+              subjectGrades: {
+                include: {
+                  subject: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
 
@@ -26,13 +46,22 @@ export default class StudentTermResultReadProvider {
 
   public async getOneByCriteria(criteria: StudentTermResultReadType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentTermResult | null> {
     try {
-      const { studentId, termId, tenantId } = criteria;
+      const { studentId, termId, tenantId, classId, classDivisionId } = criteria;
 
       const result = await dbClient.studentTermResult.findFirst({
         where: {
-          ...(studentId && { studentId }),
           ...(termId && { termId }),
+          ...(classId && { classId }),
           ...(tenantId && { tenantId }),
+          ...(studentId && { studentId }),
+          ...(classDivisionId && { classDivisionId }),
+        },
+        include: {
+          student: {
+            include: {
+              user: { select: userObjectWithoutPassword },
+            },
+          },
         },
       });
 
