@@ -1,4 +1,4 @@
-import { SubjectRegistration } from "@prisma/client";
+import { Status, SubjectRegistration } from "@prisma/client";
 import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
@@ -32,6 +32,25 @@ export default class StudentSubjectRegistrationReadProvider {
       });
 
       return subjectRegistrations;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
+  }
+
+  public async count(args: { studentId: number; calendarId?: number; tenantId?: number; status?: Status }, dbClient: PrismaTransactionClient = DbClient): Promise<number> {
+    const { studentId, calendarId, tenantId, status } = args;
+
+    try {
+      const count = await dbClient.subjectRegistration.count({
+        where: {
+          tenantId,
+          ...(status && { status }),
+          ...(calendarId && { calendarId }),
+          ...(studentId && { studentId }),
+        },
+      });
+
+      return count;
     } catch (error: any) {
       throw new InternalServerError(error.message);
     }

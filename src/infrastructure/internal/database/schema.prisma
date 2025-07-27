@@ -58,7 +58,8 @@ model Tenant {
   subjectGrading          SubjectGrading[]
   subjectsRegistered      SubjectRegistration[]
   classPromotion          ClassPromotion[]
-  studentSessionResult    StudentSessionResult[]
+  studentCalendarResult   StudentCalendarResult[]
+  StudentTermResult       StudentTermResult[]
 }
 
 enum TenantOnboardingStatusType {
@@ -140,27 +141,28 @@ enum StaffEmploymentType {
 }
 
 model Student {
-  id                   Int                    @id @default(autoincrement())
-  enrollmentDate       DateTime               @default(now())
-  admissionNo          String?
-  guardians            Guardian[]             @relation("StudentGuardian")
-  documents            Document[]
-  dormitoryId          Int?
-  dormitory            Dormitory?             @relation(fields: [dormitoryId], references: [id])
-  medicalHistory       MedicalHistory[]
-  studentGroups        StudentGroup[]         @relation("StudentGroupRelation")
-  classId              Int?
-  class                Class?                 @relation(fields: [classId], references: [id])
-  classDivisionId      Int?
-  classDivision        ClassDivision?         @relation(fields: [classDivisionId], references: [id])
-  userId               Int                    @unique
-  user                 User                   @relation(fields: [userId], references: [id], name: "StudentUser")
-  tenantId             Int
-  tenant               Tenant                 @relation(fields: [tenantId], references: [id])
-  subjectGrades        SubjectGrading[]
-  subjectsRegistered   SubjectRegistration[]
-  promotions           ClassPromotion[]
-  studentSessionResult StudentSessionResult[]
+  id                    Int                     @id @default(autoincrement())
+  enrollmentDate        DateTime                @default(now())
+  admissionNo           String?
+  guardians             Guardian[]              @relation("StudentGuardian")
+  documents             Document[]
+  dormitoryId           Int?
+  dormitory             Dormitory?              @relation(fields: [dormitoryId], references: [id])
+  medicalHistory        MedicalHistory[]
+  studentGroups         StudentGroup[]          @relation("StudentGroupRelation")
+  classId               Int?
+  class                 Class?                  @relation(fields: [classId], references: [id])
+  classDivisionId       Int?
+  classDivision         ClassDivision?          @relation(fields: [classDivisionId], references: [id])
+  userId                Int                     @unique
+  user                  User                    @relation(fields: [userId], references: [id], name: "StudentUser")
+  tenantId              Int
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id])
+  subjectGrades         SubjectGrading[]
+  subjectsRegistered    SubjectRegistration[]
+  promotions            ClassPromotion[]
+  studentCalendarResult StudentCalendarResult[]
+  StudentTermResult     StudentTermResult[]
 
   @@unique([admissionNo, tenantId])
 }
@@ -269,31 +271,33 @@ enum TokenType {
 // ==================== SCHOOL CALENDAR TABLES START ==================== //
 
 model SchoolCalendar {
-  id                   Int                    @id @default(autoincrement())
-  year                 Int
-  terms                Term[]
-  tenantId             Int
-  tenant               Tenant                 @relation(fields: [tenantId], references: [id])
-  subjectGrade         SubjectGrading[]
-  subjectsRegistered   SubjectRegistration[]
-  classPromotions      ClassPromotion[]
-  studentSessionResult StudentSessionResult[]
+  id                    Int                     @id @default(autoincrement())
+  year                  Int
+  terms                 Term[]
+  tenantId              Int
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id])
+  subjectGrade          SubjectGrading[]
+  subjectsRegistered    SubjectRegistration[]
+  classPromotions       ClassPromotion[]
+  studentCalendarResult StudentCalendarResult[]
+  StudentTermResult     StudentTermResult[]
 
   @@unique([year, tenantId])
 }
 
 model Term {
-  id           Int              @id @default(autoincrement())
-  name         String // e.g., "First Term", "Second Term"
-  startDate    DateTime
-  endDate      DateTime
-  breakWeeks   BreakPeriod[]
-  calendarId   Int
-  calendar     SchoolCalendar   @relation(fields: [calendarId], references: [id])
-  tenantId     Int
-  tenant       Tenant           @relation(fields: [tenantId], references: [id])
-  timetable    Timetable[]
-  subjectGrade SubjectGrading[]
+  id                Int                 @id @default(autoincrement())
+  name              String // e.g., "First Term", "Second Term"
+  startDate         DateTime
+  endDate           DateTime
+  breakWeeks        BreakPeriod[]
+  calendarId        Int
+  calendar          SchoolCalendar      @relation(fields: [calendarId], references: [id])
+  tenantId          Int
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
+  timetable         Timetable[]
+  subjectGrade      SubjectGrading[]
+  StudentTermResult StudentTermResult[]
 }
 
 model BreakPeriod {
@@ -517,7 +521,7 @@ model SubjectGrading {
   createdAt                  DateTime                    @default(now())
   updatedAt                  DateTime                    @updatedAt
 
-  @@unique([studentId, subjectId, calendarId, termId])
+  @@unique([studentId, subjectId, calendarId, termId, tenantId])
 }
 
 model ContinuousAssessmentScore {
@@ -530,15 +534,16 @@ model ContinuousAssessmentScore {
   updatedAt        DateTime       @updatedAt
 }
 
-model StudentSessionResult {
-  id           Int     @id @default(autoincrement())
-  studentId    Int
-  calendarId   Int
-  tenantId     Int
-  totalScore   Float   @default(0)
-  averageScore Float   @default(0)
-  subjectCount Int     @default(0)
-  finalized    Boolean @default(false)
+model StudentCalendarResult {
+  id                  Int     @id @default(autoincrement())
+  studentId           Int
+  calendarId          Int
+  tenantId            Int
+  totalScore          Float   @default(0)
+  averageScore        Float   @default(0)
+  subjectCountOffered Int     @default(0)
+  subjectCountGraded  Int     @default(0)
+  finalized           Boolean @default(false)
 
   student  Student        @relation(fields: [studentId], references: [id])
   calendar SchoolCalendar @relation(fields: [calendarId], references: [id])
@@ -547,7 +552,30 @@ model StudentSessionResult {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([studentId, calendarId])
+  @@unique([studentId, calendarId, tenantId])
+}
+
+model StudentTermResult {
+  id                  Int     @id @default(autoincrement())
+  studentId           Int
+  termId              Int
+  tenantId            Int
+  totalScore          Float   @default(0)
+  averageScore        Float   @default(0)
+  subjectCountOffered Int     @default(0)
+  subjectCountGraded  Int     @default(0)
+  finalized           Boolean @default(false)
+
+  student Student @relation(fields: [studentId], references: [id])
+  term    Term    @relation(fields: [termId], references: [id])
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  SchoolCalendar   SchoolCalendar? @relation(fields: [schoolCalendarId], references: [id])
+  schoolCalendarId Int?
+
+  @@unique([studentId, termId, tenantId])
 }
 
 // ==================== GRADING SYSTEM TABLES END ==================== //

@@ -5,9 +5,9 @@ import { studentUpdateSchema, studentUpdateManySchema } from "~/api/modules/stud
 import { studentCreateRequestSchema, studentCriteriaSchema } from "~/api/modules/student/validators/StudentCreateSchema";
 import { studentSubjectRegistrationCreateRequestSchema } from "~/api/modules/student/validators/StudentSubjectRegistrationCreateRequestSchema";
 
-export type StudentCreateRequestType = z.infer<typeof studentCreateRequestSchema>;
 export type StudentCriteriaType = z.infer<typeof studentCriteriaSchema>;
 export type StudentUpdateRequestType = z.infer<typeof studentUpdateSchema>;
+export type StudentCreateRequestType = z.infer<typeof studentCreateRequestSchema>;
 export type StudentUpdateManyRequestType = z.infer<typeof studentUpdateManySchema>;
 export type StudentSubjectRegistrationCreateRequestType = z.infer<typeof studentSubjectRegistrationCreateRequestSchema>;
 
@@ -138,4 +138,32 @@ export interface StudentSubjectRegistrationUpdateType {
   tenantId: number;
   studentId: number;
   calendarId: number;
+}
+
+export interface StudentTermResultCreateType {
+  termId: number;
+  tenantId: number;
+  studentId: number;
+  totalScore?: number;
+  finalized?: boolean;
+  averageScore?: number;
+  subjectCountGraded?: number;
+  subjectCountOffered?: number;
+}
+
+export interface StudentTermResultUpdateType {
+  studentId: number;
+  termId: number;
+  tenantId: number;
+  totalScore?: number;
+  averageScore?: number;
+  subjectCountGraded?: number;
+  subjectCountOffered?: number;
+  finalized?: boolean;
+}
+
+export interface StudentTermResultReadType {
+  studentId?: number;
+  termId?: number;
+  tenantId?: number;
 }
