@@ -18,7 +18,7 @@ import { StudentWithRelationsSafeUser } from "~/api/modules/student/types/Studen
 import { NormalizedAppError } from "~/infrastructure/internal/exceptions/NormalizedAppError";
 import ClassDivisionReadProvider from "../../classDivision/providers/ClassDivisionRead.provider";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
-import StudentSessionResultReadProvider from "../../student/providers/StudentSessionResultRead.provider";
+import StudentCalendarResultReadProvider from "../../student/providers/StudentCalendarResultRead.provider";
 import { SUCCESS, CLASS_PROMOTION_RESOURCE, ERROR, STUDENT_RESOURCE } from "~/api/shared/helpers/messages/SystemMessages";
 import StudentSubjectRegistrationUpdateProvider from "~/api/modules/student/providers/StudentSubjectRegistrationUpdate.provider";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
@@ -32,7 +32,7 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
   private classDivisionReadProvider: ClassDivisionReadProvider;
   private classPromotionReadProvider: ClassPromotionReadProvider;
   private classPromotionCreateProvider: ClassPromotionCreateProvider;
-  private studentSessionResultReadProvider: StudentSessionResultReadProvider;
+  private studentCalendarResultReadProvider: StudentCalendarResultReadProvider;
   private studentSubjectRegistrationUpdateProvider: StudentSubjectRegistrationUpdateProvider;
   loggingProvider: ILoggingDriver;
 
@@ -43,7 +43,7 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
     classDivisionReadProvider: ClassDivisionReadProvider,
     classPromotionReadProvider: ClassPromotionReadProvider,
     classPromotionCreateProvider: ClassPromotionCreateProvider,
-    studentSessionResultReadProvider: StudentSessionResultReadProvider,
+    studentCalendarResultReadProvider: StudentCalendarResultReadProvider,
     studentSubjectRegistrationUpdateProvider: StudentSubjectRegistrationUpdateProvider
   ) {
     super(ClassPromotionCreateService.serviceName);
@@ -53,7 +53,7 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
     this.classDivisionReadProvider = classDivisionReadProvider;
     this.classPromotionReadProvider = classPromotionReadProvider;
     this.classPromotionCreateProvider = classPromotionCreateProvider;
-    this.studentSessionResultReadProvider = studentSessionResultReadProvider;
+    this.studentCalendarResultReadProvider = studentCalendarResultReadProvider;
     this.studentSubjectRegistrationUpdateProvider = studentSubjectRegistrationUpdateProvider;
     this.loggingProvider = LoggingProviderFactory.build();
   }
@@ -158,10 +158,12 @@ export default class ClassPromotionCreateService extends BaseService<IRequest> {
 
   private async verifyStudentEligibleForPromotion({ studentId, calendarId, tenantId }: { studentId: number; calendarId: number; tenantId: number }): Promise<void> {
     try {
-      const sessionResult = await this.studentSessionResultReadProvider.getOneByCriteria({ studentId, calendarId, tenantId });
+      const sessionResult = await this.studentCalendarResultReadProvider.getOneByCriteria({ studentId, calendarId, tenantId });
       if (!sessionResult || !sessionResult.finalized) {
         throw new BadRequestError("Student's session result is not finalized. Cannot proceed with promotion.");
       }
+
+      // Todo: Add any additional checks for eligibility, such as checking if the student has completed all required subjects or has met the minimum passing criteria.
     } catch (error: any) {
       this.loggingProvider.error(error);
       throw new NormalizedAppError(error);

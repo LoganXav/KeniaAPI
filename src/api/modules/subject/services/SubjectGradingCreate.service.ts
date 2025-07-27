@@ -8,12 +8,15 @@ import StudentReadCache from "~/api/modules/student/cache/StudentRead.cache";
 import { SubjectGradingCreateRequestType } from "../types/SubjectGradingTypes";
 import { StudentWithRelationsSafeUser } from "../../student/types/StudentTypes";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
+import SubjectGradingReadProvider from "../providers/SubjectGradingRead.provider";
 import { NotFoundError } from "~/infrastructure/internal/exceptions/NotFoundError";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
-import { UnauthorizedError } from "~/infrastructure/internal/exceptions/UnauthorizedError";
 import { NormalizedAppError } from "~/infrastructure/internal/exceptions/NormalizedAppError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
+import StudentTermResultReadProvider from "../../student/providers/StudentTermResultRead.provider";
+import StudentTermResultCreateProvider from "../../student/providers/StudentTermResultCreateProvider";
+import StudentTermResultUpdateProvider from "../../student/providers/StudentTermResultUpdate.provider";
 import SubjectGradingCreateProvider from "~/api/modules/subject/providers/SubjectGradingCreate.provider";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
 import StudentSubjectRegistrationReadProvider from "../../student/providers/StudentSubjectRegistrationRead.provider";
@@ -27,7 +30,11 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
   static serviceName = "SubjectGradingCreateService";
   private staffReadCache: StaffReadCache;
   private studentReadCache: StudentReadCache;
+  private subjectGradingReadProvider: SubjectGradingReadProvider;
   private subjectGradingCreateProvider: SubjectGradingCreateProvider;
+  private studentTermResultReadProvider: StudentTermResultReadProvider;
+  private studentTermResultUpdateProvider: StudentTermResultUpdateProvider;
+  private studentTermResultCreateProvider: StudentTermResultCreateProvider;
   private tenantGradingStructureReadProvider: TenantGradingStructureReadProvider;
   private subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider;
   private studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider;
@@ -36,7 +43,11 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
   constructor(
     staffReadCache: StaffReadCache,
     studentReadCache: StudentReadCache,
+    subjectGradingReadProvider: SubjectGradingReadProvider,
     subjectGradingCreateProvider: SubjectGradingCreateProvider,
+    studentTermResultReadProvider: StudentTermResultReadProvider,
+    studentTermResultCreateProvider: StudentTermResultCreateProvider,
+    studentTermResultUpdateProvider: StudentTermResultUpdateProvider,
     tenantGradingStructureReadProvider: TenantGradingStructureReadProvider,
     subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider,
     studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider
@@ -44,7 +55,11 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     super(SubjectGradingCreateService.serviceName);
     this.staffReadCache = staffReadCache;
     this.studentReadCache = studentReadCache;
+    this.subjectGradingReadProvider = subjectGradingReadProvider;
     this.subjectGradingCreateProvider = subjectGradingCreateProvider;
+    this.studentTermResultReadProvider = studentTermResultReadProvider;
+    this.studentTermResultUpdateProvider = studentTermResultUpdateProvider;
+    this.studentTermResultCreateProvider = studentTermResultCreateProvider;
     this.tenantGradingStructureReadProvider = tenantGradingStructureReadProvider;
     this.subjectGradingStructureReadProvider = subjectGradingStructureReadProvider;
     this.studentSubjectRegistrationReadProvider = studentSubjectRegistrationReadProvider;
@@ -55,9 +70,9 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     try {
       this.initializeServiceTrace(trace, args.body);
 
-      const { tenantId, studentId, subjectId, classId, continuousAssessmentScores, examScore, userId } = args.body;
+      const { tenantId, calendarId, termId, studentId, subjectId, classId, continuousAssessmentScores, examScore, userId } = args.body;
 
-      await this.validateSubjectTeacher(tenantId, userId, subjectId);
+      // await this.validateSubjectTeacher(tenantId, userId, subjectId);
       const tenantGradingStructure = await this.getTenantGradingStructure(tenantId, classId);
       const subjectGradingStructure = await this.getSubjectGradingStructure(tenantId, subjectId);
       const student = await this.getValidatedStudentWithSubjectEnrollment(tenantId, studentId, subjectId);
@@ -67,6 +82,16 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemarkWithGradingStructure(tenantGradingStructure, continuousAssessmentScores, examScore);
 
       const subjectGrading = await this.subjectGradingCreateProvider.createOrUpdate({ ...args.body, totalScore, grade, remark, totalContinuousScore, student });
+
+      // Update student's term results
+      await this.createOrUpdateStudentTermResult({
+        studentId,
+        tenantId,
+        calendarId,
+        termId,
+        subjectId,
+        newlyAddedScore: totalScore,
+      });
 
       trace.setSuccessful();
       this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SUBJECT_GRADING_RESOURCE), subjectGrading);
@@ -84,7 +109,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
 
       const { tenantId, subjectId, calendarId, termId, grades, classId, userId } = args.body;
 
-      // await this.validateSubjectTeacher(tenantId, userId, subjectId);
+      await this.validateSubjectTeacher(tenantId, userId, subjectId);
       const tenantGradingStructure = await this.getTenantGradingStructure(tenantId, classId);
       const subjectGradingStructure = await this.getSubjectGradingStructure(tenantId, subjectId);
       const { studentsMap, studentsById } = await this.validateAndMapStudentsByAdmissionNo(tenantId, grades);
@@ -104,20 +129,33 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
         const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemarkWithGradingStructure(tenantGradingStructure, gradeEntry.continuousAssessmentScores, gradeEntry.examScore);
 
         return {
+          grade,
+          termId,
+          remark,
+          student,
           tenantId,
-          studentId: student?.id,
           subjectId,
           calendarId,
-          termId,
-          examScore: gradeEntry.examScore,
-          continuousAssessmentScores: gradeEntry.continuousAssessmentScores,
-          grade,
-          remark,
           totalScore,
           totalContinuousScore,
-          student,
+          studentId: student?.id,
+          examScore: gradeEntry.examScore,
+          continuousAssessmentScores: gradeEntry.continuousAssessmentScores,
         };
       });
+
+      await Promise.all(
+        gradingInputs.map((input: SubjectGradingCreateRequestType) =>
+          this.createOrUpdateStudentTermResult({
+            termId,
+            calendarId,
+            tenantId,
+            subjectId,
+            studentId: input.subjectId,
+            newlyAddedScore: input.totalScore,
+          })
+        )
+      );
 
       const createdRecords = await Promise.all(gradingInputs.map((input: SubjectGradingCreateRequestType) => this.subjectGradingCreateProvider.createOrUpdate(input)));
 
@@ -255,7 +293,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       const isSubjectTeacher = staff.subjects.some((subject) => subject.id === subjectId);
 
       if (!isSubjectTeacher) {
-        throw new UnauthorizedError(AUTHORIZATION_REQUIRED);
+        throw new BadRequestError(AUTHORIZATION_REQUIRED);
       }
     } catch (error: any) {
       this.loggingProvider.error(error);
@@ -321,6 +359,58 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     } catch (error: any) {
       this.loggingProvider.error(error);
       throw new NormalizedAppError(error);
+    }
+  }
+
+  private async createOrUpdateStudentTermResult({ studentId, tenantId, calendarId, termId, subjectId, newlyAddedScore }: { studentId: number; tenantId: number; calendarId: number; termId: number; subjectId: number; newlyAddedScore: number }): Promise<void> {
+    try {
+      // fetch existing term result
+      const existing = await this.studentTermResultReadProvider.getOneByCriteria({ studentId, termId, tenantId });
+
+      if (existing?.finalized) {
+        throw new BadRequestError("Cannot update this student's result as it has already been finalized.");
+      }
+
+      // check if this subject was already graded
+      const prior = await this.subjectGradingReadProvider.getOneByCriteria({ studentId, subjectId, calendarId, termId, tenantId });
+      const incrementCount = prior ? 0 : 1;
+
+      if (existing) {
+        const newTotal = existing.totalScore + newlyAddedScore;
+        const newCount = existing.subjectCountGraded + incrementCount;
+        const newAvg = newCount > 0 ? newTotal / newCount : 0;
+
+        await this.studentTermResultUpdateProvider.update({
+          studentId,
+          termId,
+          tenantId,
+          totalScore: newTotal,
+          averageScore: newAvg,
+          subjectCountGraded: newCount,
+        });
+      } else {
+        // count offered subjects
+        const offered = await this.studentSubjectRegistrationReadProvider.count({
+          studentId,
+          calendarId,
+          tenantId,
+          status: Status.Active,
+        });
+
+        await this.studentTermResultCreateProvider.create({
+          studentId,
+          termId,
+          tenantId,
+          totalScore: newlyAddedScore,
+          averageScore: newlyAddedScore,
+          subjectCountGraded: 1,
+          subjectCountOffered: offered,
+          finalized: false,
+        });
+      }
+    } catch (error: any) {
+      this.loggingProvider.error(error);
+      throw new NormalizedAppError(error.message);
     }
   }
 }

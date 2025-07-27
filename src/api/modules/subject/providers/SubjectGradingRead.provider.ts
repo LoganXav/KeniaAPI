@@ -1,7 +1,7 @@
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
-import { SubjectGradingCreateRequestType } from "~/api/modules/subject/types/SubjectGradingTypes";
+import { SubjectGradingCreateRequestType, SubjectGradingReadType } from "~/api/modules/subject/types/SubjectGradingTypes";
 
 @EnforceTenantId
 export default class SubjectGradingReadProvider {
@@ -48,7 +48,7 @@ export default class SubjectGradingReadProvider {
     }
   }
 
-  public async getOneByCriteria(criteria: SubjectGradingCreateRequestType, dbClient: PrismaTransactionClient = DbClient) {
+  public async getOneByCriteria(criteria: SubjectGradingReadType, dbClient: PrismaTransactionClient = DbClient) {
     try {
       const { subjectId, tenantId, calendarId, termId, studentId } = criteria;
 

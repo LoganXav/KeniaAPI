@@ -12,11 +12,12 @@ export default class SubjectGradingCreateProvider {
 
       const subjectGrading = await dbClient.subjectGrading.upsert({
         where: {
-          studentId_subjectId_calendarId_termId: {
+          studentId_subjectId_calendarId_termId_tenantId: {
             studentId,
             subjectId,
             calendarId,
             termId,
+            tenantId,
           },
         },
         update: {
