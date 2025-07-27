@@ -8,16 +8,18 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StudentTermResultCreateProvider {
   public async create(args: StudentTermResultCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentTermResult> {
     try {
-      const { studentId, termId, tenantId, totalScore, averageScore, subjectCountGraded, subjectCountOffered, finalized } = args;
+      const { studentId, termId, tenantId, totalScore, averageScore, subjectCountGraded, subjectCountOffered, finalized, classId, classDivisionId } = args;
 
       const result = await dbClient.studentTermResult.create({
         data: {
           termId,
+          classId,
           tenantId,
           studentId,
           finalized,
           totalScore,
           averageScore,
+          classDivisionId,
           subjectCountGraded,
           subjectCountOffered,
         },

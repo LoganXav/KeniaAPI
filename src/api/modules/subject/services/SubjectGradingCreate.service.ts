@@ -86,6 +86,8 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       // Update student's term results
       await this.createOrUpdateStudentTermResult({
         studentId,
+        classId: student?.classId,
+        classDivisionId: student?.classDivisionId,
         tenantId,
         calendarId,
         termId,
@@ -149,6 +151,8 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
           this.createOrUpdateStudentTermResult({
             termId,
             calendarId,
+            classId: input.student?.classId,
+            classDivisionId: input.student?.classDivisionId,
             tenantId,
             subjectId,
             studentId: input.subjectId,
@@ -362,12 +366,30 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     }
   }
 
-  private async createOrUpdateStudentTermResult({ studentId, tenantId, calendarId, termId, subjectId, newlyAddedScore }: { studentId: number; tenantId: number; calendarId: number; termId: number; subjectId: number; newlyAddedScore: number }): Promise<void> {
+  private async createOrUpdateStudentTermResult({
+    studentId,
+    tenantId,
+    calendarId,
+    termId,
+    subjectId,
+    newlyAddedScore,
+    classId,
+    classDivisionId,
+  }: {
+    studentId: number;
+    tenantId: number;
+    calendarId: number;
+    termId: number;
+    subjectId: number;
+    newlyAddedScore: number;
+    classId: number | null;
+    classDivisionId: number | null;
+  }): Promise<void> {
     try {
-      // fetch existing term result
-      const existing = await this.studentTermResultReadProvider.getOneByCriteria({ studentId, termId, tenantId });
+      // fetch existingTermResult term result
+      const existingTermResult = await this.studentTermResultReadProvider.getOneByCriteria({ studentId, termId, tenantId });
 
-      if (existing?.finalized) {
+      if (existingTermResult?.finalized) {
         throw new BadRequestError("Cannot update this student's result as it has already been finalized.");
       }
 
@@ -375,9 +397,11 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       const prior = await this.subjectGradingReadProvider.getOneByCriteria({ studentId, subjectId, calendarId, termId, tenantId });
       const incrementCount = prior ? 0 : 1;
 
-      if (existing) {
-        const newTotal = existing.totalScore + newlyAddedScore;
-        const newCount = existing.subjectCountGraded + incrementCount;
+      console.log("existingTermResult", !!existingTermResult, "newlyAddedScore", newlyAddedScore, "incrementCount", incrementCount, "studentId", studentId, "termId", termId, "tenantId", tenantId);
+
+      if (existingTermResult) {
+        const newTotal = existingTermResult.totalScore + newlyAddedScore;
+        const newCount = existingTermResult.subjectCountGraded + incrementCount;
         const newAvg = newCount > 0 ? newTotal / newCount : 0;
 
         await this.studentTermResultUpdateProvider.update({
@@ -401,16 +425,18 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
           studentId,
           termId,
           tenantId,
-          totalScore: newlyAddedScore,
-          averageScore: newlyAddedScore,
-          subjectCountGraded: 1,
-          subjectCountOffered: offered,
           finalized: false,
+          classId: classId!,
+          subjectCountGraded: 1,
+          totalScore: newlyAddedScore,
+          subjectCountOffered: offered,
+          averageScore: newlyAddedScore,
+          classDivisionId: classDivisionId!,
         });
       }
     } catch (error: any) {
       this.loggingProvider.error(error);
-      throw new NormalizedAppError(error.message);
+      throw new NormalizedAppError(error);
     }
   }
 }

@@ -147,8 +147,10 @@ export interface StudentTermResultCreateType {
   totalScore?: number;
   finalized?: boolean;
   averageScore?: number;
+  classId: number;
   subjectCountGraded?: number;
   subjectCountOffered?: number;
+  classDivisionId: number;
 }
 
 export interface StudentTermResultUpdateType {
@@ -163,7 +165,9 @@ export interface StudentTermResultUpdateType {
 }
 
 export interface StudentTermResultReadType {
-  studentId?: number;
   termId?: number;
+  classId?: number;
   tenantId?: number;
+  studentId?: number;
+  classDivisionId?: number;
 }
