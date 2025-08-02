@@ -3,14 +3,14 @@ import BaseController from "~/api/modules/base/contollers/Base.controller";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
-import PermissionMiddleware from "~/api/shared/helpers/middleware/Permissions";
+import PermissionMiddleware from "~/api/shared/helpers/middleware/permissions";
 import StaffCreateService from "~/api/modules/staff/services/StaffCreate.service";
 import { PERMISSIONS } from "~/api/shared/helpers/constants/Permissions.constants";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
-import { staffBulkCreateRequestSchema, staffCreateRequestSchema } from "~/api/modules/staff/validators/StaffCreateSchema";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
+import { staffBulkCreateRequestSchema, staffCreateRequestSchema } from "~/api/modules/staff/validators/StaffCreateSchema";
 
 @autoInjectable()
 export default class StaffCreateController extends BaseController {

@@ -3,7 +3,7 @@ import BaseController from "~/api/modules/base/contollers/Base.controller";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateParams } from "~/api/shared/helpers/middleware/validateData";
-import PermissionMiddleware from "~/api/shared/helpers/middleware/Permissions";
+import PermissionMiddleware from "~/api/shared/helpers/middleware/permissions";
 import { PERMISSIONS } from "~/api/shared/helpers/constants/Permissions.constants";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
