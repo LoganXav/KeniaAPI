@@ -26,7 +26,7 @@ export default class StudentTermResultUpdateService extends BaseService<IRequest
     try {
       this.initializeServiceTrace(trace, args.body);
 
-      const updatedStudentTermResult = await this.studentTermResultUpdateProvider.update(args.body);
+      const updatedStudentTermResult = await this.studentTermResultUpdateProvider.update({ ...args.body, studentId: Number(args.params.id) });
 
       trace.setSuccessful();
 
