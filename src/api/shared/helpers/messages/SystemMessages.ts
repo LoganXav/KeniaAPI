@@ -29,6 +29,7 @@ export const SUBJECT_GRADING_STRUCTURE_RESOURCE = "Subject Grading Structure";
 export const STUDENT_SUBJECT_REGISTRATION_RESOURCE = "Student Subject Registration";
 export const SUBJECT_GRADING_RESOURCE = "Subject Grading";
 export const STUDENT_GRADING_RESOURCE = "Student Grading";
+export const STUDENT_TERM_RESULT_RESOURCE = "Student Term Result";
 /** <---------------> Success Responses <---------------> */
 export const ACCOUNT_CREATED = "Account Created Successfully";
 export const TOKEN_VERIFIED = "Token Verification Success";

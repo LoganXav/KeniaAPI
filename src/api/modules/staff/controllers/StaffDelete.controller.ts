@@ -2,7 +2,7 @@ import { autoInjectable } from "tsyringe";
 import BaseController from "~/api/modules/base/contollers/Base.controller";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
-import PermissionMiddleware from "~/api/shared/helpers/middleware/Permissions";
+import PermissionMiddleware from "~/api/shared/helpers/middleware/permissions";
 import DeleteStaffService from "~/api/modules/staff/services/StaffDelete.service";
 import { PERMISSIONS } from "~/api/shared/helpers/constants/Permissions.constants";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";

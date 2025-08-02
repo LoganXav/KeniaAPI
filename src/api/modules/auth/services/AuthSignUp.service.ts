@@ -25,7 +25,7 @@ import { SeedRolesJob, SeedRolesJobData } from "~/api/shared/jobs/seeds/SeedRole
 import TenantCreateProvider from "~/api/modules/tenant/providers/TenantCreate.provider";
 import { CreateUserRecordType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
 import { SeedClassesJob, SeedClassesJobData } from "~/api/shared/jobs/seeds/SeedClasses.job";
-import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { NormalizedAppError } from "~/infrastructure/internal/exceptions/NormalizedAppError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import { PasswordEncryptionService } from "~/api/shared/services/encryption/PasswordEncryption.service";
 import { SeedPermissionsJob, SeedPermissionsJobData } from "~/api/shared/jobs/seeds/SeedPermissions.job";
@@ -180,7 +180,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
       return result;
     } catch (error: any) {
       this.loggingProvider.error(error);
-      throw new InternalServerError(SOMETHING_WENT_WRONG);
+      throw new NormalizedAppError(error);
     }
   }
 }

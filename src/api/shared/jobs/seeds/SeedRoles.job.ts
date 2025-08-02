@@ -19,7 +19,7 @@ export class SeedRolesJob {
 
   public static async process(job: Job<SeedRolesJobData, JobResult>): Promise<JobResult> {
     try {
-      const { tenantId, staffId, userId } = job.data;
+      const { tenantId, staffId } = job.data;
 
       const allPermissions = await SeedRolesJob.permissionReadProvider.getByCriteria({ tenantId });
 

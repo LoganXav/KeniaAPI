@@ -15,7 +15,7 @@ import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequest
 import { NormalizedAppError } from "~/infrastructure/internal/exceptions/NormalizedAppError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
 import StudentTermResultReadProvider from "../../student/providers/StudentTermResultRead.provider";
-import StudentTermResultCreateProvider from "../../student/providers/StudentTermResultCreateProvider";
+import StudentTermResultCreateProvider from "../../student/providers/StudentTermResultCreate.provider";
 import StudentTermResultUpdateProvider from "../../student/providers/StudentTermResultUpdate.provider";
 import SubjectGradingCreateProvider from "~/api/modules/subject/providers/SubjectGradingCreate.provider";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
@@ -396,8 +396,6 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       // check if this subject was already graded
       const prior = await this.subjectGradingReadProvider.getOneByCriteria({ studentId, subjectId, calendarId, termId, tenantId });
       const incrementCount = prior ? 0 : 1;
-
-      console.log("existingTermResult", !!existingTermResult, "newlyAddedScore", newlyAddedScore, "incrementCount", incrementCount, "studentId", studentId, "termId", termId, "tenantId", tenantId);
 
       if (existingTermResult) {
         const newTotal = existingTermResult.totalScore + newlyAddedScore;
