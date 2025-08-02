@@ -390,7 +390,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       const existingTermResult = await this.studentTermResultReadProvider.getOneByCriteria({ studentId, termId, tenantId });
 
       if (existingTermResult?.finalized) {
-        throw new BadRequestError("Cannot update this student's result as it has already been finalized.");
+        throw new BadRequestError("Cannot update this student's result as it has already been finalized for this term.");
       }
 
       // check if this subject was already graded
