@@ -1,20 +1,20 @@
-import { StudentTermResult } from "@prisma/client";
-import { StudentTermResultUpdateType } from "../types/StudentTypes";
+import { StudentCalendarResult } from "@prisma/client";
+import { StudentCalendarResultUpdateType } from "../types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 @EnforceTenantId
-export default class StudentTermResultUpdateProvider {
-  public async update(args: StudentTermResultUpdateType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentTermResult> {
+export default class StudentCalendarResultUpdateProvider {
+  public async update(args: StudentCalendarResultUpdateType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentCalendarResult> {
     try {
-      const { studentId, termId, tenantId, averageScore, finalized, subjectCountGraded, totalScore } = args;
+      const { studentId, calendarId, tenantId, averageScore, finalized, subjectCountGraded, totalScore } = args;
 
-      const result = await dbClient.studentTermResult.update({
+      const result = await dbClient.studentCalendarResult.update({
         where: {
-          studentId_termId_tenantId: {
+          studentId_calendarId_tenantId: {
             studentId,
-            termId,
+            calendarId,
             tenantId,
           },
         },

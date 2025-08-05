@@ -33,6 +33,11 @@ export default class StudentTermResultReadProvider {
                   },
                 },
               },
+              _count: {
+                select: {
+                  subjectsRegistered: true,
+                },
+              },
             },
           },
         },
