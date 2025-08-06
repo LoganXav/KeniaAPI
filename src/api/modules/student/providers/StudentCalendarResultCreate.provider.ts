@@ -1,22 +1,23 @@
-import { StudentTermResult } from "@prisma/client";
-import { StudentTermResultCreateType } from "../types/StudentTypes";
+import { StudentCalendarResult } from "@prisma/client";
+import { StudentCalendarResultCreateType } from "../types/StudentTypes";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
 
 @EnforceTenantId
-export default class StudentTermResultCreateProvider {
-  public async create(args: StudentTermResultCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentTermResult> {
+export default class StudentCalendarResultCreateProvider {
+  public async create(args: StudentCalendarResultCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentCalendarResult> {
     try {
-      const { studentId, termId, tenantId, totalScore, averageScore, subjectCountGraded, finalized, classId, classDivisionId } = args;
+      const { studentId, calendarId, tenantId, totalScore, averageScore, subjectCountGraded, finalized, finalizedTermResultsCount, classId, classDivisionId } = args;
 
-      const result = await dbClient.studentTermResult.create({
+      const result = await dbClient.studentCalendarResult.create({
         data: {
-          termId,
+          calendarId,
           classId,
           tenantId,
           studentId,
           finalized,
+          finalizedTermResultsCount,
           totalScore,
           averageScore,
           classDivisionId,

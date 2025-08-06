@@ -59,7 +59,7 @@ model Tenant {
   subjectsRegistered      SubjectRegistration[]
   classPromotion          ClassPromotion[]
   studentCalendarResult   StudentCalendarResult[]
-  StudentTermResult       StudentTermResult[]
+  studentTermResult       StudentTermResult[]
 }
 
 enum TenantOnboardingStatusType {
@@ -168,19 +168,20 @@ model Student {
 }
 
 model Class {
-  id                 Int                      @id @default(autoincrement())
-  name               ClassList?
-  students           Student[]
-  subjects           Subject[]
-  divisions          ClassDivision[]
-  tenantId           Int
-  tenant             Tenant                   @relation(fields: [tenantId], references: [id])
-  subjectGrades      SubjectGrading[]
-  gradingStructures  TenantGradingStructure[] @relation("TenantGradingStructureClass")
-  subjectsRegistered SubjectRegistration[]
-  fromPromotions     ClassPromotion[]         @relation("FromClass")
-  toPromotions       ClassPromotion[]         @relation("ToClass")
-  studentTermResult  StudentTermResult[]
+  id                    Int                      @id @default(autoincrement())
+  name                  ClassList?
+  students              Student[]
+  subjects              Subject[]
+  divisions             ClassDivision[]
+  tenantId              Int
+  tenant                Tenant                   @relation(fields: [tenantId], references: [id])
+  subjectGrades         SubjectGrading[]
+  gradingStructures     TenantGradingStructure[] @relation("TenantGradingStructureClass")
+  subjectsRegistered    SubjectRegistration[]
+  fromPromotions        ClassPromotion[]         @relation("FromClass")
+  toPromotions          ClassPromotion[]         @relation("ToClass")
+  studentTermResult     StudentTermResult[]
+  studentCalendarResult StudentCalendarResult[]
 }
 
 enum ClassList {
@@ -206,9 +207,10 @@ model ClassDivision {
   subjectGrading         SubjectGrading[]
   subjectsRegistered     SubjectRegistration[]
 
-  fromPromotions    ClassPromotion[]    @relation("FromDivision")
-  toPromotions      ClassPromotion[]    @relation("ToDivision")
-  studentTermResult StudentTermResult[]
+  fromPromotions        ClassPromotion[]        @relation("FromDivision")
+  toPromotions          ClassPromotion[]        @relation("ToDivision")
+  studentTermResult     StudentTermResult[]
+  studentCalendarResult StudentCalendarResult[]
 }
 
 model Subject {
@@ -536,19 +538,23 @@ model ContinuousAssessmentScore {
 }
 
 model StudentCalendarResult {
-  id                  Int     @id @default(autoincrement())
-  studentId           Int
-  calendarId          Int
-  tenantId            Int
-  totalScore          Float   @default(0)
-  averageScore        Float   @default(0)
-  subjectCountOffered Int     @default(0)
-  subjectCountGraded  Int     @default(0)
-  finalized           Boolean @default(false)
+  id                        Int     @id @default(autoincrement())
+  studentId                 Int
+  classId                   Int
+  classDivisionId           Int
+  calendarId                Int
+  tenantId                  Int
+  totalScore                Float   @default(0)
+  averageScore              Float   @default(0)
+  subjectCountGraded        Int     @default(0)
+  finalizedTermResultsCount Int     @default(0)
+  finalized                 Boolean @default(false)
 
-  student  Student        @relation(fields: [studentId], references: [id])
-  calendar SchoolCalendar @relation(fields: [calendarId], references: [id])
-  tenant   Tenant         @relation(fields: [tenantId], references: [id])
+  student       Student        @relation(fields: [studentId], references: [id])
+  calendar      SchoolCalendar @relation(fields: [calendarId], references: [id])
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  class         Class          @relation(fields: [classId], references: [id])
+  classDivision ClassDivision  @relation(fields: [classDivisionId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -557,17 +563,16 @@ model StudentCalendarResult {
 }
 
 model StudentTermResult {
-  id                  Int     @id @default(autoincrement())
-  studentId           Int
-  classId             Int
-  classDivisionId     Int
-  termId              Int
-  tenantId            Int
-  totalScore          Float   @default(0)
-  averageScore        Float   @default(0)
-  subjectCountOffered Int     @default(0)
-  subjectCountGraded  Int     @default(0)
-  finalized           Boolean @default(false)
+  id                 Int     @id @default(autoincrement())
+  studentId          Int
+  classId            Int
+  classDivisionId    Int
+  termId             Int
+  tenantId           Int
+  totalScore         Float   @default(0)
+  averageScore       Float   @default(0)
+  subjectCountGraded Int     @default(0)
+  finalized          Boolean @default(false)
 
   student       Student       @relation(fields: [studentId], references: [id])
   term          Term          @relation(fields: [termId], references: [id])
