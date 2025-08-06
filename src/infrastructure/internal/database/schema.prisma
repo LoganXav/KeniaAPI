@@ -59,7 +59,7 @@ model Tenant {
   subjectsRegistered      SubjectRegistration[]
   classPromotion          ClassPromotion[]
   studentCalendarResult   StudentCalendarResult[]
-  StudentTermResult       StudentTermResult[]
+  studentTermResult       StudentTermResult[]
 }
 
 enum TenantOnboardingStatusType {

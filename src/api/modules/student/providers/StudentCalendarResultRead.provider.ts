@@ -1,4 +1,6 @@
 import { StudentCalendarResult } from "@prisma/client";
+import { StudentCalendarResultReadType } from "../types/StudentTypes";
+import { userObjectWithoutPassword } from "~/api/shared/helpers/objects";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { EnforceTenantId } from "~/api/modules/base/decorators/EnforceTenantId.decorator";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
@@ -18,6 +20,38 @@ export default class StudentCalendarResultReadProvider {
       });
     } catch (error: any) {
       throw new InternalServerError(error);
+    }
+  }
+
+  public async getByCriteria(criteria: StudentCalendarResultReadType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentCalendarResult[]> {
+    try {
+      const { studentId, calendarId, tenantId, classId, classDivisionId } = criteria;
+
+      const results = await dbClient.studentCalendarResult.findMany({
+        where: {
+          ...(calendarId && { calendarId }),
+          ...(classId && { classId }),
+          ...(tenantId && { tenantId }),
+          ...(studentId && { studentId }),
+          ...(classDivisionId && { classDivisionId }),
+        },
+        include: {
+          student: {
+            include: {
+              user: { select: userObjectWithoutPassword },
+              _count: {
+                select: {
+                  subjectsRegistered: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return results;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
     }
   }
 }

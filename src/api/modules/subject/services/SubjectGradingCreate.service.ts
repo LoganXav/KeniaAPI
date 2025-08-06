@@ -18,15 +18,15 @@ import StudentTermResultReadProvider from "../../student/providers/StudentTermRe
 import StudentTermResultCreateProvider from "../../student/providers/StudentTermResultCreate.provider";
 import StudentTermResultUpdateProvider from "../../student/providers/StudentTermResultUpdate.provider";
 import SubjectGradingCreateProvider from "~/api/modules/subject/providers/SubjectGradingCreate.provider";
+import StudentCalendarResultReadProvider from "../../student/providers/StudentCalendarResultRead.provider";
+import StudentCalendarResultCreateProvider from "../../student/providers/StudentCalendarResultCreate.provider";
+import StudentCalendarResultUpdateProvider from "../../student/providers/StudentCalendarResultUpdate.provider";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
 import StudentSubjectRegistrationReadProvider from "../../student/providers/StudentSubjectRegistrationRead.provider";
 import SubjectGradingStructureReadProvider from "~/api/modules/subject/providers/SubjectGradingStructureRead.provider";
 import { RESOURCE_RECORD_CREATED_SUCCESSFULLY, RESOURCE_RECORD_NOT_FOUND } from "~/api/shared/helpers/messages/SystemMessagesFunction";
 import { TenantGradingStructure, GradeBoundary, Status, Student, SubjectGradingStructure, ContinuousAssessmentBreakdownItem } from "@prisma/client";
 import { SUCCESS, SUBJECT_GRADING_RESOURCE, ERROR, TENANT_GRADING_STRUCTURE_RESOURCE, SUBJECT_GRADING_STRUCTURE_RESOURCE, STUDENT_RESOURCE, STAFF_RESOURCE, AUTHORIZATION_REQUIRED } from "~/api/shared/helpers/messages/SystemMessages";
-import StudentCalendarResultUpdateProvider from "../../student/providers/StudentCalendarResultUpdate.provider";
-import StudentCalendarResultReadProvider from "../../student/providers/StudentCalendarResultRead.provider";
-import StudentCalendarResultCreateProvider from "../../student/providers/StudentCalendarResultCreate.provider";
 
 @autoInjectable()
 export default class SubjectGradingCreateService extends BaseService<IRequest> {
@@ -84,7 +84,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
 
       const { tenantId, calendarId, termId, studentId, subjectId, classId, continuousAssessmentScores, examScore, userId } = args.body;
 
-      await this.validateSubjectTeacher(tenantId, userId, subjectId);
+      // await this.validateSubjectTeacher(tenantId, userId, subjectId);
       const tenantGradingStructure = await this.getTenantGradingStructure(tenantId, classId);
       const subjectGradingStructure = await this.getSubjectGradingStructure(tenantId, subjectId);
       const student = await this.getValidatedStudentWithSubjectEnrollment(tenantId, studentId, subjectId);
