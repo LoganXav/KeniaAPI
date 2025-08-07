@@ -75,4 +75,25 @@ export default class StudentTermResultReadProvider {
       throw new InternalServerError(error.message);
     }
   }
+
+  public async count(criteria: StudentTermResultReadType & { finalized: boolean }, dbClient: PrismaTransactionClient = DbClient): Promise<number> {
+    try {
+      const { studentId, termId, tenantId, classId, classDivisionId, finalized } = criteria;
+
+      const count = await dbClient.studentTermResult.count({
+        where: {
+          ...(termId && { termId }),
+          ...(classId && { classId }),
+          ...(tenantId && { tenantId }),
+          ...(studentId && { studentId }),
+          ...(classDivisionId && { classDivisionId }),
+          ...(finalized !== undefined && { finalized }),
+        },
+      });
+
+      return count;
+    } catch (error: any) {
+      throw new InternalServerError(error.message);
+    }
+  }
 }
