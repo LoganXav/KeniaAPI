@@ -96,6 +96,10 @@ export default class AuthOnboardingController extends BaseController {
                 type: PropTypeEnum.STRING,
                 required: true,
               },
+              name: {
+                type: PropTypeEnum.STRING,
+                required: true,
+              },
               lastName: {
                 type: PropTypeEnum.STRING,
                 required: true,

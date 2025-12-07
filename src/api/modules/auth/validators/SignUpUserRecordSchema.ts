@@ -4,6 +4,9 @@ export const signUpUserRecordSchema = z.object({
   firstName: z.string({
     required_error: "Argument first name is missing",
   }),
+  name: z.string({
+    required_error: "Argument school name is missing",
+  }),
   lastName: z.string({
     required_error: "Argument last name is missing",
   }),

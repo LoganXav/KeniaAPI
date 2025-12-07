@@ -49,4 +49,23 @@ export default class TermReadProvider {
       throw new InternalServerError(error);
     }
   }
+
+  public async count(criteria: TermCriteriaType, dbClient: PrismaTransactionClient = DbClient): Promise<number> {
+    try {
+      const { id, ids, calendarId, tenantId } = criteria;
+
+      const count = await dbClient.term.count({
+        where: {
+          ...(id && { id }),
+          ...(ids && { id: { in: ids } }),
+          ...(calendarId && { calendarId }),
+          ...(tenantId && { tenantId }),
+        },
+      });
+
+      return count;
+    } catch (error: any) {
+      throw new InternalServerError(error);
+    }
+  }
 }
