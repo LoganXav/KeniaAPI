@@ -192,6 +192,9 @@
           "firstName": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
           "lastName": {
             "type": "string"
           },
@@ -207,6 +210,7 @@
         },
         "required": [
           "firstName",
+          "name",
           "lastName",
           "phoneNumber",
           "email",

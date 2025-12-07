@@ -1,7 +1,9 @@
 import { Class, Group, Permission, Role, Staff, Student, Subject, Tenant, TenantMetadata, UserToken } from "@prisma/client";
 
 // TODO: Add createTeneant record params
-export type CreateTenantRecordType = null;
+export type CreateTenantRecordType = {
+  name: string;
+};
 
 export interface TenantReadCriteria {
   id?: number;

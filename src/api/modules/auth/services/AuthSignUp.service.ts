@@ -23,7 +23,7 @@ import ClassCreateProvider from "~/api/modules/class/providers/ClassCreate.provi
 import { BadRequestError } from "~/infrastructure/internal/exceptions/BadRequestError";
 import { SeedRolesJob, SeedRolesJobData } from "~/api/shared/jobs/seeds/SeedRoles.job";
 import TenantCreateProvider from "~/api/modules/tenant/providers/TenantCreate.provider";
-import { CreateUserRecordType, SignUpUserType } from "~/api/modules/user/types/UserTypes";
+import { SignUpUserType } from "~/api/modules/user/types/UserTypes";
 import { SeedClassesJob, SeedClassesJobData } from "~/api/shared/jobs/seeds/SeedClasses.job";
 import { NormalizedAppError } from "~/infrastructure/internal/exceptions/NormalizedAppError";
 import { LoggingProviderFactory } from "~/infrastructure/internal/logger/LoggingProviderFactory";
@@ -32,7 +32,7 @@ import { SeedPermissionsJob, SeedPermissionsJobData } from "~/api/shared/jobs/se
 import DbClient, { PrismaTransactionClient, TRANSACTION_MAX_WAIT, TRANSACTION_TIMEOUT } from "~/infrastructure/internal/database";
 import { ACCOUNT_CREATED, EMAIL_IN_USE, ERROR, SCHOOL_OWNER_ROLE_NAME, SOMETHING_WENT_WRONG, SUCCESS } from "~/api/shared/helpers/messages/SystemMessages";
 @autoInjectable()
-export default class AuthSignUpService extends BaseService<CreateUserRecordType> {
+export default class AuthSignUpService extends BaseService<SignUpUserType> {
   static serviceName = "AuthSignUpService";
   tokenProvider: TokenProvider;
   userReadCache: UserReadCache;
@@ -76,7 +76,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
     QueueProvider.registerWorker("assignAdminRolePermissions", SeedRolesJob.process);
   }
 
-  public async execute(trace: ServiceTrace, args: CreateUserRecordType): Promise<IResult> {
+  public async execute(trace: ServiceTrace, args: SignUpUserType): Promise<IResult> {
     try {
       this.initializeServiceTrace(trace, args, ["password"]);
       const foundUser = await this.userReadProvider.getOneByCriteria({ email: args.email });
@@ -147,7 +147,7 @@ export default class AuthSignUpService extends BaseService<CreateUserRecordType>
     try {
       const result = await DbClient.$transaction(
         async (tx: PrismaTransactionClient) => {
-          const tenant = await this.tenantCreateProvider.create(null, tx);
+          const tenant = await this.tenantCreateProvider.create({ name: args.name }, tx);
 
           const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
           const user = await this.userCreateProvider.create(userCreateInput, tx);
