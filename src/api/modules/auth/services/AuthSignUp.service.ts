@@ -147,7 +147,7 @@ export default class AuthSignUpService extends BaseService<SignUpUserType> {
     try {
       const result = await DbClient.$transaction(
         async (tx: PrismaTransactionClient) => {
-          const tenant = await this.tenantCreateProvider.create({ name: args.name }, tx);
+          const tenant = await this.tenantCreateProvider.create({ name: args.name, contactEmail: args.email }, tx);
 
           const userCreateInput = { tenantId: tenant?.id, ...args, userType: UserType.STAFF };
           const user = await this.userCreateProvider.create(userCreateInput, tx);

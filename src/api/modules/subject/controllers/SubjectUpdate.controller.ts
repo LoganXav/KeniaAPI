@@ -1,5 +1,5 @@
 import { autoInjectable } from "tsyringe";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import SubjectUpdateService from "../services/SubjectUpdate.service";
 import { subjectUpdateSchema } from "../validators/SubjectUpdateSchema";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";

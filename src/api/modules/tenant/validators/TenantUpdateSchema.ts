@@ -1,7 +1,7 @@
 import { z } from "zod";
 import DateTimeUtils from "~/utils/DateTimeUtil";
 
-export const onboardingPersonalSchema = z.object({
+export const tenantUpdateSchema = z.object({
   tenantId: z.number({
     required_error: "Tenant Id is required",
     invalid_type_error: "Tenant Id must be an integer",
@@ -9,84 +9,6 @@ export const onboardingPersonalSchema = z.object({
   userId: z.number({
     required_error: "Auth User Id is required",
     invalid_type_error: "Auth User Id must be an integer",
-  }),
-  firstName: z
-    .string({
-      required_error: "First name is required",
-    })
-    .min(1, "First name must be at least 1 character")
-    .max(50, "First name cannot exceed 50 characters"),
-  lastName: z
-    .string({
-      required_error: "Last name is required",
-    })
-    .min(1, "Last name must be at least 1 character")
-    .max(50, "Last name cannot exceed 50 characters"),
-
-  gender: z.string({
-    required_error: "Gender is required",
-  }),
-  phoneNumber: z
-    .string({
-      required_error: "Phone number is required",
-    })
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number cannot exceed 15 digits"),
-
-  dateOfBirth: z
-    .string({
-      invalid_type_error: "Date of birth must be a valid Date object",
-    })
-    .optional()
-    .refine(
-      (val) => {
-        if (!val) return true;
-        const date = new Date(val);
-        return !isNaN(date.getTime());
-      },
-      {
-        message: "Invalid date of birth format",
-      }
-    )
-    .transform((val) => {
-      if (!val) return null;
-      return DateTimeUtils.parseToISO(val);
-    }),
-});
-
-export const onboardingResidentialSchema = z.object({
-  tenantId: z.number({
-    required_error: "Tenant Id is required",
-  }),
-  userId: z.number({
-    required_error: "Auth User Id is required",
-  }),
-  residentialAddress: z
-    .string({
-      required_error: "Residential address is required",
-    })
-    .min(1, "Residential address must be at least 1 character")
-    .max(255, "Residential address is too long"),
-  residentialLgaId: z.number({
-    required_error: "Local government is required",
-  }),
-  residentialStateId: z.number({
-    required_error: "State is required",
-  }),
-  residentialCountryId: z.number({
-    required_error: "Country is required",
-  }),
-  residentialZipCode: z.number({
-    required_error: "Zip code is required",
-  }),
-});
-
-export const onboardingSchoolSchema = z.object({
-  tenantId: z.number({
-    required_error: "Tenant Id is required",
-  }),
-  userId: z.number({
-    required_error: "Auth User Id is required",
   }),
   name: z
     .string({
@@ -164,7 +86,7 @@ export const onboardingSchoolSchema = z.object({
     .max(10, "Postal code cannot exceed 10 characters"),
 });
 
-export const onboardingTemplateParamsSchema = z.object({
+export const tenantTemplateParamsSchema = z.object({
   codeValue: z
     .string({
       required_error: "Code Value is required",

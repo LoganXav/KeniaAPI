@@ -19,7 +19,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": true,
-
+    "baseUrl": ".",
     "paths": {
       "~/api/*": ["./src/api/*"],
       "~/config/*": ["./src/config/*"],
@@ -31,5 +31,5 @@
 
   "compileOnSave": true,
   "exclude": ["node_modules", "dist"],
-  "include": ["./src/**/*"]
+  "include": ["src/**/*"]
 }

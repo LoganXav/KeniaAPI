@@ -1,5 +1,5 @@
 import { autoInjectable } from "tsyringe";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import StudentUpdateService from "../services/StudentUpdate.service";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";

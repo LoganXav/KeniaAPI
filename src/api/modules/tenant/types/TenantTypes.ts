@@ -1,8 +1,13 @@
-import { Class, Group, Permission, Role, Staff, Student, Subject, Tenant, TenantMetadata, UserToken } from "@prisma/client";
+import { Role, Staff, Student, Tenant, TenantMetadata } from "@prisma/client";
+import { tenantUpdateSchema } from "../validators/TenantUpdateSchema";
+import { z } from "zod";
+
+export type TenantUpdateSchemaType = z.infer<typeof tenantUpdateSchema>;
 
 // TODO: Add createTeneant record params
 export type CreateTenantRecordType = {
   name: string;
+  contactEmail: string;
 };
 
 export interface TenantReadCriteria {

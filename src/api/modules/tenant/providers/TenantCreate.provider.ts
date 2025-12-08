@@ -5,11 +5,12 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 
 export default class TenantCreateProvider {
   public async create(args: CreateTenantRecordType, dbClient: PrismaTransactionClient = DbClient): Promise<Tenant> {
-    const { name } = args;
+    const { name, contactEmail } = args;
     try {
       const newTenant = await dbClient?.tenant?.create({
         data: {
           name,
+          contactEmail,
           metadata: {
             create: {
               // TODO: The metadata should be updated in a different way. This is prone to errors

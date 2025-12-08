@@ -13,11 +13,11 @@ import CountryConstants from "~/api/shared/helpers/constants/Country.constants";
 import { GetLgasByCodeValue } from "~/api/shared/helpers/constants/GetLocalGovernmentsByCode";
 
 @autoInjectable()
-export default class OnboardingTemplateService extends BaseService<IRequest> {
-  static serviceName = "OnboardingTemplateService";
+export default class TenantTemplateService extends BaseService<IRequest> {
+  static serviceName = "TenantTemplateService";
   loggingProvider: ILoggingDriver;
   constructor() {
-    super(OnboardingTemplateService.serviceName);
+    super(TenantTemplateService.serviceName);
     this.loggingProvider = LoggingProviderFactory.build();
   }
 

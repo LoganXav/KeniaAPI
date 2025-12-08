@@ -1,6 +1,7 @@
 import { Tenant, TenantMetadata } from "@prisma/client";
 import DbClient, { PrismaTransactionClient } from "~/infrastructure/internal/database";
 import { InternalServerError } from "~/infrastructure/internal/exceptions/InternalServerError";
+import { TenantUpdateSchemaType } from "../types/TenantTypes";
 
 export default class TenantUpdateProvider {
   public async updateMetadata(args: any, dbClient: PrismaTransactionClient = DbClient): Promise<TenantMetadata> {
@@ -20,14 +21,13 @@ export default class TenantUpdateProvider {
     }
   }
 
-  public async updateOneByCriteria(args: any, dbClient: PrismaTransactionClient = DbClient): Promise<Tenant> {
+  public async updateOneByCriteria(args: TenantUpdateSchemaType, dbClient: PrismaTransactionClient = DbClient): Promise<Tenant> {
     try {
-      const { tenantId, onboardingStatus, name, registrationNo, contactEmail, contactPhone, establishedDate, logoUrl, address, stateId, lgaId, countryId, zipCode, postalCode } = args;
+      const { tenantId, name, registrationNo, contactEmail, contactPhone, establishedDate, logoUrl, address, stateId, lgaId, countryId, zipCode, postalCode } = args;
 
       const updatedTenant = await dbClient?.tenant?.update({
         where: { id: tenantId },
         data: {
-          ...(onboardingStatus && { onboardingStatus }),
           ...(name && { name }),
           ...(registrationNo && { registrationNo }),
           ...(contactEmail && { contactEmail }),

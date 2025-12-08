@@ -1,27 +1,27 @@
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import OnboardingTemplateService from "../services/OnboardingTemplate.service";
-import { validateParams } from "~/api/shared/helpers/middleware/validateData";
-import { onboardingTemplateParamsSchema } from "../validators/OnboardingSchema";
+import TenantUpdateService from "../services/TenantUpdate.service";
+import { validateData } from "~/api/shared/helpers/middleware/validateData";
+import { tenantUpdateSchema } from "../validators/TenantUpdateSchema";
 
 @autoInjectable()
-export default class OnboardingTemplateController extends BaseController {
+export default class TenantUpdateController extends BaseController {
   static controllerName: string;
-  onboardingTemplateService: OnboardingTemplateService;
-  constructor(onboardingTemplateService: OnboardingTemplateService) {
+  tenantUpdateService: TenantUpdateService;
+  constructor(tenantUpdateService: TenantUpdateService) {
     super();
-    this.controllerName = "OnboardingTemplateController";
-    this.onboardingTemplateService = onboardingTemplateService;
+    this.controllerName = "TenantUpdateController";
+    this.tenantUpdateService = tenantUpdateService;
   }
 
-  template: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.onboardingTemplateService.execute(res.trace, req), {
+  updateOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.tenantUpdateService.execute(res.trace, req.body), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -31,15 +31,15 @@ export default class OnboardingTemplateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/onboarding/template",
-      handlers: [validateParams(onboardingTemplateParamsSchema), this.template],
+      path: "/tenant/update",
+      handlers: [validateData(tenantUpdateSchema), this.updateOne],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Onboarding Template",
+      description: "User Info",
     });
   }
 }

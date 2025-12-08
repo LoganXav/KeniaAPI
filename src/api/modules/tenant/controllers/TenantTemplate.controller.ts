@@ -6,23 +6,22 @@ import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.en
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpContentTypeEnum } from "~/api/shared/helpers/enums/HttpContentType.enum";
 import { autoInjectable } from "tsyringe";
-import { validateData } from "~/api/shared/helpers/middleware/validateData";
-import { classDivisionUpdateSchema } from "../validators/ClassDivisionUpdateSchema";
-import ClassDivisionUpdateService from "../services/ClassDivisionUpdate.service";
+import { validateParams } from "~/api/shared/helpers/middleware/validateData";
+import TenantTemplateService from "../services/TenantTemplate.service";
+import { tenantTemplateParamsSchema } from "../validators/TenantUpdateSchema";
 
 @autoInjectable()
-export default class ClassDivisionUpdateController extends BaseController {
+export default class TenantTemplateController extends BaseController {
   static controllerName: string;
-  private classDivisionUpdateService: ClassDivisionUpdateService;
-
-  constructor(classDivisionUpdateService: ClassDivisionUpdateService) {
+  tenantTemplateService: TenantTemplateService;
+  constructor(tenantTemplateService: TenantTemplateService) {
     super();
-    this.controllerName = "ClassDivisionUpdateController";
-    this.classDivisionUpdateService = classDivisionUpdateService;
+    this.controllerName = "TenantTemplateController";
+    this.tenantTemplateService = tenantTemplateService;
   }
 
-  update: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
-    return this.handleResultData(res, next, this.classDivisionUpdateService.execute(res.trace, req), {
+  template: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+    return this.handleResultData(res, next, this.tenantTemplateService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
   };
@@ -32,15 +31,15 @@ export default class ClassDivisionUpdateController extends BaseController {
 
     this.addRoute({
       method: HttpMethodEnum.POST,
-      path: "/classdivision/update/:id",
-      handlers: [validateData(classDivisionUpdateSchema), this.update],
+      path: "/tenant/template",
+      handlers: [validateParams(tenantTemplateParamsSchema), this.template],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,
           httpStatus: HttpStatusCodeEnum.SUCCESS,
         },
       ],
-      description: "Update a class division",
+      description: "tenant Template",
     });
   }
 }
