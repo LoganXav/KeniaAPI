@@ -85,3 +85,11 @@ export const tenantUpdateSchema = z.object({
     .min(5, "Postal code must be at least 5 characters")
     .max(10, "Postal code cannot exceed 10 characters"),
 });
+
+export const tenantTemplateParamsSchema = z.object({
+  codeValue: z
+    .string({
+      required_error: "Code Value is required",
+    })
+    .optional(),
+});

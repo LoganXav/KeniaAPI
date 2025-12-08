@@ -7,6 +7,7 @@ export type TenantUpdateSchemaType = z.infer<typeof tenantUpdateSchema>;
 // TODO: Add createTeneant record params
 export type CreateTenantRecordType = {
   name: string;
+  contactEmail: string;
 };
 
 export interface TenantReadCriteria {
