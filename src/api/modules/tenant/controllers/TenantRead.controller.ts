@@ -1,5 +1,5 @@
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import ApplicationStatusEnum from "~/api/shared/helpers/enums/ApplicationStatus.enum";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
@@ -18,7 +18,7 @@ export default class TenantReadController extends BaseController {
     this.tenantReadService = tenantReadService;
   }
 
-  me: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
+  readOne: EntryPointHandler = async (req: IRequest, res: IResponse, next: INextFunction): Promise<void> => {
     return this.handleResultData(res, next, this.tenantReadService.execute(res.trace, req), {
       [HttpHeaderEnum.CONTENT_TYPE]: HttpContentTypeEnum.APPLICATION_JSON,
     });
@@ -30,7 +30,7 @@ export default class TenantReadController extends BaseController {
     this.addRoute({
       method: HttpMethodEnum.POST,
       path: "/tenant",
-      handlers: [this.me],
+      handlers: [this.readOne],
       produces: [
         {
           applicationStatus: ApplicationStatusEnum.SUCCESS,

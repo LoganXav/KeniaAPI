@@ -1,6 +1,6 @@
 import { autoInjectable } from "tsyringe";
 import PeriodReadService from "../services/PeriodRead.service";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";

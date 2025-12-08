@@ -1,5 +1,5 @@
 import { autoInjectable } from "tsyringe";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import SubjectDeleteService from "../services/SubjectDelete.service";
 import { SubjectDeleteSchema } from "../validators/SubjectDeleteSchema";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";

@@ -1,7 +1,7 @@
 import { autoInjectable } from "tsyringe";
 import AuthSignUpService from "../services/AuthSignUp.service";
 import AuthSignInService from "../services/AuthSignIn.service";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";

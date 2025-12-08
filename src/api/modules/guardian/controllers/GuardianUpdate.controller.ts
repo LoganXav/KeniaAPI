@@ -6,7 +6,7 @@ import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpStatusCodeEnum } from "~/api/shared/helpers/enums/HttpStatusCode.enum";
 import { validateData } from "~/api/shared/helpers/middleware/validateData";
 import { EntryPointHandler, INextFunction, IRequest, IResponse, IRouter } from "~/infrastructure/internal/types";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import GuardianUpdateService from "../services/GuardianUpdate.service";
 import { guardianUpdateSchema } from "../validators/GuardianUpdateSchema";
 

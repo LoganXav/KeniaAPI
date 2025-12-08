@@ -1,5 +1,5 @@
 import { autoInjectable } from "tsyringe";
-import BaseController from "../../base/contollers/Base.controller";
+import BaseController from "../../base/controllers/Base.controller";
 import TimetableDeleteService from "../services/TimetableDelete.service";
 import { HttpMethodEnum } from "~/api/shared/helpers/enums/HttpMethod.enum";
 import { HttpHeaderEnum } from "~/api/shared/helpers/enums/HttpHeader.enum";

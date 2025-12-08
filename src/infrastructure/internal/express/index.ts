@@ -9,7 +9,7 @@ import ServerConfig from "~/config/ServerConfig";
 import { serve, setup } from "swagger-ui-express";
 import { IRouter } from "~/infrastructure/internal/types";
 import AppSettings from "~/api/shared/setttings/AppSettings";
-import BaseController from "~/api/modules/base/contollers/Base.controller";
+import BaseController from "~/api/modules/base/controllers/Base.controller";
 import serviceTraceMiddleware from "~/infrastructure/internal/middleware/trace";
 import { errorHandler } from "~/infrastructure/internal/exceptions/ErrorHandler";
 import { ILoggingDriver } from "~/infrastructure/internal/logger/ILoggingDriver";
