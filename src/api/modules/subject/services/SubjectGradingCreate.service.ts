@@ -19,8 +19,6 @@ import StudentTermResultCreateProvider from "../../student/providers/StudentTerm
 import StudentTermResultUpdateProvider from "../../student/providers/StudentTermResultUpdate.provider";
 import SubjectGradingCreateProvider from "~/api/modules/subject/providers/SubjectGradingCreate.provider";
 import StudentCalendarResultReadProvider from "../../student/providers/StudentCalendarResultRead.provider";
-import StudentCalendarResultCreateProvider from "../../student/providers/StudentCalendarResultCreate.provider";
-import StudentCalendarResultUpdateProvider from "../../student/providers/StudentCalendarResultUpdate.provider";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
 import StudentSubjectRegistrationReadProvider from "../../student/providers/StudentSubjectRegistrationRead.provider";
 import SubjectGradingStructureReadProvider from "~/api/modules/subject/providers/SubjectGradingStructureRead.provider";
@@ -40,8 +38,6 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
   private studentTermResultCreateProvider: StudentTermResultCreateProvider;
   private studentCalendarResultReadProvider: StudentCalendarResultReadProvider;
   private tenantGradingStructureReadProvider: TenantGradingStructureReadProvider;
-  private studentCalendarResultCreateProvider: StudentCalendarResultCreateProvider;
-  private studentCalendarResultUpdateProvider: StudentCalendarResultUpdateProvider;
   private subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider;
   private studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider;
   loggingProvider: ILoggingDriver;
@@ -56,8 +52,6 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     studentTermResultUpdateProvider: StudentTermResultUpdateProvider,
     studentCalendarResultReadProvider: StudentCalendarResultReadProvider,
     tenantGradingStructureReadProvider: TenantGradingStructureReadProvider,
-    studentCalendarResultCreateProvider: StudentCalendarResultCreateProvider,
-    studentCalendarResultUpdateProvider: StudentCalendarResultUpdateProvider,
     subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider,
     studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider
   ) {
@@ -70,9 +64,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     this.studentTermResultUpdateProvider = studentTermResultUpdateProvider;
     this.studentTermResultCreateProvider = studentTermResultCreateProvider;
     this.studentCalendarResultReadProvider = studentCalendarResultReadProvider;
-    this.studentCalendarResultUpdateProvider = studentCalendarResultUpdateProvider;
     this.tenantGradingStructureReadProvider = tenantGradingStructureReadProvider;
-    this.studentCalendarResultCreateProvider = studentCalendarResultCreateProvider;
     this.subjectGradingStructureReadProvider = subjectGradingStructureReadProvider;
     this.studentSubjectRegistrationReadProvider = studentSubjectRegistrationReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
@@ -272,6 +264,8 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       if (!student) {
         throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE));
       }
+
+      console.log(student, subjectId);
 
       if (!student.classId || !student.classDivisionId) {
         throw new BadRequestError("Student is not enrolled in a class.");
