@@ -8,7 +8,7 @@ import { InternalServerError } from "~/infrastructure/internal/exceptions/Intern
 export default class StudentCalendarResultCreateProvider {
   public async create(args: StudentCalendarResultCreateType, dbClient: PrismaTransactionClient = DbClient): Promise<StudentCalendarResult> {
     try {
-      const { studentId, calendarId, tenantId, totalScore, averageScore, subjectCountGraded, finalized, finalizedTermResultsCount, classId, classDivisionId } = args;
+      const { studentId, calendarId, tenantId, finalized, finalizedTermResultsCount, classId, classDivisionId } = args;
 
       const result = await dbClient.studentCalendarResult.create({
         data: {
@@ -18,10 +18,7 @@ export default class StudentCalendarResultCreateProvider {
           studentId,
           finalized,
           finalizedTermResultsCount,
-          totalScore,
-          averageScore,
           classDivisionId,
-          subjectCountGraded,
         },
       });
 
