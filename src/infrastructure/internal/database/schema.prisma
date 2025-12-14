@@ -14,52 +14,53 @@ datasource db {
 }
 
 model Tenant {
-  id                      Int                        @id @default(autoincrement())
-  name                    String?
-  address                 String?
-  type                    String?
-  registrationNo          String?
-  contactEmail            String?
-  contactPhone            String?
-  establishedDate         DateTime?
-  logoUrl                 String?
-  stateId                 Int?
-  lgaId                   Int?
-  countryId               Int?
-  zipCode                 Int?
-  postalCode              String?
-  onboardingStatus        TenantOnboardingStatusType @default(PERSONAL)
-  users                   User[]
-  metadata                TenantMetadata?
-  createdAt               DateTime                   @default(now())
-  updatedAt               DateTime                   @updatedAt
-  staffs                  Staff[]
-  students                Student[]
-  userTokens              UserToken[]
-  roles                   Role[]
-  permissions             Permission[]
-  groups                  Group[]
-  classes                 Class[]
-  subjects                Subject[]
-  studentGroups           StudentGroup[]
-  guardians               Guardian[]
-  dormitories             Dormitory[]
-  medicalHistories        MedicalHistory[]
-  documents               Document[]
-  documentTypes           DocumentType[]
-  classDivisions          ClassDivision[]
-  schoolCalendars         SchoolCalendar[]
-  terms                   Term[]
-  breakPeriods            BreakPeriod[]
-  timetables              Timetable[]
-  periods                 Period[]
-  gradingStructures       TenantGradingStructure[]
-  subjectGradingStructure SubjectGradingStructure[]
-  subjectGrading          SubjectGrading[]
-  subjectsRegistered      SubjectRegistration[]
-  classPromotion          ClassPromotion[]
-  studentCalendarResult   StudentCalendarResult[]
-  studentTermResult       StudentTermResult[]
+  id                          Int                          @id @default(autoincrement())
+  name                        String?
+  address                     String?
+  type                        String?
+  registrationNo              String?
+  contactEmail                String?
+  contactPhone                String?
+  establishedDate             DateTime?
+  logoUrl                     String?
+  stateId                     Int?
+  lgaId                       Int?
+  countryId                   Int?
+  zipCode                     Int?
+  postalCode                  String?
+  onboardingStatus            TenantOnboardingStatusType   @default(PERSONAL)
+  users                       User[]
+  metadata                    TenantMetadata?
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  staffs                      Staff[]
+  students                    Student[]
+  userTokens                  UserToken[]
+  roles                       Role[]
+  permissions                 Permission[]
+  groups                      Group[]
+  classes                     Class[]
+  subjects                    Subject[]
+  studentGroups               StudentGroup[]
+  guardians                   Guardian[]
+  dormitories                 Dormitory[]
+  medicalHistories            MedicalHistory[]
+  documents                   Document[]
+  documentTypes               DocumentType[]
+  classDivisions              ClassDivision[]
+  schoolCalendars             SchoolCalendar[]
+  terms                       Term[]
+  breakPeriods                BreakPeriod[]
+  timetables                  Timetable[]
+  periods                     Period[]
+  gradingStructures           TenantGradingStructure[]
+  subjectGradingStructure     SubjectGradingStructure[]
+  subjectGrading              SubjectGrading[]
+  subjectsRegistered          SubjectRegistration[]
+  classPromotion              ClassPromotion[]
+  studentCalendarResult       StudentCalendarResult[]
+  studentTermResult           StudentTermResult[]
+  studentCalendarTermAverages StudentCalendarTermAverage[]
 }
 
 enum TenantOnboardingStatusType {
@@ -289,18 +290,19 @@ model SchoolCalendar {
 }
 
 model Term {
-  id                Int                 @id @default(autoincrement())
-  name              String // e.g., "First Term", "Second Term"
-  startDate         DateTime
-  endDate           DateTime
-  breakWeeks        BreakPeriod[]
-  calendarId        Int
-  calendar          SchoolCalendar      @relation(fields: [calendarId], references: [id])
-  tenantId          Int
-  tenant            Tenant              @relation(fields: [tenantId], references: [id])
-  timetable         Timetable[]
-  subjectGrade      SubjectGrading[]
-  studentTermResult StudentTermResult[]
+  id                               Int                          @id @default(autoincrement())
+  name                             String // e.g., "First Term", "Second Term"
+  startDate                        DateTime
+  endDate                          DateTime
+  breakWeeks                       BreakPeriod[]
+  calendarId                       Int
+  calendar                         SchoolCalendar               @relation(fields: [calendarId], references: [id])
+  tenantId                         Int
+  tenant                           Tenant                       @relation(fields: [tenantId], references: [id])
+  timetable                        Timetable[]
+  subjectGrade                     SubjectGrading[]
+  studentTermResult                StudentTermResult[]
+  studentCalendarTermAverageScores StudentCalendarTermAverage[]
 }
 
 model BreakPeriod {
@@ -538,15 +540,13 @@ model ContinuousAssessmentScore {
 }
 
 model StudentCalendarResult {
-  id                        Int     @id @default(autoincrement())
-  studentId                 Int
-  classId                   Int
-  classDivisionId           Int
-  calendarId                Int
-  tenantId                  Int
-  totalScore                Float   @default(0)
-  averageScore              Float   @default(0)
-  subjectCountGraded        Int     @default(0)
+  id              Int @id @default(autoincrement())
+  studentId       Int
+  classId         Int
+  classDivisionId Int
+  calendarId      Int
+  tenantId        Int
+
   finalizedTermResultsCount Int     @default(0)
   finalized                 Boolean @default(false)
 
@@ -556,10 +556,25 @@ model StudentCalendarResult {
   class         Class          @relation(fields: [classId], references: [id])
   classDivision ClassDivision  @relation(fields: [classDivisionId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt                        DateTime                     @default(now())
+  updatedAt                        DateTime                     @updatedAt
+  studentCalendarTermAverageScores StudentCalendarTermAverage[]
 
   @@unique([studentId, calendarId, tenantId])
+}
+
+model StudentCalendarTermAverage {
+  id                      Int   @id @default(autoincrement())
+  studentCalendarResultId Int
+  termId                  Int
+  tenantId                Int
+  averageScore            Float
+
+  studentCalendarResult StudentCalendarResult @relation(fields: [studentCalendarResultId], references: [id])
+  term                  Term                  @relation(fields: [termId], references: [id])
+  tenant                Tenant                @relation(fields: [tenantId], references: [id])
+
+  @@unique([studentCalendarResultId, termId, tenantId])
 }
 
 model StudentTermResult {

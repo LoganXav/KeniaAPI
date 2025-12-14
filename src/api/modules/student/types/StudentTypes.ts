@@ -174,11 +174,8 @@ export interface StudentCalendarResultCreateType {
   calendarId: number;
   tenantId: number;
   studentId: number;
-  totalScore?: number;
   finalized?: boolean;
-  averageScore?: number;
   classId: number;
-  subjectCountGraded?: number;
   classDivisionId: number;
   finalizedTermResultsCount?: number;
 }
@@ -187,10 +184,15 @@ export interface StudentCalendarResultUpdateType {
   studentId: number;
   calendarId: number;
   tenantId: number;
-  totalScore?: number;
-  averageScore?: number;
-  subjectCountGraded?: number;
   finalized?: boolean;
+  finalizedTermResultsCount?: number;
+  studentCalendarTermAverageScores?: { termId: number; averageScore: number }[];
+}
+
+export interface StudentCalendarResultSaveTermAverageScoresType {
+  tenantId: number;
+  studentCalendarResultId: number;
+  studentCalendarTermAverageScores: { termId: number; averageScore: number };
 }
 
 export interface StudentCalendarResultReadType {

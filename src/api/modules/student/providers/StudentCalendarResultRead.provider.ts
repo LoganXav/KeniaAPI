@@ -39,12 +39,10 @@ export default class StudentCalendarResultReadProvider {
           student: {
             include: {
               user: { select: userObjectWithoutPassword },
-              _count: {
-                select: {
-                  subjectsRegistered: true,
-                },
-              },
             },
+          },
+          studentCalendarTermAverageScores: {
+            include: { term: true },
           },
         },
       });

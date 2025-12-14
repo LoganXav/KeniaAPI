@@ -19,8 +19,6 @@ import StudentTermResultCreateProvider from "../../student/providers/StudentTerm
 import StudentTermResultUpdateProvider from "../../student/providers/StudentTermResultUpdate.provider";
 import SubjectGradingCreateProvider from "~/api/modules/subject/providers/SubjectGradingCreate.provider";
 import StudentCalendarResultReadProvider from "../../student/providers/StudentCalendarResultRead.provider";
-import StudentCalendarResultCreateProvider from "../../student/providers/StudentCalendarResultCreate.provider";
-import StudentCalendarResultUpdateProvider from "../../student/providers/StudentCalendarResultUpdate.provider";
 import TenantGradingStructureReadProvider from "~/api/modules/tenant/providers/TenantGradingStructureRead.provider";
 import StudentSubjectRegistrationReadProvider from "../../student/providers/StudentSubjectRegistrationRead.provider";
 import SubjectGradingStructureReadProvider from "~/api/modules/subject/providers/SubjectGradingStructureRead.provider";
@@ -40,8 +38,6 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
   private studentTermResultCreateProvider: StudentTermResultCreateProvider;
   private studentCalendarResultReadProvider: StudentCalendarResultReadProvider;
   private tenantGradingStructureReadProvider: TenantGradingStructureReadProvider;
-  private studentCalendarResultCreateProvider: StudentCalendarResultCreateProvider;
-  private studentCalendarResultUpdateProvider: StudentCalendarResultUpdateProvider;
   private subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider;
   private studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider;
   loggingProvider: ILoggingDriver;
@@ -56,8 +52,6 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     studentTermResultUpdateProvider: StudentTermResultUpdateProvider,
     studentCalendarResultReadProvider: StudentCalendarResultReadProvider,
     tenantGradingStructureReadProvider: TenantGradingStructureReadProvider,
-    studentCalendarResultCreateProvider: StudentCalendarResultCreateProvider,
-    studentCalendarResultUpdateProvider: StudentCalendarResultUpdateProvider,
     subjectGradingStructureReadProvider: SubjectGradingStructureReadProvider,
     studentSubjectRegistrationReadProvider: StudentSubjectRegistrationReadProvider
   ) {
@@ -70,9 +64,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     this.studentTermResultUpdateProvider = studentTermResultUpdateProvider;
     this.studentTermResultCreateProvider = studentTermResultCreateProvider;
     this.studentCalendarResultReadProvider = studentCalendarResultReadProvider;
-    this.studentCalendarResultUpdateProvider = studentCalendarResultUpdateProvider;
     this.tenantGradingStructureReadProvider = tenantGradingStructureReadProvider;
-    this.studentCalendarResultCreateProvider = studentCalendarResultCreateProvider;
     this.subjectGradingStructureReadProvider = subjectGradingStructureReadProvider;
     this.studentSubjectRegistrationReadProvider = studentSubjectRegistrationReadProvider;
     this.loggingProvider = LoggingProviderFactory.build();
@@ -93,7 +85,16 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       // Get grade, remark and totalScore
       const { grade, remark, totalScore, totalContinuousScore } = this.mapGradeAndRemarkWithGradingStructure(tenantGradingStructure, continuousAssessmentScores, examScore);
 
-      const subjectGrading = await this.subjectGradingCreateProvider.createOrUpdate({ ...args.body, totalScore, grade, remark, totalContinuousScore, student });
+      const priorSubjectGrading = await this.subjectGradingReadProvider.getOneByCriteria({
+        studentId,
+        subjectId,
+        calendarId,
+        termId,
+        tenantId,
+      });
+
+      const oldSubjectScore = priorSubjectGrading?.totalScore ?? 0;
+      const isRegrade = priorSubjectGrading !== null;
 
       // Update student's term results
       await this.createOrUpdateStudentResults({
@@ -104,8 +105,12 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
         calendarId,
         termId,
         subjectId,
-        newlyAddedScore: totalScore,
+        newlyAddedSubjectScore: totalScore,
+        oldSubjectScore,
+        isRegrade,
       });
+
+      const subjectGrading = await this.subjectGradingCreateProvider.createOrUpdate({ ...args.body, totalScore, grade, remark, totalContinuousScore, student });
 
       trace.setSuccessful();
       this.result.setData(SUCCESS, HttpStatusCodeEnum.CREATED, RESOURCE_RECORD_CREATED_SUCCESSFULLY(SUBJECT_GRADING_RESOURCE), subjectGrading);
@@ -159,8 +164,19 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       });
 
       await Promise.all(
-        gradingInputs.map((input: SubjectGradingCreateRequestType) =>
-          this.createOrUpdateStudentResults({
+        gradingInputs.map(async (input: SubjectGradingCreateRequestType) => {
+          const priorSubjectGrading = await this.subjectGradingReadProvider.getOneByCriteria({
+            studentId: input.studentId!,
+            subjectId,
+            calendarId,
+            termId,
+            tenantId,
+          });
+
+          const oldSubjectScore = priorSubjectGrading?.totalScore ?? 0;
+          const isRegrade = priorSubjectGrading !== null;
+
+          return this.createOrUpdateStudentResults({
             termId,
             calendarId,
             classId: input.student?.classId,
@@ -168,9 +184,11 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
             tenantId,
             subjectId,
             studentId: input.studentId,
-            newlyAddedScore: input.totalScore,
-          })
-        )
+            newlyAddedSubjectScore: input.totalScore,
+            oldSubjectScore,
+            isRegrade,
+          });
+        })
       );
 
       const createdRecords = await Promise.all(gradingInputs.map((input: SubjectGradingCreateRequestType) => this.subjectGradingCreateProvider.createOrUpdate(input)));
@@ -246,6 +264,8 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       if (!student) {
         throw new NotFoundError(RESOURCE_RECORD_NOT_FOUND(STUDENT_RESOURCE));
       }
+
+      console.log(student, subjectId);
 
       if (!student.classId || !student.classDivisionId) {
         throw new BadRequestError("Student is not enrolled in a class.");
@@ -384,23 +404,30 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
     calendarId,
     termId,
     subjectId,
-    newlyAddedScore,
+    newlyAddedSubjectScore,
     classId,
     classDivisionId,
+    oldSubjectScore,
+    isRegrade,
   }: {
     studentId: number;
     tenantId: number;
     calendarId: number;
     termId: number;
     subjectId: number;
-    newlyAddedScore: number;
+    newlyAddedSubjectScore: number;
+    oldSubjectScore: number;
     classId: number | null;
     classDivisionId: number | null;
+    isRegrade: boolean;
   }): Promise<void> {
     try {
       // Fetch existing term and calendar results
       const existingTermResult = await this.studentTermResultReadProvider.getOneByCriteria({ studentId, termId, tenantId });
       const existingCalendarResult = await this.studentCalendarResultReadProvider.getOneByCriteria({ studentId, calendarId, tenantId });
+
+      // Fetch total subjects student has registered that term
+      const termSubjectsRegisteredCount = await this.studentSubjectRegistrationReadProvider.count({ studentId, calendarId, tenantId, status: Status.Active });
 
       // Prevent updates if term result is finalized
       if (existingTermResult?.finalized) {
@@ -408,9 +435,7 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
       }
 
       // Determine if this subject was previously graded to adjust scores and counts correctly
-      const priorSubjectGrading = await this.subjectGradingReadProvider.getOneByCriteria({ studentId, subjectId, calendarId, termId, tenantId });
-      const oldScore = priorSubjectGrading ? priorSubjectGrading.totalScore : 0;
-      const incrementCount = priorSubjectGrading ? 0 : 1; // Increment subject count only if this is a new subject grade
+      const incrementCount = isRegrade ? 0 : 1; // Increment subject count only if this is a new subject grade
 
       // --- Handle Term Results ---
       let termTotalScore: number;
@@ -419,9 +444,10 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
 
       if (existingTermResult) {
         // Update existing term result: subtract old score (if re-grading) and add new score
-        termTotalScore = existingTermResult.totalScore - oldScore + newlyAddedScore;
+        termTotalScore = existingTermResult.totalScore - oldSubjectScore + newlyAddedSubjectScore;
+
         termTotalSubjectGraded = existingTermResult.subjectCountGraded + incrementCount;
-        termAverageScore = termTotalSubjectGraded > 0 ? termTotalScore / termTotalSubjectGraded : 0;
+        termAverageScore = termSubjectsRegisteredCount > 0 ? termTotalScore / termSubjectsRegisteredCount : 0;
 
         await this.studentTermResultUpdateProvider.update({
           studentId,
@@ -433,9 +459,9 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
         });
       } else {
         // Create new term result: this is the first subject grade for this term
-        termTotalScore = newlyAddedScore;
+        termTotalScore = newlyAddedSubjectScore;
         termTotalSubjectGraded = 1;
-        termAverageScore = newlyAddedScore;
+        termAverageScore = newlyAddedSubjectScore;
 
         await this.studentTermResultCreateProvider.create({
           studentId,
@@ -446,45 +472,6 @@ export default class SubjectGradingCreateService extends BaseService<IRequest> {
           subjectCountGraded: termTotalSubjectGraded,
           totalScore: termTotalScore,
           averageScore: termAverageScore,
-          classDivisionId: classDivisionId!,
-        });
-      }
-
-      // --- Handle Calendar Results ---
-      let calendarTotalScore: number;
-      let calendarTotalSubjectGraded: number;
-      let calendarAverageScore: number;
-
-      if (existingCalendarResult) {
-        // Update existing calendar result: subtract old score (if re-grading) and add new score
-        calendarTotalScore = existingCalendarResult.totalScore - oldScore + newlyAddedScore;
-        calendarTotalSubjectGraded = existingCalendarResult.subjectCountGraded + incrementCount;
-        calendarAverageScore = calendarTotalSubjectGraded > 0 ? calendarTotalScore / calendarTotalSubjectGraded : 0;
-
-        await this.studentCalendarResultUpdateProvider.update({
-          calendarId,
-          studentId,
-          tenantId,
-          totalScore: calendarTotalScore,
-          averageScore: calendarAverageScore,
-          subjectCountGraded: calendarTotalSubjectGraded,
-        });
-      } else {
-        // Create new calendar result: this is the first subject grade for this calendar year
-        // Initialize with the current subject's score and count
-        calendarTotalScore = newlyAddedScore;
-        calendarTotalSubjectGraded = 1;
-        calendarAverageScore = newlyAddedScore;
-
-        await this.studentCalendarResultCreateProvider.create({
-          calendarId,
-          studentId,
-          tenantId,
-          totalScore: calendarTotalScore,
-          averageScore: calendarAverageScore,
-          subjectCountGraded: calendarTotalSubjectGraded,
-          finalized: false,
-          classId: classId!,
           classDivisionId: classDivisionId!,
         });
       }
