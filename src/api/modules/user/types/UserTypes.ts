@@ -80,6 +80,6 @@ export interface UserWithRelations extends User {
 }
 
 export interface UserWithRelationsAndPermissions extends User {
-  staff: (Staff & { role: (Role & { permissions: Permission[] }) | null }) | null;
+  staff: (Staff & { role: (Role & { permissions: Permission[] }) | null; subjects : Subject[] | null; }) | null; // added the subjects entity just in case 
   student: Student | null;
 }
